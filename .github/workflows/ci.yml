@@ -99,7 +99,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'adopt'
+          distribution: 'zulu'
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
