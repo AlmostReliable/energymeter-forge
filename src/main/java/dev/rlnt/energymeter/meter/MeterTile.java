@@ -8,10 +8,7 @@ import dev.rlnt.energymeter.energy.SidedEnergyStorage;
 import dev.rlnt.energymeter.network.SettingUpdatePacket;
 import dev.rlnt.energymeter.util.TextUtils;
 import dev.rlnt.energymeter.util.TypeEnums.*;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
@@ -205,26 +202,48 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         }
 
         // try to equally push the energy to all valid outputs
-        int acceptedEnergy = 0;
-        int energyToTransfer = energy;
-        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            final int split = energyToTransfer / outputs.size();
-
-            final List<IEnergyStorage> outputsToRemove = new ArrayList<>();
-            for (final IEnergyStorage cap : outputs) {
-                final int accepted = cap.receiveEnergy(split, false);
-                if (accepted < split) outputsToRemove.add(cap);
-                energyToTransfer -= accepted;
-                acceptedEnergy += accepted;
-            }
-            outputs.removeAll(outputsToRemove);
+        int maximumAccepted = 0;
+        final Map<IEnergyStorage, Integer> maxOutputRates = new HashMap<>();
+        for (final IEnergyStorage cap : outputs) {
+            final int helper = cap.receiveEnergy(energy, true);
+            maxOutputRates.put(cap, helper);
+            maximumAccepted += helper;
         }
+        if (maximumAccepted <= energy) {
+            maxOutputRates.keySet().forEach(cap -> cap.receiveEnergy(maxOutputRates.get(cap), false));
 
-        // adjust data for calculation in tick method
-        averageRate += acceptedEnergy;
-        averageCount++;
+            // adjust data for calculation in tick method
+            averageRate += maximumAccepted;
+            averageCount++;
 
-        return acceptedEnergy;
+            return maximumAccepted;
+        } else {
+            int acceptedEnergy = 0;
+            int energyToTransfer = energy;
+            while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
+                final int split = energyToTransfer / outputs.size();
+
+                final List<IEnergyStorage> outputsToRemove = new ArrayList<>();
+                for (final IEnergyStorage cap : outputs) {
+                    int actualSplit = split;
+                    final int maxOutputRate = maxOutputRates.get(cap);
+                    if (maxOutputRate < split) {
+                        actualSplit = maxOutputRate;
+                        outputsToRemove.add(cap);
+                    }
+                    cap.receiveEnergy(actualSplit, false);
+                    energyToTransfer -= actualSplit;
+                    acceptedEnergy += actualSplit;
+                }
+                outputs.removeAll(outputsToRemove);
+            }
+
+            // adjust data for calculation in tick method
+            averageRate += acceptedEnergy;
+            averageCount++;
+
+            return acceptedEnergy;
+        }
     }
 
     @Override

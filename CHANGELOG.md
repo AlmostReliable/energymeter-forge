@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.0.1] - 2021-09-30
+
+### Changed
+- improved energy transfer logic to cover edge cases
+- improved the performance for some cases
+
+
 ## [1.0.0] - 2021-09-29
 - initial release
 
@@ -17,5 +24,6 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.0.0..v1.0.1
 [1.0.0]: https://github.com/RLNT/minecraft_energymeter/releases/tag/v1.0.0

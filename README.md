@@ -35,7 +35,7 @@ It has a screen always displaying the current rate in order to keep you up-to-da
 
 
 ## **✋ Usage**
-The usage of the Energy Meter is pretty straight-forward.<br>
+The usage of the Energy Meter is pretty straightforward.<br>
 Just connect wires, generators, machines or other electrical objects to the Meter and take a look at the energy transfer rate.
 
 The block itself has a GUI where you can look at extended number information, change its mode or adjust the side configuration of the Meter.
@@ -58,7 +58,7 @@ Additionally, the Meter has two modes:
 - useful if you want to measure all incoming energy without the need to transfer it somewhere
 
 The Energy Meter recalculates the transfer rate every 5 ticks (0,25 seconds).<br>
-It has an unlimited transfer rate. Therefor, the limitation only comes from the attached objects.<br>
+It has an unlimited transfer rate. Therefore, the limitation only comes from the attached objects.<br>
 To prevent having an unlimited cable very early, it is not possible to attach a Meter to another Meter.
 
 There are some mods with pretty unique implementations of cables like Pipez.<br>
