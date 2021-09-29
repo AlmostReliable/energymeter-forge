@@ -8,10 +8,7 @@ import dev.rlnt.energymeter.energy.SidedEnergyStorage;
 import dev.rlnt.energymeter.network.SettingUpdatePacket;
 import dev.rlnt.energymeter.util.TextUtils;
 import dev.rlnt.energymeter.util.TypeEnums.*;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
@@ -205,20 +202,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         }
 
         // try to equally push the energy to all valid outputs
-        int acceptedEnergy = 0;
-        int energyToTransfer = energy;
-        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            final int split = energyToTransfer / outputs.size();
-
-            final List<IEnergyStorage> outputsToRemove = new ArrayList<>();
-            for (final IEnergyStorage cap : outputs) {
-                final int accepted = cap.receiveEnergy(split, false);
-                if (accepted < split) outputsToRemove.add(cap);
-                energyToTransfer -= accepted;
-                acceptedEnergy += accepted;
-            }
-            outputs.removeAll(outputsToRemove);
-        }
+        final int acceptedEnergy = transferEnergy(energy, outputs);
 
         // adjust data for calculation in tick method
         averageRate += acceptedEnergy;
@@ -235,6 +219,55 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     @Override
     public MODE getMode() {
         return mode;
+    }
+
+    /**
+     * Handles the actual energy transfer process.
+     *
+     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
+     * It will try to equally distribute it.
+     *
+     * @param energy the energy to transfer
+     * @param outputs the possible outputs
+     * @return the accepted amount of energy
+     */
+    private int transferEnergy(final int energy, final List<IEnergyStorage> outputs) {
+        int acceptedEnergy = 0;
+        final Map<IEnergyStorage, Integer> maxOutputRates = new HashMap<>();
+
+        // store the maximum amount of energy each possible output can receive
+        for (final IEnergyStorage cap : outputs) {
+            final int helper = cap.receiveEnergy(energy, true);
+            maxOutputRates.put(cap, helper);
+            acceptedEnergy += helper;
+        }
+
+        if (acceptedEnergy <= energy) {
+            // if the possible accepted energy is less than the energy to transfer, fill all outputs with their cap
+            maxOutputRates.keySet().forEach(cap -> cap.receiveEnergy(maxOutputRates.get(cap), false));
+        } else {
+            // push the energy to all possible outputs equally
+            int energyToTransfer = energy;
+            while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
+                final int split = energyToTransfer / outputs.size();
+
+                final List<IEnergyStorage> outputsToRemove = new ArrayList<>();
+                for (final IEnergyStorage cap : outputs) {
+                    int actualSplit = split;
+                    final int maxOutputRate = maxOutputRates.get(cap);
+                    if (maxOutputRate < split) {
+                        actualSplit = maxOutputRate;
+                        outputsToRemove.add(cap);
+                    }
+                    cap.receiveEnergy(actualSplit, false);
+                    energyToTransfer -= actualSplit;
+                    acceptedEnergy += actualSplit;
+                }
+                outputs.removeAll(outputsToRemove);
+            }
+        }
+
+        return acceptedEnergy;
     }
 
     /**
