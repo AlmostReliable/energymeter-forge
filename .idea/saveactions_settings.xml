@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SaveActionSettings">
+    <option name="actions">
+      <set>
+        <option value="activate" />
+        <option value="organizeImports" />
+        <option value="rearrange" />
+        <option value="fieldCanBeFinal" />
+        <option value="localCanBeFinalExceptImplicit" />
+        <option value="methodMayBeStatic" />
+        <option value="missingOverrideAnnotation" />
+        <option value="unnecessaryThis" />
+        <option value="finalPrivateMethod" />
+        <option value="explicitTypeCanBeDiamond" />
+        <option value="unnecessarySemicolon" />
+        <option value="accessCanBeTightened" />
+      </set>
+    </option>
+    <option name="configurationPath" value="" />
+    <option name="quickLists">
+      <list>
+        <option value="515475117" />
+      </list>
+    </option>
+  </component>
+</project>
