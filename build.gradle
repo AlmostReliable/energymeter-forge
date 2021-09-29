@@ -148,21 +148,25 @@ jar {
     }
 }
 
-jar.finalizedBy('reobfJar')
-
-if (System.getenv("CURSEFORGE_API_KEY") != null) {
-    curseforge {
+curseforge {
+    if (System.getenv('CF_API_KEY') != null) {
+        // GitHub actions
         apiKey = System.getenv('CF_API_KEY')
-        project {
-            id = '532169'
-            changelogType = 'markdown'
-            changelog = 'The whole changelog can be found [here](https://github.com/RLNT/minecraft_lazierae2/blob/main/CHANGELOG.md).'
-            releaseType = 'release'
-            addGameVersion '1.16.5'
+    } else {
+        // error prevention
+        apiKey = "none"
+    }
+    project {
+        id = '532169'
+        changelogType = 'markdown'
+        changelog = 'The whole changelog can be found [here](https://github.com/RLNT/minecraft_lazierae2/blob/main/CHANGELOG.md).'
+        releaseType = 'release'
+        addGameVersion '1.16.5'
 
-            mainArtifact(jar) {
-                displayName = "EnergyMeter-${mod_version}"
-            }
+        mainArtifact(jar) {
+            displayName = "EnergyMeter-${mod_version}"
         }
     }
 }
+
+jar.finalizedBy('reobfJar')
