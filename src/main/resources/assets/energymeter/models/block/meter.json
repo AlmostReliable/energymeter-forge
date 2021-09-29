@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "energymeter:block/side",
+    "up": "energymeter:block/side",
+    "north": "energymeter:block/front",
+    "south": "energymeter:block/side",
+    "east": "energymeter:block/side",
+    "west": "energymeter:block/side",
+    "particle": "energymeter:block/side"
+  }
+}

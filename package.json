@@ -1,0 +1,16 @@
+{
+  "name": "minecraft_energymeter",
+  "version": "dev",
+  "scripts": {
+    "format": "prettier --write \"**/*.{java,json}\"",
+    "prepare": "husky install",
+    "pretty-quick": "pretty-quick --staged"
+  },
+  "devDependencies": {
+    "husky": "^7.0.2",
+    "prettier": "^2.4.1",
+    "prettier-plugin-java": "^1.4.0",
+    "prettier-plugin-packagejson": "2.2.13",
+    "pretty-quick": "^3.1.1"
+  }
+}

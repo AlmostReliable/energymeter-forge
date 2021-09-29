@@ -1,0 +1,17 @@
+daysUntilStale: 14
+daysUntilClose: 3
+exemptLabels:
+  - status > accepted
+  - status > completed
+  - status > in progress
+  - status > refused
+  - type > automated
+  - type > dependency
+  - type > duplicate
+  - type > invalid
+  - type > question
+staleLabel: status > abandoned
+markComment: >
+  This submission has been automatically marked as abandoned because it has not had recent activity. It will be closed in 3 days. If you want to prevent that, leave a new comment.
+closeComment: >
+  Due to no recent activity, this submission is closed now.
