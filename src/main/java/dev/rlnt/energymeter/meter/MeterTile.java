@@ -212,7 +212,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     @Override
     public int receiveEnergy(final int energy, final boolean simulate) {
-        if (level == null || level.isClientSide) return energy;
+        if (level == null || !setupDone) return 0;
 
         // void the energy if consumer mode is activated
         if (mode == MODE.CONSUMER) {
