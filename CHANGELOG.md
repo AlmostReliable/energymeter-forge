@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.0.3] - 2021-09-30
+
+### Changed
+- ensured that Energy Meters are properly setup on world load before transferring energy
+
+### Fixed
+- fixed that outputs which can't accept any energy are counted as valid
+
+
 ## [1.0.2] - 2021-09-30
 
 ### Changed
@@ -33,7 +42,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.2...HEAD
+[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.3...HEAD
+[1.0.3]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.2..v1.16-1.0.3
 [1.0.2]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.1..v1.16-1.0.2
 [1.0.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.0..v1.16-1.0.1
 [1.0.0]: https://github.com/RLNT/minecraft_energymeter/releases/tag/v1.16-1.0.0
