@@ -279,7 +279,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             if (target == null) continue;
 
             // store the maximum amount of energy each possible output can receive
-            target.ifPresent(cap -> outputs.put(cap, cap.receiveEnergy(energy, true)));
+            target.ifPresent(cap -> {
+                final int accepted = cap.receiveEnergy(energy, true);
+                if (accepted > 0) outputs.put(cap, accepted);
+            });
         }
         return outputs;
     }
