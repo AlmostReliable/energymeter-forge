@@ -159,12 +159,12 @@ curseforge {
     project {
         id = '532169'
         changelogType = 'markdown'
-        changelog = 'The whole changelog can be found [here](https://github.com/RLNT/minecraft_energymeter/blob/main/CHANGELOG.md).'
+        changelog = 'The whole changelog can be found [here](https://github.com/RLNT/minecraft_energymeter/blob/1.16/CHANGELOG.md).'
         releaseType = 'release'
         addGameVersion '1.16.5'
 
         mainArtifact(jar) {
-            displayName = "EnergyMeter-${mod_version}"
+            displayName = "EnergyMeter-${minecraft_version}-${mod_version}"
         }
     }
 }

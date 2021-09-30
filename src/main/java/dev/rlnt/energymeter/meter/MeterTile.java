@@ -9,6 +9,7 @@ import dev.rlnt.energymeter.network.SettingUpdatePacket;
 import dev.rlnt.energymeter.util.TextUtils;
 import dev.rlnt.energymeter.util.TypeEnums.*;
 import java.util.*;
+import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
@@ -53,6 +54,40 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         super(Setup.Tiles.METER_TILE.get());
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration();
+    }
+
+    /**
+     * Handles the actual energy transfer process.
+     *
+     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
+     * It will try to equally distribute it.
+     *
+     * @param energy the energy to transfer
+     * @param outputs the possible outputs
+     * @return the accepted amount of energy
+     */
+    private static int transferEnergy(final int energy, final Map<IEnergyStorage, Integer> outputs) {
+        int acceptedEnergy = 0;
+        int energyToTransfer = energy;
+        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
+            final int equalSplit = energyToTransfer / outputs.size();
+            final List<IEnergyStorage> outputsToRemove = new ArrayList<>();
+
+            for (final Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
+                int actualSplit = equalSplit;
+                if (output.getValue() < equalSplit) {
+                    actualSplit = output.getValue();
+                    outputsToRemove.add(output.getKey());
+                }
+                output.getKey().receiveEnergy(actualSplit, false);
+                energyToTransfer -= actualSplit;
+                acceptedEnergy += actualSplit;
+            }
+
+            outputsToRemove.forEach(outputs::remove);
+        }
+
+        return acceptedEnergy;
     }
 
     /**
@@ -188,21 +223,26 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             return energy;
         }
 
-        // build a list with all valid outputs
-        final List<IEnergyStorage> outputs = getPossibleOutputs();
+        // create a map with all possible outputs and their energy limit
+        final Map<IEnergyStorage, Integer> outputs = getPossibleOutputs(energy);
+        if (outputs.isEmpty()) return 0;
 
-        // if simulated try to push to any valid output
-        if (simulate) {
-            int accepted = 0;
-            for (final IEnergyStorage cap : outputs) {
-                accepted += cap.receiveEnergy(energy - accepted, true);
-                if (energy <= accepted) return energy;
-            }
-            return accepted;
+        // get the maximum energy which could be accepted by all outputs
+        final int maximumAccepted = outputs.values().stream().mapToInt(maxEnergy -> maxEnergy).sum();
+
+        // if simulated, just check if the energy fits somewhere
+        if (simulate) return Math.min(maximumAccepted, energy);
+
+        // actual energy transfer
+        final int acceptedEnergy;
+        if (maximumAccepted <= energy) {
+            // if maximum accepted energy is less or equal the energy to transfer, fill all outputs with their maximum
+            outputs.keySet().forEach(cap -> cap.receiveEnergy(outputs.get(cap), false));
+            acceptedEnergy = maximumAccepted;
+        } else {
+            // otherwise, push the energy to all possible outputs equally
+            acceptedEnergy = transferEnergy(energy, outputs);
         }
-
-        // try to equally push the energy to all valid outputs
-        final int acceptedEnergy = transferEnergy(energy, outputs);
 
         // adjust data for calculation in tick method
         averageRate += acceptedEnergy;
@@ -222,52 +262,26 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Handles the actual energy transfer process.
+     * Checks each output direction whether there is a valid energy capability.
+     * It will simulate an energy transfer to this capability to make sure it can
+     * accept energy and to retrieve the energy limit.
      *
-     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
-     * It will try to equally distribute it.
-     *
-     * @param energy the energy to transfer
-     * @param outputs the possible outputs
-     * @return the accepted amount of energy
+     * @return a map of all possible outputs with their corresponding energy limit
      */
-    private int transferEnergy(final int energy, final List<IEnergyStorage> outputs) {
-        int acceptedEnergy = 0;
-        final Map<IEnergyStorage, Integer> maxOutputRates = new HashMap<>();
+    private Map<IEnergyStorage, Integer> getPossibleOutputs(final int energy) {
+        final Map<IEnergyStorage, Integer> outputs = new HashMap<>();
+        for (final Direction direction : Direction.values()) {
+            // only consider sides where output mode is enabled
+            if (sideConfig.get(direction) != IO_SETTING.OUT) continue;
 
-        // store the maximum amount of energy each possible output can receive
-        for (final IEnergyStorage cap : outputs) {
-            final int helper = cap.receiveEnergy(energy, true);
-            maxOutputRates.put(cap, helper);
-            acceptedEnergy += helper;
+            // try to get the energy capability from the cache, otherwise store it
+            final LazyOptional<IEnergyStorage> target = getOutputFromCache(direction);
+            if (target == null) continue;
+
+            // store the maximum amount of energy each possible output can receive
+            target.ifPresent(cap -> outputs.put(cap, cap.receiveEnergy(energy, true)));
         }
-
-        if (acceptedEnergy <= energy) {
-            // if the possible accepted energy is less than the energy to transfer, fill all outputs with their cap
-            maxOutputRates.keySet().forEach(cap -> cap.receiveEnergy(maxOutputRates.get(cap), false));
-        } else {
-            // push the energy to all possible outputs equally
-            int energyToTransfer = energy;
-            while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-                final int split = energyToTransfer / outputs.size();
-
-                final List<IEnergyStorage> outputsToRemove = new ArrayList<>();
-                for (final IEnergyStorage cap : outputs) {
-                    int actualSplit = split;
-                    final int maxOutputRate = maxOutputRates.get(cap);
-                    if (maxOutputRate < split) {
-                        actualSplit = maxOutputRate;
-                        outputsToRemove.add(cap);
-                    }
-                    cap.receiveEnergy(actualSplit, false);
-                    energyToTransfer -= actualSplit;
-                    acceptedEnergy += actualSplit;
-                }
-                outputs.removeAll(outputsToRemove);
-            }
-        }
-
-        return acceptedEnergy;
+        return outputs;
     }
 
     /**
@@ -282,32 +296,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.RERENDER_MAIN_THREAD
         );
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), BlockFlags.BLOCK_UPDATE);
-    }
-
-    /**
-     * Checks each output direction whether there is a valid energy capability
-     * and if it can receive energy.
-     * @return a list of all possible outputs
-     */
-    private List<IEnergyStorage> getPossibleOutputs() {
-        assert level != null && !level.isClientSide;
-
-        final List<IEnergyStorage> outputs = new ArrayList<>();
-        for (final Direction direction : Direction.values()) {
-            // only count sides where output mode is enabled
-            if (sideConfig.get(direction) != IO_SETTING.OUT) continue;
-
-            // try to get the energy capability from the cache, otherwise store it
-            final LazyOptional<IEnergyStorage> target = getOutputFromCache(direction);
-            if (target == null) continue;
-
-            // check if the tile entity on the current side accepts energy and add it to valid outputs
-            target.ifPresent(cap -> {
-                if (cap.receiveEnergy(1, true) == 1) outputs.add(cap);
-            });
-        }
-
-        return outputs;
     }
 
     /**
