@@ -58,11 +58,11 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     /**
      * Handles the actual energy transfer process.
-     *
+     * <p>
      * Automatically checks if the energy to transfer can be accepted by the possible outputs.
      * It will try to equally distribute it.
      *
-     * @param energy the energy to transfer
+     * @param energy  the energy to transfer
      * @param outputs the possible outputs
      * @return the accepted amount of energy
      */
@@ -92,6 +92,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     /**
      * Flips the IO {@link BlockState} value and returns the new {@link BlockState}.
+     *
      * @return the {@link BlockState} with the flipped IO value
      */
     private BlockState flipBlockState() {
@@ -102,6 +103,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     /**
      * Updates the cached input and output values depending on the {@link Direction}.
      * This ensures that the current status is always up-to-date.
+     *
      * @param direction the {@link Direction} to update the cache for
      */
     public void updateCache(final Direction direction) {
@@ -138,6 +140,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     /**
      * Convenience method used by the {@link SettingUpdatePacket} in order
      * to flip a specific setting after a button click on the client.
+     *
      * @param setting the setting to update
      */
     public void updateSetting(final SETTING setting) {
@@ -289,6 +292,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     /**
      * Initiates a block update to sync data between server and client.
+     *
      * @param updateNeighbors if true, it will also update the neighbor blocks and rerender
      */
     public void update(final boolean updateNeighbors) {
@@ -305,6 +309,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      * Tries to get the input capability from cache, otherwise it will try to get it.
      * This features a workaround for the mod Pipez since it doesn't expose a Tile Entity
      * on the input pipe and thus a capability provider can't be received.
+     *
      * @return True if a valid input was found, false otherwise
      */
     private boolean getInputFromCache(final Direction direction) {
@@ -382,6 +387,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     /**
      * Updates the connection to the specified value.
      * If it was different from the previous value, it will trigger a block update.
+     *
      * @param newStatus the new setting to set
      */
     private void updateConnection(final STATUS newStatus) {
@@ -397,6 +403,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     /**
      * Checks if the output cache has at least one output which is still valid.
+     *
      * @return true if there is at least one valid output, false otherwise
      */
     private boolean hasValidOutput() {
