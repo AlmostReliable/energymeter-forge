@@ -32,7 +32,7 @@ version = "${minecraft_version}-${mod_version}"
 group = "${mod_base_package}.${mod_id}"
 archivesBaseName = mod_id
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
@@ -96,13 +96,9 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3438494") // JEI - 7.7.1.121
-    runtimeOnly fg.deobf("curse.maven:top-245211:3319255") // TOP - 3.1.4
-    runtimeOnly fg.deobf("curse.maven:lollipop-347954:3232534") // Lollipop - 3.2.9 - Powah Lib
-    runtimeOnly fg.deobf("curse.maven:powah-352656:3232535") // Powah - 2.3.16
-    runtimeOnly fg.deobf("curse.maven:pipez-443900:3460157") // Pipez - 1.2.9
-    runtimeOnly fg.deobf("curse.maven:meka-268560:3206392") // Mekanism - 10.0.21.448
-    runtimeOnly fg.deobf("curse.maven:mekag-268566:3206395") // Mekanism Generators - 10.0.21.448
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3474326") // JEI - 8.1.0.19
+    runtimeOnly fg.deobf("curse.maven:top-245211:3430022") // TOP - 4.0.2
+    runtimeOnly fg.deobf("curse.maven:pipez-443900:3472644") // Pipez - 1.0.4
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.
@@ -159,9 +155,9 @@ curseforge {
     project {
         id = '532169'
         changelogType = 'markdown'
-        changelog = 'The whole changelog can be found [here](https://github.com/RLNT/minecraft_energymeter/blob/1.16/CHANGELOG.md).'
+        changelog = 'The whole changelog can be found [here](https://github.com/RLNT/minecraft_energymeter/blob/1.17/CHANGELOG.md).'
         releaseType = 'release'
-        addGameVersion '1.16.5'
+        addGameVersion '1.17.1'
 
         mainArtifact(jar) {
             displayName = "EnergyMeter-${minecraft_version}-${mod_version}"
