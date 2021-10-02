@@ -12,13 +12,14 @@ public class MeterContainer extends AbstractContainerMenu {
 
     private final MeterEntity entity;
 
-    public MeterContainer(final int windowID, final MeterEntity entity) {
+    public MeterContainer(int windowID, MeterEntity entity) {
         super(Setup.Containers.METER_CONTAINER.get(), windowID);
         this.entity = entity;
     }
 
     /**
      * Gets the parent {@link BlockEntity} of the {@link Container}.
+     *
      * @return the parent
      */
     public MeterEntity getEntity() {
@@ -26,7 +27,7 @@ public class MeterContainer extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(final Player player) {
+    public boolean stillValid(Player player) {
         return AbstractContainerMenu.stillValid(
             ContainerLevelAccess.create(Objects.requireNonNull(entity.getLevel()), entity.getBlockPos()),
             player,

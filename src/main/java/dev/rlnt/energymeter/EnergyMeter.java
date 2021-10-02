@@ -20,8 +20,8 @@ public class EnergyMeter {
 
     @SuppressWarnings("java:S1118")
     public EnergyMeter() {
-        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        // register setup listener
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        // register common listener
         modEventBus.addListener(EnergyMeter::onCommonSetup);
         // register client listener
         modEventBus.addListener(EnergyMeter::onClientSetup);
@@ -29,14 +29,14 @@ public class EnergyMeter {
         Setup.init(modEventBus);
     }
 
-    private static void onCommonSetup(final FMLCommonSetupEvent event) {
+    private static void onCommonSetup(FMLCommonSetupEvent event) {
         // initialize packet handler
         PacketHandler.init();
     }
 
-    private static void onClientSetup(final FMLClientSetupEvent event) {
+    private static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            // register screens (GUIs)
+            // register screens
             MenuScreens.register(Setup.Containers.METER_CONTAINER.get(), MeterScreen::new);
             // register renderers
             BlockEntityRenderers.register(Setup.Entities.METER_ENTITY.get(), MeterRenderer::new);

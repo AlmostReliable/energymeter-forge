@@ -16,7 +16,7 @@ public class IOUpdatePacket {
     private Direction direction;
     private int[] sideConfig;
 
-    public IOUpdatePacket(final SideConfiguration sideConfig, final BLOCK_SIDE side) {
+    public IOUpdatePacket(SideConfiguration sideConfig, BLOCK_SIDE side) {
         this.sideConfig = sideConfig.serialize();
         direction = sideConfig.getDirectionFromSide(side);
     }
@@ -26,22 +26,22 @@ public class IOUpdatePacket {
         direction = null;
     }
 
-    static IOUpdatePacket decode(final FriendlyByteBuf buffer) {
-        final IOUpdatePacket packet = new IOUpdatePacket();
+    static IOUpdatePacket decode(FriendlyByteBuf buffer) {
+        IOUpdatePacket packet = new IOUpdatePacket();
         packet.sideConfig = buffer.readVarIntArray();
         packet.direction = Direction.values()[buffer.readInt()];
         return packet;
     }
 
-    static void handle(final IOUpdatePacket packet, final Supplier<Context> context) {
-        final ServerPlayer player = context.get().getSender();
+    static void handle(IOUpdatePacket packet, Supplier<Context> context) {
+        ServerPlayer player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);
     }
 
-    private static void handlePacket(final IOUpdatePacket packet, @Nullable final ServerPlayer player) {
+    private static void handlePacket(IOUpdatePacket packet, @Nullable ServerPlayer player) {
         if (player != null && player.containerMenu instanceof MeterContainer menu) {
-            final MeterEntity tile = menu.getEntity();
+            MeterEntity tile = menu.getEntity();
             tile.getSideConfig().deserialize(packet.sideConfig);
             tile.update(true);
             tile.updateCache(packet.direction);
@@ -49,7 +49,7 @@ public class IOUpdatePacket {
         }
     }
 
-    void encode(final FriendlyByteBuf buffer) {
+    void encode(FriendlyByteBuf buffer) {
         buffer.writeVarIntArray(sideConfig);
         buffer.writeInt(direction.ordinal());
     }

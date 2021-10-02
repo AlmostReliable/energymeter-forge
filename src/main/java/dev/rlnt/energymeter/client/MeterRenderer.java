@@ -24,12 +24,12 @@ public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
     private final Minecraft mc;
     private final Font font;
 
-    public MeterRenderer(final Context context) {
+    public MeterRenderer(Context context) {
         mc = Minecraft.getInstance();
         font = context.getFont();
     }
 
-    private static Vector3f getFacingVector(final Direction facing) {
+    private static Vector3f getFacingVector(Direction facing) {
         final float y = .5f;
         if (facing.ordinal() < 2) {
             throw new IllegalStateException("Facing can't be up or down!");
@@ -45,19 +45,19 @@ public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void render(
-        final MeterEntity entity,
-        final float partial,
-        final PoseStack matrix,
-        final MultiBufferSource buffer,
-        final int light,
-        final int overlay
+        MeterEntity entity,
+        float partial,
+        PoseStack matrix,
+        MultiBufferSource buffer,
+        int light,
+        int overlay
     ) {
         // don't display something if the player is too far away
         if (entity.getBlockPos().distSqr(mc.player.blockPosition()) > Math.pow(MAX_DISTANCE, 2)) return;
 
         // get the facing side and get the vector used for positioning
-        final Direction facing = entity.getBlockState().getValue(MeterBlock.HORIZONTAL_FACING);
-        final Vector3f vector = getFacingVector(facing);
+        Direction facing = entity.getBlockState().getValue(MeterBlock.HORIZONTAL_FACING);
+        Vector3f vector = getFacingVector(facing);
 
         matrix.pushPose();
         // move and rotate the position according to the facing
@@ -66,9 +66,9 @@ public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
         // scale the matrix so the text fits on the screen
         matrix.scale(PIXEL_SIZE, PIXEL_SIZE, 0);
         // format the current flow rate and draw it according to its size, so it's centered
-        final Tuple<String, String> text = TextUtils.formatEnergy(entity.getTransferRate(), false);
-        final String flowRate = text.getA();
-        final String unit = text.getB() + "/t";
+        Tuple<String, String> text = TextUtils.formatEnergy(entity.getTransferRate(), false);
+        String flowRate = text.getA();
+        String unit = text.getB() + "/t";
         // flow rate
         font.draw(
             matrix,

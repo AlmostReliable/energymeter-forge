@@ -7,8 +7,7 @@ public class TypeEnums {
     }
 
     /**
-     * Defines the type of the translation to
-     * identify its key inside the lang file.
+     * Enum to represent the type of the translation to identify its key inside the lang file.
      */
     public enum TRANSLATE_TYPE {
         CONTAINER,
@@ -20,7 +19,7 @@ public class TypeEnums {
     }
 
     /**
-     * Defines the possible IO sides of a block.
+     * Enum to represent the possible IO sides of a block.
      */
     public enum BLOCK_SIDE {
         BOTTOM,

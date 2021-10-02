@@ -46,14 +46,14 @@ public class MeterBlock extends Block implements EntityBlock {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(final BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState()
             .setValue(HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite())
             .setValue(IO, false);
     }
 
     @Override
-    protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(HORIZONTAL_FACING);
         builder.add(IO);
@@ -62,21 +62,21 @@ public class MeterBlock extends Block implements EntityBlock {
     @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(
-        final BlockState state,
-        final Level level,
-        final BlockPos pos,
-        final Block block,
-        final BlockPos neighbor,
-        final boolean isMoving
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        BlockPos neighbor,
+        boolean isMoving
     ) {
         super.neighborChanged(state, level, pos, block, neighbor, isMoving);
 
         // get tile entity from block position
         if (!state.hasBlockEntity()) return;
-        if (level.getBlockEntity(pos) instanceof MeterEntity tile) {
+        if (level.getBlockEntity(pos) instanceof MeterEntity entity) {
             // ensure valid neighbor
-            final BlockState neighborState = level.getBlockState(neighbor);
-            final ResourceLocation registryName = neighborState.getBlock().getRegistryName();
+            BlockState neighborState = level.getBlockState(neighbor);
+            ResourceLocation registryName = neighborState.getBlock().getRegistryName();
             if (
                 !neighborState.isAir() &&
                 !neighborState.hasBlockEntity() &&
@@ -85,30 +85,30 @@ public class MeterBlock extends Block implements EntityBlock {
             ) return;
 
             // get direction from neighbor block position
-            final Vec3i vector = neighbor.subtract(pos);
-            final Direction direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
+            Vec3i vector = neighbor.subtract(pos);
+            Direction direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
             if (direction == null) return;
 
             // update the cache from the direction
-            tile.updateCache(direction);
+            entity.updateCache(direction);
         }
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public InteractionResult use(
-        final BlockState state,
-        final Level level,
-        final BlockPos pos,
-        final Player player,
-        final InteractionHand hand,
-        final BlockHitResult hit
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
     ) {
         // don't do anything on clientside or if player is shifting
         if (level.isClientSide() || player.isShiftKeyDown()) return InteractionResult.SUCCESS;
 
         // open the gui for the player who right-clicked the block
-        final BlockEntity tile = level.getBlockEntity(pos);
+        BlockEntity tile = level.getBlockEntity(pos);
         if (tile instanceof MenuProvider entity && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openGui(serverPlayer, entity, pos);
         }
@@ -117,16 +117,16 @@ public class MeterBlock extends Block implements EntityBlock {
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new MeterEntity(pos, state);
     }
 
     @Nullable
     @Override
     public <E extends BlockEntity> BlockEntityTicker<E> getTicker(
-        final Level level,
-        final BlockState state,
-        final BlockEntityType<E> entity
+        Level level,
+        BlockState state,
+        BlockEntityType<E> entity
     ) {
         if (level.isClientSide) {
             return null;

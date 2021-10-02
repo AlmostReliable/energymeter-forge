@@ -48,30 +48,30 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     private NUMBER_MODE numberMode = NUMBER_MODE.SHORT;
     private MODE mode = MODE.TRANSFER;
 
-    public MeterEntity(final BlockPos pos, final BlockState state) {
+    public MeterEntity(BlockPos pos, BlockState state) {
         super(Setup.Entities.METER_ENTITY.get(), pos, state);
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration(state.getValue(MeterBlock.HORIZONTAL_FACING));
     }
 
     /**
-     * Handles the actual energy transfer process.
+     * Handles the equal energy transfer process.
      * <p>
-     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
-     * It will try to equally distribute it.
+     * This will try to distribute the energy equally to all possible outputs by rerouting excess
+     * energy in case a limit of an output is exceeded.
      *
      * @param energy  the energy to transfer
      * @param outputs the possible outputs
      * @return the accepted amount of energy
      */
-    private static int transferEnergy(final int energy, final Map<IEnergyStorage, Integer> outputs) {
+    private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
         int acceptedEnergy = 0;
         int energyToTransfer = energy;
         while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            final int equalSplit = energyToTransfer / outputs.size();
-            final List<IEnergyStorage> outputsToRemove = new ArrayList<>();
+            int equalSplit = energyToTransfer / outputs.size();
+            List<IEnergyStorage> outputsToRemove = new ArrayList<>();
 
-            for (final Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
+            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
                 int actualSplit = equalSplit;
                 if (output.getValue() < equalSplit) {
                     actualSplit = output.getValue();
@@ -90,11 +90,12 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
 
     /**
      * Flips the IO {@link BlockState} value and returns the new {@link BlockState}.
+     * This is a utility method to make neighbor updates possible.
      *
      * @return the {@link BlockState} with the flipped IO value
      */
     private BlockState flipBlockState() {
-        final BlockState state = getBlockState();
+        BlockState state = getBlockState();
         return state.setValue(MeterBlock.IO, !state.getValue(MeterBlock.IO));
     }
 
@@ -104,10 +105,10 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      *
      * @param direction the {@link Direction} to update the cache for
      */
-    public void updateCache(final Direction direction) {
+    public void updateCache(Direction direction) {
         if (level == null || level.isClientSide) return;
 
-        final IO_SETTING setting = sideConfig.get(direction);
+        IO_SETTING setting = sideConfig.get(direction);
         if (setting == IO_SETTING.IN) {
             hasValidInput = getInputFromCache(direction);
         } else if (setting == IO_SETTING.OUT) {
@@ -141,7 +142,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      *
      * @param setting the setting to update
      */
-    public void updateSetting(final SETTING setting) {
+    public void updateSetting(SETTING setting) {
         if (setting == SETTING.NUMBER) {
             numberMode = numberMode == NUMBER_MODE.SHORT ? NUMBER_MODE.LONG : NUMBER_MODE.SHORT;
         } else if (setting == SETTING.MODE) {
@@ -150,7 +151,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     }
 
     @Override
-    public void load(final CompoundTag tag) {
+    public void load(CompoundTag tag) {
         super.load(tag);
         sideConfig.deserialize(tag.getIntArray(SIDE_CONFIG_ID));
         numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
@@ -158,7 +159,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     }
 
     @Override
-    public CompoundTag save(final CompoundTag tag) {
+    public CompoundTag save(CompoundTag tag) {
         tag.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
         tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         tag.putInt(MODE_ID, mode.ordinal());
@@ -173,7 +174,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
 
     @Override
     public CompoundTag getUpdateTag() {
-        final CompoundTag tag = super.getUpdateTag();
+        CompoundTag tag = super.getUpdateTag();
         tag.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
         tag.putFloat(TRANSFER_RATE_ID, transferRate);
         tag.putInt(STATUS_ID, status.ordinal());
@@ -184,19 +185,19 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
 
     @Override
     public void setRemoved() {
-        for (final LazyOptional<SidedEnergyStorage> cap : energyStorage) {
+        for (LazyOptional<SidedEnergyStorage> cap : energyStorage) {
             cap.invalidate();
         }
         super.setRemoved();
     }
 
     @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         handleUpdateTag(packet.getTag());
     }
 
     @Override
-    public void handleUpdateTag(final CompoundTag tag) {
+    public void handleUpdateTag(CompoundTag tag) {
         sideConfig.deserialize(tag.getIntArray(SIDE_CONFIG_ID));
         transferRate = tag.getFloat(TRANSFER_RATE_ID);
         status = STATUS.values()[tag.getInt(STATUS_ID)];
@@ -205,7 +206,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     }
 
     @Override
-    public int receiveEnergy(final int energy, final boolean simulate) {
+    public int receiveEnergy(int energy, boolean simulate) {
         if (level == null || !setupDone) return 0;
 
         // void the energy if consumer mode is activated
@@ -218,17 +219,17 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         }
 
         // create a map with all possible outputs and their energy limit
-        final Map<IEnergyStorage, Integer> outputs = getPossibleOutputs(energy);
+        Map<IEnergyStorage, Integer> outputs = getPossibleOutputs(energy);
         if (outputs.isEmpty()) return 0;
 
         // get the maximum energy which could be accepted by all outputs
-        final int maximumAccepted = outputs.values().stream().mapToInt(maxEnergy -> maxEnergy).sum();
+        int maximumAccepted = outputs.values().stream().mapToInt(maxEnergy -> maxEnergy).sum();
 
         // if simulated, just check if the energy fits somewhere
         if (simulate) return Math.min(maximumAccepted, energy);
 
         // actual energy transfer
-        final int acceptedEnergy;
+        int acceptedEnergy;
         if (maximumAccepted <= energy) {
             // if maximum accepted energy is less or equal the energy to transfer, fill all outputs with their maximum
             outputs.keySet().forEach(cap -> cap.receiveEnergy(outputs.get(cap), false));
@@ -262,19 +263,19 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      *
      * @return a map of all possible outputs with their corresponding energy limit
      */
-    private Map<IEnergyStorage, Integer> getPossibleOutputs(final int energy) {
-        final Map<IEnergyStorage, Integer> outputs = new HashMap<>();
-        for (final Direction direction : Direction.values()) {
+    private Map<IEnergyStorage, Integer> getPossibleOutputs(int energy) {
+        Map<IEnergyStorage, Integer> outputs = new HashMap<>();
+        for (Direction direction : Direction.values()) {
             // only consider sides where output mode is enabled
             if (sideConfig.get(direction) != IO_SETTING.OUT) continue;
 
             // try to get the energy capability from the cache, otherwise store it
-            final LazyOptional<IEnergyStorage> target = getOutputFromCache(direction);
+            LazyOptional<IEnergyStorage> target = getOutputFromCache(direction);
             if (target == null) continue;
 
             // store the maximum amount of energy each possible output can receive
             target.ifPresent(cap -> {
-                final int accepted = cap.receiveEnergy(energy, true);
+                int accepted = cap.receiveEnergy(energy, true);
                 if (accepted > 0) outputs.put(cap, accepted);
             });
         }
@@ -286,7 +287,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      *
      * @param updateNeighbors if true, it will also update the neighbor blocks and rerender
      */
-    public void update(final boolean updateNeighbors) {
+    public void update(boolean updateNeighbors) {
         if (level == null || level.isClientSide) return;
         if (updateNeighbors) level.setBlock(
             worldPosition,
@@ -298,20 +299,21 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
 
     /**
      * Tries to get the input capability from cache, otherwise it will try to get it.
+     * <p>
      * This features a workaround for the mod Pipez since it doesn't expose a Tile Entity
      * on the input pipe and thus a capability provider can't be received.
      *
      * @return True if a valid input was found, false otherwise
      */
-    private boolean getInputFromCache(final Direction direction) {
+    private boolean getInputFromCache(Direction direction) {
         assert level != null && !level.isClientSide;
 
         LazyOptional<IEnergyStorage> target = inputCache;
         if (target == null) {
-            final ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
+            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
             if (provider instanceof MeterEntity) return false;
             if (provider == null) {
-                final BlockState state = level.getBlockState(worldPosition.relative(direction));
+                BlockState state = level.getBlockState(worldPosition.relative(direction));
                 return (
                     !state.isAir() &&
                     state.getBlock().getRegistryName() != null &&
@@ -328,12 +330,12 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     }
 
     @Nullable
-    private LazyOptional<IEnergyStorage> getOutputFromCache(final Direction direction) {
+    private LazyOptional<IEnergyStorage> getOutputFromCache(Direction direction) {
         assert level != null && !level.isClientSide;
 
         LazyOptional<IEnergyStorage> target = outputCache.get(direction);
         if (target == null) {
-            final ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
+            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
             if (provider == null || provider instanceof MeterEntity) return null;
             target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
             outputCache.put(direction, target);
@@ -344,7 +346,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
 
     @Override
     public void invalidateCaps() {
-        for (final LazyOptional<SidedEnergyStorage> cap : energyStorage) {
+        for (LazyOptional<SidedEnergyStorage> cap : energyStorage) {
             cap.invalidate();
         }
         super.invalidateCaps();
@@ -352,7 +354,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability(final Capability<T> cap, @Nullable final Direction direction) {
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
         if (
             !remove &&
             cap == CapabilityEnergy.ENERGY &&
@@ -371,18 +373,18 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(final int containerID, final Inventory inventory, final Player player) {
+    public AbstractContainerMenu createMenu(int containerID, Inventory inventory, Player player) {
         return new MeterContainer(containerID, this);
     }
 
     /**
-     * Updates the connection to the specified value.
+     * Updates the status to the specified value.
      * If it was different from the previous value, it will trigger a block update.
      *
      * @param newStatus the new setting to set
      */
-    private void updateConnection(final STATUS newStatus) {
-        final STATUS oldStatus = status;
+    private void updateStatus(STATUS newStatus) {
+        STATUS oldStatus = status;
         status = newStatus;
         averageRate = 0;
         averageCount = 0;
@@ -395,40 +397,46 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     /**
      * Checks if the output cache has at least one output which is still valid.
      *
-     * @return true if there is at least one valid output, false otherwise
+     * @return True if there is at least one valid output, False otherwise
      */
     private boolean hasValidOutput() {
-        for (final LazyOptional<IEnergyStorage> cap : outputCache.values()) {
+        for (LazyOptional<IEnergyStorage> cap : outputCache.values()) {
             if (cap != null) return true;
         }
         return false;
     }
 
     /**
-     * Calculates the flow rate depending on the energy received within {@value REFRESH_RATE} ticks.
+     * Calculates the transfer rate depending on the energy received within {@value REFRESH_RATE} ticks.
      * Updates the connection status accordingly.
      */
-    private void calculateFlow() {
+    private void calculateTransferRate() {
         if (averageCount != 0) {
             transferRate = (float) averageRate / averageCount;
             update(false);
         }
 
         if (transferRate > 0) {
-            updateConnection(STATUS.TRANSFERRING);
+            updateStatus(STATUS.TRANSFERRING);
         } else {
-            updateConnection(STATUS.CONNECTED);
+            updateStatus(STATUS.CONNECTED);
         }
 
         lastAverageRate = averageRate;
     }
 
+    /**
+     * Called each tick.
+     * <p>
+     * In this case, it is only done server side from {@link MeterBlock}.
+     */
     void tick() {
-        if (level == null || level.isClientSide || level.getGameTime() % REFRESH_RATE != 0) return;
+        if (level == null || level.getGameTime() % REFRESH_RATE != 0) return;
+        assert !level.isClientSide;
 
         // initial setup
         if (!setupDone) {
-            for (final Direction direction : Direction.values()) {
+            for (Direction direction : Direction.values()) {
                 if (sideConfig.get(direction) != IO_SETTING.OFF) updateCache(direction);
             }
             setupDone = true;
@@ -439,16 +447,16 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
             (mode == MODE.CONSUMER && !hasValidInput) ||
             (mode == MODE.TRANSFER && (!hasValidInput || !sideConfig.hasOutput() || !hasValidOutput()))
         ) {
-            updateConnection(STATUS.DISCONNECTED);
+            updateStatus(STATUS.DISCONNECTED);
             return;
         }
 
         // if the average rate didn't change, set to connected
         if (averageRate == lastAverageRate) {
-            updateConnection(STATUS.CONNECTED);
+            updateStatus(STATUS.CONNECTED);
             return;
         }
 
-        calculateFlow();
+        calculateTransferRate();
     }
 }

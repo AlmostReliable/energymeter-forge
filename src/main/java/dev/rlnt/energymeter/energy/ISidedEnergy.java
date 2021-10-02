@@ -8,27 +8,32 @@ import net.minecraftforge.energy.IEnergyStorage;
 public interface ISidedEnergy {
     /**
      * Handles the receive-requests from the {@link IEnergyStorage}.
+     * <p>
      * When transfer mode is active, it will try to equally split all incoming energy to
      * adjacent valid outputs.
+     * <p>
      * When consumer mode is active, it will void all incoming energy.
-     * This method adjusts values which are required for the flow rate calculation
+     * <p>
+     * This method adjusts values which are required for the transfer rate calculation
      * inside the {@link BlockEntity}'s tick method.
-     * @param energy the amount of energy
+     *
+     * @param energy   the amount of energy
      * @param simulate whether it's a simulation
      * @return the energy which was accepted
      */
-    int receiveEnergy(final int energy, final boolean simulate);
+    int receiveEnergy(int energy, boolean simulate);
 
     /**
      * Returns the {@link SideConfiguration} of the {@link BlockEntity}.
-     * @return the side configuration
+     *
+     * @return the {@link SideConfiguration}
      */
     SideConfiguration getSideConfig();
 
     /**
-     * Returns whether the {@link BlockEntity} is currently set as consumer.
-     * This means it voids all incoming energy.
-     * @return true if consumer, false otherwise
+     * Returns the {@link BlockEntity}'s current mode.
+     *
+     * @return the current mode
      */
     MODE getMode();
 }

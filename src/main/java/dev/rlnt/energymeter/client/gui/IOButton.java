@@ -36,7 +36,7 @@ public class IOButton extends AbstractButton {
     private final BLOCK_SIDE side;
     private SideConfiguration sideConfig;
 
-    private IOButton(final AbstractContainerScreen<?> screen, final BLOCK_SIDE side) {
+    private IOButton(AbstractContainerScreen<?> screen, BLOCK_SIDE side) {
         super(
             screen,
             POS_X + getButtonPos(side).getA(),
@@ -52,12 +52,13 @@ public class IOButton extends AbstractButton {
 
     /**
      * Creates an {@link IOButton} for each passed in {@link BLOCK_SIDE}.
+     *
      * @param sides the sides for which the buttons should be created
      * @return a list of all buttons created
      */
-    static List<IOButton> create(final AbstractContainerScreen<?> screen, final BLOCK_SIDE... sides) {
-        final List<IOButton> res = new ArrayList<>();
-        for (final BLOCK_SIDE side : sides) {
+    static List<IOButton> create(AbstractContainerScreen<?> screen, BLOCK_SIDE... sides) {
+        List<IOButton> res = new ArrayList<>();
+        for (BLOCK_SIDE side : sides) {
             if (side == BLOCK_SIDE.FRONT) continue;
             res.add(new IOButton(screen, side));
         }
@@ -66,10 +67,11 @@ public class IOButton extends AbstractButton {
 
     /**
      * Returns the x and y positions for the texture depending on the {@link BLOCK_SIDE}.
+     *
      * @param side the BLOCK_SIDE to get the positions for
      * @return the x and y position for the BLOCK_SIDE
      */
-    private static Tuple<Integer, Integer> getButtonPos(final BLOCK_SIDE side) {
+    private static Tuple<Integer, Integer> getButtonPos(BLOCK_SIDE side) {
         return switch (side) {
             case BOTTOM -> new Tuple<>(ZONE_SIZE, ZONE_SIZE * 2);
             case TOP -> new Tuple<>(ZONE_SIZE, 0);
@@ -81,7 +83,7 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void renderButton(final PoseStack stack, final int mX, final int mY, final float partial) {
+    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
         super.renderButton(stack, mX, mY, partial);
         // io overlay
         renderIOOverlay(stack);
@@ -105,8 +107,8 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void renderToolTip(final PoseStack stack, final int mX, final int mY) {
-        final List<Component> tooltips = new ArrayList<>();
+    public void renderToolTip(PoseStack stack, int mX, int mY) {
+        List<Component> tooltips = new ArrayList<>();
 
         // io configuration
         tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, ChatFormatting.GOLD));
@@ -158,7 +160,7 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void onClick(final double mX, final double mY) {
+    public void onClick(double mX, double mY) {
         if (isHovered) {
             changeMode(Screen.hasShiftDown());
             syncSideConfig();
@@ -176,10 +178,11 @@ public class IOButton extends AbstractButton {
 
     /**
      * Renders the I/O overlay for the {@link IOButton} depending on its {@link IO_SETTING}.
+     *
      * @param stack the pose stack for the render call
      */
-    private void renderIOOverlay(final PoseStack stack) {
-        final int textureOffset = (sideConfig.get(side).ordinal() - 1) * OVERLAY_SIZE;
+    private void renderIOOverlay(PoseStack stack) {
+        int textureOffset = (sideConfig.get(side).ordinal() - 1) * OVERLAY_SIZE;
         if (textureOffset >= 0) blit(
             stack,
             x + OVERLAY_OFFSET,
@@ -195,15 +198,16 @@ public class IOButton extends AbstractButton {
 
     /**
      * Changes the mode of a {@link BLOCK_SIDE} depending on its current {@link IO_SETTING}.
+     *
      * @param reset whether the field should be reset to OFF
      */
-    private void changeMode(final boolean reset) {
+    private void changeMode(boolean reset) {
         if (reset) {
             sideConfig.set(side, IO_SETTING.OFF);
             return;
         }
 
-        final IO_SETTING setting =
+        IO_SETTING setting =
             switch (sideConfig.get(side)) {
                 case OFF -> sideConfig.hasInput() ? IO_SETTING.OUT : IO_SETTING.IN;
                 case IN -> sideConfig.hasMaxOutputs() ? IO_SETTING.OFF : IO_SETTING.OUT;

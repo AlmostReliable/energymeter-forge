@@ -28,20 +28,18 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public class Setup {
 
-    static final Tab TAB = new Tab(MOD_ID);
+    private static final Tab TAB = new Tab(MOD_ID);
     private static final String EXCEPTION_MESSAGE = "Utility class";
 
     private Setup() {
         throw new IllegalStateException(EXCEPTION_MESSAGE);
     }
 
-    private static <T extends IForgeRegistryEntry<T>> DeferredRegister<T> createRegistry(
-        final IForgeRegistry<T> registry
-    ) {
+    private static <T extends IForgeRegistryEntry<T>> DeferredRegister<T> createRegistry(IForgeRegistry<T> registry) {
         return DeferredRegister.create(registry, MOD_ID);
     }
 
-    public static void init(final IEventBus modEventBus) {
+    public static void init(IEventBus modEventBus) {
         Blocks.REGISTRY.register(modEventBus);
         Blocks.ITEMS.register(modEventBus);
         Entities.REGISTRY.register(modEventBus);
@@ -50,7 +48,7 @@ public class Setup {
 
     private static class Tab extends CreativeModeTab {
 
-        Tab(final String label) {
+        private Tab(String label) {
             super(label);
         }
 
@@ -60,10 +58,10 @@ public class Setup {
         }
     }
 
-    static class Blocks {
+    private static class Blocks {
 
-        static final DeferredRegister<Block> REGISTRY = createRegistry(ForgeRegistries.BLOCKS);
-        static final DeferredRegister<Item> ITEMS = createRegistry(ForgeRegistries.ITEMS);
+        private static final DeferredRegister<Block> REGISTRY = createRegistry(ForgeRegistries.BLOCKS);
+        private static final DeferredRegister<Item> ITEMS = createRegistry(ForgeRegistries.ITEMS);
         private static final RegistryObject<Block> METER_BLOCK = registerBlock(METER_ID, MeterBlock::new);
 
         private Blocks() {
@@ -71,8 +69,8 @@ public class Setup {
         }
 
         @SuppressWarnings("SameParameterValue")
-        private static <T extends Block> RegistryObject<T> registerBlock(final String name, final Supplier<T> block) {
-            final RegistryObject<T> result = REGISTRY.register(name, block);
+        private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
+            RegistryObject<T> result = REGISTRY.register(name, block);
             ITEMS.register(name, () -> new BlockItem(result.get(), new Item.Properties().tab(TAB)));
             return result;
         }
@@ -80,7 +78,9 @@ public class Setup {
 
     public static class Entities {
 
-        static final DeferredRegister<BlockEntityType<?>> REGISTRY = createRegistry(ForgeRegistries.BLOCK_ENTITIES);
+        private static final DeferredRegister<BlockEntityType<?>> REGISTRY = createRegistry(
+            ForgeRegistries.BLOCK_ENTITIES
+        );
 
         private Entities() {
             throw new IllegalStateException(EXCEPTION_MESSAGE);
@@ -88,9 +88,9 @@ public class Setup {
 
         @SuppressWarnings("SameParameterValue")
         private static <E extends BlockEntity> RegistryObject<BlockEntityType<E>> registerBlockEntity(
-            final String name,
-            final BlockEntitySupplier<E> tile,
-            final RegistryObject<Block> block
+            String name,
+            BlockEntitySupplier<E> tile,
+            RegistryObject<Block> block
         ) {
             //noinspection ConstantConditions
             return REGISTRY.register(name, () -> BlockEntityType.Builder.of(tile, block.get()).build(null));

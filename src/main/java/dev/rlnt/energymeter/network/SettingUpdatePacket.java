@@ -13,34 +13,34 @@ public class SettingUpdatePacket {
 
     private SETTING setting;
 
-    public SettingUpdatePacket(final SETTING setting) {
+    public SettingUpdatePacket(SETTING setting) {
         this.setting = setting;
     }
 
     private SettingUpdatePacket() {}
 
-    static SettingUpdatePacket decode(final FriendlyByteBuf buffer) {
-        final SettingUpdatePacket packet = new SettingUpdatePacket();
+    static SettingUpdatePacket decode(FriendlyByteBuf buffer) {
+        SettingUpdatePacket packet = new SettingUpdatePacket();
         packet.setting = SETTING.values()[buffer.readInt()];
         return packet;
     }
 
-    static void handle(final SettingUpdatePacket packet, final Supplier<Context> context) {
-        final ServerPlayer player = context.get().getSender();
+    static void handle(SettingUpdatePacket packet, Supplier<Context> context) {
+        ServerPlayer player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);
     }
 
-    private static void handlePacket(final SettingUpdatePacket packet, @Nullable final ServerPlayer player) {
+    private static void handlePacket(SettingUpdatePacket packet, @Nullable ServerPlayer player) {
         if (player != null && player.containerMenu instanceof MeterContainer menu) {
-            final MeterEntity tile = menu.getEntity();
+            MeterEntity tile = menu.getEntity();
             tile.updateSetting(packet.setting);
             tile.update(false);
             tile.setChanged();
         }
     }
 
-    void encode(final FriendlyByteBuf buffer) {
+    void encode(FriendlyByteBuf buffer) {
         buffer.writeInt(setting.ordinal());
     }
 }

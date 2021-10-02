@@ -17,22 +17,22 @@ public record SidedEnergyStorage(ISidedEnergy parent, Direction side) implements
      * @param parent the parent {@link BlockEntity} which implements {@link ISidedEnergy}
      * @return a {@link List} of all created {@link SidedEnergyStorage}s
      */
-    public static List<LazyOptional<SidedEnergyStorage>> create(final ISidedEnergy parent) {
-        final List<LazyOptional<SidedEnergyStorage>> res = new ArrayList<>();
-        for (final Direction direction : Direction.values()) {
+    public static List<LazyOptional<SidedEnergyStorage>> create(ISidedEnergy parent) {
+        List<LazyOptional<SidedEnergyStorage>> res = new ArrayList<>();
+        for (Direction direction : Direction.values()) {
             res.add(LazyOptional.of(() -> new SidedEnergyStorage(parent, direction)));
         }
         return res;
     }
 
     @Override
-    public int receiveEnergy(final int maxReceive, final boolean simulate) {
+    public int receiveEnergy(int maxReceive, boolean simulate) {
         if (!canReceive()) return 0;
         return parent.receiveEnergy(maxReceive, simulate);
     }
 
     @Override
-    public int extractEnergy(final int maxExtract, final boolean simulate) {
+    public int extractEnergy(int maxExtract, boolean simulate) {
         return 0;
     }
 

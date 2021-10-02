@@ -21,7 +21,7 @@ public class SettingButton extends AbstractButton {
     private final String texture;
     private final TypeEnums.SETTING setting;
 
-    SettingButton(final AbstractContainerScreen<?> screen, final int pX, final TypeEnums.SETTING setting) {
+    SettingButton(AbstractContainerScreen<?> screen, int pX, TypeEnums.SETTING setting) {
         super(
             screen,
             pX,
@@ -51,8 +51,8 @@ public class SettingButton extends AbstractButton {
     }
 
     @Override
-    public void renderToolTip(final PoseStack stack, final int mX, final int mY) {
-        final List<Component> tooltips = new ArrayList<>();
+    public void renderToolTip(PoseStack stack, int mX, int mY) {
+        List<Component> tooltips = new ArrayList<>();
         tooltips.add(
             TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, setting.toString().toLowerCase(), ChatFormatting.GOLD)
         );

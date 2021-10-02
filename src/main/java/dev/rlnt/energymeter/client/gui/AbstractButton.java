@@ -26,13 +26,13 @@ public abstract class AbstractButton extends Button {
     private final boolean strictTooltips;
 
     AbstractButton(
-        final AbstractContainerScreen<?> screen,
-        final int pX,
-        final int pY,
-        final int width,
-        final int height,
-        final boolean strictTooltips,
-        final OnPress onPress
+        AbstractContainerScreen<?> screen,
+        int pX,
+        int pY,
+        int width,
+        int height,
+        boolean strictTooltips,
+        OnPress onPress
     ) {
         super(screen.getGuiLeft() + pX, screen.getGuiTop() + pY, width, height, TextComponent.EMPTY, onPress);
         container = screen.getMenu();
@@ -41,7 +41,7 @@ public abstract class AbstractButton extends Button {
     }
 
     @Override
-    public void renderButton(final PoseStack stack, final int mX, final int mY, final float partial) {
+    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         // background texture
@@ -55,18 +55,21 @@ public abstract class AbstractButton extends Button {
     /**
      * Gets the texture file name for the button as {@link String}.
      * The default location points to "textures/gui/buttons".
+     *
      * @return the texture file name
      */
     protected abstract String getTexture();
 
     /**
      * Gets the texture atlas width for the rendering calls.
+     *
      * @return the texture atlas width
      */
     protected abstract int getTextureWidth();
 
     /**
      * Gets the texture atlas height for the rendering calls.
+     *
      * @return the texture atlas height
      */
     protected abstract int getTextureHeight();
