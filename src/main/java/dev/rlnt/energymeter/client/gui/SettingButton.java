@@ -1,6 +1,6 @@
 package dev.rlnt.energymeter.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.network.SettingUpdatePacket;
 import dev.rlnt.energymeter.util.TextUtils;
@@ -8,10 +8,10 @@ import dev.rlnt.energymeter.util.TypeEnums;
 import dev.rlnt.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 public class SettingButton extends AbstractButton {
 
@@ -21,7 +21,7 @@ public class SettingButton extends AbstractButton {
     private final String texture;
     private final TypeEnums.SETTING setting;
 
-    SettingButton(final ContainerScreen<?> screen, final int pX, final TypeEnums.SETTING setting) {
+    SettingButton(final AbstractContainerScreen<?> screen, final int pX, final TypeEnums.SETTING setting) {
         super(
             screen,
             pX,
@@ -29,7 +29,7 @@ public class SettingButton extends AbstractButton {
             TEXTURE_WIDTH,
             TEXTURE_HEIGHT,
             true,
-            button -> PacketHandler.channel.sendToServer(new SettingUpdatePacket(setting))
+            button -> PacketHandler.CHANNEL.sendToServer(new SettingUpdatePacket(setting))
         );
         texture = setting.toString().toLowerCase();
         this.setting = setting;
@@ -51,13 +51,13 @@ public class SettingButton extends AbstractButton {
     }
 
     @Override
-    public void renderToolTip(final MatrixStack matrix, final int mX, final int mY) {
-        final List<ITextComponent> tooltips = new ArrayList<>();
+    public void renderToolTip(final PoseStack stack, final int mX, final int mY) {
+        final List<Component> tooltips = new ArrayList<>();
         tooltips.add(
-            TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, setting.toString().toLowerCase(), TextFormatting.GOLD)
+            TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, setting.toString().toLowerCase(), ChatFormatting.GOLD)
         );
-        tooltips.add(new StringTextComponent(" "));
+        tooltips.add(new TextComponent(" "));
         tooltips.add(MeterScreen.getClickTooltip());
-        screen.renderComponentTooltip(matrix, tooltips, mX, mY);
+        screen.renderComponentTooltip(stack, tooltips, mX, mY);
     }
 }

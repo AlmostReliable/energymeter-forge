@@ -4,33 +4,33 @@ import static dev.rlnt.energymeter.core.Constants.IO_STATE_ID;
 import static dev.rlnt.energymeter.core.Constants.PIPEZ_ID;
 
 import javax.annotation.Nullable;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
-public class MeterBlock extends Block {
+public class MeterBlock extends Block implements EntityBlock {
 
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
     /**
@@ -41,40 +41,29 @@ public class MeterBlock extends Block {
     static final BooleanProperty IO = BooleanProperty.create(IO_STATE_ID);
 
     public MeterBlock() {
-        super(Properties.of(Material.METAL).strength(5f).harvestTool(ToolType.PICKAXE).sound(SoundType.METAL));
+        super(Properties.of(Material.METAL).strength(5f).requiresCorrectToolForDrops().sound(SoundType.METAL));
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(final BlockItemUseContext context) {
+    public BlockState getStateForPlacement(final BlockPlaceContext context) {
         return defaultBlockState()
             .setValue(HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite())
             .setValue(IO, false);
     }
 
     @Override
-    protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(HORIZONTAL_FACING);
         builder.add(IO);
-    }
-
-    @Override
-    public boolean hasTileEntity(final BlockState state) {
-        return true;
-    }
-
-    @Nullable
-    @Override
-    public TileEntity createTileEntity(final BlockState state, final IBlockReader level) {
-        return new MeterTile();
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(
         final BlockState state,
-        final World level,
+        final Level level,
         final BlockPos pos,
         final Block block,
         final BlockPos neighbor,
@@ -83,47 +72,70 @@ public class MeterBlock extends Block {
         super.neighborChanged(state, level, pos, block, neighbor, isMoving);
 
         // get tile entity from block position
-        if (!state.hasTileEntity()) return;
-        final TileEntity tile = level.getBlockEntity(pos);
-        if (!(tile instanceof MeterTile)) return;
+        if (!state.hasBlockEntity()) return;
+        if (level.getBlockEntity(pos) instanceof MeterEntity tile) {
+            // ensure valid neighbor
+            final BlockState neighborState = level.getBlockState(neighbor);
+            final ResourceLocation registryName = neighborState.getBlock().getRegistryName();
+            if (
+                !neighborState.isAir() &&
+                !neighborState.hasBlockEntity() &&
+                registryName != null &&
+                !registryName.getNamespace().equals(PIPEZ_ID)
+            ) return;
 
-        // ensure valid neighbor
-        final BlockState neighborState = level.getBlockState(neighbor);
-        final ResourceLocation registryName = neighborState.getBlock().getRegistryName();
-        if (
-            !neighborState.is(Blocks.AIR) &&
-            !neighborState.hasTileEntity() &&
-            registryName != null &&
-            !registryName.getNamespace().equals(PIPEZ_ID)
-        ) return;
+            // get direction from neighbor block position
+            final Vec3i vector = neighbor.subtract(pos);
+            final Direction direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
+            if (direction == null) return;
 
-        // get direction from neighbor block position
-        final Vector3i vector = neighbor.subtract(pos);
-        final Direction direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
-        if (direction == null) return;
-
-        // update the cache from the direction
-        ((MeterTile) tile).updateCache(direction);
+            // update the cache from the direction
+            tile.updateCache(direction);
+        }
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public ActionResultType use(
+    public InteractionResult use(
         final BlockState state,
-        final World level,
+        final Level level,
         final BlockPos pos,
-        final PlayerEntity player,
-        final Hand hand,
-        final BlockRayTraceResult hit
+        final Player player,
+        final InteractionHand hand,
+        final BlockHitResult hit
     ) {
         // don't do anything on clientside or if player is shifting
-        if (level.isClientSide() || player.isShiftKeyDown()) return ActionResultType.SUCCESS;
+        if (level.isClientSide() || player.isShiftKeyDown()) return InteractionResult.SUCCESS;
 
         // open the gui for the player who right-clicked the block
-        final TileEntity tile = level.getBlockEntity(pos);
-        if (tile instanceof INamedContainerProvider && player instanceof ServerPlayerEntity) {
-            NetworkHooks.openGui(((ServerPlayerEntity) player), ((INamedContainerProvider) tile), pos);
+        final BlockEntity tile = level.getBlockEntity(pos);
+        if (tile instanceof MenuProvider entity && player instanceof ServerPlayer serverPlayer) {
+            NetworkHooks.openGui(serverPlayer, entity, pos);
         }
-        return ActionResultType.CONSUME;
+        return InteractionResult.CONSUME;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
+        return new MeterEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <E extends BlockEntity> BlockEntityTicker<E> getTicker(
+        final Level level,
+        final BlockState state,
+        final BlockEntityType<E> entity
+    ) {
+        if (level.isClientSide) {
+            return null;
+        } else {
+            return (Level pLevel, BlockPos pPos, BlockState pState, E pEntity) -> {
+                if (pEntity instanceof MeterEntity meter) {
+                    meter.tick();
+                }
+            };
+        }
     }
 }

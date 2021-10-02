@@ -5,21 +5,22 @@ import static dev.rlnt.energymeter.core.Constants.MOD_ID;
 
 import dev.rlnt.energymeter.meter.MeterBlock;
 import dev.rlnt.energymeter.meter.MeterContainer;
-import dev.rlnt.energymeter.meter.MeterTile;
+import dev.rlnt.energymeter.meter.MeterEntity;
 import java.util.Objects;
 import java.util.function.Supplier;
-import net.minecraft.block.Block;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplier;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -43,11 +44,11 @@ public class Setup {
     public static void init(final IEventBus modEventBus) {
         Blocks.REGISTRY.register(modEventBus);
         Blocks.ITEMS.register(modEventBus);
-        Tiles.REGISTRY.register(modEventBus);
+        Entities.REGISTRY.register(modEventBus);
         Containers.REGISTRY.register(modEventBus);
     }
 
-    private static class Tab extends ItemGroup {
+    private static class Tab extends CreativeModeTab {
 
         Tab(final String label) {
             super(label);
@@ -77,42 +78,42 @@ public class Setup {
         }
     }
 
-    public static class Tiles {
+    public static class Entities {
 
-        static final DeferredRegister<TileEntityType<?>> REGISTRY = createRegistry(ForgeRegistries.TILE_ENTITIES);
+        static final DeferredRegister<BlockEntityType<?>> REGISTRY = createRegistry(ForgeRegistries.BLOCK_ENTITIES);
 
-        private Tiles() {
+        private Entities() {
             throw new IllegalStateException(EXCEPTION_MESSAGE);
         }
 
         @SuppressWarnings("SameParameterValue")
-        private static <T extends TileEntity, B extends Block> RegistryObject<TileEntityType<T>> registerTile(
+        private static <E extends BlockEntity> RegistryObject<BlockEntityType<E>> registerBlockEntity(
             final String name,
-            final Supplier<T> tile,
-            final RegistryObject<B> block
+            final BlockEntitySupplier<E> tile,
+            final RegistryObject<Block> block
         ) {
             //noinspection ConstantConditions
-            return REGISTRY.register(name, () -> TileEntityType.Builder.of(tile, block.get()).build(null));
+            return REGISTRY.register(name, () -> BlockEntityType.Builder.of(tile, block.get()).build(null));
         }
 
-        public static final RegistryObject<TileEntityType<MeterTile>> METER_TILE = registerTile(
+        public static final RegistryObject<BlockEntityType<MeterEntity>> METER_ENTITY = registerBlockEntity(
             METER_ID,
-            MeterTile::new,
+            MeterEntity::new,
             Blocks.METER_BLOCK
         );
     }
 
     public static class Containers {
 
-        private static final DeferredRegister<ContainerType<?>> REGISTRY = createRegistry(ForgeRegistries.CONTAINERS);
-        public static final RegistryObject<ContainerType<MeterContainer>> METER_CONTAINER = REGISTRY.register(
+        private static final DeferredRegister<MenuType<?>> REGISTRY = createRegistry(ForgeRegistries.CONTAINERS);
+        public static final RegistryObject<MenuType<MeterContainer>> METER_CONTAINER = REGISTRY.register(
             METER_ID,
             () ->
                 IForgeContainerType.create(
                     (
                         (windowId, inv, data) -> {
                             BlockPos pos = data.readBlockPos();
-                            MeterTile tile = (MeterTile) inv.player.level.getBlockEntity(pos);
+                            MeterEntity tile = (MeterEntity) inv.player.level.getBlockEntity(pos);
                             return new MeterContainer(windowId, Objects.requireNonNull(tile));
                         }
                     )

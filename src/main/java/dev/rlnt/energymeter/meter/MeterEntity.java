@@ -12,20 +12,18 @@ import java.util.*;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.Constants.BlockFlags;
@@ -33,7 +31,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
-public class MeterTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, ISidedEnergy {
+public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEnergy {
 
     private static final int REFRESH_RATE = 5;
     private final EnumMap<Direction, LazyOptional<IEnergyStorage>> outputCache = new EnumMap<>(Direction.class);
@@ -50,10 +48,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private NUMBER_MODE numberMode = NUMBER_MODE.SHORT;
     private MODE mode = MODE.TRANSFER;
 
-    public MeterTile() {
-        super(Setup.Tiles.METER_TILE.get());
+    public MeterEntity(final BlockPos pos, final BlockState state) {
+        super(Setup.Entities.METER_ENTITY.get(), pos, state);
         energyStorage = SidedEnergyStorage.create(this);
-        sideConfig = new SideConfiguration();
+        sideConfig = new SideConfiguration(state.getValue(MeterBlock.HORIZONTAL_FACING));
     }
 
     /**
@@ -152,36 +150,36 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     @Override
-    public void load(final BlockState state, final CompoundNBT nbt) {
-        super.load(state, nbt);
-        sideConfig.deserialize(nbt.getIntArray(SIDE_CONFIG_ID));
-        numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
-        mode = MODE.values()[nbt.getInt(MODE_ID)];
+    public void load(final CompoundTag tag) {
+        super.load(tag);
+        sideConfig.deserialize(tag.getIntArray(SIDE_CONFIG_ID));
+        numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
+        mode = MODE.values()[tag.getInt(MODE_ID)];
     }
 
     @Override
-    public CompoundNBT save(final CompoundNBT nbt) {
-        nbt.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
-        nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
-        nbt.putInt(MODE_ID, mode.ordinal());
-        return super.save(nbt);
+    public CompoundTag save(final CompoundTag tag) {
+        tag.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
+        tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
+        tag.putInt(MODE_ID, mode.ordinal());
+        return super.save(tag);
     }
 
     @Nullable
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(worldPosition, -1, getUpdateTag());
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return new ClientboundBlockEntityDataPacket(worldPosition, -1, getUpdateTag());
     }
 
     @Override
-    public CompoundNBT getUpdateTag() {
-        final CompoundNBT nbt = super.getUpdateTag();
-        nbt.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
-        nbt.putFloat(TRANSFER_RATE_ID, transferRate);
-        nbt.putInt(STATUS_ID, status.ordinal());
-        nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
-        nbt.putInt(MODE_ID, mode.ordinal());
-        return nbt;
+    public CompoundTag getUpdateTag() {
+        final CompoundTag tag = super.getUpdateTag();
+        tag.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
+        tag.putFloat(TRANSFER_RATE_ID, transferRate);
+        tag.putInt(STATUS_ID, status.ordinal());
+        tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
+        tag.putInt(MODE_ID, mode.ordinal());
+        return tag;
     }
 
     @Override
@@ -193,24 +191,17 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     @Override
-    public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket packet) {
-        handleUpdateTag(Objects.requireNonNull(level).getBlockState(packet.getPos()), packet.getTag());
+    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet) {
+        handleUpdateTag(packet.getTag());
     }
 
     @Override
-    public void handleUpdateTag(final BlockState state, final CompoundNBT nbt) {
-        sideConfig.deserialize(nbt.getIntArray(SIDE_CONFIG_ID));
-        transferRate = nbt.getFloat(TRANSFER_RATE_ID);
-        status = STATUS.values()[nbt.getInt(STATUS_ID)];
-        numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
-        mode = MODE.values()[nbt.getInt(MODE_ID)];
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        sideConfig.setFacing(getBlockState().getValue(MeterBlock.HORIZONTAL_FACING));
-        update(false);
+    public void handleUpdateTag(final CompoundTag tag) {
+        sideConfig.deserialize(tag.getIntArray(SIDE_CONFIG_ID));
+        transferRate = tag.getFloat(TRANSFER_RATE_ID);
+        status = STATUS.values()[tag.getInt(STATUS_ID)];
+        numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
+        mode = MODE.values()[tag.getInt(MODE_ID)];
     }
 
     @Override
@@ -318,13 +309,13 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         LazyOptional<IEnergyStorage> target = inputCache;
         if (target == null) {
             final ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
-            if (provider instanceof MeterTile) return false;
+            if (provider instanceof MeterEntity) return false;
             if (provider == null) {
-                final Block block = level.getBlockState(worldPosition.relative(direction)).getBlock();
+                final BlockState state = level.getBlockState(worldPosition.relative(direction));
                 return (
-                    !block.is(Blocks.AIR) &&
-                    block.getRegistryName() != null &&
-                    block.getRegistryName().getNamespace().equals(PIPEZ_ID)
+                    !state.isAir() &&
+                    state.getBlock().getRegistryName() != null &&
+                    state.getBlock().getRegistryName().getNamespace().equals(PIPEZ_ID)
                 );
             } else {
                 target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
@@ -343,7 +334,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         LazyOptional<IEnergyStorage> target = outputCache.get(direction);
         if (target == null) {
             final ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
-            if (provider == null || provider instanceof MeterTile) return null;
+            if (provider == null || provider instanceof MeterEntity) return null;
             target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
             outputCache.put(direction, target);
             target.addListener(self -> outputCache.put(direction, null));
@@ -352,7 +343,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     @Override
-    protected void invalidateCaps() {
+    public void invalidateCaps() {
         for (final LazyOptional<SidedEnergyStorage> cap : energyStorage) {
             cap.invalidate();
         }
@@ -374,14 +365,14 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     @Override
-    public ITextComponent getDisplayName() {
+    public Component getDisplayName() {
         return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
     }
 
     @Nullable
     @Override
-    public Container createMenu(final int windowID, final PlayerInventory inventory, final PlayerEntity player) {
-        return new MeterContainer(windowID, this);
+    public AbstractContainerMenu createMenu(final int containerID, final Inventory inventory, final Player player) {
+        return new MeterContainer(containerID, this);
     }
 
     /**
@@ -432,8 +423,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         lastAverageRate = averageRate;
     }
 
-    @Override
-    public void tick() {
+    void tick() {
         if (level == null || level.isClientSide || level.getGameTime() % REFRESH_RATE != 0) return;
 
         // initial setup

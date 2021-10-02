@@ -2,7 +2,7 @@ package dev.rlnt.energymeter.energy;
 
 import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.energy.IEnergyStorage;
 
 public interface ISidedEnergy {
@@ -12,7 +12,7 @@ public interface ISidedEnergy {
      * adjacent valid outputs.
      * When consumer mode is active, it will void all incoming energy.
      * This method adjusts values which are required for the flow rate calculation
-     * inside the {@link TileEntity}'s tick method.
+     * inside the {@link BlockEntity}'s tick method.
      * @param energy the amount of energy
      * @param simulate whether it's a simulation
      * @return the energy which was accepted
@@ -20,13 +20,13 @@ public interface ISidedEnergy {
     int receiveEnergy(final int energy, final boolean simulate);
 
     /**
-     * Returns the {@link SideConfiguration} of the {@link TileEntity}.
+     * Returns the {@link SideConfiguration} of the {@link BlockEntity}.
      * @return the side configuration
      */
     SideConfiguration getSideConfig();
 
     /**
-     * Returns whether the {@link TileEntity} is currently set as consumer.
+     * Returns whether the {@link BlockEntity} is currently set as consumer.
      * This means it voids all incoming energy.
      * @return true if consumer, false otherwise
      */

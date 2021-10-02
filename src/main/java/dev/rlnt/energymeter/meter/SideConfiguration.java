@@ -3,26 +3,23 @@ package dev.rlnt.energymeter.meter;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import java.util.EnumMap;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public class SideConfiguration {
 
     private static final int SIZE = 12;
     private final EnumMap<Direction, IO_SETTING> directionConfig = new EnumMap<>(Direction.class);
     private final EnumMap<BLOCK_SIDE, IO_SETTING> sideConfig = new EnumMap<>(BLOCK_SIDE.class);
-    private Direction facing = Direction.NORTH;
+    private final Direction facing;
 
-    SideConfiguration() {
+    SideConfiguration(final Direction facing) {
+        this.facing = facing;
         for (final Direction direction : Direction.values()) {
             directionConfig.put(direction, IO_SETTING.OFF);
         }
         for (final BLOCK_SIDE side : BLOCK_SIDE.values()) {
             sideConfig.put(side, IO_SETTING.OFF);
         }
-    }
-
-    void setFacing(final Direction facing) {
-        this.facing = facing;
     }
 
     /**
@@ -113,18 +110,13 @@ public class SideConfiguration {
      * @return the direction
      */
     public Direction getDirectionFromSide(final BLOCK_SIDE side) {
-        if (side == BLOCK_SIDE.TOP) {
-            return Direction.UP;
-        } else if (side == BLOCK_SIDE.BOTTOM) {
-            return Direction.DOWN;
-        } else if (side == BLOCK_SIDE.LEFT) {
-            return facing.getClockWise();
-        } else if (side == BLOCK_SIDE.RIGHT) {
-            return facing.getCounterClockWise();
-        } else if (side == BLOCK_SIDE.BACK) {
-            return facing.getOpposite();
-        } else {
-            return facing;
-        }
+        return switch (side) {
+            case TOP -> Direction.UP;
+            case BOTTOM -> Direction.DOWN;
+            case LEFT -> facing.getClockWise();
+            case RIGHT -> facing.getCounterClockWise();
+            case BACK -> facing.getOpposite();
+            case FRONT -> facing;
+        };
     }
 }

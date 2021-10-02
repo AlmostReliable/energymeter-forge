@@ -1,33 +1,32 @@
 package dev.rlnt.energymeter.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import dev.rlnt.energymeter.meter.MeterBlock;
-import dev.rlnt.energymeter.meter.MeterTile;
+import dev.rlnt.energymeter.meter.MeterEntity;
 import dev.rlnt.energymeter.util.TextUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.TextFormatting;
 
-public class MeterRenderer extends TileEntityRenderer<MeterTile> {
+public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
 
     private static final float[] ANGLE = { 0, 0, 0, 180, 90, -90 };
     private static final float PIXEL_SIZE = .3f / 16;
     private static final float OFFSET = 0.001f;
     private static final int MAX_DISTANCE = 20;
     private final Minecraft mc;
-    private final FontRenderer font;
+    private final Font font;
 
-    public MeterRenderer(final TileEntityRendererDispatcher dispatcher) {
-        super(dispatcher);
+    public MeterRenderer(final Context context) {
         mc = Minecraft.getInstance();
-        font = mc.font;
+        font = context.getFont();
     }
 
     private static Vector3f getFacingVector(final Direction facing) {
@@ -46,18 +45,18 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void render(
-        final MeterTile tile,
+        final MeterEntity entity,
         final float partial,
-        final MatrixStack matrix,
-        final IRenderTypeBuffer buffer,
+        final PoseStack matrix,
+        final MultiBufferSource buffer,
         final int light,
         final int overlay
     ) {
         // don't display something if the player is too far away
-        if (tile.getBlockPos().distSqr(mc.player.blockPosition()) > Math.pow(MAX_DISTANCE, 2)) return;
+        if (entity.getBlockPos().distSqr(mc.player.blockPosition()) > Math.pow(MAX_DISTANCE, 2)) return;
 
         // get the facing side and get the vector used for positioning
-        final Direction facing = tile.getBlockState().getValue(MeterBlock.HORIZONTAL_FACING);
+        final Direction facing = entity.getBlockState().getValue(MeterBlock.HORIZONTAL_FACING);
         final Vector3f vector = getFacingVector(facing);
 
         matrix.pushPose();
@@ -67,7 +66,7 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
         // scale the matrix so the text fits on the screen
         matrix.scale(PIXEL_SIZE, PIXEL_SIZE, 0);
         // format the current flow rate and draw it according to its size, so it's centered
-        final Tuple<String, String> text = TextUtils.formatEnergy(tile.getTransferRate(), false);
+        final Tuple<String, String> text = TextUtils.formatEnergy(entity.getTransferRate(), false);
         final String flowRate = text.getA();
         final String unit = text.getB() + "/t";
         // flow rate
@@ -76,10 +75,10 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
             flowRate,
             font.width(flowRate) / -2f,
             -font.lineHeight - OFFSET,
-            TextFormatting.WHITE.getColor()
+            ChatFormatting.WHITE.getColor()
         );
         // unit
-        font.draw(matrix, unit, font.width(unit) / -2f, OFFSET, TextFormatting.WHITE.getColor());
+        font.draw(matrix, unit, font.width(unit) / -2f, OFFSET, ChatFormatting.WHITE.getColor());
 
         matrix.popPose();
     }

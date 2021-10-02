@@ -4,25 +4,17 @@ import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 
-public class SidedEnergyStorage implements IEnergyStorage {
-
-    private final ISidedEnergy parent;
-    private final Direction side;
-
-    private SidedEnergyStorage(final ISidedEnergy parent, final Direction side) {
-        this.parent = parent;
-        this.side = side;
-    }
-
+public record SidedEnergyStorage(ISidedEnergy parent, Direction side) implements IEnergyStorage {
     /**
      * Creates a new {@link SidedEnergyStorage} for each {@link Direction}.
      * Each of them will have the passed in parent and the direction linked to it.
-     * @param parent the parent {@link TileEntity} which implements {@link ISidedEnergy}
+     *
+     * @param parent the parent {@link BlockEntity} which implements {@link ISidedEnergy}
      * @return a {@link List} of all created {@link SidedEnergyStorage}s
      */
     public static List<LazyOptional<SidedEnergyStorage>> create(final ISidedEnergy parent) {

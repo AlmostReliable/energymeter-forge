@@ -99,6 +99,7 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:jei-238222:3474326") // JEI - 8.1.0.19
     runtimeOnly fg.deobf("curse.maven:top-245211:3430022") // TOP - 4.0.2
     runtimeOnly fg.deobf("curse.maven:pipez-443900:3472644") // Pipez - 1.0.4
+    runtimeOnly fg.deobf("curse.maven:solargen-336538:3460172") // Solar Generation - 3.0.1
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.
@@ -157,7 +158,7 @@ curseforge {
         changelogType = 'markdown'
         changelog = 'The whole changelog can be found [here](https://github.com/RLNT/minecraft_energymeter/blob/1.17/CHANGELOG.md).'
         releaseType = 'release'
-        addGameVersion '1.17.1'
+        addGameVersion minecraft_version
 
         mainArtifact(jar) {
             displayName = "EnergyMeter-${minecraft_version}-${mod_version}"

@@ -7,11 +7,11 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
 
 public class TextUtils {
 
@@ -41,13 +41,13 @@ public class TextUtils {
      * @param color an optional color
      * @return the translated phrase
      */
-    public static TranslationTextComponent translate(
+    public static TranslatableComponent translate(
         final TRANSLATE_TYPE type,
         final String key,
-        final TextFormatting... color
+        final ChatFormatting... color
     ) {
-        final TranslationTextComponent output = new TranslationTextComponent(getTranslationKey(type, key));
-        return color.length == 0 ? output : (TranslationTextComponent) output.withStyle(color[0]);
+        final TranslatableComponent output = new TranslatableComponent(getTranslationKey(type, key));
+        return color.length == 0 ? output : (TranslatableComponent) output.withStyle(color[0]);
     }
 
     /**
@@ -66,8 +66,8 @@ public class TextUtils {
      * @param color an optional color
      * @return the colorized string
      */
-    public static StringTextComponent colorize(final String input, final TextFormatting color) {
-        return (StringTextComponent) new StringTextComponent(input).withStyle(color);
+    public static TextComponent colorize(final String input, final ChatFormatting color) {
+        return (TextComponent) new TextComponent(input).withStyle(color);
     }
 
     /**

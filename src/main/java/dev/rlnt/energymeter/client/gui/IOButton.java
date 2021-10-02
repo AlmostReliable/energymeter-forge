@@ -2,7 +2,8 @@ package dev.rlnt.energymeter.client.gui;
 
 import static dev.rlnt.energymeter.core.Constants.*;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.network.IOUpdatePacket;
@@ -13,14 +14,13 @@ import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import dev.rlnt.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.inventory.container.Container;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class IOButton extends AbstractButton {
 
@@ -36,7 +36,7 @@ public class IOButton extends AbstractButton {
     private final BLOCK_SIDE side;
     private SideConfiguration sideConfig;
 
-    private IOButton(final ContainerScreen<?> screen, final BLOCK_SIDE side) {
+    private IOButton(final AbstractContainerScreen<?> screen, final BLOCK_SIDE side) {
         super(
             screen,
             POS_X + getButtonPos(side).getA(),
@@ -44,7 +44,7 @@ public class IOButton extends AbstractButton {
             BUTTON_SIZE,
             BUTTON_SIZE,
             false,
-            button -> PacketHandler.channel.sendToServer(new IOUpdatePacket(((IOButton) button).sideConfig, side))
+            button -> PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(((IOButton) button).sideConfig, side))
         );
         this.side = side;
         syncSideConfig();
@@ -55,7 +55,7 @@ public class IOButton extends AbstractButton {
      * @param sides the sides for which the buttons should be created
      * @return a list of all buttons created
      */
-    static List<IOButton> create(final ContainerScreen<?> screen, final BLOCK_SIDE... sides) {
+    static List<IOButton> create(final AbstractContainerScreen<?> screen, final BLOCK_SIDE... sides) {
         final List<IOButton> res = new ArrayList<>();
         for (final BLOCK_SIDE side : sides) {
             if (side == BLOCK_SIDE.FRONT) continue;
@@ -70,29 +70,23 @@ public class IOButton extends AbstractButton {
      * @return the x and y position for the BLOCK_SIDE
      */
     private static Tuple<Integer, Integer> getButtonPos(final BLOCK_SIDE side) {
-        switch (side) {
-            case BOTTOM:
-                return new Tuple<>(ZONE_SIZE, ZONE_SIZE * 2);
-            case TOP:
-                return new Tuple<>(ZONE_SIZE, 0);
-            case BACK:
-                return new Tuple<>(ZONE_SIZE * 2, ZONE_SIZE * 2);
-            case LEFT:
-                return new Tuple<>(0, ZONE_SIZE);
-            case RIGHT:
-                return new Tuple<>(ZONE_SIZE * 2, ZONE_SIZE);
-            default:
-                return new Tuple<>(0, 0);
-        }
+        return switch (side) {
+            case BOTTOM -> new Tuple<>(ZONE_SIZE, ZONE_SIZE * 2);
+            case TOP -> new Tuple<>(ZONE_SIZE, 0);
+            case BACK -> new Tuple<>(ZONE_SIZE * 2, ZONE_SIZE * 2);
+            case LEFT -> new Tuple<>(0, ZONE_SIZE);
+            case RIGHT -> new Tuple<>(ZONE_SIZE * 2, ZONE_SIZE);
+            case FRONT -> new Tuple<>(0, 0);
+        };
     }
 
     @Override
-    public void renderButton(final MatrixStack matrix, final int mX, final int mY, final float partial) {
-        super.renderButton(matrix, mX, mY, partial);
+    public void renderButton(final PoseStack stack, final int mX, final int mY, final float partial) {
+        super.renderButton(stack, mX, mY, partial);
         // io overlay
-        renderIOOverlay(matrix);
+        renderIOOverlay(stack);
         // tooltips
-        if (isHovered) renderToolTip(matrix, mX, mY);
+        if (isHovered) renderToolTip(stack, mX, mY);
     }
 
     @Override
@@ -111,56 +105,56 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void renderToolTip(final MatrixStack matrix, final int mX, final int mY) {
-        final List<ITextComponent> tooltips = new ArrayList<>();
+    public void renderToolTip(final PoseStack stack, final int mX, final int mY) {
+        final List<Component> tooltips = new ArrayList<>();
 
         // io configuration
-        tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, TextFormatting.GOLD));
-        tooltips.add(new StringTextComponent(" "));
+        tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, ChatFormatting.GOLD));
+        tooltips.add(new TextComponent(" "));
         // block side
         tooltips.add(
             TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, TextFormatting.GREEN)
-                .append(TextUtils.colorize(": ", TextFormatting.GREEN))
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
+                .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(
-                    TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE, side.toString().toLowerCase(), TextFormatting.WHITE)
+                    TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE, side.toString().toLowerCase(), ChatFormatting.WHITE)
                 )
         );
         // current mode
         tooltips.add(
             TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, TextFormatting.GREEN)
-                .append(TextUtils.colorize(": ", TextFormatting.GREEN))
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
+                .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(
                     TextUtils.translate(
                         TRANSLATE_TYPE.IO_SETTING,
                         sideConfig.get(side).toString().toLowerCase(),
-                        TextFormatting.WHITE
+                        ChatFormatting.WHITE
                     )
                 )
         );
-        tooltips.add(new StringTextComponent(" "));
+        tooltips.add(new TextComponent(" "));
         // click to change mode
         tooltips.add(MeterScreen.getClickTooltip());
         // shift click to reset mode
         tooltips.add(
             TextUtils
-                .colorize("> ", TextFormatting.GRAY)
+                .colorize("> ", ChatFormatting.GRAY)
                 .append(
                     TextUtils.colorize(
                         String.format(
                             "%s + %s",
-                            InputMappings.getKey("key.keyboard.left.shift").getDisplayName().getString(),
+                            InputConstants.getKey("key.keyboard.left.shift").getDisplayName().getString(),
                             TextUtils.translateAsString(TRANSLATE_TYPE.TOOLTIP, "shift_click_1")
                         ),
-                        TextFormatting.AQUA
+                        ChatFormatting.AQUA
                     )
                 )
                 .append(" ")
-                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "shift_click_2", TextFormatting.GRAY))
+                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "shift_click_2", ChatFormatting.GRAY))
         );
 
-        screen.renderComponentTooltip(matrix, tooltips, mX, mY);
+        screen.renderComponentTooltip(stack, tooltips, mX, mY);
     }
 
     @Override
@@ -173,21 +167,21 @@ public class IOButton extends AbstractButton {
     }
 
     /**
-     * Retrieves the {@link SideConfiguration} from the parent {@link Container} so it's
+     * Retrieves the {@link SideConfiguration} from the parent {@link AbstractContainerMenu} so it's
      * always synchronized with the server.
      */
     private void syncSideConfig() {
-        sideConfig = ((MeterContainer) container).getTile().getSideConfig();
+        sideConfig = ((MeterContainer) container).getEntity().getSideConfig();
     }
 
     /**
      * Renders the I/O overlay for the {@link IOButton} depending on its {@link IO_SETTING}.
-     * @param matrix the matrix stack for the render call
+     * @param stack the pose stack for the render call
      */
-    private void renderIOOverlay(final MatrixStack matrix) {
+    private void renderIOOverlay(final PoseStack stack) {
         final int textureOffset = (sideConfig.get(side).ordinal() - 1) * OVERLAY_SIZE;
         if (textureOffset >= 0) blit(
-            matrix,
+            stack,
             x + OVERLAY_OFFSET,
             y + OVERLAY_OFFSET,
             BUTTON_SIZE,
@@ -209,28 +203,13 @@ public class IOButton extends AbstractButton {
             return;
         }
 
-        IO_SETTING setting = sideConfig.get(side);
-        switch (setting) {
-            case OFF:
-                if (sideConfig.hasInput()) {
-                    setting = IO_SETTING.OUT;
-                } else {
-                    setting = IO_SETTING.IN;
-                }
-                break;
-            case IN:
-                if (sideConfig.hasMaxOutputs()) {
-                    setting = IO_SETTING.OFF;
-                } else {
-                    setting = IO_SETTING.OUT;
-                }
-                break;
-            case OUT:
-                setting = IO_SETTING.OFF;
-                break;
-            default:
-                throw new IllegalArgumentException("There is no IO mode called " + setting);
-        }
+        final IO_SETTING setting =
+            switch (sideConfig.get(side)) {
+                case OFF -> sideConfig.hasInput() ? IO_SETTING.OUT : IO_SETTING.IN;
+                case IN -> sideConfig.hasMaxOutputs() ? IO_SETTING.OFF : IO_SETTING.OUT;
+                case OUT -> IO_SETTING.OFF;
+            };
+
         sideConfig.set(side, setting);
     }
 }
