@@ -44,7 +44,7 @@ public class IOButton extends AbstractButton {
             BUTTON_SIZE,
             BUTTON_SIZE,
             false,
-            button -> PacketHandler.channel.sendToServer(new IOUpdatePacket(((IOButton) button).sideConfig, side))
+            button -> PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(((IOButton) button).sideConfig, side))
         );
         this.side = side;
         syncSideConfig();
@@ -212,18 +212,10 @@ public class IOButton extends AbstractButton {
         IO_SETTING setting = sideConfig.get(side);
         switch (setting) {
             case OFF:
-                if (sideConfig.hasInput()) {
-                    setting = IO_SETTING.OUT;
-                } else {
-                    setting = IO_SETTING.IN;
-                }
+                setting = sideConfig.hasInput() ? IO_SETTING.OUT : IO_SETTING.IN;
                 break;
             case IN:
-                if (sideConfig.hasMaxOutputs()) {
-                    setting = IO_SETTING.OFF;
-                } else {
-                    setting = IO_SETTING.OUT;
-                }
+                setting = sideConfig.hasMaxOutputs() ? IO_SETTING.OFF : IO_SETTING.OUT;
                 break;
             case OUT:
                 setting = IO_SETTING.OFF;

@@ -22,22 +22,24 @@ public class EnergyMeter {
     public EnergyMeter() {
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         // register setup listener
-        modEventBus.addListener(EnergyMeter::setup);
+        modEventBus.addListener(EnergyMeter::onCommonSetup);
         // register client listener
-        modEventBus.addListener(EnergyMeter::clientSetup);
+        modEventBus.addListener(EnergyMeter::onClientSetup);
         // register mod contents
         Setup.init(modEventBus);
     }
 
-    private static void setup(final FMLCommonSetupEvent event) {
+    private static void onCommonSetup(final FMLCommonSetupEvent event) {
         // initialize packet handler
         PacketHandler.init();
     }
 
-    private static void clientSetup(final FMLClientSetupEvent event) {
-        // register screens (GUIs)
-        ScreenManager.register(Setup.Containers.METER_CONTAINER.get(), MeterScreen::new);
-        // register renderers
-        ClientRegistry.bindTileEntityRenderer(Setup.Tiles.METER_TILE.get(), MeterRenderer::new);
+    private static void onClientSetup(final FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            // register screens (GUIs)
+            ScreenManager.register(Setup.Containers.METER_CONTAINER.get(), MeterScreen::new);
+            // register renderers
+            ClientRegistry.bindTileEntityRenderer(Setup.Tiles.METER_TILE.get(), MeterRenderer::new);
+        });
     }
 }
