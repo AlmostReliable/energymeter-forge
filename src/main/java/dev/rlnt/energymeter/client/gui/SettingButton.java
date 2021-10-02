@@ -29,7 +29,7 @@ public class SettingButton extends AbstractButton {
             TEXTURE_WIDTH,
             TEXTURE_HEIGHT,
             true,
-            button -> PacketHandler.channel.sendToServer(new SettingUpdatePacket(setting))
+            button -> PacketHandler.CHANNEL.sendToServer(new SettingUpdatePacket(setting))
         );
         texture = setting.toString().toLowerCase();
         this.setting = setting;

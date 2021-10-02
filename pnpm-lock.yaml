@@ -44,7 +44,7 @@ packages:
       { integrity: sha512-w+LsMxKyYQm347Otw+IfBXOv9UWVjpHpCDdbBMt8Kz/xbvCYNjP+0qPh91Km3iKfSRLBB0P7fAMf0KHrPu+MyA== }
     dependencies:
       '@types/minimatch': 3.0.5
-      '@types/node': 16.10.1
+      '@types/node': 16.10.2
     dev: true
 
   /@types/minimatch/3.0.5:
@@ -52,9 +52,9 @@ packages:
       { integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ== }
     dev: true
 
-  /@types/node/16.10.1:
+  /@types/node/16.10.2:
     resolution:
-      { integrity: sha512-4/Z9DMPKFexZj/Gn3LylFgamNKHm4K3QDi0gz9B26Uk0c8izYf97B5fxfpspMNkWlFupblKM/nV8+NA9Ffvr+w== }
+      { integrity: sha512-zCclL4/rx+W5SQTzFs9wyvvyCwoK9QtBpratqz2IYJ3O8Umrn0m3nsTv0wQBk9sRGpvUe9CwPDrQFB10f1FIjQ== }
     dev: true
 
   /ansi-styles/4.3.0:
@@ -186,7 +186,7 @@ packages:
       merge-stream: 2.0.0
       npm-run-path: 4.0.1
       onetime: 5.1.2
-      signal-exit: 3.0.4
+      signal-exit: 3.0.5
       strip-final-newline: 2.0.0
     dev: true
 
@@ -248,7 +248,7 @@ packages:
       { integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow== }
     engines: { node: '>= 6' }
     dependencies:
-      is-glob: 4.0.2
+      is-glob: 4.0.3
     dev: true
 
   /glob/7.2.0:
@@ -320,9 +320,9 @@ packages:
     engines: { node: '>=0.10.0' }
     dev: true
 
-  /is-glob/4.0.2:
+  /is-glob/4.0.3:
     resolution:
-      { integrity: sha512-ZZTOjRcDjuAAAv2cTBQP/lL59ZTArx77+7UzHdWW/XB1mrfp7DEaVpKmZ0XIzx+M7AxfhKcqV+nMetUQmFifwg== }
+      { integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg== }
     engines: { node: '>=0.10.0' }
     dependencies:
       is-extglob: 2.1.1
@@ -590,9 +590,9 @@ packages:
     engines: { node: '>=8' }
     dev: true
 
-  /signal-exit/3.0.4:
+  /signal-exit/3.0.5:
     resolution:
-      { integrity: sha512-rqYhcAnZ6d/vTPGghdrw7iumdcbXpsk1b8IG/rz+VWV51DM0p7XCtMoJ3qhPLIbp3tvyt3pKRbaaEMZYpHto8Q== }
+      { integrity: sha512-KWcOiKeQj6ZyXx7zq4YxSMgHRlod4czeBQZrPb8OKcohcqAXShm7E20kEMle9WBt26hFcAf0qLOcp5zmY7kOqQ== }
     dev: true
 
   /slash/3.0.0:

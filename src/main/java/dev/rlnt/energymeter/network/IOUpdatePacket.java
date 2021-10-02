@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class IOUpdatePacket {
 
@@ -23,17 +23,17 @@ public class IOUpdatePacket {
 
     private IOUpdatePacket() {
         sideConfig = new int[12];
-        direction = Direction.NORTH;
+        direction = null;
     }
 
-    static IOUpdatePacket fromBytes(final PacketBuffer buffer) {
+    static IOUpdatePacket decode(final PacketBuffer buffer) {
         final IOUpdatePacket packet = new IOUpdatePacket();
         packet.sideConfig = buffer.readVarIntArray();
         packet.direction = Direction.values()[buffer.readInt()];
         return packet;
     }
 
-    static void handle(final IOUpdatePacket packet, final Supplier<NetworkEvent.Context> context) {
+    static void handle(final IOUpdatePacket packet, final Supplier<Context> context) {
         final ServerPlayerEntity player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);
@@ -49,7 +49,7 @@ public class IOUpdatePacket {
         }
     }
 
-    void toBytes(final PacketBuffer buffer) {
+    void encode(final PacketBuffer buffer) {
         buffer.writeVarIntArray(sideConfig);
         buffer.writeInt(direction.ordinal());
     }

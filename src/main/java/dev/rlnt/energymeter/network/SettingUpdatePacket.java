@@ -19,7 +19,7 @@ public class SettingUpdatePacket {
 
     private SettingUpdatePacket() {}
 
-    static SettingUpdatePacket fromBytes(final PacketBuffer buffer) {
+    static SettingUpdatePacket decode(final PacketBuffer buffer) {
         final SettingUpdatePacket packet = new SettingUpdatePacket();
         packet.setting = SETTING.values()[buffer.readInt()];
         return packet;
@@ -40,7 +40,7 @@ public class SettingUpdatePacket {
         }
     }
 
-    void toBytes(final PacketBuffer buffer) {
+    void encode(final PacketBuffer buffer) {
         buffer.writeInt(setting.ordinal());
     }
 }
