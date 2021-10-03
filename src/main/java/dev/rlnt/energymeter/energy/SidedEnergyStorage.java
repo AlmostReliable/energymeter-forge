@@ -22,6 +22,7 @@ public class SidedEnergyStorage implements IEnergyStorage {
     /**
      * Creates a new {@link SidedEnergyStorage} for each {@link Direction}.
      * Each of them will have the passed in parent and the direction linked to it.
+     *
      * @param parent the parent {@link TileEntity} which implements {@link ISidedEnergy}
      * @return a {@link List} of all created {@link SidedEnergyStorage}s
      */

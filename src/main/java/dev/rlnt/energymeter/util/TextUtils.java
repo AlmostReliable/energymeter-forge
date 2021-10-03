@@ -26,6 +26,7 @@ public class TextUtils {
     /**
      * Gets a resource location with the given key
      * and the namespace of the mod.
+     *
      * @param key the key to generate the resource location with
      * @return the generated resource location
      */
@@ -36,8 +37,9 @@ public class TextUtils {
     /**
      * Generates a Translation Text Component within the mod's namespace
      * with a custom type, key and optional color.
-     * @param type the type of the translation
-     * @param key the unique key of the translation
+     *
+     * @param type  the type of the translation
+     * @param key   the unique key of the translation
      * @param color an optional color
      * @return the translated phrase
      */
@@ -52,8 +54,9 @@ public class TextUtils {
 
     /**
      * Gets a translated phrase within the mod's namespace.
+     *
      * @param type the translation type to get the translation from
-     * @param key the translation key
+     * @param key  the translation key
      * @return the translated phrase
      */
     public static String translateAsString(final TRANSLATE_TYPE type, final String key) {
@@ -62,6 +65,7 @@ public class TextUtils {
 
     /**
      * Colores a given String with the given color.
+     *
      * @param input the string to color
      * @param color an optional color
      * @return the colorized string
@@ -72,8 +76,9 @@ public class TextUtils {
 
     /**
      * Gets the translation key from the provided type and key.
+     *
      * @param type the type of the translation
-     * @param key the unique key of the translation
+     * @param key  the unique key of the translation
      * @return the translation key
      */
     private static String getTranslationKey(final TRANSLATE_TYPE type, final String key) {
@@ -83,10 +88,11 @@ public class TextUtils {
     /**
      * Formats Forge Energy into a readable String with an easy-to-read suffix.
      * Can also give back the full formatted energy amount if a true boolean is passed in.
-     * @author Chronophylos
-     * @param number the energy amount to format
+     *
+     * @param number   the energy amount to format
      * @param extended the boolean to define if full energy amount is used
      * @return the readable string representation of the energy
+     * @author Chronophylos
      */
     public static Tuple<String, String> formatEnergy(final Number number, final boolean extended) {
         if (!extended) {
@@ -105,7 +111,8 @@ public class TextUtils {
     /**
      * Formats numbers with fraction digits into readable strings by
      * adjusting the fraction digit amount.
-     * @param input the number to format
+     *
+     * @param input       the number to format
      * @param maxFraction the maximum amount of fraction digits
      * @return the readable string representation of the number
      */
