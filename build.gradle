@@ -162,14 +162,14 @@ curseforge {
         apiKey = "none"
     }
     project {
-        id = '532169'
+        id = project_id
         changelogType = 'markdown'
-        changelog = 'The whole changelog can be found [here](https://github.com/RLNT/minecraft_energymeter/blob/1.17/CHANGELOG.md).'
+        changelog = "The whole changelog can be found [here](https://github.com/${github_user}/${github_repo}/blob/1.17/CHANGELOG.md)."
         releaseType = 'release'
         addGameVersion minecraft_version
 
         mainArtifact(jar) {
-            displayName = "EnergyMeter-${minecraft_version}-${mod_version}"
+            displayName = "${System.getenv('FILE_NAME')}-${minecraft_version}-${mod_version}"
         }
     }
 }
