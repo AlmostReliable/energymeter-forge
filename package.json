@@ -2,7 +2,7 @@
   "name": "minecraft_energymeter",
   "version": "dev",
   "scripts": {
-    "format": "prettier --write \"**/*.{java,json}\"",
+    "format": "prettier --write \"**/*.{java,json,yml,yaml}\"",
     "prepare": "husky install",
     "pretty-quick": "pretty-quick --staged"
   },
