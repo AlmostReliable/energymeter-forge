@@ -50,10 +50,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private NUMBER_MODE numberMode = NUMBER_MODE.SHORT;
     private MODE mode = MODE.TRANSFER;
 
-    public MeterTile() {
+    public MeterTile(BlockState state) {
         super(Setup.Tiles.METER_TILE.get());
         energyStorage = SidedEnergyStorage.create(this);
-        sideConfig = new SideConfiguration();
+        sideConfig = new SideConfiguration(state.getValue(MeterBlock.HORIZONTAL_FACING));
     }
 
     /**
@@ -204,13 +204,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         status = STATUS.values()[nbt.getInt(STATUS_ID)];
         numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         mode = MODE.values()[nbt.getInt(MODE_ID)];
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        sideConfig.setFacing(getBlockState().getValue(MeterBlock.HORIZONTAL_FACING));
-        update(false);
     }
 
     @Override

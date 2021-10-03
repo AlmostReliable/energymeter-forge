@@ -80,6 +80,11 @@ public class Setup {
     public static class Tiles {
 
         static final DeferredRegister<TileEntityType<?>> REGISTRY = createRegistry(ForgeRegistries.TILE_ENTITIES);
+        public static final RegistryObject<TileEntityType<MeterTile>> METER_TILE = registerTile(
+            METER_ID,
+            () -> new MeterTile(Blocks.METER_BLOCK.get().defaultBlockState()),
+            Blocks.METER_BLOCK
+        );
 
         private Tiles() {
             throw new IllegalStateException(EXCEPTION_MESSAGE);
@@ -94,12 +99,6 @@ public class Setup {
             //noinspection ConstantConditions
             return REGISTRY.register(name, () -> TileEntityType.Builder.of(tile, block.get()).build(null));
         }
-
-        public static final RegistryObject<TileEntityType<MeterTile>> METER_TILE = registerTile(
-            METER_ID,
-            MeterTile::new,
-            Blocks.METER_BLOCK
-        );
     }
 
     public static class Containers {
