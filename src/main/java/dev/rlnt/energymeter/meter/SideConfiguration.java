@@ -10,9 +10,10 @@ public class SideConfiguration {
     private static final int SIZE = 12;
     private final EnumMap<Direction, IO_SETTING> directionConfig = new EnumMap<>(Direction.class);
     private final EnumMap<BLOCK_SIDE, IO_SETTING> sideConfig = new EnumMap<>(BLOCK_SIDE.class);
-    private Direction facing = Direction.NORTH;
+    private final Direction facing;
 
-    SideConfiguration() {
+    SideConfiguration(Direction facing) {
+        this.facing = facing;
         for (final Direction direction : Direction.values()) {
             directionConfig.put(direction, IO_SETTING.OFF);
         }
@@ -21,12 +22,9 @@ public class SideConfiguration {
         }
     }
 
-    void setFacing(final Direction facing) {
-        this.facing = facing;
-    }
-
     /**
      * Converts the side configuration to a serializable integer array.
+     *
      * @return the side configuration as integer array
      */
     public int[] serialize() {
@@ -42,6 +40,7 @@ public class SideConfiguration {
 
     /**
      * Reads the side configuration from an integer array and stores it.
+     *
      * @param serialized the integer array to deserialize
      */
     public void deserialize(final int[] serialized) {
@@ -56,6 +55,7 @@ public class SideConfiguration {
     /**
      * Gets an IO setting by a specified direction.
      * This automatically takes the facing direction into account.
+     *
      * @param direction the direction to get the IO setting from
      * @return the IO setting
      */
@@ -66,6 +66,7 @@ public class SideConfiguration {
     /**
      * Gets an IO setting by a specified block side.
      * This automatically takes the facing direction into account.
+     *
      * @param side the block side to get the IO setting from
      * @return the IO setting
      */
@@ -75,7 +76,8 @@ public class SideConfiguration {
 
     /**
      * Sets the specified block side to the specified IO setting.
-     * @param side the side on which the setting should be changed
+     *
+     * @param side    the side on which the setting should be changed
      * @param setting the setting which should be set
      */
     public void set(final BLOCK_SIDE side, final IO_SETTING setting) {
@@ -85,6 +87,7 @@ public class SideConfiguration {
 
     /**
      * Checks if the side configuration has an input set somewhere.
+     *
      * @return true if there is an input, false otherwise
      */
     public boolean hasInput() {
@@ -93,6 +96,7 @@ public class SideConfiguration {
 
     /**
      * Checks if the side configuration has an output set somewhere.
+     *
      * @return true if there is an output, false otherwise
      */
     public boolean hasOutput() {
@@ -101,6 +105,7 @@ public class SideConfiguration {
 
     /**
      * Checks if the side configuration already has the maximum amount of outputs.
+     *
      * @return true if there are max outputs, false otherwise
      */
     public boolean hasMaxOutputs() {
@@ -109,6 +114,7 @@ public class SideConfiguration {
 
     /**
      * Gets the direction from the given block side depending on the facing of the block.
+     *
      * @param side the block side to get the direction from
      * @return the direction
      */

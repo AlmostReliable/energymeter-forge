@@ -52,6 +52,7 @@ public class IOButton extends AbstractButton {
 
     /**
      * Creates an {@link IOButton} for each passed in {@link BLOCK_SIDE}.
+     *
      * @param sides the sides for which the buttons should be created
      * @return a list of all buttons created
      */
@@ -66,6 +67,7 @@ public class IOButton extends AbstractButton {
 
     /**
      * Returns the x and y positions for the texture depending on the {@link BLOCK_SIDE}.
+     *
      * @param side the BLOCK_SIDE to get the positions for
      * @return the x and y position for the BLOCK_SIDE
      */
@@ -182,6 +184,7 @@ public class IOButton extends AbstractButton {
 
     /**
      * Renders the I/O overlay for the {@link IOButton} depending on its {@link IO_SETTING}.
+     *
      * @param matrix the matrix stack for the render call
      */
     private void renderIOOverlay(final MatrixStack matrix) {
@@ -201,6 +204,7 @@ public class IOButton extends AbstractButton {
 
     /**
      * Changes the mode of a {@link BLOCK_SIDE} depending on its current {@link IO_SETTING}.
+     *
      * @param reset whether the field should be reset to OFF
      */
     private void changeMode(final boolean reset) {

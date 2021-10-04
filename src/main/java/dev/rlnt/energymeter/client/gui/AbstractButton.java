@@ -59,18 +59,21 @@ public abstract class AbstractButton extends Button {
     /**
      * Gets the texture file name for the button as {@link String}.
      * The default location points to "textures/gui/buttons".
+     *
      * @return the texture file name
      */
     protected abstract String getTexture();
 
     /**
      * Gets the texture atlas width for the rendering calls.
+     *
      * @return the texture atlas width
      */
     protected abstract int getTextureWidth();
 
     /**
      * Gets the texture atlas height for the rendering calls.
+     *
      * @return the texture atlas height
      */
     protected abstract int getTextureHeight();

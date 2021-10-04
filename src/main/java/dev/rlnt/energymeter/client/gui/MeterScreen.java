@@ -32,6 +32,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
     /**
      * Gets the {@link ITextComponent} for the "click to change mode" text in the tooltips.
+     *
      * @return the click to change mode tooltip
      */
     static ITextComponent getClickTooltip() {
@@ -156,6 +157,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
     /**
      * Gets a {@link String} representation of the current connection status.
+     *
      * @return the current connection status
      */
     private String getConnectionString() {
@@ -165,6 +167,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
     /**
      * Gets a color representing the current connection status.
+     *
      * @return the color of the current connection status
      */
     private TextFormatting getConnectionColor() {
@@ -185,6 +188,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
     /**
      * Gets a color representing the current consumer mode.
+     *
      * @return the color of the current consumer mode
      */
     private TextFormatting getConsumerColor() {
@@ -193,8 +197,9 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
     /**
      * Convenience method to add multiple buttons at once.
+     *
      * @param buttons the list of buttons to add
-     * @param <T> the button class
+     * @param <T>     the button class
      */
     private <T extends Widget> void addButtons(final List<T> buttons) {
         for (final T button : buttons) {
@@ -204,11 +209,12 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
     /**
      * Checks if the mouse cursor is within a specified region.
-     * @param mX mouse position on the x-axis
-     * @param mY mouse position on the y-axis
-     * @param pX left position on the x-axis
-     * @param widht width to calculate the boundary on the x-axis
-     * @param pY top position on the y-axis
+     *
+     * @param mX     mouse position on the x-axis
+     * @param mY     mouse position on the y-axis
+     * @param pX     left position on the x-axis
+     * @param widht  width to calculate the boundary on the x-axis
+     * @param pY     top position on the y-axis
      * @param height height to calculate the boundary on the y-axis
      * @return true if the curser is within the region, false otherwise
      */

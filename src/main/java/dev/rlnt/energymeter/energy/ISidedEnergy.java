@@ -13,7 +13,8 @@ public interface ISidedEnergy {
      * When consumer mode is active, it will void all incoming energy.
      * This method adjusts values which are required for the flow rate calculation
      * inside the {@link TileEntity}'s tick method.
-     * @param energy the amount of energy
+     *
+     * @param energy   the amount of energy
      * @param simulate whether it's a simulation
      * @return the energy which was accepted
      */
@@ -21,6 +22,7 @@ public interface ISidedEnergy {
 
     /**
      * Returns the {@link SideConfiguration} of the {@link TileEntity}.
+     *
      * @return the side configuration
      */
     SideConfiguration getSideConfig();
@@ -28,6 +30,7 @@ public interface ISidedEnergy {
     /**
      * Returns whether the {@link TileEntity} is currently set as consumer.
      * This means it voids all incoming energy.
+     *
      * @return true if consumer, false otherwise
      */
     MODE getMode();

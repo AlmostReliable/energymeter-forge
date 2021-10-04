@@ -27,6 +27,7 @@ public class MeterContainer extends Container {
 
     /**
      * Gets the parent {@link TileEntity} of the {@link Container}.
+     *
      * @return the parent
      */
     public MeterTile getTile() {

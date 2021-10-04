@@ -20,7 +20,7 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
     private static final float[] ANGLE = { 0, 0, 0, 180, 90, -90 };
     private static final float PIXEL_SIZE = .3f / 16;
     private static final float OFFSET = 0.001f;
-    private static final int MAX_DISTANCE = 20;
+    private static final int MAX_DISTANCE = 30;
     private final Minecraft mc;
     private final FontRenderer font;
 

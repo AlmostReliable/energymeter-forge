@@ -28,11 +28,8 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 public class Setup {
 
     static final Tab TAB = new Tab(MOD_ID);
-    private static final String EXCEPTION_MESSAGE = "Utility class";
 
-    private Setup() {
-        throw new IllegalStateException(EXCEPTION_MESSAGE);
-    }
+    private Setup() {}
 
     private static <T extends IForgeRegistryEntry<T>> DeferredRegister<T> createRegistry(
         final IForgeRegistry<T> registry
@@ -65,9 +62,7 @@ public class Setup {
         static final DeferredRegister<Item> ITEMS = createRegistry(ForgeRegistries.ITEMS);
         private static final RegistryObject<Block> METER_BLOCK = registerBlock(METER_ID, MeterBlock::new);
 
-        private Blocks() {
-            throw new IllegalStateException(EXCEPTION_MESSAGE);
-        }
+        private Blocks() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <T extends Block> RegistryObject<T> registerBlock(final String name, final Supplier<T> block) {
@@ -80,10 +75,13 @@ public class Setup {
     public static class Tiles {
 
         static final DeferredRegister<TileEntityType<?>> REGISTRY = createRegistry(ForgeRegistries.TILE_ENTITIES);
+        public static final RegistryObject<TileEntityType<MeterTile>> METER_TILE = registerTile(
+            METER_ID,
+            () -> new MeterTile(Blocks.METER_BLOCK.get().defaultBlockState()),
+            Blocks.METER_BLOCK
+        );
 
-        private Tiles() {
-            throw new IllegalStateException(EXCEPTION_MESSAGE);
-        }
+        private Tiles() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <T extends TileEntity, B extends Block> RegistryObject<TileEntityType<T>> registerTile(
@@ -94,12 +92,6 @@ public class Setup {
             //noinspection ConstantConditions
             return REGISTRY.register(name, () -> TileEntityType.Builder.of(tile, block.get()).build(null));
         }
-
-        public static final RegistryObject<TileEntityType<MeterTile>> METER_TILE = registerTile(
-            METER_ID,
-            MeterTile::new,
-            Blocks.METER_BLOCK
-        );
     }
 
     public static class Containers {
@@ -119,8 +111,6 @@ public class Setup {
                 )
         );
 
-        private Containers() {
-            throw new IllegalStateException(EXCEPTION_MESSAGE);
-        }
+        private Containers() {}
     }
 }

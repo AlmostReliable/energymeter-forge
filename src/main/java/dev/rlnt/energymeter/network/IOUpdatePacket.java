@@ -3,12 +3,14 @@ package dev.rlnt.energymeter.network;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterTile;
 import dev.rlnt.energymeter.meter.SideConfiguration;
+import dev.rlnt.energymeter.network.PacketHandler.SyncFlags;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class IOUpdatePacket {
@@ -42,9 +44,12 @@ public class IOUpdatePacket {
     private static void handlePacket(final IOUpdatePacket packet, @Nullable final ServerPlayerEntity player) {
         if (player != null && player.containerMenu instanceof MeterContainer) {
             final MeterTile tile = ((MeterContainer) player.containerMenu).getTile();
+            final World level = tile.getLevel();
+            if (level == null || !level.isLoaded(tile.getBlockPos())) return;
             tile.getSideConfig().deserialize(packet.sideConfig);
-            tile.update(true);
+            tile.updateNeighbors();
             tile.updateCache(packet.direction);
+            tile.syncData(SyncFlags.SIDE_CONFIG);
             tile.setChanged();
         }
     }
