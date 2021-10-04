@@ -447,10 +447,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private void calculateFlow() {
         if (averageCount != 0) {
             transferRate = (float) averageRate / averageCount;
-            if (lastSyncedTransferRate != transferRate) {
-                syncData(SyncFlags.TRANSFER_RATE);
-                lastSyncedTransferRate = transferRate;
-            }
+            if (lastSyncedTransferRate != transferRate) syncData(SyncFlags.TRANSFER_RATE);
         }
 
         if (transferRate > 0) {
@@ -460,6 +457,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         }
 
         lastAverageRate = averageRate;
+        lastSyncedTransferRate = transferRate;
     }
 
     @Override
