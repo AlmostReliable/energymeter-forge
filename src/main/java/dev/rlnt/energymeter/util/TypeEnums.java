@@ -2,9 +2,7 @@ package dev.rlnt.energymeter.util;
 
 public class TypeEnums {
 
-    private TypeEnums() {
-        throw new IllegalStateException("Utility class");
-    }
+    private TypeEnums() {}
 
     /**
      * Defines the type of the translation to

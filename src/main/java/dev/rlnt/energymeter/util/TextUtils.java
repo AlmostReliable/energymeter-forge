@@ -19,9 +19,7 @@ public class TextUtils {
     private static final DecimalFormat DF = (DecimalFormat) NumberFormat.getInstance(LOCALE).clone();
     private static final String[] UNITS = new String[] { "", "k", "M", "G", "T", "P" };
 
-    private TextUtils() {
-        throw new IllegalStateException("Utility class");
-    }
+    private TextUtils() {}
 
     /**
      * Gets a resource location with the given key

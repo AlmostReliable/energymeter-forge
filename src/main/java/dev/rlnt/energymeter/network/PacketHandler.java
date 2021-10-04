@@ -44,10 +44,7 @@ public class PacketHandler {
             .add();
     }
 
-    private PacketHandler() {
-        throw new IllegalStateException("Utility class");
-        // TODO: remove
-    }
+    private PacketHandler() {}
 
     public static void init() {
         // utility method to initialize the packet handler
