@@ -5,6 +5,9 @@ import static dev.rlnt.energymeter.core.Constants.*;
 import dev.rlnt.energymeter.core.Setup;
 import dev.rlnt.energymeter.energy.ISidedEnergy;
 import dev.rlnt.energymeter.energy.SidedEnergyStorage;
+import dev.rlnt.energymeter.network.ClientSyncPacket;
+import dev.rlnt.energymeter.network.PacketHandler;
+import dev.rlnt.energymeter.network.PacketHandler.SyncFlags;
 import dev.rlnt.energymeter.network.SettingUpdatePacket;
 import dev.rlnt.energymeter.util.TextUtils;
 import dev.rlnt.energymeter.util.TypeEnums.*;
@@ -20,18 +23,18 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 public class MeterTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, ISidedEnergy {
 
@@ -43,6 +46,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private boolean setupDone = false;
     private LazyOptional<IEnergyStorage> inputCache = null;
     private float transferRate = 0;
+    private float lastSyncedTransferRate = 0;
     private int averageRate = 0;
     private int lastAverageRate = 0;
     private int averageCount = 0;
@@ -125,6 +129,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         return transferRate;
     }
 
+    public void setTransferRate(float transferRate) {
+        this.transferRate = transferRate;
+    }
+
     public STATUS getStatus() {
         if (status != STATUS.TRANSFERRING) {
             return status;
@@ -133,8 +141,16 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         }
     }
 
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
+
     public NUMBER_MODE getNumberMode() {
         return numberMode;
+    }
+
+    public void setNumberMode(final NUMBER_MODE numberMode) {
+        this.numberMode = numberMode;
     }
 
     /**
@@ -146,17 +162,19 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     public void updateSetting(final SETTING setting) {
         if (setting == SETTING.NUMBER) {
             numberMode = numberMode == NUMBER_MODE.SHORT ? NUMBER_MODE.LONG : NUMBER_MODE.SHORT;
+            syncData(SyncFlags.NUMBER_MODE);
         } else if (setting == SETTING.MODE) {
             mode = mode == MODE.TRANSFER ? MODE.CONSUMER : MODE.TRANSFER;
+            syncData(SyncFlags.MODE);
         }
     }
 
     @Override
     public void load(final BlockState state, final CompoundNBT nbt) {
         super.load(state, nbt);
-        sideConfig.deserialize(nbt.getIntArray(SIDE_CONFIG_ID));
-        numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
-        mode = MODE.values()[nbt.getInt(MODE_ID)];
+        if (nbt.contains(SIDE_CONFIG_ID)) sideConfig.deserialize(nbt.getIntArray(SIDE_CONFIG_ID));
+        if (nbt.contains(NUMBER_MODE_ID)) numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
+        if (nbt.contains(MODE_ID)) mode = MODE.values()[nbt.getInt(MODE_ID)];
     }
 
     @Override
@@ -165,12 +183,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         nbt.putInt(MODE_ID, mode.ordinal());
         return super.save(nbt);
-    }
-
-    @Nullable
-    @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(worldPosition, -1, getUpdateTag());
     }
 
     @Override
@@ -190,11 +202,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             cap.invalidate();
         }
         super.setRemoved();
-    }
-
-    @Override
-    public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket packet) {
-        handleUpdateTag(Objects.requireNonNull(level).getBlockState(packet.getPos()), packet.getTag());
     }
 
     @Override
@@ -257,6 +264,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         return mode;
     }
 
+    public void setMode(final MODE mode) {
+        this.mode = mode;
+    }
+
     /**
      * Checks each output direction whether there is a valid energy capability.
      * It will simulate an energy transfer to this capability to make sure it can
@@ -284,18 +295,37 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Initiates a block update to sync data between server and client.
+     * Syncs data to clients that track the current {@link Chunk} with a {@link ClientSyncPacket}.
+     * <p>
+     * Different flags from the {@link SyncFlags} can be passed to define what should be included
+     * in the packet to avoid unnecessary data being sent.
      *
-     * @param updateNeighbors if true, it will also update the neighbor blocks and rerender
+     * @param flags the flags of the data to sync
      */
-    public void update(final boolean updateNeighbors) {
+    public void syncData(int flags) {
         if (level == null || level.isClientSide) return;
-        if (updateNeighbors) level.setBlock(
+        ClientSyncPacket packet = new ClientSyncPacket(
             worldPosition,
-            flipBlockState(),
-            BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.RERENDER_MAIN_THREAD
+            flags,
+            sideConfig,
+            transferRate,
+            status,
+            numberMode,
+            mode
         );
-        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), BlockFlags.BLOCK_UPDATE);
+        PacketHandler.CHANNEL.send(
+            PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
+            packet
+        );
+    }
+
+    /**
+     * Updates the neighbor blocks of the {@link TileEntity}.
+     * Can be useful to connect cables.
+     */
+    public void updateNeighbors() {
+        if (level == null || level.isClientSide) return;
+        level.setBlock(worldPosition, flipBlockState(), BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.RERENDER_MAIN_THREAD);
     }
 
     /**
@@ -378,19 +408,23 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Updates the connection to the specified value.
-     * If it was different from the previous value, it will trigger a block update.
+     * Updates the status to the specified value.
+     * If it was different from the previous value, it will trigger a client sync.
      *
      * @param newStatus the new setting to set
      */
-    private void updateConnection(final STATUS newStatus) {
+    private void updateStatus(final STATUS newStatus) {
         final STATUS oldStatus = status;
         status = newStatus;
         averageRate = 0;
         averageCount = 0;
         if (oldStatus != newStatus) {
-            if (newStatus != STATUS.TRANSFERRING) transferRate = 0;
-            update(false);
+            int flags = SyncFlags.STATUS;
+            if (newStatus != STATUS.TRANSFERRING) {
+                transferRate = 0;
+                flags = flags | SyncFlags.TRANSFER_RATE;
+            }
+            syncData(flags);
         }
     }
 
@@ -408,18 +442,21 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     /**
      * Calculates the flow rate depending on the energy received within {@value REFRESH_RATE} ticks.
-     * Updates the connection status accordingly.
+     * Updates the status accordingly.
      */
     private void calculateFlow() {
         if (averageCount != 0) {
             transferRate = (float) averageRate / averageCount;
-            update(false);
+            if (lastSyncedTransferRate != transferRate) {
+                syncData(SyncFlags.TRANSFER_RATE);
+                lastSyncedTransferRate = transferRate;
+            }
         }
 
         if (transferRate > 0) {
-            updateConnection(STATUS.TRANSFERRING);
+            updateStatus(STATUS.TRANSFERRING);
         } else {
-            updateConnection(STATUS.CONNECTED);
+            updateStatus(STATUS.CONNECTED);
         }
 
         lastAverageRate = averageRate;
@@ -442,13 +479,13 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             (mode == MODE.CONSUMER && !hasValidInput) ||
             (mode == MODE.TRANSFER && (!hasValidInput || !sideConfig.hasOutput() || !hasValidOutput()))
         ) {
-            updateConnection(STATUS.DISCONNECTED);
+            updateStatus(STATUS.DISCONNECTED);
             return;
         }
 
         // if the average rate didn't change, set to connected
         if (averageRate == lastAverageRate) {
-            updateConnection(STATUS.CONNECTED);
+            updateStatus(STATUS.CONNECTED);
             return;
         }
 
