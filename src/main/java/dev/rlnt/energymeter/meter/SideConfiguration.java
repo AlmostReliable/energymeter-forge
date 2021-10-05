@@ -3,23 +3,24 @@ package dev.rlnt.energymeter.meter;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import java.util.EnumMap;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 
 public class SideConfiguration {
 
-    private static final int SIZE = 12;
-    private final EnumMap<Direction, IO_SETTING> directionConfig = new EnumMap<>(Direction.class);
-    private final EnumMap<BLOCK_SIDE, IO_SETTING> sideConfig = new EnumMap<>(BLOCK_SIDE.class);
+    private static final int MAX_OUTPUTS = 4;
+    private final EnumMap<Direction, IO_SETTING> config = new EnumMap<>(Direction.class);
+    private final int size;
     private final Direction facing;
+    private final Direction bottom;
 
-    SideConfiguration(Direction facing) {
-        this.facing = facing;
+    SideConfiguration(BlockState state) {
+        facing = state.getValue(MeterBlock.FACING);
+        bottom = state.getValue(MeterBlock.BOTTOM);
         for (final Direction direction : Direction.values()) {
-            directionConfig.put(direction, IO_SETTING.OFF);
+            config.put(direction, IO_SETTING.OFF);
         }
-        for (final BLOCK_SIDE side : BLOCK_SIDE.values()) {
-            sideConfig.put(side, IO_SETTING.OFF);
-        }
+        size = config.size();
     }
 
     /**
@@ -28,12 +29,9 @@ public class SideConfiguration {
      * @return the side configuration as integer array
      */
     public int[] serialize() {
-        final int[] serialized = new int[SIZE];
-        for (int i = 0; i < Direction.values().length; i++) {
-            serialized[i] = directionConfig.get(Direction.values()[i]).ordinal();
-        }
-        for (int i = 0; i < BLOCK_SIDE.values().length; i++) {
-            serialized[SIZE / 2 + i] = sideConfig.get(BLOCK_SIDE.values()[i]).ordinal();
+        final int[] serialized = new int[size];
+        for (int i = 0; i < size; i++) {
+            serialized[i] = config.get(Direction.values()[i]).ordinal();
         }
         return serialized;
     }
@@ -44,11 +42,8 @@ public class SideConfiguration {
      * @param serialized the integer array to deserialize
      */
     public void deserialize(final int[] serialized) {
-        for (int i = 0; i < Direction.values().length; i++) {
-            directionConfig.put(Direction.values()[i], IO_SETTING.values()[serialized[i]]);
-        }
-        for (int i = 0; i < BLOCK_SIDE.values().length; i++) {
-            sideConfig.put(BLOCK_SIDE.values()[i], IO_SETTING.values()[serialized[SIZE / 2 + i]]);
+        for (int i = 0; i < size; i++) {
+            config.put(Direction.values()[i], IO_SETTING.values()[serialized[i]]);
         }
     }
 
@@ -60,7 +55,7 @@ public class SideConfiguration {
      * @return the IO setting
      */
     public IO_SETTING get(final Direction direction) {
-        return directionConfig.get(direction);
+        return config.get(direction);
     }
 
     /**
@@ -71,7 +66,7 @@ public class SideConfiguration {
      * @return the IO setting
      */
     public IO_SETTING get(final BLOCK_SIDE side) {
-        return sideConfig.get(side);
+        return config.get(getDirectionFromSide(side));
     }
 
     /**
@@ -81,8 +76,7 @@ public class SideConfiguration {
      * @param setting the setting which should be set
      */
     public void set(final BLOCK_SIDE side, final IO_SETTING setting) {
-        sideConfig.put(side, setting);
-        directionConfig.put(getDirectionFromSide(side), setting);
+        config.put(getDirectionFromSide(side), setting);
     }
 
     /**
@@ -91,7 +85,7 @@ public class SideConfiguration {
      * @return true if there is an input, false otherwise
      */
     public boolean hasInput() {
-        return sideConfig.containsValue(IO_SETTING.IN);
+        return config.containsValue(IO_SETTING.IN);
     }
 
     /**
@@ -100,7 +94,7 @@ public class SideConfiguration {
      * @return true if there is an output, false otherwise
      */
     public boolean hasOutput() {
-        return sideConfig.containsValue(IO_SETTING.OUT);
+        return config.containsValue(IO_SETTING.OUT);
     }
 
     /**
@@ -109,7 +103,7 @@ public class SideConfiguration {
      * @return true if there are max outputs, false otherwise
      */
     public boolean hasMaxOutputs() {
-        return sideConfig.values().stream().filter(setting -> setting == IO_SETTING.OUT).count() == 4;
+        return config.values().stream().filter(setting -> setting == IO_SETTING.OUT).count() == MAX_OUTPUTS;
     }
 
     /**
@@ -119,6 +113,40 @@ public class SideConfiguration {
      * @return the direction
      */
     public Direction getDirectionFromSide(final BLOCK_SIDE side) {
+        return facing != bottom ? verticalConversion(side) : horizontalConversion(side);
+    }
+
+    /**
+     * Converts the given block side to a direction if the facing direction
+     * is up or down.
+     *
+     * @param side the block side to convert
+     * @return the direction
+     */
+    public Direction verticalConversion(final BLOCK_SIDE side) {
+        if (side == BLOCK_SIDE.TOP) {
+            return bottom.getOpposite();
+        } else if (side == BLOCK_SIDE.BOTTOM) {
+            return bottom;
+        } else if (side == BLOCK_SIDE.LEFT) {
+            return facing == Direction.UP ? bottom.getClockWise() : bottom.getCounterClockWise();
+        } else if (side == BLOCK_SIDE.RIGHT) {
+            return facing == Direction.UP ? bottom.getCounterClockWise() : bottom.getClockWise();
+        } else if (side == BLOCK_SIDE.BACK) {
+            return facing.getOpposite();
+        } else {
+            return facing;
+        }
+    }
+
+    /**
+     * Converts the given block side to a direction if the facing direction
+     * is any of the 4 compass directions.
+     *
+     * @param side the block side to convert
+     * @return the direction
+     */
+    public Direction horizontalConversion(final BLOCK_SIDE side) {
         if (side == BLOCK_SIDE.TOP) {
             return Direction.UP;
         } else if (side == BLOCK_SIDE.BOTTOM) {

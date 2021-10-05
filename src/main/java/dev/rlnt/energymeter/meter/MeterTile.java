@@ -46,7 +46,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private boolean setupDone = false;
     private LazyOptional<IEnergyStorage> inputCache = null;
     private float transferRate = 0;
-    private float lastSyncedTransferRate = 0;
     private int averageRate = 0;
     private int lastAverageRate = 0;
     private int averageCount = 0;
@@ -57,7 +56,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     public MeterTile(BlockState state) {
         super(Setup.Tiles.METER_TILE.get());
         energyStorage = SidedEnergyStorage.create(this);
-        sideConfig = new SideConfiguration(state.getValue(MeterBlock.HORIZONTAL_FACING));
+        sideConfig = new SideConfiguration(state);
     }
 
     /**
@@ -446,8 +445,9 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      */
     private void calculateFlow() {
         if (averageCount != 0) {
+            float oldTransferRate = transferRate;
             transferRate = (float) averageRate / averageCount;
-            if (lastSyncedTransferRate != transferRate) syncData(SyncFlags.TRANSFER_RATE);
+            if (oldTransferRate != transferRate) syncData(SyncFlags.TRANSFER_RATE);
         }
 
         if (transferRate > 0) {
@@ -457,7 +457,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         }
 
         lastAverageRate = averageRate;
-        lastSyncedTransferRate = transferRate;
     }
 
     @Override

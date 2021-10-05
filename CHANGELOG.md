@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.1.0] - 2021-10-05
+
+### Info
+- this update will either reset or completely remove all your existing Energy Meters
+- this wasn't preventable in order to implement the new changes, sorry
+
+### Added
+- added full support for all directions for the facing side
+  - this means you can also place Energy Meters with the screen at the top or the bottom
+
+### Changed
+- simplified the logic of the side configuration
+
+
 ## [1.0.4] - 2021-10-04
 
 ### Changed
@@ -60,7 +74,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.4...HEAD
+[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.0...HEAD
+[1.1.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.4..v1.16-1.1.0
 [1.0.4]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.3..v1.16-1.0.4
 [1.0.3]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.2..v1.16-1.0.3
 [1.0.2]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.1..v1.16-1.0.2
