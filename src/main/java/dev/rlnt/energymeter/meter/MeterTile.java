@@ -56,7 +56,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     public MeterTile(BlockState state) {
         super(Setup.Tiles.METER_TILE.get());
         energyStorage = SidedEnergyStorage.create(this);
-        sideConfig = new SideConfiguration(state.getValue(MeterBlock.HORIZONTAL_FACING));
+        sideConfig = new SideConfiguration(state);
     }
 
     /**

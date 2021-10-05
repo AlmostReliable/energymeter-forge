@@ -32,7 +32,8 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 public class MeterBlock extends Block {
 
-    public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final DirectionProperty BOTTOM = DirectionProperty.create("bottom", Direction.Plane.HORIZONTAL);
     /**
      * This BlockState is purely for utility in order to be able to update neighbor blocks.
      * It changes each time the neighbor blocks need updates (e.g. when wires have to connect).
@@ -47,15 +48,19 @@ public class MeterBlock extends Block {
     @Nullable
     @Override
     public BlockState getStateForPlacement(final BlockItemUseContext context) {
+        Direction facing = context.getNearestLookingDirection().getOpposite();
+        Direction bottom = context.getHorizontalDirection();
         return defaultBlockState()
-            .setValue(HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite())
+            .setValue(FACING, facing)
+            .setValue(BOTTOM, facing == Direction.DOWN ? bottom : bottom.getOpposite())
             .setValue(IO, false);
     }
 
     @Override
     protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(HORIZONTAL_FACING);
+        builder.add(FACING);
+        builder.add(BOTTOM);
         builder.add(IO);
     }
 

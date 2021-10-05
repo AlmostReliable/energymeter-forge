@@ -31,15 +31,15 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
     }
 
     private static Vector3f getFacingVector(final Direction facing) {
-        final float y = .5f;
         if (facing.ordinal() < 2) {
-            throw new IllegalStateException("Facing can't be up or down!");
+            // up or down
+            return new Vector3f(.5f, facing == Direction.UP ? 1 + OFFSET : -OFFSET, .5f);
         } else if (facing.ordinal() < 4) {
             // north or south
-            return new Vector3f(.5f, y, facing == Direction.NORTH ? -OFFSET : 1 + OFFSET);
+            return new Vector3f(.5f, .5f, facing == Direction.NORTH ? -OFFSET : 1 + OFFSET);
         } else {
             // west or east
-            return new Vector3f(facing == Direction.WEST ? -OFFSET : 1 + OFFSET, y, .5f);
+            return new Vector3f(facing == Direction.WEST ? -OFFSET : 1 + OFFSET, .5f, .5f);
         }
     }
 
@@ -57,13 +57,37 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
         if (tile.getBlockPos().distSqr(mc.player.blockPosition()) > Math.pow(MAX_DISTANCE, 2)) return;
 
         // get the facing side and get the vector used for positioning
-        final Direction facing = tile.getBlockState().getValue(MeterBlock.HORIZONTAL_FACING);
+        final Direction facing = tile.getBlockState().getValue(MeterBlock.FACING);
+        final Direction bottom = tile.getBlockState().getValue(MeterBlock.BOTTOM);
         final Vector3f vector = getFacingVector(facing);
 
         matrix.pushPose();
         // move and rotate the position according to the facing
         matrix.translate(vector.x(), vector.y(), vector.z());
-        matrix.mulPose(new Quaternion(0, ANGLE[facing.ordinal()], 180, true));
+        /*
+           The rotation of the matrix depends on the facing direction of the block and
+           where the screen is located.
+           The calculations are different if the facing direction is up or down.
+           By default, a Quaternion consists of the three axis x, y and z.
+           When opening the F3 debug screen, the coloring of the axis is the following:
+           x = red, y = green, z = blue
+           When using a Quaternion, rotations are always applied in the order z, y, x.
+           At this point, we need to keep in mind that the axis are also rotated.
+           Example:
+           When we rotate 90 degrees around z (blue axis), the red axis (x) becomes
+           the green axis (y).
+         */
+        if (facing != bottom) {
+            matrix.mulPose(Vector3f.ZN.rotationDegrees(180));
+            matrix.mulPose(Vector3f.XN.rotationDegrees(facing == Direction.UP ? 90 : -90));
+            matrix.mulPose(
+                Vector3f.ZN.rotationDegrees(
+                    facing == Direction.DOWN ? (180 - ANGLE[bottom.ordinal()]) : ANGLE[bottom.ordinal()]
+                )
+            );
+        } else {
+            matrix.mulPose(new Quaternion(0, ANGLE[facing.ordinal()], 180, true));
+        }
         // scale the matrix so the text fits on the screen
         matrix.scale(PIXEL_SIZE, PIXEL_SIZE, 0);
         // format the current flow rate and draw it according to its size, so it's centered

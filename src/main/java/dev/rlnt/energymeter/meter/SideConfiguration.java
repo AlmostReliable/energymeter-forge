@@ -3,6 +3,7 @@ package dev.rlnt.energymeter.meter;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import java.util.EnumMap;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 
 public class SideConfiguration {
@@ -11,9 +12,11 @@ public class SideConfiguration {
     private final EnumMap<Direction, IO_SETTING> directionConfig = new EnumMap<>(Direction.class);
     private final EnumMap<BLOCK_SIDE, IO_SETTING> sideConfig = new EnumMap<>(BLOCK_SIDE.class);
     private final Direction facing;
+    private final Direction bottom;
 
-    SideConfiguration(Direction facing) {
-        this.facing = facing;
+    SideConfiguration(BlockState state) {
+        facing = state.getValue(MeterBlock.FACING);
+        bottom = state.getValue(MeterBlock.BOTTOM);
         for (final Direction direction : Direction.values()) {
             directionConfig.put(direction, IO_SETTING.OFF);
         }
@@ -119,6 +122,36 @@ public class SideConfiguration {
      * @return the direction
      */
     public Direction getDirectionFromSide(final BLOCK_SIDE side) {
+        return facing != bottom ? verticalConversion(side) : horizontalConversion(side);
+    }
+
+    /**
+     * Converts the given block side to a direction if the facing direction
+     * is up or down.
+     * @param side the block side to convert
+     * @return the direction
+     */
+    public Direction verticalConversion(final BLOCK_SIDE side) {
+        if (side == BLOCK_SIDE.TOP) {
+            return bottom.getOpposite();
+        } else if (side == BLOCK_SIDE.BOTTOM) {
+            return bottom;
+        } else if (side == BLOCK_SIDE.LEFT || side == BLOCK_SIDE.RIGHT) {
+            return facing == Direction.UP ? bottom.getClockWise() : bottom.getCounterClockWise();
+        } else if (side == BLOCK_SIDE.BACK) {
+            return facing.getOpposite();
+        } else {
+            return facing;
+        }
+    }
+
+    /**
+     * Converts the given block side to a direction if the facing direction
+     * is any of the 4 compass directions.
+     * @param side the block side to convert
+     * @return the direction
+     */
+    public Direction horizontalConversion(final BLOCK_SIDE side) {
         if (side == BLOCK_SIDE.TOP) {
             return Direction.UP;
         } else if (side == BLOCK_SIDE.BOTTOM) {
