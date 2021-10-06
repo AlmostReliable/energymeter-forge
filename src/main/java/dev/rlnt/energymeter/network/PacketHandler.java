@@ -19,7 +19,9 @@ public class PacketHandler {
         PROTOCOL::equals
     );
 
-    static {
+    private PacketHandler() {}
+
+    public static void init() {
         int id = -1;
 
         CHANNEL
@@ -44,12 +46,6 @@ public class PacketHandler {
             .add();
     }
 
-    private PacketHandler() {}
-
-    public static void init() {
-        // utility method to initialize the packet handler
-    }
-
     public static class SyncFlags {
 
         public static final int SIDE_CONFIG = (1);
@@ -57,7 +53,6 @@ public class PacketHandler {
         public static final int STATUS = (1 << 2);
         public static final int NUMBER_MODE = (1 << 3);
         public static final int MODE = (1 << 4);
-        public static final int ALL = SIDE_CONFIG | TRANSFER_RATE | STATUS | NUMBER_MODE | MODE;
 
         private SyncFlags() {}
     }

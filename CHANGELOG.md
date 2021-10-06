@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.1.1] - 2021-10-06
+
+### Fixed
+- fixed a crash when running the mod on a dedicated server ([#3])
+
+<!-- Links -->
+[#3]: https://github.com/RLNT/minecraft_energymeter/issues/3
+
+
 ## [1.1.0] - 2021-10-05
 
 ### Info
@@ -74,7 +83,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.0...HEAD
+[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.1...HEAD
+[1.1.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.0..v1.16-1.1.1
 [1.1.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.4..v1.16-1.1.0
 [1.0.4]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.3..v1.16-1.0.4
 [1.0.3]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.2..v1.16-1.0.3

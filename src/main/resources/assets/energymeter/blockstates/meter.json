@@ -17,7 +17,7 @@
     },
     "facing=west": {
       "model": "energymeter:block/meter",
-      "y": 270
+      "y": -90
     },
     "facing=east": {
       "model": "energymeter:block/meter",

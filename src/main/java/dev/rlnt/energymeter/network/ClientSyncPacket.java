@@ -1,17 +1,13 @@
 package dev.rlnt.energymeter.network;
 
-import dev.rlnt.energymeter.meter.MeterTile;
 import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.network.PacketHandler.SyncFlags;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;
 import dev.rlnt.energymeter.util.TypeEnums.NUMBER_MODE;
 import dev.rlnt.energymeter.util.TypeEnums.STATUS;
 import java.util.function.Supplier;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 public class ClientSyncPacket {
@@ -62,17 +58,39 @@ public class ClientSyncPacket {
     }
 
     private static void handlePacket(final ClientSyncPacket packet) {
-        World level = Minecraft.getInstance().level;
-        if (level == null) return;
-        TileEntity tileEntity = level.getBlockEntity(packet.pos);
-        if (tileEntity instanceof MeterTile) {
-            final MeterTile tile = (MeterTile) tileEntity;
-            if ((packet.flags & SyncFlags.SIDE_CONFIG) != 0) tile.getSideConfig().deserialize(packet.sideConfig);
-            if ((packet.flags & SyncFlags.TRANSFER_RATE) != 0) tile.setTransferRate(packet.transferRate);
-            if ((packet.flags & SyncFlags.STATUS) != 0) tile.setStatus(packet.status);
-            if ((packet.flags & SyncFlags.NUMBER_MODE) != 0) tile.setNumberMode(packet.numberMode);
-            if ((packet.flags & SyncFlags.MODE) != 0) tile.setMode(packet.mode);
-        }
+        ClientHandler.handleClientSyncPacket(packet);
+    }
+
+    public BlockPos getPos() {
+        return pos;
+    }
+
+    public int getFlags() {
+        return flags;
+    }
+
+    public int[] getSideConfig() {
+        return sideConfig;
+    }
+
+    public float getTransferRate() {
+        return transferRate;
+    }
+
+    public STATUS getStatus() {
+        return status;
+    }
+
+    public NUMBER_MODE getNumberMode() {
+        return numberMode;
+    }
+
+    public MODE getMode() {
+        return mode;
+    }
+
+    public void setMode(final MODE mode) {
+        this.mode = mode;
     }
 
     void encode(final PacketBuffer buffer) {
