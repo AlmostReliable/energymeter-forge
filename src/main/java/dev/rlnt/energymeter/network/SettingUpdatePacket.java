@@ -20,7 +20,7 @@ public class SettingUpdatePacket {
     private SettingUpdatePacket() {}
 
     static SettingUpdatePacket decode(FriendlyByteBuf buffer) {
-        SettingUpdatePacket packet = new SettingUpdatePacket();
+        var packet = new SettingUpdatePacket();
         packet.setting = SETTING.values()[buffer.readInt()];
         return packet;
     }

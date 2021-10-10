@@ -28,11 +28,11 @@ public class SideConfiguration {
      * @return the {@link SideConfiguration} as integer array
      */
     public int[] serialize() {
-        int[] serialized = new int[SIZE];
-        for (int i = 0; i < Direction.values().length; i++) {
+        var serialized = new int[SIZE];
+        for (var i = 0; i < Direction.values().length; i++) {
             serialized[i] = directionConfig.get(Direction.values()[i]).ordinal();
         }
-        for (int i = 0; i < BLOCK_SIDE.values().length; i++) {
+        for (var i = 0; i < BLOCK_SIDE.values().length; i++) {
             serialized[SIZE / 2 + i] = sideConfig.get(BLOCK_SIDE.values()[i]).ordinal();
         }
         return serialized;
@@ -44,10 +44,10 @@ public class SideConfiguration {
      * @param serialized the integer array to deserialize
      */
     public void deserialize(int[] serialized) {
-        for (int i = 0; i < Direction.values().length; i++) {
+        for (var i = 0; i < Direction.values().length; i++) {
             directionConfig.put(Direction.values()[i], IO_SETTING.values()[serialized[i]]);
         }
-        for (int i = 0; i < BLOCK_SIDE.values().length; i++) {
+        for (var i = 0; i < BLOCK_SIDE.values().length; i++) {
             sideConfig.put(BLOCK_SIDE.values()[i], IO_SETTING.values()[serialized[SIZE / 2 + i]]);
         }
     }

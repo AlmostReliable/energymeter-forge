@@ -21,9 +21,9 @@ public class EnergyMeter {
     @SuppressWarnings("java:S1118")
     public EnergyMeter() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        // register common listener
+        // register common setup listener
         modEventBus.addListener(EnergyMeter::onCommonSetup);
-        // register client listener
+        // register client setup listener
         modEventBus.addListener(EnergyMeter::onClientSetup);
         // register mod contents
         Setup.init(modEventBus);

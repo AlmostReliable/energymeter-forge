@@ -65,8 +65,8 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      * @return the accepted amount of energy
      */
     private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
-        int acceptedEnergy = 0;
-        int energyToTransfer = energy;
+        var acceptedEnergy = 0;
+        var energyToTransfer = energy;
         while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
             int equalSplit = energyToTransfer / outputs.size();
             List<IEnergyStorage> outputsToRemove = new ArrayList<>();
@@ -95,7 +95,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      * @return the {@link BlockState} with the flipped IO value
      */
     private BlockState flipBlockState() {
-        BlockState state = getBlockState();
+        var state = getBlockState();
         return state.setValue(MeterBlock.IO, !state.getValue(MeterBlock.IO));
     }
 
@@ -313,7 +313,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
             ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
             if (provider instanceof MeterEntity) return false;
             if (provider == null) {
-                BlockState state = level.getBlockState(worldPosition.relative(direction));
+                var state = level.getBlockState(worldPosition.relative(direction));
                 return (
                     !state.isAir() &&
                     state.getBlock().getRegistryName() != null &&
@@ -384,7 +384,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      * @param newStatus the new setting to set
      */
     private void updateStatus(STATUS newStatus) {
-        STATUS oldStatus = status;
+        var oldStatus = status;
         status = newStatus;
         averageRate = 0;
         averageCount = 0;

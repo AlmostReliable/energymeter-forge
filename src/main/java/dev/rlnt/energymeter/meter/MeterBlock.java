@@ -75,7 +75,7 @@ public class MeterBlock extends Block implements EntityBlock {
         if (!state.hasBlockEntity()) return;
         if (level.getBlockEntity(pos) instanceof MeterEntity entity) {
             // ensure valid neighbor
-            BlockState neighborState = level.getBlockState(neighbor);
+            var neighborState = level.getBlockState(neighbor);
             ResourceLocation registryName = neighborState.getBlock().getRegistryName();
             if (
                 !neighborState.isAir() &&
@@ -86,7 +86,7 @@ public class MeterBlock extends Block implements EntityBlock {
 
             // get direction from neighbor block position
             Vec3i vector = neighbor.subtract(pos);
-            Direction direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
+            var direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
             if (direction == null) return;
 
             // update the cache from the direction
@@ -108,7 +108,7 @@ public class MeterBlock extends Block implements EntityBlock {
         if (level.isClientSide() || player.isShiftKeyDown()) return InteractionResult.SUCCESS;
 
         // open the gui for the player who right-clicked the block
-        BlockEntity tile = level.getBlockEntity(pos);
+        var tile = level.getBlockEntity(pos);
         if (tile instanceof MenuProvider entity && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openGui(serverPlayer, entity, pos);
         }

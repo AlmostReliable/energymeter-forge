@@ -44,7 +44,7 @@ public class TextUtils {
      * @return the translated phrase
      */
     public static TranslatableComponent translate(TRANSLATE_TYPE type, String key, ChatFormatting... color) {
-        TranslatableComponent output = new TranslatableComponent(getTranslationKey(type, key));
+        var output = new TranslatableComponent(getTranslationKey(type, key));
         return color.length == 0 ? output : (TranslatableComponent) output.withStyle(color[0]);
     }
 

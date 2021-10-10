@@ -8,7 +8,6 @@ import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterEntity;
 import java.util.Objects;
 import java.util.function.Supplier;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -112,7 +111,7 @@ public class Setup {
                 IForgeContainerType.create(
                     (
                         (windowId, inv, data) -> {
-                            BlockPos pos = data.readBlockPos();
+                            var pos = data.readBlockPos();
                             MeterEntity tile = (MeterEntity) inv.player.level.getBlockEntity(pos);
                             return new MeterContainer(windowId, Objects.requireNonNull(tile));
                         }

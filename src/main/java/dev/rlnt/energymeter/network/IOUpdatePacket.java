@@ -27,7 +27,7 @@ public class IOUpdatePacket {
     }
 
     static IOUpdatePacket decode(FriendlyByteBuf buffer) {
-        IOUpdatePacket packet = new IOUpdatePacket();
+        var packet = new IOUpdatePacket();
         packet.sideConfig = buffer.readVarIntArray();
         packet.direction = Direction.values()[buffer.readInt()];
         return packet;

@@ -30,7 +30,7 @@ public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
     }
 
     private static Vector3f getFacingVector(Direction facing) {
-        final float y = .5f;
+        final var y = .5f;
         if (facing.ordinal() < 2) {
             throw new IllegalStateException("Facing can't be up or down!");
         } else if (facing.ordinal() < 4) {
