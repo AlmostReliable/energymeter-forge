@@ -40,7 +40,7 @@ public class MeterBlock extends Block implements EntityBlock {
     static final BooleanProperty IO = BooleanProperty.create(IO_STATE_ID);
 
     public MeterBlock() {
-        super(Properties.of(Material.METAL).strength(5f).requiresCorrectToolForDrops().sound(SoundType.METAL));
+        super(Properties.of(Material.METAL).strength(2f).sound(SoundType.METAL));
     }
 
     @Nullable
