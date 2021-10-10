@@ -42,7 +42,7 @@ public class MeterBlock extends Block {
     static final BooleanProperty IO = BooleanProperty.create(IO_STATE_ID);
 
     public MeterBlock() {
-        super(Properties.of(Material.METAL).strength(5f).harvestTool(ToolType.PICKAXE).sound(SoundType.METAL));
+        super(Properties.of(Material.METAL).strength(3f).harvestTool(ToolType.PICKAXE).sound(SoundType.METAL));
     }
 
     @Nullable
