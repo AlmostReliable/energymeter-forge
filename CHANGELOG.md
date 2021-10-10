@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.2.1] - 2021-10-10
+
+### Changed
+- slightly decreased the amount of time which is required to break the block
+
+### Fixed
+- fixed item not dropping after breaking the block ([#4], [#5])
+
+<!-- Links -->
+[#4]: https://github.com/RLNT/minecraft_energymeter/issues/4
+[#5]: https://github.com/RLNT/minecraft_energymeter/pull/5
+
+
 ## [1.2.0] - 2021-10-10
 
 ### Info
@@ -99,7 +112,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.0...HEAD
+[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.1...HEAD
+[1.2.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.0..v1.16-1.2.1
 [1.2.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.1..v1.16-1.2.0
 [1.1.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.0..v1.16-1.1.1
 [1.1.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.4..v1.16-1.1.0
