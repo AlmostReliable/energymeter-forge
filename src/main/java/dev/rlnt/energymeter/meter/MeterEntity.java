@@ -2,9 +2,10 @@ package dev.rlnt.energymeter.meter;
 
 import static dev.rlnt.energymeter.core.Constants.*;
 
+import dev.rlnt.energymeter.component.ISidedEnergy;
+import dev.rlnt.energymeter.component.SideConfiguration;
+import dev.rlnt.energymeter.component.SidedEnergyStorage;
 import dev.rlnt.energymeter.core.Setup;
-import dev.rlnt.energymeter.energy.ISidedEnergy;
-import dev.rlnt.energymeter.energy.SidedEnergyStorage;
 import dev.rlnt.energymeter.network.ClientSyncPacket;
 import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.network.SettingUpdatePacket;

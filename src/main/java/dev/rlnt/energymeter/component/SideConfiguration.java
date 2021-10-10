@@ -1,5 +1,6 @@
-package dev.rlnt.energymeter.meter;
+package dev.rlnt.energymeter.component;
 
+import dev.rlnt.energymeter.meter.MeterBlock;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import java.util.EnumMap;

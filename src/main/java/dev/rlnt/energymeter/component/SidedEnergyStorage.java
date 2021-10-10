@@ -1,4 +1,4 @@
-package dev.rlnt.energymeter.energy;
+package dev.rlnt.energymeter.component;
 
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;

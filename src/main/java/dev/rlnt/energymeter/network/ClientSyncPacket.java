@@ -1,8 +1,8 @@
 package dev.rlnt.energymeter.network;
 
+import dev.rlnt.energymeter.component.SideConfiguration;
 import dev.rlnt.energymeter.core.Constants;
 import dev.rlnt.energymeter.core.Constants.SyncFlags;
-import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;
 import dev.rlnt.energymeter.util.TypeEnums.NUMBER_MODE;
 import dev.rlnt.energymeter.util.TypeEnums.STATUS;

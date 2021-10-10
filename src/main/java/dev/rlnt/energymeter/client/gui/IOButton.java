@@ -4,8 +4,8 @@ import static dev.rlnt.energymeter.core.Constants.*;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.rlnt.energymeter.component.SideConfiguration;
 import dev.rlnt.energymeter.meter.MeterContainer;
-import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.network.IOUpdatePacket;
 import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.util.TextUtils;
