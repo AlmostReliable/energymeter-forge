@@ -8,11 +8,6 @@
           "type": "minecraft:item",
           "name": "energymeter:meter"
         }
-      ],
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
       ]
     }
   ]
