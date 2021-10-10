@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 
 public class SettingUpdatePacket {
@@ -33,10 +34,12 @@ public class SettingUpdatePacket {
 
     private static void handlePacket(SettingUpdatePacket packet, @Nullable ServerPlayer player) {
         if (player != null && player.containerMenu instanceof MeterContainer menu) {
-            MeterEntity tile = menu.getEntity();
-            tile.updateSetting(packet.setting);
-            tile.update(false);
-            tile.setChanged();
+            MeterEntity entity = menu.getEntity();
+            Level level = entity.getLevel();
+            if (level == null || !level.isLoaded(entity.getBlockPos())) return;
+            entity.updateSetting(packet.setting);
+            entity.update(false);
+            entity.setChanged();
         }
     }
 
