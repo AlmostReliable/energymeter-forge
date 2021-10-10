@@ -37,9 +37,9 @@ public class EnergyMeter {
     private static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             // register screens
-            MenuScreens.register(Setup.Containers.METER_CONTAINER.get(), MeterScreen::new);
+            MenuScreens.register(Setup.Containers.METER.get(), MeterScreen::new);
             // register renderers
-            BlockEntityRenderers.register(Setup.Entities.METER_ENTITY.get(), MeterRenderer::new);
+            BlockEntityRenderers.register(Setup.Entities.METER.get(), MeterRenderer::new);
         });
     }
 }

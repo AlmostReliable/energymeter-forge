@@ -149,6 +149,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
 
     @Override
     protected void renderBg(PoseStack stack, float partial, int mX, int mY) {
+        // background texture
         RenderSystem.setShaderTexture(0, TEXTURE);
         blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
     }

@@ -50,7 +50,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     private MODE mode = MODE.TRANSFER;
 
     public MeterEntity(BlockPos pos, BlockState state) {
-        super(Setup.Entities.METER_ENTITY.get(), pos, state);
+        super(Setup.Entities.METER.get(), pos, state);
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration(state);
     }
@@ -385,7 +385,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerID, Inventory inventory, Player player) {
-        return new MeterContainer(containerID, this);
+        return new MeterContainer(this, containerID);
     }
 
     /**

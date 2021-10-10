@@ -6,7 +6,7 @@ import static dev.rlnt.energymeter.core.Constants.MOD_ID;
 import dev.rlnt.energymeter.meter.MeterBlock;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterEntity;
-import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -14,7 +14,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplier;
 import net.minecraftforge.common.extensions.IForgeContainerType;
@@ -34,7 +33,7 @@ public class Setup {
         throw new IllegalStateException(EXCEPTION_MESSAGE);
     }
 
-    private static <T extends IForgeRegistryEntry<T>> DeferredRegister<T> createRegistry(IForgeRegistry<T> registry) {
+    private static <E extends IForgeRegistryEntry<E>> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
         return DeferredRegister.create(registry, MOD_ID);
     }
 
@@ -53,7 +52,7 @@ public class Setup {
 
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(Blocks.METER_BLOCK.get());
+            return new ItemStack(Blocks.METER.get());
         }
     }
 
@@ -61,16 +60,16 @@ public class Setup {
 
         private static final DeferredRegister<Block> REGISTRY = createRegistry(ForgeRegistries.BLOCKS);
         private static final DeferredRegister<Item> ITEMS = createRegistry(ForgeRegistries.ITEMS);
-        private static final RegistryObject<Block> METER_BLOCK = registerBlock(METER_ID, MeterBlock::new);
+        private static final RegistryObject<MeterBlock> METER = register(METER_ID, MeterBlock::new);
 
         private Blocks() {
             throw new IllegalStateException(EXCEPTION_MESSAGE);
         }
 
         @SuppressWarnings("SameParameterValue")
-        private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
-            RegistryObject<T> result = REGISTRY.register(name, block);
-            ITEMS.register(name, () -> new BlockItem(result.get(), new Item.Properties().tab(TAB)));
+        private static <B extends MeterBlock> RegistryObject<B> register(String id, Supplier<B> supplier) {
+            RegistryObject<B> result = REGISTRY.register(id, supplier);
+            ITEMS.register(id, () -> new BlockItem(result.get(), new Item.Properties().tab(TAB)));
             return result;
         }
     }
@@ -86,41 +85,45 @@ public class Setup {
         }
 
         @SuppressWarnings("SameParameterValue")
-        private static <E extends BlockEntity> RegistryObject<BlockEntityType<E>> registerBlockEntity(
-            String name,
-            BlockEntitySupplier<E> tile,
-            RegistryObject<Block> block
+        private static <E extends MeterEntity, B extends MeterBlock> RegistryObject<BlockEntityType<E>> register(
+            String id,
+            RegistryObject<B> block,
+            BlockEntitySupplier<E> entity
         ) {
             //noinspection ConstantConditions
-            return REGISTRY.register(name, () -> BlockEntityType.Builder.of(tile, block.get()).build(null));
+            return REGISTRY.register(id, () -> BlockEntityType.Builder.of(entity, block.get()).build(null));
         }
 
-        public static final RegistryObject<BlockEntityType<MeterEntity>> METER_ENTITY = registerBlockEntity(
+        public static final RegistryObject<BlockEntityType<MeterEntity>> METER = register(
             METER_ID,
-            MeterEntity::new,
-            Blocks.METER_BLOCK
+            Blocks.METER,
+            MeterEntity::new
         );
     }
 
     public static class Containers {
 
         private static final DeferredRegister<MenuType<?>> REGISTRY = createRegistry(ForgeRegistries.CONTAINERS);
-        public static final RegistryObject<MenuType<MeterContainer>> METER_CONTAINER = REGISTRY.register(
-            METER_ID,
-            () ->
-                IForgeContainerType.create(
-                    (
-                        (windowId, inv, data) -> {
-                            var pos = data.readBlockPos();
-                            MeterEntity tile = (MeterEntity) inv.player.level.getBlockEntity(pos);
-                            return new MeterContainer(windowId, Objects.requireNonNull(tile));
-                        }
-                    )
-                )
-        );
 
         private Containers() {
             throw new IllegalStateException(EXCEPTION_MESSAGE);
         }
+
+        @SuppressWarnings("SameParameterValue")
+        private static <C extends MeterContainer> RegistryObject<MenuType<C>> register(
+            String id,
+            BiFunction<MeterEntity, Integer, C> constructor
+        ) {
+            return REGISTRY.register(
+                id,
+                () ->
+                    IForgeContainerType.create((containerID, inventory, data) -> {
+                        MeterEntity entity = (MeterEntity) inventory.player.level.getBlockEntity(data.readBlockPos());
+                        return constructor.apply(entity, containerID);
+                    })
+            );
+        }
+
+        public static final RegistryObject<MenuType<MeterContainer>> METER = register(METER_ID, MeterContainer::new);
     }
 }

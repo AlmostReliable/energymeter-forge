@@ -12,8 +12,8 @@ public class MeterContainer extends AbstractContainerMenu {
 
     private final MeterEntity entity;
 
-    public MeterContainer(int windowID, MeterEntity entity) {
-        super(Setup.Containers.METER_CONTAINER.get(), windowID);
+    public MeterContainer(MeterEntity entity, int windowID) {
+        super(Setup.Containers.METER.get(), windowID);
         this.entity = entity;
     }
 
