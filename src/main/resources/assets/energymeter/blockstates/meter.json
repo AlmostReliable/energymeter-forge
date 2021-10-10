@@ -1,5 +1,13 @@
 {
   "variants": {
+    "facing=down": {
+      "model": "energymeter:block/meter",
+      "x": 90
+    },
+    "facing=up": {
+      "model": "energymeter:block/meter",
+      "x": -90
+    },
     "facing=north": {
       "model": "energymeter:block/meter"
     },
@@ -9,7 +17,7 @@
     },
     "facing=west": {
       "model": "energymeter:block/meter",
-      "y": 270
+      "y": -90
     },
     "facing=east": {
       "model": "energymeter:block/meter",
