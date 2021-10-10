@@ -2,12 +2,12 @@ package dev.rlnt.energymeter.meter;
 
 import static dev.rlnt.energymeter.core.Constants.*;
 
+import dev.rlnt.energymeter.component.ISidedEnergy;
+import dev.rlnt.energymeter.component.SideConfiguration;
+import dev.rlnt.energymeter.component.SidedEnergyStorage;
 import dev.rlnt.energymeter.core.Setup;
-import dev.rlnt.energymeter.energy.ISidedEnergy;
-import dev.rlnt.energymeter.energy.SidedEnergyStorage;
 import dev.rlnt.energymeter.network.ClientSyncPacket;
 import dev.rlnt.energymeter.network.PacketHandler;
-import dev.rlnt.energymeter.network.PacketHandler.SyncFlags;
 import dev.rlnt.energymeter.network.SettingUpdatePacket;
 import dev.rlnt.energymeter.util.TextUtils;
 import dev.rlnt.energymeter.util.TypeEnums.*;
@@ -169,16 +169,16 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     @Override
-    public void load(final BlockState state, final CompoundNBT nbt) {
+    public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
-        if (nbt.contains(SIDE_CONFIG_ID)) sideConfig.deserialize(nbt.getIntArray(SIDE_CONFIG_ID));
+        if (nbt.contains(SIDE_CONFIG_ID)) sideConfig.deserializeNBT(nbt.getCompound(SIDE_CONFIG_ID));
         if (nbt.contains(NUMBER_MODE_ID)) numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         if (nbt.contains(MODE_ID)) mode = MODE.values()[nbt.getInt(MODE_ID)];
     }
 
     @Override
-    public CompoundNBT save(final CompoundNBT nbt) {
-        nbt.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
+    public CompoundNBT save(CompoundNBT nbt) {
+        nbt.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         nbt.putInt(MODE_ID, mode.ordinal());
         return super.save(nbt);
@@ -186,8 +186,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     @Override
     public CompoundNBT getUpdateTag() {
-        final CompoundNBT nbt = super.getUpdateTag();
-        nbt.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
+        CompoundNBT nbt = super.getUpdateTag();
+        nbt.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
         nbt.putFloat(TRANSFER_RATE_ID, transferRate);
         nbt.putInt(STATUS_ID, status.ordinal());
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
@@ -196,16 +196,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     @Override
-    public void setRemoved() {
-        for (final LazyOptional<SidedEnergyStorage> cap : energyStorage) {
-            cap.invalidate();
-        }
-        super.setRemoved();
-    }
-
-    @Override
-    public void handleUpdateTag(final BlockState state, final CompoundNBT nbt) {
-        sideConfig.deserialize(nbt.getIntArray(SIDE_CONFIG_ID));
+    public void handleUpdateTag(BlockState state, CompoundNBT nbt) {
+        sideConfig.deserializeNBT(nbt.getCompound(SIDE_CONFIG_ID));
         transferRate = nbt.getFloat(TRANSFER_RATE_ID);
         status = STATUS.values()[nbt.getInt(STATUS_ID)];
         numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];

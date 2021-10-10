@@ -1,61 +1,57 @@
 package dev.rlnt.energymeter.network;
 
+import dev.rlnt.energymeter.core.Constants;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterTile;
-import dev.rlnt.energymeter.meter.SideConfiguration;
-import dev.rlnt.energymeter.network.PacketHandler.SyncFlags;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
+import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class IOUpdatePacket {
 
-    private Direction direction;
-    private int[] sideConfig;
+    private BLOCK_SIDE side;
+    private IO_SETTING setting;
 
-    public IOUpdatePacket(final SideConfiguration sideConfig, final BLOCK_SIDE side) {
-        this.sideConfig = sideConfig.serialize();
-        direction = sideConfig.getDirectionFromSide(side);
+    public IOUpdatePacket(BLOCK_SIDE side, IO_SETTING setting) {
+        this.side = side;
+        this.setting = setting;
     }
 
-    private IOUpdatePacket() {
-        sideConfig = new int[12];
-        direction = null;
-    }
+    private IOUpdatePacket() {}
 
-    static IOUpdatePacket decode(final PacketBuffer buffer) {
-        final IOUpdatePacket packet = new IOUpdatePacket();
-        packet.sideConfig = buffer.readVarIntArray();
-        packet.direction = Direction.values()[buffer.readInt()];
+    static IOUpdatePacket decode(PacketBuffer buffer) {
+        IOUpdatePacket packet = new IOUpdatePacket();
+        packet.side = BLOCK_SIDE.values()[buffer.readInt()];
+        packet.setting = IO_SETTING.values()[buffer.readInt()];
         return packet;
     }
 
-    static void handle(final IOUpdatePacket packet, final Supplier<Context> context) {
-        final ServerPlayerEntity player = context.get().getSender();
+    static void handle(IOUpdatePacket packet, Supplier<Context> context) {
+        ServerPlayerEntity player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);
     }
 
-    private static void handlePacket(final IOUpdatePacket packet, @Nullable final ServerPlayerEntity player) {
+    private static void handlePacket(IOUpdatePacket packet, @Nullable ServerPlayerEntity player) {
         if (player != null && player.containerMenu instanceof MeterContainer) {
-            final MeterTile tile = ((MeterContainer) player.containerMenu).getTile();
-            final World level = tile.getLevel();
+            MeterTile tile = ((MeterContainer) player.containerMenu).getTile();
+            World level = tile.getLevel();
             if (level == null || !level.isLoaded(tile.getBlockPos())) return;
-            tile.getSideConfig().deserialize(packet.sideConfig);
+            tile.getSideConfig().set(packet.side, packet.setting);
             tile.updateNeighbors();
-            tile.updateCache(packet.direction);
-            tile.syncData(SyncFlags.SIDE_CONFIG);
+            tile.updateCache(tile.getSideConfig().getDirectionFromSide(packet.side));
+            tile.syncData(Constants.SyncFlags.SIDE_CONFIG);
             tile.setChanged();
         }
     }
 
-    void encode(final PacketBuffer buffer) {
-        buffer.writeVarIntArray(sideConfig);
-        buffer.writeInt(direction.ordinal());
+    void encode(PacketBuffer buffer) {
+        buffer.writeInt(side.ordinal());
+        buffer.writeInt(setting.ordinal());
     }
 }

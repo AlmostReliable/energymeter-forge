@@ -1,28 +1,30 @@
 package dev.rlnt.energymeter.network;
 
+import dev.rlnt.energymeter.core.Constants;
 import dev.rlnt.energymeter.meter.MeterTile;
-import dev.rlnt.energymeter.network.PacketHandler.SyncFlags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-public class ClientHandler {
+class ClientHandler {
 
     private ClientHandler() {}
 
-    public static void handleClientSyncPacket(ClientSyncPacket packet) {
+    static void handleClientSyncPacket(ClientSyncPacket packet) {
         World level = Minecraft.getInstance().level;
         if (level == null) return;
         TileEntity tileEntity = level.getBlockEntity(packet.getPos());
         if (tileEntity instanceof MeterTile) {
-            final MeterTile tile = (MeterTile) tileEntity;
-            if ((packet.getFlags() & SyncFlags.SIDE_CONFIG) != 0) tile
+            MeterTile tile = (MeterTile) tileEntity;
+            if ((packet.getFlags() & Constants.SyncFlags.SIDE_CONFIG) != 0) tile
                 .getSideConfig()
-                .deserialize(packet.getSideConfig());
-            if ((packet.getFlags() & SyncFlags.TRANSFER_RATE) != 0) tile.setTransferRate(packet.getTransferRate());
-            if ((packet.getFlags() & SyncFlags.STATUS) != 0) tile.setStatus(packet.getStatus());
-            if ((packet.getFlags() & SyncFlags.NUMBER_MODE) != 0) tile.setNumberMode(packet.getNumberMode());
-            if ((packet.getFlags() & SyncFlags.MODE) != 0) tile.setMode(packet.getMode());
+                .deserializeNBT(packet.getSideConfig());
+            if ((packet.getFlags() & Constants.SyncFlags.TRANSFER_RATE) != 0) tile.setTransferRate(
+                packet.getTransferRate()
+            );
+            if ((packet.getFlags() & Constants.SyncFlags.STATUS) != 0) tile.setStatus(packet.getStatus());
+            if ((packet.getFlags() & Constants.SyncFlags.NUMBER_MODE) != 0) tile.setNumberMode(packet.getNumberMode());
+            if ((packet.getFlags() & Constants.SyncFlags.MODE) != 0) tile.setMode(packet.getMode());
         }
     }
 }
