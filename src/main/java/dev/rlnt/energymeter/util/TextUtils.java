@@ -28,7 +28,7 @@ public class TextUtils {
      * @param key the key to generate the resource location with
      * @return the generated resource location
      */
-    public static ResourceLocation getRL(final String key) {
+    public static ResourceLocation getRL(String key) {
         return new ResourceLocation(MOD_ID, key);
     }
 
@@ -41,12 +41,8 @@ public class TextUtils {
      * @param color an optional color
      * @return the translated phrase
      */
-    public static TranslationTextComponent translate(
-        final TRANSLATE_TYPE type,
-        final String key,
-        final TextFormatting... color
-    ) {
-        final TranslationTextComponent output = new TranslationTextComponent(getTranslationKey(type, key));
+    public static TranslationTextComponent translate(TRANSLATE_TYPE type, String key, TextFormatting... color) {
+        TranslationTextComponent output = new TranslationTextComponent(getTranslationKey(type, key));
         return color.length == 0 ? output : (TranslationTextComponent) output.withStyle(color[0]);
     }
 
@@ -57,7 +53,7 @@ public class TextUtils {
      * @param key  the translation key
      * @return the translated phrase
      */
-    public static String translateAsString(final TRANSLATE_TYPE type, final String key) {
+    public static String translateAsString(TRANSLATE_TYPE type, String key) {
         return translate(type, key).getString();
     }
 
@@ -68,7 +64,7 @@ public class TextUtils {
      * @param color an optional color
      * @return the colorized string
      */
-    public static StringTextComponent colorize(final String input, final TextFormatting color) {
+    public static StringTextComponent colorize(String input, TextFormatting color) {
         return (StringTextComponent) new StringTextComponent(input).withStyle(color);
     }
 
@@ -79,7 +75,7 @@ public class TextUtils {
      * @param key  the unique key of the translation
      * @return the translation key
      */
-    private static String getTranslationKey(final TRANSLATE_TYPE type, final String key) {
+    private static String getTranslationKey(TRANSLATE_TYPE type, String key) {
         return String.format("%s.%s.%s", type.toString().toLowerCase(), MOD_ID, key);
     }
 
@@ -92,14 +88,14 @@ public class TextUtils {
      * @return the readable string representation of the energy
      * @author Chronophylos
      */
-    public static Tuple<String, String> formatEnergy(final Number number, final boolean extended) {
+    public static Tuple<String, String> formatEnergy(Number number, boolean extended) {
         if (!extended) {
             // convert numbers to compact form
-            final int numberOfDigits = number.intValue() == 0
+            int numberOfDigits = number.intValue() == 0
                 ? 0
                 : (int) (1 + Math.floor(Math.log10(Math.abs(number.doubleValue()))));
-            final int base10Exponent = numberOfDigits < 4 ? 0 : 3 * ((numberOfDigits - 1) / 3);
-            final double normalized = number.doubleValue() / Math.pow(10, base10Exponent);
+            int base10Exponent = numberOfDigits < 4 ? 0 : 3 * ((numberOfDigits - 1) / 3);
+            double normalized = number.doubleValue() / Math.pow(10, base10Exponent);
             return new Tuple<>(formatNumber(normalized, 2), UNITS[base10Exponent / 3] + "FE");
         }
         // normal energy format
@@ -114,7 +110,7 @@ public class TextUtils {
      * @param maxFraction the maximum amount of fraction digits
      * @return the readable string representation of the number
      */
-    private static String formatNumber(final Number input, final int maxFraction) {
+    private static String formatNumber(Number input, int maxFraction) {
         DF.setRoundingMode(RoundingMode.DOWN);
         DF.setMinimumFractionDigits(1);
         DF.setMaximumFractionDigits(maxFraction);

@@ -27,13 +27,13 @@ public abstract class AbstractButton extends Button {
     private final boolean strictTooltips;
 
     AbstractButton(
-        final ContainerScreen<?> screen,
-        final int pX,
-        final int pY,
-        final int width,
-        final int height,
-        final boolean strictTooltips,
-        final IPressable onPress
+        ContainerScreen<?> screen,
+        int pX,
+        int pY,
+        int width,
+        int height,
+        boolean strictTooltips,
+        IPressable onPress
     ) {
         super(screen.getGuiLeft() + pX, screen.getGuiTop() + pY, width, height, StringTextComponent.EMPTY, onPress);
         container = screen.getMenu();
@@ -42,7 +42,7 @@ public abstract class AbstractButton extends Button {
     }
 
     @Override
-    public void renderButton(final MatrixStack matrix, final int mX, final int mY, final float partial) {
+    public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         // background texture

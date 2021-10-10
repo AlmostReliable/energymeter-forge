@@ -24,13 +24,13 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
     private final Minecraft mc;
     private final FontRenderer font;
 
-    public MeterRenderer(final TileEntityRendererDispatcher dispatcher) {
+    public MeterRenderer(TileEntityRendererDispatcher dispatcher) {
         super(dispatcher);
         mc = Minecraft.getInstance();
         font = mc.font;
     }
 
-    private static Vector3f getFacingVector(final Direction facing) {
+    private static Vector3f getFacingVector(Direction facing) {
         if (facing.ordinal() < 2) {
             // up or down
             return new Vector3f(.5f, facing == Direction.UP ? 1 + OFFSET : -OFFSET, .5f);
@@ -46,20 +46,20 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void render(
-        final MeterTile tile,
-        final float partial,
-        final MatrixStack matrix,
-        final IRenderTypeBuffer buffer,
-        final int light,
-        final int overlay
+        MeterTile tile,
+        float partial,
+        MatrixStack matrix,
+        IRenderTypeBuffer buffer,
+        int light,
+        int overlay
     ) {
         // don't display something if the player is too far away
         if (tile.getBlockPos().distSqr(mc.player.blockPosition()) > Math.pow(MAX_DISTANCE, 2)) return;
 
         // get the facing side and get the vector used for positioning
-        final Direction facing = tile.getBlockState().getValue(MeterBlock.FACING);
-        final Direction bottom = tile.getBlockState().getValue(MeterBlock.BOTTOM);
-        final Vector3f vector = getFacingVector(facing);
+        Direction facing = tile.getBlockState().getValue(MeterBlock.FACING);
+        Direction bottom = tile.getBlockState().getValue(MeterBlock.BOTTOM);
+        Vector3f vector = getFacingVector(facing);
 
         matrix.pushPose();
         // move and rotate the position according to the facing
@@ -91,9 +91,9 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
         // scale the matrix so the text fits on the screen
         matrix.scale(PIXEL_SIZE, PIXEL_SIZE, 0);
         // format the current flow rate and draw it according to its size, so it's centered
-        final Tuple<String, String> text = TextUtils.formatEnergy(tile.getTransferRate(), false);
-        final String flowRate = text.getA();
-        final String unit = text.getB() + "/t";
+        Tuple<String, String> text = TextUtils.formatEnergy(tile.getTransferRate(), false);
+        String flowRate = text.getA();
+        String unit = text.getB() + "/t";
         // flow rate
         font.draw(
             matrix,

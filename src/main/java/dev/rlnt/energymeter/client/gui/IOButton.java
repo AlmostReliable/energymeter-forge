@@ -3,8 +3,8 @@ package dev.rlnt.energymeter.client.gui;
 import static dev.rlnt.energymeter.core.Constants.*;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import dev.rlnt.energymeter.component.SideConfiguration;
 import dev.rlnt.energymeter.meter.MeterContainer;
-import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.network.IOUpdatePacket;
 import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.util.TextUtils;
@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.util.InputMappings;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -34,9 +34,9 @@ public class IOButton extends AbstractButton {
     private static final int OVERLAY_SIZE = 12;
     private static final int OVERLAY_OFFSET = 2;
     private final BLOCK_SIDE side;
-    private SideConfiguration sideConfig;
+    private IO_SETTING setting;
 
-    private IOButton(final ContainerScreen<?> screen, final BLOCK_SIDE side) {
+    private IOButton(ContainerScreen<?> screen, BLOCK_SIDE side) {
         super(
             screen,
             POS_X + getButtonPos(side).getA(),
@@ -44,10 +44,23 @@ public class IOButton extends AbstractButton {
             BUTTON_SIZE,
             BUTTON_SIZE,
             false,
-            button -> PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(((IOButton) button).sideConfig, side))
+            IOButton::clickHandler
         );
         this.side = side;
-        syncSideConfig();
+        this.setting = ((MeterContainer) container).getTile().getSideConfig().get(side);
+    }
+
+    /**
+     * Handles the functionality which is triggered when clicking the button.
+     * <p>
+     * Gets the block side the button is for and translates it to a direction.
+     * After that, it will send a packet to the server for synchronization.
+     *
+     * @param abstractButton the button which was clicked
+     */
+    private static void clickHandler(Button abstractButton) {
+        IOButton button = (IOButton) abstractButton;
+        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(button.side, button.setting));
     }
 
     /**
@@ -56,9 +69,9 @@ public class IOButton extends AbstractButton {
      * @param sides the sides for which the buttons should be created
      * @return a list of all buttons created
      */
-    static List<IOButton> create(final ContainerScreen<?> screen, final BLOCK_SIDE... sides) {
-        final List<IOButton> res = new ArrayList<>();
-        for (final BLOCK_SIDE side : sides) {
+    static List<IOButton> create(ContainerScreen<?> screen, BLOCK_SIDE... sides) {
+        List<IOButton> res = new ArrayList<>();
+        for (BLOCK_SIDE side : sides) {
             if (side == BLOCK_SIDE.FRONT) continue;
             res.add(new IOButton(screen, side));
         }
@@ -71,7 +84,7 @@ public class IOButton extends AbstractButton {
      * @param side the BLOCK_SIDE to get the positions for
      * @return the x and y position for the BLOCK_SIDE
      */
-    private static Tuple<Integer, Integer> getButtonPos(final BLOCK_SIDE side) {
+    private static Tuple<Integer, Integer> getButtonPos(BLOCK_SIDE side) {
         switch (side) {
             case BOTTOM:
                 return new Tuple<>(ZONE_SIZE, ZONE_SIZE * 2);
@@ -89,7 +102,7 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void renderButton(final MatrixStack matrix, final int mX, final int mY, final float partial) {
+    public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
         super.renderButton(matrix, mX, mY, partial);
         // io overlay
         renderIOOverlay(matrix);
@@ -113,8 +126,8 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void renderToolTip(final MatrixStack matrix, final int mX, final int mY) {
-        final List<ITextComponent> tooltips = new ArrayList<>();
+    public void renderToolTip(MatrixStack matrix, int mX, int mY) {
+        List<ITextComponent> tooltips = new ArrayList<>();
 
         // io configuration
         tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, TextFormatting.GOLD));
@@ -136,7 +149,7 @@ public class IOButton extends AbstractButton {
                 .append(
                     TextUtils.translate(
                         TRANSLATE_TYPE.IO_SETTING,
-                        sideConfig.get(side).toString().toLowerCase(),
+                        setting.toString().toLowerCase(),
                         TextFormatting.WHITE
                     )
                 )
@@ -166,20 +179,9 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void onClick(final double mX, final double mY) {
-        if (isHovered) {
-            changeMode(Screen.hasShiftDown());
-            syncSideConfig();
-        }
+    public void onClick(double mX, double mY) {
+        if (isHovered) changeMode(Screen.hasShiftDown());
         super.onClick(mX, mY);
-    }
-
-    /**
-     * Retrieves the {@link SideConfiguration} from the parent {@link Container} so it's
-     * always synchronized with the server.
-     */
-    private void syncSideConfig() {
-        sideConfig = ((MeterContainer) container).getTile().getSideConfig();
     }
 
     /**
@@ -187,8 +189,8 @@ public class IOButton extends AbstractButton {
      *
      * @param matrix the matrix stack for the render call
      */
-    private void renderIOOverlay(final MatrixStack matrix) {
-        final int textureOffset = (sideConfig.get(side).ordinal() - 1) * OVERLAY_SIZE;
+    private void renderIOOverlay(MatrixStack matrix) {
+        int textureOffset = (setting.ordinal() - 1) * OVERLAY_SIZE;
         if (textureOffset >= 0) blit(
             matrix,
             x + OVERLAY_OFFSET,
@@ -207,13 +209,14 @@ public class IOButton extends AbstractButton {
      *
      * @param reset whether the field should be reset to OFF
      */
-    private void changeMode(final boolean reset) {
+    private void changeMode(boolean reset) {
         if (reset) {
-            sideConfig.set(side, IO_SETTING.OFF);
+            setting = IO_SETTING.OFF;
             return;
         }
 
-        IO_SETTING setting = sideConfig.get(side);
+        SideConfiguration sideConfig = ((MeterContainer) container).getTile().getSideConfig();
+
         switch (setting) {
             case OFF:
                 setting = sideConfig.hasInput() ? IO_SETTING.OUT : IO_SETTING.IN;
@@ -227,6 +230,5 @@ public class IOButton extends AbstractButton {
             default:
                 throw new IllegalArgumentException("There is no IO mode called " + setting);
         }
-        sideConfig.set(side, setting);
     }
 }

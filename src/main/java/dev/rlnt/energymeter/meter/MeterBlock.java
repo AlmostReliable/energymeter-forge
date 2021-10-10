@@ -47,7 +47,7 @@ public class MeterBlock extends Block {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(final BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockItemUseContext context) {
         Direction facing = context.getNearestLookingDirection().getOpposite();
         Direction bottom = context.getHorizontalDirection();
         return defaultBlockState()
@@ -57,7 +57,7 @@ public class MeterBlock extends Block {
     }
 
     @Override
-    protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(FACING);
         builder.add(BOTTOM);
@@ -65,36 +65,36 @@ public class MeterBlock extends Block {
     }
 
     @Override
-    public boolean hasTileEntity(final BlockState state) {
+    public boolean hasTileEntity(BlockState state) {
         return true;
     }
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(final BlockState state, final IBlockReader level) {
+    public TileEntity createTileEntity(BlockState state, IBlockReader level) {
         return new MeterTile(state);
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(
-        final BlockState state,
-        final World level,
-        final BlockPos pos,
-        final Block block,
-        final BlockPos neighbor,
-        final boolean isMoving
+        BlockState state,
+        World level,
+        BlockPos pos,
+        Block block,
+        BlockPos neighbor,
+        boolean isMoving
     ) {
         super.neighborChanged(state, level, pos, block, neighbor, isMoving);
 
         // get tile entity from block position
         if (!state.hasTileEntity()) return;
-        final TileEntity tile = level.getBlockEntity(pos);
+        TileEntity tile = level.getBlockEntity(pos);
         if (!(tile instanceof MeterTile)) return;
 
         // ensure valid neighbor
-        final BlockState neighborState = level.getBlockState(neighbor);
-        final ResourceLocation registryName = neighborState.getBlock().getRegistryName();
+        BlockState neighborState = level.getBlockState(neighbor);
+        ResourceLocation registryName = neighborState.getBlock().getRegistryName();
         if (
             !neighborState.is(Blocks.AIR) &&
             !neighborState.hasTileEntity() &&
@@ -103,8 +103,8 @@ public class MeterBlock extends Block {
         ) return;
 
         // get direction from neighbor block position
-        final Vector3i vector = neighbor.subtract(pos);
-        final Direction direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
+        Vector3i vector = neighbor.subtract(pos);
+        Direction direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
         if (direction == null) return;
 
         // update the cache from the direction
@@ -114,18 +114,18 @@ public class MeterBlock extends Block {
     @SuppressWarnings("deprecation")
     @Override
     public ActionResultType use(
-        final BlockState state,
-        final World level,
-        final BlockPos pos,
-        final PlayerEntity player,
-        final Hand hand,
-        final BlockRayTraceResult hit
+        BlockState state,
+        World level,
+        BlockPos pos,
+        PlayerEntity player,
+        Hand hand,
+        BlockRayTraceResult hit
     ) {
         // don't do anything on clientside or if player is shifting
         if (level.isClientSide() || player.isShiftKeyDown()) return ActionResultType.SUCCESS;
 
         // open the gui for the player who right-clicked the block
-        final TileEntity tile = level.getBlockEntity(pos);
+        TileEntity tile = level.getBlockEntity(pos);
         if (tile instanceof INamedContainerProvider && player instanceof ServerPlayerEntity) {
             NetworkHooks.openGui(((ServerPlayerEntity) player), ((INamedContainerProvider) tile), pos);
         }

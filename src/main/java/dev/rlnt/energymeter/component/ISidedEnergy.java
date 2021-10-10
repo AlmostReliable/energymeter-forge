@@ -1,6 +1,5 @@
-package dev.rlnt.energymeter.energy;
+package dev.rlnt.energymeter.component;
 
-import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -18,7 +17,7 @@ public interface ISidedEnergy {
      * @param simulate whether it's a simulation
      * @return the energy which was accepted
      */
-    int receiveEnergy(final int energy, final boolean simulate);
+    int receiveEnergy(int energy, boolean simulate);
 
     /**
      * Returns the {@link SideConfiguration} of the {@link TileEntity}.
