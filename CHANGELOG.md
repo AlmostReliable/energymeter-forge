@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.2.0] - 2021-10-10
+
+### Info
+- this update will reset your Energy Meter I/O configurations
+- if you experience funky behavior of existing Meters, replace them
+
+### Changed
+- overhauled registration logic
+- moved SyncFlags to Constants
+- improved performance when quickly changing I/O configuration
+
+### Fixed
+- fixed some dedicated server synchronization issues
+- fixed a bug where I/O configuration would be flipped when the Meter is facing up or down
+
+
 ## [1.1.1] - 2021-10-06
 
 ### Fixed
@@ -83,7 +99,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.1...HEAD
+[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.0...HEAD
+[1.2.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.1..v1.16-1.2.0
 [1.1.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.0..v1.16-1.1.1
 [1.1.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.4..v1.16-1.1.0
 [1.0.4]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.3..v1.16-1.0.4
