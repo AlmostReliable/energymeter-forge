@@ -45,15 +45,4 @@ public class PacketHandler {
             .consumer(SettingUpdatePacket::handle)
             .add();
     }
-
-    public static class SyncFlags {
-
-        public static final int SIDE_CONFIG = (1);
-        public static final int TRANSFER_RATE = (1 << 1);
-        public static final int STATUS = (1 << 2);
-        public static final int NUMBER_MODE = (1 << 3);
-        public static final int MODE = (1 << 4);
-
-        private SyncFlags() {}
-    }
 }
