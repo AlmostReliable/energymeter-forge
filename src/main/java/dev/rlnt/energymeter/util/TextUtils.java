@@ -19,9 +19,7 @@ public class TextUtils {
     private static final DecimalFormat DF = (DecimalFormat) NumberFormat.getInstance(LOCALE).clone();
     private static final String[] UNITS = new String[] { "", "k", "M", "G", "T", "P" };
 
-    private TextUtils() {
-        throw new IllegalStateException("Utility class");
-    }
+    private TextUtils() {}
 
     /**
      * Gets a {@link ResourceLocation} with the given key
@@ -44,7 +42,7 @@ public class TextUtils {
      * @return the translated phrase
      */
     public static TranslatableComponent translate(TRANSLATE_TYPE type, String key, ChatFormatting... color) {
-        TranslatableComponent output = new TranslatableComponent(getTranslationKey(type, key));
+        var output = new TranslatableComponent(getTranslationKey(type, key));
         return color.length == 0 ? output : (TranslatableComponent) output.withStyle(color[0]);
     }
 
@@ -93,11 +91,11 @@ public class TextUtils {
     public static Tuple<String, String> formatEnergy(Number number, boolean extended) {
         if (!extended) {
             // convert numbers to compact form
-            int numberOfDigits = number.intValue() == 0
+            var numberOfDigits = number.intValue() == 0
                 ? 0
                 : (int) (1 + Math.floor(Math.log10(Math.abs(number.doubleValue()))));
-            int base10Exponent = numberOfDigits < 4 ? 0 : 3 * ((numberOfDigits - 1) / 3);
-            double normalized = number.doubleValue() / Math.pow(10, base10Exponent);
+            var base10Exponent = numberOfDigits < 4 ? 0 : 3 * ((numberOfDigits - 1) / 3);
+            var normalized = number.doubleValue() / Math.pow(10, base10Exponent);
             return new Tuple<>(formatNumber(normalized, 2), UNITS[base10Exponent / 3] + "FE");
         }
         // normal energy format

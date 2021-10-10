@@ -1,5 +1,7 @@
 package dev.rlnt.energymeter.core;
 
+import dev.rlnt.energymeter.network.ClientSyncPacket;
+
 public class Constants {
 
     // mod info
@@ -20,7 +22,19 @@ public class Constants {
     public static final String IO_MODE_ID = "io_mode";
     public static final String IO_SCREEN_ID = "screen";
 
-    private Constants() {
-        throw new IllegalStateException("Utility class");
+    private Constants() {}
+
+    /**
+     * Flags to esnure only required data is synced in a {@link ClientSyncPacket}.
+     */
+    public static class SyncFlags {
+
+        public static final int SIDE_CONFIG = (1);
+        public static final int TRANSFER_RATE = (1 << 1);
+        public static final int STATUS = (1 << 2);
+        public static final int NUMBER_MODE = (1 << 3);
+        public static final int MODE = (1 << 4);
+
+        private SyncFlags() {}
     }
 }

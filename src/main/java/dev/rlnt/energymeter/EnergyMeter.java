@@ -8,7 +8,6 @@ import dev.rlnt.energymeter.core.Setup;
 import dev.rlnt.energymeter.network.PacketHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -20,10 +19,10 @@ public class EnergyMeter {
 
     @SuppressWarnings("java:S1118")
     public EnergyMeter() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        // register common listener
+        var modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        // register common setup listener
         modEventBus.addListener(EnergyMeter::onCommonSetup);
-        // register client listener
+        // register client setup listener
         modEventBus.addListener(EnergyMeter::onClientSetup);
         // register mod contents
         Setup.init(modEventBus);
@@ -37,9 +36,9 @@ public class EnergyMeter {
     private static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             // register screens
-            MenuScreens.register(Setup.Containers.METER_CONTAINER.get(), MeterScreen::new);
+            MenuScreens.register(Setup.Containers.METER.get(), MeterScreen::new);
             // register renderers
-            BlockEntityRenderers.register(Setup.Entities.METER_ENTITY.get(), MeterRenderer::new);
+            BlockEntityRenderers.register(Setup.Entities.METER.get(), MeterRenderer::new);
         });
     }
 }

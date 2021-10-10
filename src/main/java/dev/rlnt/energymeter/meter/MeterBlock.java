@@ -6,8 +6,6 @@ import static dev.rlnt.energymeter.core.Constants.PIPEZ_ID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,7 +30,8 @@ import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 public class MeterBlock extends Block implements EntityBlock {
 
-    public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final DirectionProperty BOTTOM = DirectionProperty.create("bottom", Direction.Plane.HORIZONTAL);
     /**
      * This BlockState is purely for utility in order to be able to update neighbor blocks.
      * It changes each time the neighbor blocks need updates (e.g. when wires have to connect).
@@ -41,21 +40,25 @@ public class MeterBlock extends Block implements EntityBlock {
     static final BooleanProperty IO = BooleanProperty.create(IO_STATE_ID);
 
     public MeterBlock() {
-        super(Properties.of(Material.METAL).strength(5f).requiresCorrectToolForDrops().sound(SoundType.METAL));
+        super(Properties.of(Material.METAL).strength(2f).sound(SoundType.METAL));
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        var facing = context.getNearestLookingDirection().getOpposite();
+        var bottom = context.getHorizontalDirection();
         return defaultBlockState()
-            .setValue(HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite())
+            .setValue(FACING, facing)
+            .setValue(BOTTOM, facing == Direction.DOWN ? bottom : bottom.getOpposite())
             .setValue(IO, false);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(HORIZONTAL_FACING);
+        builder.add(FACING);
+        builder.add(BOTTOM);
         builder.add(IO);
     }
 
@@ -75,8 +78,8 @@ public class MeterBlock extends Block implements EntityBlock {
         if (!state.hasBlockEntity()) return;
         if (level.getBlockEntity(pos) instanceof MeterEntity entity) {
             // ensure valid neighbor
-            BlockState neighborState = level.getBlockState(neighbor);
-            ResourceLocation registryName = neighborState.getBlock().getRegistryName();
+            var neighborState = level.getBlockState(neighbor);
+            var registryName = neighborState.getBlock().getRegistryName();
             if (
                 !neighborState.isAir() &&
                 !neighborState.hasBlockEntity() &&
@@ -85,8 +88,8 @@ public class MeterBlock extends Block implements EntityBlock {
             ) return;
 
             // get direction from neighbor block position
-            Vec3i vector = neighbor.subtract(pos);
-            Direction direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
+            var vector = neighbor.subtract(pos);
+            var direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
             if (direction == null) return;
 
             // update the cache from the direction
@@ -108,7 +111,7 @@ public class MeterBlock extends Block implements EntityBlock {
         if (level.isClientSide() || player.isShiftKeyDown()) return InteractionResult.SUCCESS;
 
         // open the gui for the player who right-clicked the block
-        BlockEntity tile = level.getBlockEntity(pos);
+        var tile = level.getBlockEntity(pos);
         if (tile instanceof MenuProvider entity && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openGui(serverPlayer, entity, pos);
         }

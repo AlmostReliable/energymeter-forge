@@ -269,7 +269,6 @@ gradle-app.setting
 .classpath
 
 # project specific
-.idea/modules
 .idea/discord.xml
 src/generated
 src/test

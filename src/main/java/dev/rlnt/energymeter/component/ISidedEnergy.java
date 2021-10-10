@@ -1,6 +1,5 @@
-package dev.rlnt.energymeter.energy;
+package dev.rlnt.energymeter.component;
 
-import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.energy.IEnergyStorage;

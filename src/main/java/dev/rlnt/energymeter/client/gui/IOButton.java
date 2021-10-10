@@ -5,7 +5,6 @@ import static dev.rlnt.energymeter.core.Constants.*;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.rlnt.energymeter.meter.MeterContainer;
-import dev.rlnt.energymeter.meter.SideConfiguration;
 import dev.rlnt.energymeter.network.IOUpdatePacket;
 import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.util.TextUtils;
@@ -15,12 +14,12 @@ import dev.rlnt.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class IOButton extends AbstractButton {
 
@@ -34,7 +33,7 @@ public class IOButton extends AbstractButton {
     private static final int OVERLAY_SIZE = 12;
     private static final int OVERLAY_OFFSET = 2;
     private final BLOCK_SIDE side;
-    private SideConfiguration sideConfig;
+    private IO_SETTING setting;
 
     private IOButton(AbstractContainerScreen<?> screen, BLOCK_SIDE side) {
         super(
@@ -44,10 +43,23 @@ public class IOButton extends AbstractButton {
             BUTTON_SIZE,
             BUTTON_SIZE,
             false,
-            button -> PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(((IOButton) button).sideConfig, side))
+            IOButton::clickHandler
         );
         this.side = side;
-        syncSideConfig();
+        this.setting = ((MeterContainer) container).getEntity().getSideConfig().get(side);
+    }
+
+    /**
+     * Handles the functionality which is triggered when clicking the button.
+     * <p>
+     * Gets the block side the button is for and translates it to a direction.
+     * After that, it will send a packet to the server for synchronization.
+     *
+     * @param abstractButton the button which was clicked
+     */
+    private static void clickHandler(Button abstractButton) {
+        var button = (IOButton) abstractButton;
+        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(button.side, button.setting));
     }
 
     /**
@@ -57,8 +69,8 @@ public class IOButton extends AbstractButton {
      * @return a list of all buttons created
      */
     static List<IOButton> create(AbstractContainerScreen<?> screen, BLOCK_SIDE... sides) {
-        List<IOButton> res = new ArrayList<>();
-        for (BLOCK_SIDE side : sides) {
+        var res = new ArrayList<IOButton>();
+        for (var side : sides) {
             if (side == BLOCK_SIDE.FRONT) continue;
             res.add(new IOButton(screen, side));
         }
@@ -108,7 +120,7 @@ public class IOButton extends AbstractButton {
 
     @Override
     public void renderToolTip(PoseStack stack, int mX, int mY) {
-        List<Component> tooltips = new ArrayList<>();
+        var tooltips = new ArrayList<Component>();
 
         // io configuration
         tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, ChatFormatting.GOLD));
@@ -130,7 +142,7 @@ public class IOButton extends AbstractButton {
                 .append(
                     TextUtils.translate(
                         TRANSLATE_TYPE.IO_SETTING,
-                        sideConfig.get(side).toString().toLowerCase(),
+                        setting.toString().toLowerCase(),
                         ChatFormatting.WHITE
                     )
                 )
@@ -161,19 +173,8 @@ public class IOButton extends AbstractButton {
 
     @Override
     public void onClick(double mX, double mY) {
-        if (isHovered) {
-            changeMode(Screen.hasShiftDown());
-            syncSideConfig();
-        }
+        if (isHovered) changeMode(Screen.hasShiftDown());
         super.onClick(mX, mY);
-    }
-
-    /**
-     * Retrieves the {@link SideConfiguration} from the parent {@link AbstractContainerMenu} so it's
-     * always synchronized with the server.
-     */
-    private void syncSideConfig() {
-        sideConfig = ((MeterContainer) container).getEntity().getSideConfig();
     }
 
     /**
@@ -182,7 +183,7 @@ public class IOButton extends AbstractButton {
      * @param stack the pose stack for the render call
      */
     private void renderIOOverlay(PoseStack stack) {
-        int textureOffset = (sideConfig.get(side).ordinal() - 1) * OVERLAY_SIZE;
+        var textureOffset = (setting.ordinal() - 1) * OVERLAY_SIZE;
         if (textureOffset >= 0) blit(
             stack,
             x + OVERLAY_OFFSET,
@@ -203,17 +204,17 @@ public class IOButton extends AbstractButton {
      */
     private void changeMode(boolean reset) {
         if (reset) {
-            sideConfig.set(side, IO_SETTING.OFF);
+            setting = IO_SETTING.OFF;
             return;
         }
 
-        IO_SETTING setting =
-            switch (sideConfig.get(side)) {
+        var sideConfig = ((MeterContainer) container).getEntity().getSideConfig();
+
+        setting =
+            switch (setting) {
                 case OFF -> sideConfig.hasInput() ? IO_SETTING.OUT : IO_SETTING.IN;
                 case IN -> sideConfig.hasMaxOutputs() ? IO_SETTING.OFF : IO_SETTING.OUT;
                 case OUT -> IO_SETTING.OFF;
             };
-
-        sideConfig.set(side, setting);
     }
 }

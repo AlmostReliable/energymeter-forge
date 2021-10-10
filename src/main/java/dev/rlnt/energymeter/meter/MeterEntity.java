@@ -2,34 +2,35 @@ package dev.rlnt.energymeter.meter;
 
 import static dev.rlnt.energymeter.core.Constants.*;
 
+import dev.rlnt.energymeter.component.ISidedEnergy;
+import dev.rlnt.energymeter.component.SideConfiguration;
+import dev.rlnt.energymeter.component.SidedEnergyStorage;
 import dev.rlnt.energymeter.core.Setup;
-import dev.rlnt.energymeter.energy.ISidedEnergy;
-import dev.rlnt.energymeter.energy.SidedEnergyStorage;
+import dev.rlnt.energymeter.network.ClientSyncPacket;
+import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.network.SettingUpdatePacket;
 import dev.rlnt.energymeter.util.TextUtils;
 import dev.rlnt.energymeter.util.TypeEnums.*;
 import java.util.*;
-import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEnergy {
 
@@ -49,9 +50,9 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     private MODE mode = MODE.TRANSFER;
 
     public MeterEntity(BlockPos pos, BlockState state) {
-        super(Setup.Entities.METER_ENTITY.get(), pos, state);
+        super(Setup.Entities.METER.get(), pos, state);
         energyStorage = SidedEnergyStorage.create(this);
-        sideConfig = new SideConfiguration(state.getValue(MeterBlock.HORIZONTAL_FACING));
+        sideConfig = new SideConfiguration(state);
     }
 
     /**
@@ -65,14 +66,14 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      * @return the accepted amount of energy
      */
     private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
-        int acceptedEnergy = 0;
-        int energyToTransfer = energy;
+        var acceptedEnergy = 0;
+        var energyToTransfer = energy;
         while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            int equalSplit = energyToTransfer / outputs.size();
-            List<IEnergyStorage> outputsToRemove = new ArrayList<>();
+            var equalSplit = energyToTransfer / outputs.size();
+            var outputsToRemove = new ArrayList<IEnergyStorage>();
 
-            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
-                int actualSplit = equalSplit;
+            for (var output : outputs.entrySet()) {
+                var actualSplit = equalSplit;
                 if (output.getValue() < equalSplit) {
                     actualSplit = output.getValue();
                     outputsToRemove.add(output.getKey());
@@ -95,7 +96,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      * @return the {@link BlockState} with the flipped IO value
      */
     private BlockState flipBlockState() {
-        BlockState state = getBlockState();
+        var state = getBlockState();
         return state.setValue(MeterBlock.IO, !state.getValue(MeterBlock.IO));
     }
 
@@ -108,7 +109,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     public void updateCache(Direction direction) {
         if (level == null || level.isClientSide) return;
 
-        IO_SETTING setting = sideConfig.get(direction);
+        var setting = sideConfig.get(direction);
         if (setting == IO_SETTING.IN) {
             hasValidInput = getInputFromCache(direction);
         } else if (setting == IO_SETTING.OUT) {
@@ -124,6 +125,10 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         return transferRate;
     }
 
+    public void setTransferRate(float transferRate) {
+        this.transferRate = transferRate;
+    }
+
     public STATUS getStatus() {
         if (status != STATUS.TRANSFERRING) {
             return status;
@@ -132,8 +137,16 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         }
     }
 
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
+
     public NUMBER_MODE getNumberMode() {
         return numberMode;
+    }
+
+    public void setNumberMode(NUMBER_MODE numberMode) {
+        this.numberMode = numberMode;
     }
 
     /**
@@ -145,37 +158,33 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     public void updateSetting(SETTING setting) {
         if (setting == SETTING.NUMBER) {
             numberMode = numberMode == NUMBER_MODE.SHORT ? NUMBER_MODE.LONG : NUMBER_MODE.SHORT;
+            syncData(SyncFlags.NUMBER_MODE);
         } else if (setting == SETTING.MODE) {
             mode = mode == MODE.TRANSFER ? MODE.CONSUMER : MODE.TRANSFER;
+            syncData(SyncFlags.MODE);
         }
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        sideConfig.deserialize(tag.getIntArray(SIDE_CONFIG_ID));
-        numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
-        mode = MODE.values()[tag.getInt(MODE_ID)];
+        if (tag.contains(SIDE_CONFIG_ID)) sideConfig.deserializeNBT(tag.getCompound(SIDE_CONFIG_ID));
+        if (tag.contains(NUMBER_MODE_ID)) numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
+        if (tag.contains(MODE_ID)) mode = MODE.values()[tag.getInt(MODE_ID)];
     }
 
     @Override
     public CompoundTag save(CompoundTag tag) {
-        tag.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
+        tag.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
         tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         tag.putInt(MODE_ID, mode.ordinal());
         return super.save(tag);
     }
 
-    @Nullable
-    @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(worldPosition, -1, getUpdateTag());
-    }
-
     @Override
     public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        tag.putIntArray(SIDE_CONFIG_ID, sideConfig.serialize());
+        var tag = super.getUpdateTag();
+        tag.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
         tag.putFloat(TRANSFER_RATE_ID, transferRate);
         tag.putInt(STATUS_ID, status.ordinal());
         tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
@@ -184,21 +193,8 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     }
 
     @Override
-    public void setRemoved() {
-        for (LazyOptional<SidedEnergyStorage> cap : energyStorage) {
-            cap.invalidate();
-        }
-        super.setRemoved();
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-        handleUpdateTag(packet.getTag());
-    }
-
-    @Override
     public void handleUpdateTag(CompoundTag tag) {
-        sideConfig.deserialize(tag.getIntArray(SIDE_CONFIG_ID));
+        sideConfig.deserializeNBT(tag.getCompound(SIDE_CONFIG_ID));
         transferRate = tag.getFloat(TRANSFER_RATE_ID);
         status = STATUS.values()[tag.getInt(STATUS_ID)];
         numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
@@ -219,11 +215,11 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         }
 
         // create a map with all possible outputs and their energy limit
-        Map<IEnergyStorage, Integer> outputs = getPossibleOutputs(energy);
+        var outputs = getPossibleOutputs(energy);
         if (outputs.isEmpty()) return 0;
 
         // get the maximum energy which could be accepted by all outputs
-        int maximumAccepted = outputs.values().stream().mapToInt(maxEnergy -> maxEnergy).sum();
+        var maximumAccepted = outputs.values().stream().mapToInt(maxEnergy -> maxEnergy).sum();
 
         // if simulated, just check if the energy fits somewhere
         if (simulate) return Math.min(maximumAccepted, energy);
@@ -256,6 +252,10 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         return mode;
     }
 
+    public void setMode(MODE mode) {
+        this.mode = mode;
+    }
+
     /**
      * Checks each output direction whether there is a valid energy capability.
      * It will simulate an energy transfer to this capability to make sure it can
@@ -264,18 +264,18 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      * @return a map of all possible outputs with their corresponding energy limit
      */
     private Map<IEnergyStorage, Integer> getPossibleOutputs(int energy) {
-        Map<IEnergyStorage, Integer> outputs = new HashMap<>();
-        for (Direction direction : Direction.values()) {
+        var outputs = new HashMap<IEnergyStorage, Integer>();
+        for (var direction : Direction.values()) {
             // only consider sides where output mode is enabled
             if (sideConfig.get(direction) != IO_SETTING.OUT) continue;
 
             // try to get the energy capability from the cache, otherwise store it
-            LazyOptional<IEnergyStorage> target = getOutputFromCache(direction);
+            var target = getOutputFromCache(direction);
             if (target == null) continue;
 
             // store the maximum amount of energy each possible output can receive
             target.ifPresent(cap -> {
-                int accepted = cap.receiveEnergy(energy, true);
+                var accepted = cap.receiveEnergy(energy, true);
                 if (accepted > 0) outputs.put(cap, accepted);
             });
         }
@@ -283,18 +283,29 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     }
 
     /**
-     * Initiates a block update to sync data between server and client.
+     * Syncs data to clients that track the current {@link LevelChunk} with a {@link ClientSyncPacket}.
+     * <p>
+     * Different flags from the {@link SyncFlags} can be passed to define what should be included
+     * in the packet to avoid unnecessary data being sent.
      *
-     * @param updateNeighbors if true, it will also update the neighbor blocks and rerender
+     * @param flags the flags of the data to sync
      */
-    public void update(boolean updateNeighbors) {
+    public void syncData(int flags) {
         if (level == null || level.isClientSide) return;
-        if (updateNeighbors) level.setBlock(
-            worldPosition,
-            flipBlockState(),
-            BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.RERENDER_MAIN_THREAD
+        var packet = new ClientSyncPacket(worldPosition, flags, sideConfig, transferRate, status, numberMode, mode);
+        PacketHandler.CHANNEL.send(
+            PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
+            packet
         );
-        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), BlockFlags.BLOCK_UPDATE);
+    }
+
+    /**
+     * Updates the neighbor blocks of the {@link BlockEntity}.
+     * Can be useful to connect cables.
+     */
+    public void updateNeighbors() {
+        if (level == null || level.isClientSide) return;
+        level.setBlock(worldPosition, flipBlockState(), BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.RERENDER_MAIN_THREAD);
     }
 
     /**
@@ -308,12 +319,12 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     private boolean getInputFromCache(Direction direction) {
         assert level != null && !level.isClientSide;
 
-        LazyOptional<IEnergyStorage> target = inputCache;
+        var target = inputCache;
         if (target == null) {
-            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
+            var provider = level.getBlockEntity(worldPosition.relative(direction));
             if (provider instanceof MeterEntity) return false;
             if (provider == null) {
-                BlockState state = level.getBlockState(worldPosition.relative(direction));
+                var state = level.getBlockState(worldPosition.relative(direction));
                 return (
                     !state.isAir() &&
                     state.getBlock().getRegistryName() != null &&
@@ -333,9 +344,9 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     private LazyOptional<IEnergyStorage> getOutputFromCache(Direction direction) {
         assert level != null && !level.isClientSide;
 
-        LazyOptional<IEnergyStorage> target = outputCache.get(direction);
+        var target = outputCache.get(direction);
         if (target == null) {
-            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
+            var provider = level.getBlockEntity(worldPosition.relative(direction));
             if (provider == null || provider instanceof MeterEntity) return null;
             target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
             outputCache.put(direction, target);
@@ -374,7 +385,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerID, Inventory inventory, Player player) {
-        return new MeterContainer(containerID, this);
+        return new MeterContainer(this, containerID);
     }
 
     /**
@@ -384,13 +395,17 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      * @param newStatus the new setting to set
      */
     private void updateStatus(STATUS newStatus) {
-        STATUS oldStatus = status;
+        var oldStatus = status;
         status = newStatus;
         averageRate = 0;
         averageCount = 0;
         if (oldStatus != newStatus) {
-            if (newStatus != STATUS.TRANSFERRING) transferRate = 0;
-            update(false);
+            var flags = SyncFlags.STATUS;
+            if (newStatus != STATUS.TRANSFERRING) {
+                transferRate = 0;
+                flags = flags | SyncFlags.TRANSFER_RATE;
+            }
+            syncData(flags);
         }
     }
 
@@ -412,8 +427,9 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      */
     private void calculateTransferRate() {
         if (averageCount != 0) {
+            var oldTransferRate = transferRate;
             transferRate = (float) averageRate / averageCount;
-            update(false);
+            if (oldTransferRate != transferRate) syncData(SyncFlags.TRANSFER_RATE);
         }
 
         if (transferRate > 0) {

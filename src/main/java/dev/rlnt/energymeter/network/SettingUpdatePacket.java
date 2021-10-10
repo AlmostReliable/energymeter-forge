@@ -1,7 +1,6 @@
 package dev.rlnt.energymeter.network;
 
 import dev.rlnt.energymeter.meter.MeterContainer;
-import dev.rlnt.energymeter.meter.MeterEntity;
 import dev.rlnt.energymeter.util.TypeEnums.SETTING;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -20,23 +19,24 @@ public class SettingUpdatePacket {
     private SettingUpdatePacket() {}
 
     static SettingUpdatePacket decode(FriendlyByteBuf buffer) {
-        SettingUpdatePacket packet = new SettingUpdatePacket();
+        var packet = new SettingUpdatePacket();
         packet.setting = SETTING.values()[buffer.readInt()];
         return packet;
     }
 
     static void handle(SettingUpdatePacket packet, Supplier<Context> context) {
-        ServerPlayer player = context.get().getSender();
+        var player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);
     }
 
     private static void handlePacket(SettingUpdatePacket packet, @Nullable ServerPlayer player) {
         if (player != null && player.containerMenu instanceof MeterContainer menu) {
-            MeterEntity tile = menu.getEntity();
-            tile.updateSetting(packet.setting);
-            tile.update(false);
-            tile.setChanged();
+            var entity = menu.getEntity();
+            var level = entity.getLevel();
+            if (level == null || !level.isLoaded(entity.getBlockPos())) return;
+            entity.updateSetting(packet.setting);
+            entity.setChanged();
         }
     }
 
