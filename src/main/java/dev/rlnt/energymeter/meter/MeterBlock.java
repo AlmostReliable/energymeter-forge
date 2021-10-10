@@ -6,8 +6,6 @@ import static dev.rlnt.energymeter.core.Constants.PIPEZ_ID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -81,7 +79,7 @@ public class MeterBlock extends Block implements EntityBlock {
         if (level.getBlockEntity(pos) instanceof MeterEntity entity) {
             // ensure valid neighbor
             var neighborState = level.getBlockState(neighbor);
-            ResourceLocation registryName = neighborState.getBlock().getRegistryName();
+            var registryName = neighborState.getBlock().getRegistryName();
             if (
                 !neighborState.isAir() &&
                 !neighborState.hasBlockEntity() &&
@@ -90,7 +88,7 @@ public class MeterBlock extends Block implements EntityBlock {
             ) return;
 
             // get direction from neighbor block position
-            Vec3i vector = neighbor.subtract(pos);
+            var vector = neighbor.subtract(pos);
             var direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
             if (direction == null) return;
 

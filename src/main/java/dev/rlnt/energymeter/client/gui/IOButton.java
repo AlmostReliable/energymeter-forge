@@ -4,7 +4,6 @@ import static dev.rlnt.energymeter.core.Constants.*;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.rlnt.energymeter.component.SideConfiguration;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.network.IOUpdatePacket;
 import dev.rlnt.energymeter.network.PacketHandler;
@@ -59,7 +58,7 @@ public class IOButton extends AbstractButton {
      * @param abstractButton the button which was clicked
      */
     private static void clickHandler(Button abstractButton) {
-        IOButton button = (IOButton) abstractButton;
+        var button = (IOButton) abstractButton;
         PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(button.side, button.setting));
     }
 
@@ -70,8 +69,8 @@ public class IOButton extends AbstractButton {
      * @return a list of all buttons created
      */
     static List<IOButton> create(AbstractContainerScreen<?> screen, BLOCK_SIDE... sides) {
-        List<IOButton> res = new ArrayList<>();
-        for (BLOCK_SIDE side : sides) {
+        var res = new ArrayList<IOButton>();
+        for (var side : sides) {
             if (side == BLOCK_SIDE.FRONT) continue;
             res.add(new IOButton(screen, side));
         }
@@ -121,7 +120,7 @@ public class IOButton extends AbstractButton {
 
     @Override
     public void renderToolTip(PoseStack stack, int mX, int mY) {
-        List<Component> tooltips = new ArrayList<>();
+        var tooltips = new ArrayList<Component>();
 
         // io configuration
         tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, ChatFormatting.GOLD));
@@ -184,7 +183,7 @@ public class IOButton extends AbstractButton {
      * @param stack the pose stack for the render call
      */
     private void renderIOOverlay(PoseStack stack) {
-        int textureOffset = (setting.ordinal() - 1) * OVERLAY_SIZE;
+        var textureOffset = (setting.ordinal() - 1) * OVERLAY_SIZE;
         if (textureOffset >= 0) blit(
             stack,
             x + OVERLAY_OFFSET,
@@ -209,7 +208,7 @@ public class IOButton extends AbstractButton {
             return;
         }
 
-        SideConfiguration sideConfig = ((MeterContainer) container).getEntity().getSideConfig();
+        var sideConfig = ((MeterContainer) container).getEntity().getSideConfig();
 
         setting =
             switch (setting) {

@@ -8,7 +8,6 @@ import dev.rlnt.energymeter.core.Setup;
 import dev.rlnt.energymeter.network.PacketHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -20,7 +19,7 @@ public class EnergyMeter {
 
     @SuppressWarnings("java:S1118")
     public EnergyMeter() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        var modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         // register common setup listener
         modEventBus.addListener(EnergyMeter::onCommonSetup);
         // register client setup listener

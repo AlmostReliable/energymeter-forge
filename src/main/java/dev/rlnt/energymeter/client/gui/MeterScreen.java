@@ -62,7 +62,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
 
     @Override
     protected void renderTooltip(PoseStack stack, int mX, int mY) {
-        List<Component> tooltips = new ArrayList<>();
+        var tooltips = new ArrayList<Component>();
         if (isWithinRegion(mX, mY, 148, 17, 26, 17)) {
             // io config front face
             tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, ChatFormatting.GOLD));
@@ -97,7 +97,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     @Override
     protected void renderLabels(PoseStack stack, int pX, int pY) {
         // header labels
-        final float yPos = 12;
+        final var yPos = 12f;
         font.draw(
             stack,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, TRANSFER_RATE_ID) + ":",
@@ -160,7 +160,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
      * @return the current status
      */
     private String getStatusString() {
-        STATUS connection = menu.getEntity().getStatus();
+        var connection = menu.getEntity().getStatus();
         return TextUtils.translateAsString(TRANSLATE_TYPE.STATUS, connection.toString().toLowerCase());
     }
 
@@ -170,7 +170,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
      * @return the color of the current status
      */
     private ChatFormatting getStatusColor() {
-        STATUS status = menu.getEntity().getStatus();
+        var status = menu.getEntity().getStatus();
         return switch (status) {
             case DISCONNECTED -> ChatFormatting.RED;
             case CONNECTED -> ChatFormatting.YELLOW;
@@ -195,7 +195,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
      * @param <W>     the button class
      */
     private <W extends Button> void addWidgets(List<W> widgets) {
-        for (W widget : widgets) {
+        for (var widget : widgets) {
             addRenderableWidget(widget);
         }
     }

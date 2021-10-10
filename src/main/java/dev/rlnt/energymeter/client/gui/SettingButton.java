@@ -7,7 +7,6 @@ import dev.rlnt.energymeter.util.TextUtils;
 import dev.rlnt.energymeter.util.TypeEnums;
 import dev.rlnt.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -52,7 +51,7 @@ public class SettingButton extends AbstractButton {
 
     @Override
     public void renderToolTip(PoseStack stack, int mX, int mY) {
-        List<Component> tooltips = new ArrayList<>();
+        var tooltips = new ArrayList<Component>();
         tooltips.add(
             TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, setting.toString().toLowerCase(), ChatFormatting.GOLD)
         );

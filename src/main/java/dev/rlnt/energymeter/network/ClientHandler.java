@@ -3,14 +3,13 @@ package dev.rlnt.energymeter.network;
 import dev.rlnt.energymeter.core.Constants;
 import dev.rlnt.energymeter.meter.MeterEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.Level;
 
 class ClientHandler {
 
     private ClientHandler() {}
 
     static void handleClientSyncPacket(ClientSyncPacket packet) {
-        Level level = Minecraft.getInstance().level;
+        var level = Minecraft.getInstance().level;
         if (level == null) return;
         if (level.getBlockEntity(packet.getPos()) instanceof MeterEntity entity) {
             if ((packet.getFlags() & Constants.SyncFlags.SIDE_CONFIG) != 0) entity

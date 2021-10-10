@@ -93,11 +93,11 @@ public class TextUtils {
     public static Tuple<String, String> formatEnergy(Number number, boolean extended) {
         if (!extended) {
             // convert numbers to compact form
-            int numberOfDigits = number.intValue() == 0
+            var numberOfDigits = number.intValue() == 0
                 ? 0
                 : (int) (1 + Math.floor(Math.log10(Math.abs(number.doubleValue()))));
-            int base10Exponent = numberOfDigits < 4 ? 0 : 3 * ((numberOfDigits - 1) / 3);
-            double normalized = number.doubleValue() / Math.pow(10, base10Exponent);
+            var base10Exponent = numberOfDigits < 4 ? 0 : 3 * ((numberOfDigits - 1) / 3);
+            var normalized = number.doubleValue() / Math.pow(10, base10Exponent);
             return new Tuple<>(formatNumber(normalized, 2), UNITS[base10Exponent / 3] + "FE");
         }
         // normal energy format
