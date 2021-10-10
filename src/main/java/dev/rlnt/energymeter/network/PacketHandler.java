@@ -18,7 +18,11 @@ public class PacketHandler {
         PROTOCOL::equals
     );
 
-    static {
+    private PacketHandler() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    public static void init() {
         int id = -1;
 
         CHANNEL
@@ -34,13 +38,5 @@ public class PacketHandler {
             .encoder(SettingUpdatePacket::encode)
             .consumer(SettingUpdatePacket::handle)
             .add();
-    }
-
-    private PacketHandler() {
-        throw new IllegalStateException("Utility class");
-    }
-
-    public static void init() {
-        // utility method to initialize the packet handler
     }
 }
