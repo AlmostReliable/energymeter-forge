@@ -22,9 +22,7 @@ public class Constants {
     public static final String IO_MODE_ID = "io_mode";
     public static final String IO_SCREEN_ID = "screen";
 
-    private Constants() {
-        throw new IllegalStateException("Utility class");
-    }
+    private Constants() {}
 
     /**
      * Flags to esnure only required data is synced in a {@link ClientSyncPacket}.

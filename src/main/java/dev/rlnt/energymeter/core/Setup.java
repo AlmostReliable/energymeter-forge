@@ -27,11 +27,8 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 public class Setup {
 
     private static final Tab TAB = new Tab(MOD_ID);
-    private static final String EXCEPTION_MESSAGE = "Utility class";
 
-    private Setup() {
-        throw new IllegalStateException(EXCEPTION_MESSAGE);
-    }
+    private Setup() {}
 
     private static <E extends IForgeRegistryEntry<E>> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
         return DeferredRegister.create(registry, MOD_ID);
@@ -62,9 +59,7 @@ public class Setup {
         private static final DeferredRegister<Item> ITEMS = createRegistry(ForgeRegistries.ITEMS);
         private static final RegistryObject<MeterBlock> METER = register(METER_ID, MeterBlock::new);
 
-        private Blocks() {
-            throw new IllegalStateException(EXCEPTION_MESSAGE);
-        }
+        private Blocks() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <B extends MeterBlock> RegistryObject<B> register(String id, Supplier<B> supplier) {
@@ -80,9 +75,7 @@ public class Setup {
             ForgeRegistries.BLOCK_ENTITIES
         );
 
-        private Entities() {
-            throw new IllegalStateException(EXCEPTION_MESSAGE);
-        }
+        private Entities() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <E extends MeterEntity, B extends MeterBlock> RegistryObject<BlockEntityType<E>> register(
@@ -105,9 +98,7 @@ public class Setup {
 
         private static final DeferredRegister<MenuType<?>> REGISTRY = createRegistry(ForgeRegistries.CONTAINERS);
 
-        private Containers() {
-            throw new IllegalStateException(EXCEPTION_MESSAGE);
-        }
+        private Containers() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <C extends MeterContainer> RegistryObject<MenuType<C>> register(

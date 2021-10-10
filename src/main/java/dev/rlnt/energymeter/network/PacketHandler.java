@@ -19,9 +19,7 @@ public class PacketHandler {
         PROTOCOL::equals
     );
 
-    private PacketHandler() {
-        throw new IllegalStateException("Utility class");
-    }
+    private PacketHandler() {}
 
     public static void init() {
         int id = -1;
