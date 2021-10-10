@@ -38,7 +38,6 @@ public class SettingUpdatePacket {
             Level level = entity.getLevel();
             if (level == null || !level.isLoaded(entity.getBlockPos())) return;
             entity.updateSetting(packet.setting);
-            entity.update(false);
             entity.setChanged();
         }
     }

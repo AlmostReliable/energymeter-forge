@@ -1,5 +1,6 @@
 package dev.rlnt.energymeter.network;
 
+import dev.rlnt.energymeter.core.Constants.SyncFlags;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterEntity;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
@@ -42,8 +43,9 @@ public class IOUpdatePacket {
             Level level = entity.getLevel();
             if (level == null || !level.isLoaded(entity.getBlockPos())) return;
             entity.getSideConfig().set(packet.side, packet.setting);
-            entity.update(true);
+            entity.updateNeighbors();
             entity.updateCache(entity.getSideConfig().getDirectionFromSide(packet.side));
+            entity.syncData(SyncFlags.SIDE_CONFIG);
             entity.setChanged();
         }
     }
