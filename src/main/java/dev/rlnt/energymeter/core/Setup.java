@@ -6,17 +6,17 @@ import static dev.rlnt.energymeter.core.Constants.MOD_ID;
 import dev.rlnt.energymeter.meter.MeterBlock;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterTile;
-import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
@@ -27,17 +27,15 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public class Setup {
 
-    static final Tab TAB = new Tab(MOD_ID);
+    private static final Tab TAB = new Tab(MOD_ID);
 
     private Setup() {}
 
-    private static <T extends IForgeRegistryEntry<T>> DeferredRegister<T> createRegistry(
-        final IForgeRegistry<T> registry
-    ) {
+    private static <E extends IForgeRegistryEntry<E>> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
         return DeferredRegister.create(registry, MOD_ID);
     }
 
-    public static void init(final IEventBus modEventBus) {
+    public static void init(IEventBus modEventBus) {
         Blocks.REGISTRY.register(modEventBus);
         Blocks.ITEMS.register(modEventBus);
         Tiles.REGISTRY.register(modEventBus);
@@ -46,7 +44,7 @@ public class Setup {
 
     private static class Tab extends ItemGroup {
 
-        Tab(final String label) {
+        private Tab(String label) {
             super(label);
         }
 
@@ -58,59 +56,75 @@ public class Setup {
 
     static class Blocks {
 
-        static final DeferredRegister<Block> REGISTRY = createRegistry(ForgeRegistries.BLOCKS);
-        static final DeferredRegister<Item> ITEMS = createRegistry(ForgeRegistries.ITEMS);
-        private static final RegistryObject<Block> METER_BLOCK = registerBlock(METER_ID, MeterBlock::new);
+        private static final DeferredRegister<Block> REGISTRY = createRegistry(ForgeRegistries.BLOCKS);
+        private static final DeferredRegister<Item> ITEMS = createRegistry(ForgeRegistries.ITEMS);
+        private static final RegistryObject<MeterBlock> METER_BLOCK = register(METER_ID, MeterBlock::new);
 
         private Blocks() {}
 
         @SuppressWarnings("SameParameterValue")
-        private static <T extends Block> RegistryObject<T> registerBlock(final String name, final Supplier<T> block) {
-            final RegistryObject<T> result = REGISTRY.register(name, block);
-            ITEMS.register(name, () -> new BlockItem(result.get(), new Item.Properties().tab(TAB)));
+        private static <B extends MeterBlock> RegistryObject<B> register(String id, Supplier<B> supplier) {
+            RegistryObject<B> result = REGISTRY.register(id, supplier);
+            ITEMS.register(id, () -> new BlockItem(result.get(), new Item.Properties().tab(TAB)));
             return result;
         }
     }
 
     public static class Tiles {
 
-        static final DeferredRegister<TileEntityType<?>> REGISTRY = createRegistry(ForgeRegistries.TILE_ENTITIES);
-        public static final RegistryObject<TileEntityType<MeterTile>> METER_TILE = registerTile(
-            METER_ID,
-            () -> new MeterTile(Blocks.METER_BLOCK.get().defaultBlockState()),
-            Blocks.METER_BLOCK
+        private static final DeferredRegister<TileEntityType<?>> REGISTRY = createRegistry(
+            ForgeRegistries.TILE_ENTITIES
         );
 
         private Tiles() {}
 
         @SuppressWarnings("SameParameterValue")
-        private static <T extends TileEntity, B extends Block> RegistryObject<TileEntityType<T>> registerTile(
-            final String name,
-            final Supplier<T> tile,
-            final RegistryObject<B> block
+        private static <T extends MeterTile, B extends MeterBlock> RegistryObject<TileEntityType<T>> register(
+            String id,
+            RegistryObject<B> block,
+            Function<BlockState, T> constructor
         ) {
             //noinspection ConstantConditions
-            return REGISTRY.register(name, () -> TileEntityType.Builder.of(tile, block.get()).build(null));
+            return REGISTRY.register(
+                id,
+                () ->
+                    TileEntityType.Builder
+                        .of(() -> constructor.apply(block.get().defaultBlockState()), block.get())
+                        .build(null)
+            );
         }
+
+        public static final RegistryObject<TileEntityType<MeterTile>> METER = register(
+            METER_ID,
+            Blocks.METER_BLOCK,
+            MeterTile::new
+        );
     }
 
     public static class Containers {
 
         private static final DeferredRegister<ContainerType<?>> REGISTRY = createRegistry(ForgeRegistries.CONTAINERS);
-        public static final RegistryObject<ContainerType<MeterContainer>> METER_CONTAINER = REGISTRY.register(
-            METER_ID,
-            () ->
-                IForgeContainerType.create(
-                    (
-                        (windowId, inv, data) -> {
-                            BlockPos pos = data.readBlockPos();
-                            MeterTile tile = (MeterTile) inv.player.level.getBlockEntity(pos);
-                            return new MeterContainer(windowId, Objects.requireNonNull(tile));
-                        }
-                    )
-                )
-        );
 
         private Containers() {}
+
+        @SuppressWarnings("SameParameterValue")
+        private static <C extends MeterContainer> RegistryObject<ContainerType<C>> register(
+            String id,
+            BiFunction<MeterTile, Integer, C> constructor
+        ) {
+            return REGISTRY.register(
+                id,
+                () ->
+                    IForgeContainerType.create((containerID, inventory, data) -> {
+                        MeterTile tile = (MeterTile) inventory.player.level.getBlockEntity(data.readBlockPos());
+                        return constructor.apply(tile, containerID);
+                    })
+            );
+        }
+
+        public static final RegistryObject<ContainerType<MeterContainer>> METER_CONTAINER = register(
+            METER_ID,
+            MeterContainer::new
+        );
     }
 }
