@@ -36,7 +36,7 @@ public class IOButton extends AbstractButton {
     private final BLOCK_SIDE side;
     private SideConfiguration sideConfig;
 
-    private IOButton(final ContainerScreen<?> screen, final BLOCK_SIDE side) {
+    private IOButton(ContainerScreen<?> screen, BLOCK_SIDE side) {
         super(
             screen,
             POS_X + getButtonPos(side).getA(),
@@ -56,9 +56,9 @@ public class IOButton extends AbstractButton {
      * @param sides the sides for which the buttons should be created
      * @return a list of all buttons created
      */
-    static List<IOButton> create(final ContainerScreen<?> screen, final BLOCK_SIDE... sides) {
-        final List<IOButton> res = new ArrayList<>();
-        for (final BLOCK_SIDE side : sides) {
+    static List<IOButton> create(ContainerScreen<?> screen, BLOCK_SIDE... sides) {
+        List<IOButton> res = new ArrayList<>();
+        for (BLOCK_SIDE side : sides) {
             if (side == BLOCK_SIDE.FRONT) continue;
             res.add(new IOButton(screen, side));
         }
@@ -71,7 +71,7 @@ public class IOButton extends AbstractButton {
      * @param side the BLOCK_SIDE to get the positions for
      * @return the x and y position for the BLOCK_SIDE
      */
-    private static Tuple<Integer, Integer> getButtonPos(final BLOCK_SIDE side) {
+    private static Tuple<Integer, Integer> getButtonPos(BLOCK_SIDE side) {
         switch (side) {
             case BOTTOM:
                 return new Tuple<>(ZONE_SIZE, ZONE_SIZE * 2);
@@ -89,7 +89,7 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void renderButton(final MatrixStack matrix, final int mX, final int mY, final float partial) {
+    public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
         super.renderButton(matrix, mX, mY, partial);
         // io overlay
         renderIOOverlay(matrix);
@@ -113,8 +113,8 @@ public class IOButton extends AbstractButton {
     }
 
     @Override
-    public void renderToolTip(final MatrixStack matrix, final int mX, final int mY) {
-        final List<ITextComponent> tooltips = new ArrayList<>();
+    public void renderToolTip(MatrixStack matrix, int mX, int mY) {
+        List<ITextComponent> tooltips = new ArrayList<>();
 
         // io configuration
         tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, TextFormatting.GOLD));

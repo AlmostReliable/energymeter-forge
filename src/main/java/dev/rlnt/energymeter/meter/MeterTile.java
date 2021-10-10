@@ -54,7 +54,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private MODE mode = MODE.TRANSFER;
 
     public MeterTile(BlockState state) {
-        super(Setup.Tiles.METER_TILE.get());
+        super(Setup.Tiles.METER.get());
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration(state);
     }
@@ -69,14 +69,14 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      * @param outputs the possible outputs
      * @return the accepted amount of energy
      */
-    private static int transferEnergy(final int energy, final Map<IEnergyStorage, Integer> outputs) {
+    private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
         int acceptedEnergy = 0;
         int energyToTransfer = energy;
         while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            final int equalSplit = energyToTransfer / outputs.size();
-            final List<IEnergyStorage> outputsToRemove = new ArrayList<>();
+            int equalSplit = energyToTransfer / outputs.size();
+            List<IEnergyStorage> outputsToRemove = new ArrayList<>();
 
-            for (final Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
+            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
                 int actualSplit = equalSplit;
                 if (output.getValue() < equalSplit) {
                     actualSplit = output.getValue();
@@ -99,7 +99,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      * @return the {@link BlockState} with the flipped IO value
      */
     private BlockState flipBlockState() {
-        final BlockState state = getBlockState();
+        BlockState state = getBlockState();
         return state.setValue(MeterBlock.IO, !state.getValue(MeterBlock.IO));
     }
 
@@ -109,10 +109,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      *
      * @param direction the {@link Direction} to update the cache for
      */
-    public void updateCache(final Direction direction) {
+    public void updateCache(Direction direction) {
         if (level == null || level.isClientSide) return;
 
-        final IO_SETTING setting = sideConfig.get(direction);
+        IO_SETTING setting = sideConfig.get(direction);
         if (setting == IO_SETTING.IN) {
             hasValidInput = getInputFromCache(direction);
         } else if (setting == IO_SETTING.OUT) {
@@ -148,7 +148,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         return numberMode;
     }
 
-    public void setNumberMode(final NUMBER_MODE numberMode) {
+    public void setNumberMode(NUMBER_MODE numberMode) {
         this.numberMode = numberMode;
     }
 
@@ -158,7 +158,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      *
      * @param setting the setting to update
      */
-    public void updateSetting(final SETTING setting) {
+    public void updateSetting(SETTING setting) {
         if (setting == SETTING.NUMBER) {
             numberMode = numberMode == NUMBER_MODE.SHORT ? NUMBER_MODE.LONG : NUMBER_MODE.SHORT;
             syncData(SyncFlags.NUMBER_MODE);
@@ -213,7 +213,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     @Override
-    public int receiveEnergy(final int energy, final boolean simulate) {
+    public int receiveEnergy(int energy, boolean simulate) {
         if (level == null || !setupDone) return 0;
 
         // void the energy if consumer mode is activated
@@ -226,17 +226,17 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         }
 
         // create a map with all possible outputs and their energy limit
-        final Map<IEnergyStorage, Integer> outputs = getPossibleOutputs(energy);
+        Map<IEnergyStorage, Integer> outputs = getPossibleOutputs(energy);
         if (outputs.isEmpty()) return 0;
 
         // get the maximum energy which could be accepted by all outputs
-        final int maximumAccepted = outputs.values().stream().mapToInt(maxEnergy -> maxEnergy).sum();
+        int maximumAccepted = outputs.values().stream().mapToInt(maxEnergy -> maxEnergy).sum();
 
         // if simulated, just check if the energy fits somewhere
         if (simulate) return Math.min(maximumAccepted, energy);
 
         // actual energy transfer
-        final int acceptedEnergy;
+        int acceptedEnergy;
         if (maximumAccepted <= energy) {
             // if maximum accepted energy is less or equal the energy to transfer, fill all outputs with their maximum
             outputs.keySet().forEach(cap -> cap.receiveEnergy(outputs.get(cap), false));
@@ -263,7 +263,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         return mode;
     }
 
-    public void setMode(final MODE mode) {
+    public void setMode(MODE mode) {
         this.mode = mode;
     }
 
@@ -274,19 +274,19 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      *
      * @return a map of all possible outputs with their corresponding energy limit
      */
-    private Map<IEnergyStorage, Integer> getPossibleOutputs(final int energy) {
-        final Map<IEnergyStorage, Integer> outputs = new HashMap<>();
-        for (final Direction direction : Direction.values()) {
+    private Map<IEnergyStorage, Integer> getPossibleOutputs(int energy) {
+        Map<IEnergyStorage, Integer> outputs = new HashMap<>();
+        for (Direction direction : Direction.values()) {
             // only consider sides where output mode is enabled
             if (sideConfig.get(direction) != IO_SETTING.OUT) continue;
 
             // try to get the energy capability from the cache, otherwise store it
-            final LazyOptional<IEnergyStorage> target = getOutputFromCache(direction);
+            LazyOptional<IEnergyStorage> target = getOutputFromCache(direction);
             if (target == null) continue;
 
             // store the maximum amount of energy each possible output can receive
             target.ifPresent(cap -> {
-                final int accepted = cap.receiveEnergy(energy, true);
+                int accepted = cap.receiveEnergy(energy, true);
                 if (accepted > 0) outputs.put(cap, accepted);
             });
         }
@@ -334,15 +334,15 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      *
      * @return True if a valid input was found, false otherwise
      */
-    private boolean getInputFromCache(final Direction direction) {
+    private boolean getInputFromCache(Direction direction) {
         assert level != null && !level.isClientSide;
 
         LazyOptional<IEnergyStorage> target = inputCache;
         if (target == null) {
-            final ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
+            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
             if (provider instanceof MeterTile) return false;
             if (provider == null) {
-                final Block block = level.getBlockState(worldPosition.relative(direction)).getBlock();
+                Block block = level.getBlockState(worldPosition.relative(direction)).getBlock();
                 return (
                     !block.is(Blocks.AIR) &&
                     block.getRegistryName() != null &&
@@ -359,12 +359,12 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     @Nullable
-    private LazyOptional<IEnergyStorage> getOutputFromCache(final Direction direction) {
+    private LazyOptional<IEnergyStorage> getOutputFromCache(Direction direction) {
         assert level != null && !level.isClientSide;
 
         LazyOptional<IEnergyStorage> target = outputCache.get(direction);
         if (target == null) {
-            final ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
+            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
             if (provider == null || provider instanceof MeterTile) return null;
             target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
             outputCache.put(direction, target);
@@ -375,7 +375,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     @Override
     protected void invalidateCaps() {
-        for (final LazyOptional<SidedEnergyStorage> cap : energyStorage) {
+        for (LazyOptional<SidedEnergyStorage> cap : energyStorage) {
             cap.invalidate();
         }
         super.invalidateCaps();
@@ -383,7 +383,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability(final Capability<T> cap, @Nullable final Direction direction) {
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
         if (
             !remove &&
             cap == CapabilityEnergy.ENERGY &&
@@ -402,8 +402,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     @Nullable
     @Override
-    public Container createMenu(final int windowID, final PlayerInventory inventory, final PlayerEntity player) {
-        return new MeterContainer(windowID, this);
+    public Container createMenu(int windowID, PlayerInventory inventory, PlayerEntity player) {
+        return new MeterContainer(this, windowID);
     }
 
     /**
@@ -412,8 +412,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      *
      * @param newStatus the new setting to set
      */
-    private void updateStatus(final STATUS newStatus) {
-        final STATUS oldStatus = status;
+    private void updateStatus(STATUS newStatus) {
+        STATUS oldStatus = status;
         status = newStatus;
         averageRate = 0;
         averageCount = 0;
@@ -433,7 +433,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      * @return true if there is at least one valid output, false otherwise
      */
     private boolean hasValidOutput() {
-        for (final LazyOptional<IEnergyStorage> cap : outputCache.values()) {
+        for (LazyOptional<IEnergyStorage> cap : outputCache.values()) {
             if (cap != null) return true;
         }
         return false;
@@ -465,7 +465,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
         // initial setup
         if (!setupDone) {
-            for (final Direction direction : Direction.values()) {
+            for (Direction direction : Direction.values()) {
                 if (sideConfig.get(direction) != IO_SETTING.OFF) updateCache(direction);
             }
             setupDone = true;

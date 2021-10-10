@@ -14,35 +14,35 @@ public class SettingUpdatePacket {
 
     private SETTING setting;
 
-    public SettingUpdatePacket(final SETTING setting) {
+    public SettingUpdatePacket(SETTING setting) {
         this.setting = setting;
     }
 
     private SettingUpdatePacket() {}
 
-    static SettingUpdatePacket decode(final PacketBuffer buffer) {
-        final SettingUpdatePacket packet = new SettingUpdatePacket();
+    static SettingUpdatePacket decode(PacketBuffer buffer) {
+        SettingUpdatePacket packet = new SettingUpdatePacket();
         packet.setting = SETTING.values()[buffer.readInt()];
         return packet;
     }
 
-    static void handle(final SettingUpdatePacket packet, final Supplier<NetworkEvent.Context> context) {
-        final ServerPlayerEntity player = context.get().getSender();
+    static void handle(SettingUpdatePacket packet, Supplier<NetworkEvent.Context> context) {
+        ServerPlayerEntity player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);
     }
 
-    private static void handlePacket(final SettingUpdatePacket packet, @Nullable final ServerPlayerEntity player) {
+    private static void handlePacket(SettingUpdatePacket packet, @Nullable ServerPlayerEntity player) {
         if (player != null && player.containerMenu instanceof MeterContainer) {
-            final MeterTile tile = ((MeterContainer) player.containerMenu).getTile();
-            final World level = tile.getLevel();
+            MeterTile tile = ((MeterContainer) player.containerMenu).getTile();
+            World level = tile.getLevel();
             if (level == null || !level.isLoaded(tile.getBlockPos())) return;
             tile.updateSetting(packet.setting);
             tile.setChanged();
         }
     }
 
-    void encode(final PacketBuffer buffer) {
+    void encode(PacketBuffer buffer) {
         buffer.writeInt(setting.ordinal());
     }
 }

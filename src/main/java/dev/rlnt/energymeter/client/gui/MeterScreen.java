@@ -24,7 +24,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
     private static final int TEXTURE_WIDTH = 192;
     private static final int TEXTURE_HEIGHT = 91;
 
-    public MeterScreen(final MeterContainer container, final PlayerInventory inventory, final ITextComponent name) {
+    public MeterScreen(MeterContainer container, PlayerInventory inventory, ITextComponent name) {
         super(container, inventory, name);
         imageWidth = TEXTURE_WIDTH;
         imageHeight = TEXTURE_HEIGHT;
@@ -53,15 +53,15 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
     }
 
     @Override
-    public void render(final MatrixStack matrix, final int mX, final int mY, final float partial) {
+    public void render(MatrixStack matrix, int mX, int mY, float partial) {
         renderBackground(matrix);
         super.render(matrix, mX, mY, partial);
         renderTooltip(matrix, mX, mY);
     }
 
     @Override
-    protected void renderTooltip(final MatrixStack matrix, final int mX, final int mY) {
-        final List<ITextComponent> tooltips = new ArrayList<>();
+    protected void renderTooltip(MatrixStack matrix, int mX, int mY) {
+        List<ITextComponent> tooltips = new ArrayList<>();
         if (isWithinRegion(mX, mY, 148, 17, 26, 17)) {
             // io config front face
             tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, TextFormatting.GOLD));
@@ -94,7 +94,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    protected void renderLabels(final MatrixStack matrix, final int pX, final int pY) {
+    protected void renderLabels(MatrixStack matrix, int pX, int pY) {
         // header labels
         final float yPos = 12;
         font.draw(
@@ -123,7 +123,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
         matrix.pushPose();
         matrix.scale(0.98f, 0.98f, 0.98f);
 
-        final Tuple<String, String> formattedFlow = TextUtils.formatEnergy(
+        Tuple<String, String> formattedFlow = TextUtils.formatEnergy(
             menu.getTile().getTransferRate(),
             menu.getTile().getNumberMode() == NUMBER_MODE.LONG
         );
@@ -146,10 +146,11 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
         matrix.popPose();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    protected void renderBg(final MatrixStack matrix, final float partial, final int pX, final int pY) {
+    protected void renderBg(MatrixStack matrix, float partial, int pX, int pY) {
+        // background texture
         if (minecraft == null) return;
+        //noinspection deprecation
         RenderSystem.color4f(1f, 1f, 1f, 1f);
         minecraft.getTextureManager().bind(TEXTURE);
         blit(matrix, leftPos, topPos, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
@@ -161,7 +162,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
      * @return the current connection status
      */
     private String getConnectionString() {
-        final STATUS connection = menu.getTile().getStatus();
+        STATUS connection = menu.getTile().getStatus();
         return TextUtils.translateAsString(TRANSLATE_TYPE.STATUS, connection.toString().toLowerCase());
     }
 
@@ -171,7 +172,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
      * @return the color of the current connection status
      */
     private TextFormatting getConnectionColor() {
-        final STATUS connection = menu.getTile().getStatus();
+        STATUS connection = menu.getTile().getStatus();
         switch (connection) {
             case DISCONNECTED:
                 return TextFormatting.RED;
@@ -201,8 +202,8 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
      * @param buttons the list of buttons to add
      * @param <T>     the button class
      */
-    private <T extends Widget> void addButtons(final List<T> buttons) {
-        for (final T button : buttons) {
+    private <T extends Widget> void addButtons(List<T> buttons) {
+        for (T button : buttons) {
             addButton(button);
         }
     }
@@ -219,14 +220,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
      * @return true if the curser is within the region, false otherwise
      */
     @SuppressWarnings("SameParameterValue")
-    private boolean isWithinRegion(
-        final int mX,
-        final int mY,
-        final int pX,
-        final int widht,
-        final int pY,
-        final int height
-    ) {
+    private boolean isWithinRegion(int mX, int mY, int pX, int widht, int pY, int height) {
         return (mX >= leftPos + pX && mX <= leftPos + pX + widht && mY >= topPos + pY && mY <= topPos + pY + height);
     }
 }
