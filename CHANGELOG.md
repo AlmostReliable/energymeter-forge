@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.3.0] - 2021-10-14
+
+### Added
+- added the ability to define a custom update interval ([Enigmatica6/#3415])
+  - this will change how often the transfer rate is recalculated
+  - higher amounts will even out spikes but result in less updates of the value
+- added German translation
+
+### Changed
+- improved English localization
+- improved rendering performance of tooltips
+
+<!-- Links -->
+[Enigmatica6/#3415]: https://github.com/NillerMedDild/Enigmatica6/issues/3415
+
+
 ## [1.2.1] - 2021-10-10
 
 ### Changed
@@ -112,7 +128,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.1...HEAD
+[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.3.0...HEAD
+[1.3.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.1..v1.16-1.3.0
 [1.2.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.0..v1.16-1.2.1
 [1.2.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.1..v1.16-1.2.0
 [1.1.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.0..v1.16-1.1.1

@@ -1,0 +1,48 @@
+{
+  "itemGroup.energymeter": "Energiemesser",
+
+  "block.energymeter.meter": "Energiemesser",
+  "container.energymeter.meter": "Energiemesser",
+
+  "label.energymeter.transfer_rate": "Transferrate",
+  "label.energymeter.status": "Status",
+  "label.energymeter.mode": "Modus",
+  "label.energymeter.interval": "Intervall",
+  "label.energymeter.consumer": "Verbraucher",
+  "label.energymeter.transfer": "Transfer",
+
+  "tooltip.energymeter.side_config": "I/O-Konfiguration",
+  "tooltip.energymeter.io_side": "Seite",
+  "tooltip.energymeter.io_mode": "Modus",
+  "tooltip.energymeter.number": "Nummer-Einstellung",
+  "tooltip.energymeter.mode": "Modus-Einstellung",
+  "tooltip.energymeter.interval": "Aktualisierungsintervall",
+  "tooltip.energymeter.interval_desc_1": "Gibt die Anzahl der Ticks (1s = 20 ticks) an, zwischen denen die Transferrate neu berechnet wird.",
+  "tooltip.energymeter.interval_desc_2": "Höhere Werte werden Abweichungen ausgleichen aber zu selteneren Aktualisierungen führen",
+  "tooltip.energymeter.reset": "Intervall zurücksetzen",
+  "tooltip.energymeter.reset_desc": "Setzt den Intervall zum Standardwert zurück.",
+  "tooltip.energymeter.action_click": "Klicke",
+  "tooltip.energymeter.action_1": "um Modus zu wechseln",
+  "tooltip.energymeter.action_2": "um Modus zurückzusetzen",
+  "tooltip.energymeter.action_3": "um umzuschalten",
+  "tooltip.energymeter.action_4": "um zurückzusetzen",
+  "tooltip.energymeter.action_5": "um Intervall zu ändern",
+  "tooltip.energymeter.action_6": "um Intervall anzuwenden",
+
+  "block_side.energymeter.bottom": "Unten",
+  "block_side.energymeter.top": "Oben",
+  "block_side.energymeter.front": "Vorne",
+  "block_side.energymeter.back": "Hinten",
+  "block_side.energymeter.left": "Links",
+  "block_side.energymeter.right": "Rechts",
+
+  "io_setting.energymeter.off": "Aus",
+  "io_setting.energymeter.in": "Input",
+  "io_setting.energymeter.out": "Output",
+  "io_setting.energymeter.screen": "Monitor",
+
+  "status.energymeter.disconnected": "Getrennt",
+  "status.energymeter.connected": "Verbunden",
+  "status.energymeter.transferring": "Übertragung",
+  "status.energymeter.consuming": "Verbrauch"
+}

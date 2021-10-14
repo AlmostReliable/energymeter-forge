@@ -1,6 +1,6 @@
 package dev.rlnt.energymeter.network;
 
-import dev.rlnt.energymeter.core.Constants;
+import dev.rlnt.energymeter.core.Constants.SyncFlags;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterTile;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
@@ -45,7 +45,7 @@ public class IOUpdatePacket {
             tile.getSideConfig().set(packet.side, packet.setting);
             tile.updateNeighbors();
             tile.updateCache(tile.getSideConfig().getDirectionFromSide(packet.side));
-            tile.syncData(Constants.SyncFlags.SIDE_CONFIG);
+            tile.syncData(SyncFlags.SIDE_CONFIG);
             tile.setChanged();
         }
     }

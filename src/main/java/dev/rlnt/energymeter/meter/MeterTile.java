@@ -38,7 +38,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 public class MeterTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, ISidedEnergy {
 
-    private static final int REFRESH_RATE = 5;
+    public static final int REFRESH_RATE = 5;
     private final EnumMap<Direction, LazyOptional<IEnergyStorage>> outputCache = new EnumMap<>(Direction.class);
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
@@ -47,11 +47,12 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private LazyOptional<IEnergyStorage> inputCache = null;
     private float transferRate = 0;
     private int averageRate = 0;
-    private int lastAverageRate = 0;
+    private long lastAverageRate = 0;
     private int averageCount = 0;
     private STATUS status = STATUS.DISCONNECTED;
     private NUMBER_MODE numberMode = NUMBER_MODE.SHORT;
     private MODE mode = MODE.TRANSFER;
+    private int interval = REFRESH_RATE;
 
     public MeterTile(BlockState state) {
         super(Setup.Tiles.METER.get());
@@ -91,6 +92,14 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         }
 
         return acceptedEnergy;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 
     /**
@@ -174,6 +183,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         if (nbt.contains(SIDE_CONFIG_ID)) sideConfig.deserializeNBT(nbt.getCompound(SIDE_CONFIG_ID));
         if (nbt.contains(NUMBER_MODE_ID)) numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         if (nbt.contains(MODE_ID)) mode = MODE.values()[nbt.getInt(MODE_ID)];
+        if (nbt.contains(INTERVAL_ID)) interval = nbt.getInt(INTERVAL_ID);
     }
 
     @Override
@@ -181,6 +191,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         nbt.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         nbt.putInt(MODE_ID, mode.ordinal());
+        nbt.putInt(INTERVAL_ID, interval);
         return super.save(nbt);
     }
 
@@ -192,6 +203,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         nbt.putInt(STATUS_ID, status.ordinal());
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         nbt.putInt(MODE_ID, mode.ordinal());
+        nbt.putInt(INTERVAL_ID, interval);
         return nbt;
     }
 
@@ -202,6 +214,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         status = STATUS.values()[nbt.getInt(STATUS_ID)];
         numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         mode = MODE.values()[nbt.getInt(MODE_ID)];
+        interval = nbt.getInt(INTERVAL_ID);
     }
 
     @Override
@@ -302,7 +315,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             transferRate,
             status,
             numberMode,
-            mode
+            mode,
+            interval
         );
         PacketHandler.CHANNEL.send(
             PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
@@ -436,7 +450,9 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      * Updates the status accordingly.
      */
     private void calculateFlow() {
-        if (averageCount != 0) {
+        assert level != null && !level.isClientSide;
+
+        if (averageCount != 0 && level.getGameTime() % interval == 0) {
             float oldTransferRate = transferRate;
             transferRate = (float) averageRate / averageCount;
             if (oldTransferRate != transferRate) syncData(SyncFlags.TRANSFER_RATE);
