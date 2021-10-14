@@ -57,7 +57,11 @@ Additionally, the Meter has two modes:
 - dumps all incoming energy (acts like a trashcan)
 - useful if you want to measure all incoming energy without the need to transfer it somewhere
 
-The Energy Meter recalculates the transfer rate every 5 ticks (0,25 seconds).<br>
+The Energy Meter recalculates the average transfer rate every 5 ticks (0,25 seconds) by default.<br>
+This update interval can be changed by typing the custom amount of ticks in the GUI.
+The change can be applied by pressing `Enter` or by unfocusing the text box.<br>
+A higher interval will result in energy spikes evening out but also fewer updates to the value.
+
 It has an unlimited transfer rate. Therefore, the limitation only comes from the attached objects.<br>
 To prevent having an unlimited cable very early, it is not possible to attach a Meter to another Meter.
 
