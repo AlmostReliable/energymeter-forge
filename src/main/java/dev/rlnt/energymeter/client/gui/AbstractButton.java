@@ -2,6 +2,7 @@ package dev.rlnt.energymeter.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.util.TextUtils;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -13,31 +14,23 @@ public abstract class AbstractButton extends Button {
     /**
      * Holds the parent {@link AbstractContainerMenu} of the parent {@link AbstractContainerScreen}.
      */
-    final AbstractContainerMenu container;
+    final MeterContainer container;
     /**
      * Holds the parent {@link AbstractContainerScreen} the {@link Button} is rendered in.
      */
-    final AbstractContainerScreen<?> screen;
-    /**
-     * Defines if the tooltips are strictly rendered after the {@link Button} texture.
-     * This needs to be false when an additional render layer is needed between texture
-     * and tooltips otherwise tooltips will render behind it.
-     */
-    private final boolean strictTooltips;
+    final MeterScreen screen;
 
-    AbstractButton(
-        AbstractContainerScreen<?> screen,
-        int pX,
-        int pY,
-        int width,
-        int height,
-        boolean strictTooltips,
-        OnPress onPress
-    ) {
-        super(screen.getGuiLeft() + pX, screen.getGuiTop() + pY, width, height, TextComponent.EMPTY, onPress);
+    AbstractButton(MeterScreen screen, int pX, int pY, int width, int height) {
+        super(
+            screen.getGuiLeft() + pX,
+            screen.getGuiTop() + pY,
+            width,
+            height,
+            TextComponent.EMPTY,
+            button -> ((AbstractButton) button).clickHandler()
+        );
         container = screen.getMenu();
         this.screen = screen;
-        this.strictTooltips = strictTooltips;
     }
 
     @Override
@@ -48,9 +41,14 @@ public abstract class AbstractButton extends Button {
         RenderSystem.setShaderTexture(0, TextUtils.getRL("textures/gui/buttons/" + getTexture() + ".png"));
         // button texture
         blit(stack, x, y, 0, 0, width, height, getTextureWidth(), getTextureHeight());
-        // tooltips
-        if (strictTooltips && isHovered) renderToolTip(stack, mX, mY);
     }
+
+    /**
+     * Handles the functionality which is triggered when clicking the button.
+     * <p>
+     * Can be overwritten by buttons to get individual functionality.
+     */
+    protected abstract void clickHandler();
 
     /**
      * Gets the texture file name for the button as {@link String}.

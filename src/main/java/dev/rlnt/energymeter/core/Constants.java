@@ -21,6 +21,7 @@ public class Constants {
     public static final String IO_SIDE_ID = "io_side";
     public static final String IO_MODE_ID = "io_mode";
     public static final String IO_SCREEN_ID = "screen";
+    public static final String INTERVAL_ID = "interval";
 
     private Constants() {}
 
@@ -34,6 +35,7 @@ public class Constants {
         public static final int STATUS = (1 << 2);
         public static final int NUMBER_MODE = (1 << 3);
         public static final int MODE = (1 << 4);
+        public static final int INTERVAL = (1 << 5);
 
         private SyncFlags() {}
     }

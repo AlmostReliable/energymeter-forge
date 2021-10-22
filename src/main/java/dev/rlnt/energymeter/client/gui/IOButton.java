@@ -2,23 +2,18 @@ package dev.rlnt.energymeter.client.gui;
 
 import static dev.rlnt.energymeter.core.Constants.*;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.network.IOUpdatePacket;
 import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.util.TextUtils;
+import dev.rlnt.energymeter.util.Tooltip;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import dev.rlnt.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Tuple;
 
 public class IOButton extends AbstractButton {
@@ -33,33 +28,14 @@ public class IOButton extends AbstractButton {
     private static final int OVERLAY_SIZE = 12;
     private static final int OVERLAY_OFFSET = 2;
     private final BLOCK_SIDE side;
+    private final Tooltip tooltip;
     private IO_SETTING setting;
 
-    private IOButton(AbstractContainerScreen<?> screen, BLOCK_SIDE side) {
-        super(
-            screen,
-            POS_X + getButtonPos(side).getA(),
-            POS_Y + getButtonPos(side).getB(),
-            BUTTON_SIZE,
-            BUTTON_SIZE,
-            false,
-            IOButton::clickHandler
-        );
+    private IOButton(MeterScreen screen, BLOCK_SIDE side) {
+        super(screen, POS_X + getButtonPos(side).getA(), POS_Y + getButtonPos(side).getB(), BUTTON_SIZE, BUTTON_SIZE);
         this.side = side;
-        this.setting = ((MeterContainer) container).getEntity().getSideConfig().get(side);
-    }
-
-    /**
-     * Handles the functionality which is triggered when clicking the button.
-     * <p>
-     * Gets the block side the button is for and translates it to a direction.
-     * After that, it will send a packet to the server for synchronization.
-     *
-     * @param abstractButton the button which was clicked
-     */
-    private static void clickHandler(Button abstractButton) {
-        var button = (IOButton) abstractButton;
-        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(button.side, button.setting));
+        this.setting = container.getEntity().getSideConfig().get(side);
+        tooltip = setupTooltip();
     }
 
     /**
@@ -68,7 +44,7 @@ public class IOButton extends AbstractButton {
      * @param sides the sides for which the buttons should be created
      * @return a list of all buttons created
      */
-    static List<IOButton> create(AbstractContainerScreen<?> screen, BLOCK_SIDE... sides) {
+    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
         var res = new ArrayList<IOButton>();
         for (var side : sides) {
             if (side == BLOCK_SIDE.FRONT) continue;
@@ -94,6 +70,44 @@ public class IOButton extends AbstractButton {
         };
     }
 
+    private Tooltip setupTooltip() {
+        return Tooltip
+            .builder()
+            // header
+            .addHeader(SIDE_CONFIG_ID)
+            .addBlankLine()
+            // block side
+            .add(
+                TextUtils
+                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
+                    .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
+                    .append(
+                        TextUtils.translate(
+                            TRANSLATE_TYPE.BLOCK_SIDE,
+                            side.toString().toLowerCase(),
+                            ChatFormatting.WHITE
+                        )
+                    )
+            )
+            // current mode
+            .add(
+                TextUtils
+                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
+                    .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
+                    .append(
+                        TextUtils.translate(
+                            TRANSLATE_TYPE.IO_SETTING,
+                            setting.toString().toLowerCase(),
+                            ChatFormatting.WHITE
+                        )
+                    )
+            )
+            .addBlankLine()
+            // action
+            .addClickAction("action_1")
+            .addShiftClickAction("action_2");
+    }
+
     @Override
     public void renderButton(PoseStack stack, int mX, int mY, float partial) {
         super.renderButton(stack, mX, mY, partial);
@@ -101,6 +115,11 @@ public class IOButton extends AbstractButton {
         renderIOOverlay(stack);
         // tooltips
         if (isHovered) renderToolTip(stack, mX, mY);
+    }
+
+    @Override
+    protected void clickHandler() {
+        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
     }
 
     @Override
@@ -120,55 +139,7 @@ public class IOButton extends AbstractButton {
 
     @Override
     public void renderToolTip(PoseStack stack, int mX, int mY) {
-        var tooltips = new ArrayList<Component>();
-
-        // io configuration
-        tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, ChatFormatting.GOLD));
-        tooltips.add(new TextComponent(" "));
-        // block side
-        tooltips.add(
-            TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
-                .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
-                .append(
-                    TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE, side.toString().toLowerCase(), ChatFormatting.WHITE)
-                )
-        );
-        // current mode
-        tooltips.add(
-            TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
-                .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
-                .append(
-                    TextUtils.translate(
-                        TRANSLATE_TYPE.IO_SETTING,
-                        setting.toString().toLowerCase(),
-                        ChatFormatting.WHITE
-                    )
-                )
-        );
-        tooltips.add(new TextComponent(" "));
-        // click to change mode
-        tooltips.add(MeterScreen.getClickTooltip());
-        // shift click to reset mode
-        tooltips.add(
-            TextUtils
-                .colorize("> ", ChatFormatting.GRAY)
-                .append(
-                    TextUtils.colorize(
-                        String.format(
-                            "%s + %s",
-                            InputConstants.getKey("key.keyboard.left.shift").getDisplayName().getString(),
-                            TextUtils.translateAsString(TRANSLATE_TYPE.TOOLTIP, "shift_click_1")
-                        ),
-                        ChatFormatting.AQUA
-                    )
-                )
-                .append(" ")
-                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "shift_click_2", ChatFormatting.GRAY))
-        );
-
-        screen.renderComponentTooltip(stack, tooltips, mX, mY);
+        screen.renderComponentTooltip(stack, tooltip.get(), mX, mY);
     }
 
     @Override
@@ -208,7 +179,7 @@ public class IOButton extends AbstractButton {
             return;
         }
 
-        var sideConfig = ((MeterContainer) container).getEntity().getSideConfig();
+        var sideConfig = container.getEntity().getSideConfig();
 
         setting =
             switch (setting) {

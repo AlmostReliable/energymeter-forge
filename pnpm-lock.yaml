@@ -1,16 +1,16 @@
 lockfileVersion: 5.3
 
 specifiers:
-  husky: ^7.0.2
+  husky: ^7.0.4
   prettier: ^2.4.1
-  prettier-plugin-java: ^1.4.0
+  prettier-plugin-java: ^1.5.0
   prettier-plugin-packagejson: 2.2.13
   pretty-quick: ^3.1.1
 
 devDependencies:
-  husky: 7.0.2
+  husky: 7.0.4
   prettier: 2.4.1
-  prettier-plugin-java: 1.4.0
+  prettier-plugin-java: 1.5.0
   prettier-plugin-packagejson: 2.2.13_prettier@2.4.1
   pretty-quick: 3.1.1_prettier@2.4.1
 
@@ -39,12 +39,12 @@ packages:
       fastq: 1.13.0
     dev: true
 
-  /@types/glob/7.1.4:
+  /@types/glob/7.2.0:
     resolution:
-      { integrity: sha512-w+LsMxKyYQm347Otw+IfBXOv9UWVjpHpCDdbBMt8Kz/xbvCYNjP+0qPh91Km3iKfSRLBB0P7fAMf0KHrPu+MyA== }
+      { integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA== }
     dependencies:
       '@types/minimatch': 3.0.5
-      '@types/node': 16.10.3
+      '@types/node': 16.11.2
     dev: true
 
   /@types/minimatch/3.0.5:
@@ -52,9 +52,9 @@ packages:
       { integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ== }
     dev: true
 
-  /@types/node/16.10.3:
+  /@types/node/16.11.2:
     resolution:
-      { integrity: sha512-ho3Ruq+fFnBrZhUYI46n/bV2GjwzSkwuT4dTf0GkuNFmnb8nq4ny2z9JEVemFi6bdEJanHLlYfy9c6FN9B9McQ== }
+      { integrity: sha512-w34LtBB0OkDTs19FQHXy4Ig/TOXI4zqvXS2Kk1PAsRKZ0I+nik7LlMYxckW0tSNGtvWmzB+mrCTbuEjuB9DVsw== }
     dev: true
 
   /ansi-styles/4.3.0:
@@ -268,7 +268,7 @@ packages:
       { integrity: sha512-3LifW9M4joGZasyYPz2A1U74zbC/45fvpXUvO/9KbSa+VV0aGZarWkfdgKyR9sExNP0t0x0ss/UMJpNpcaTspw== }
     engines: { node: '>=8' }
     dependencies:
-      '@types/glob': 7.1.4
+      '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
       fast-glob: 3.2.7
@@ -290,9 +290,9 @@ packages:
     engines: { node: '>=8.12.0' }
     dev: true
 
-  /husky/7.0.2:
+  /husky/7.0.4:
     resolution:
-      { integrity: sha512-8yKEWNX4z2YsofXAMT7KvA1g8p+GxtB1ffV8XtpAEGuXNAbCV5wdNKH+qTpw8SM9fh4aMPDR+yQuKfgnreyZlg== }
+      { integrity: sha512-vbaCKN2QLtP/vD4yvs6iz6hBEo6wkSzs8HpRah1Z6aGmF2KW5PdYuAd7uX5a+OyBZHBhd+TFLqgjUgytQr4RvQ== }
     engines: { node: '>=12' }
     hasBin: true
     dev: true
@@ -350,9 +350,9 @@ packages:
     resolution: { integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA= }
     dev: true
 
-  /java-parser/1.4.0:
+  /java-parser/2.0.0:
     resolution:
-      { integrity: sha512-5r1Ez6D8SRprarqwXTYzu6Am//jw37USu8ie8a5166KfgTc2yKa0wlz08xKX1HXYRo/jbnODUfGMgd7gPhHLog== }
+      { integrity: sha512-5sTEggUlp+uns7tfHGwRTN+cMlgPHw00oNjAz6YdwEyQyWQ9VzUNbYuPuDyJDWfcFyZTlHKD5f7VbtChKZf4xw== }
     dependencies:
       chevrotain: 6.5.0
       lodash: 4.17.21
@@ -495,11 +495,11 @@ packages:
     engines: { node: '>=8.6' }
     dev: true
 
-  /prettier-plugin-java/1.4.0:
+  /prettier-plugin-java/1.5.0:
     resolution:
-      { integrity: sha512-Yie1yn4OdEF5Qey+3bChv8OuvMkzoMv07R6s/j1sn9HfZQxpw0eCSaXLOPyS7B6vVlaF1cr2TD1NsNSvxjVU1g== }
+      { integrity: sha512-ULiWgCuZaMdpUwoQIocB+RREv0dIEbcxwM7ewUy7yZgQfE9bVYMhQ6YVtS5y2g3AVodHJc+ki+wRidt4l0q3Uw== }
     dependencies:
-      java-parser: 1.4.0
+      java-parser: 2.0.0
       lodash: 4.17.21
       prettier: 2.3.1
     dev: true
