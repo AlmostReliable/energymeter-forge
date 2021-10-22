@@ -1,31 +1,29 @@
 package dev.rlnt.energymeter.client.gui;
 
-import dev.rlnt.energymeter.network.PacketHandler;
-import dev.rlnt.energymeter.network.SettingUpdatePacket;
+import dev.rlnt.energymeter.meter.MeterEntity;
 import dev.rlnt.energymeter.util.Tooltip;
-import dev.rlnt.energymeter.util.TypeEnums.SETTING;
+import javax.annotation.Nullable;
 
-public class SettingButton extends LabelButton {
+public class ResetButton extends LabelButton {
 
-    private static final int TEXTURE_WIDTH = 28;
+    private static final int TEXTURE_WIDTH = 58;
     private static final int TEXTURE_HEIGHT = 19;
-    private final SETTING setting;
     private final Tooltip tooltip;
 
-    SettingButton(MeterScreen screen, int pX, int pY, SETTING setting, String label) {
-        super(screen, pX, pY, TEXTURE_WIDTH, TEXTURE_HEIGHT, label);
-        this.setting = setting;
+    ResetButton(MeterScreen screen, int pX, int pY) {
+        super(screen, pX, pY, TEXTURE_WIDTH, TEXTURE_HEIGHT, "RESET");
         tooltip = setupTooltip();
     }
 
     @Override
     protected void clickHandler() {
-        PacketHandler.CHANNEL.sendToServer(new SettingUpdatePacket(setting));
+        screen.getTextBox().setFocused(false);
+        screen.changeTextBoxValue(MeterEntity.REFRESH_RATE, true);
     }
 
     @Override
     protected String getTexture() {
-        return "setting";
+        return "reset";
     }
 
     @Override
@@ -43,12 +41,16 @@ public class SettingButton extends LabelButton {
         return Tooltip
             .builder()
             // header
-            .addHeader(setting.toString().toLowerCase())
+            .addHeader("reset")
+            .addBlankLine()
+            // description
+            .addDescription("reset_desc")
             .addBlankLine()
             // action
-            .addClickAction("action_3");
+            .addClickAction("action_4");
     }
 
+    @Nullable
     @Override
     protected Tooltip getTooltip() {
         return tooltip;

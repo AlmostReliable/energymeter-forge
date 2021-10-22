@@ -34,7 +34,7 @@ import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEnergy {
 
-    private static final int REFRESH_RATE = 5;
+    public static final int REFRESH_RATE = 5;
     private final EnumMap<Direction, LazyOptional<IEnergyStorage>> outputCache = new EnumMap<>(Direction.class);
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
@@ -43,11 +43,12 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
     private LazyOptional<IEnergyStorage> inputCache = null;
     private float transferRate = 0;
     private int averageRate = 0;
-    private int lastAverageRate = 0;
+    private long lastAverageRate = 0;
     private int averageCount = 0;
     private STATUS status = STATUS.DISCONNECTED;
     private NUMBER_MODE numberMode = NUMBER_MODE.SHORT;
     private MODE mode = MODE.TRANSFER;
+    private int interval = REFRESH_RATE;
 
     public MeterEntity(BlockPos pos, BlockState state) {
         super(Setup.Entities.METER.get(), pos, state);
@@ -87,6 +88,14 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         }
 
         return acceptedEnergy;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 
     /**
@@ -171,6 +180,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         if (tag.contains(SIDE_CONFIG_ID)) sideConfig.deserializeNBT(tag.getCompound(SIDE_CONFIG_ID));
         if (tag.contains(NUMBER_MODE_ID)) numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
         if (tag.contains(MODE_ID)) mode = MODE.values()[tag.getInt(MODE_ID)];
+        if (tag.contains(INTERVAL_ID)) interval = tag.getInt(INTERVAL_ID);
     }
 
     @Override
@@ -178,6 +188,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         tag.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
         tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         tag.putInt(MODE_ID, mode.ordinal());
+        tag.putInt(INTERVAL_ID, interval);
         return super.save(tag);
     }
 
@@ -189,6 +200,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         tag.putInt(STATUS_ID, status.ordinal());
         tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         tag.putInt(MODE_ID, mode.ordinal());
+        tag.putInt(INTERVAL_ID, interval);
         return tag;
     }
 
@@ -199,6 +211,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
         status = STATUS.values()[tag.getInt(STATUS_ID)];
         numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
         mode = MODE.values()[tag.getInt(MODE_ID)];
+        interval = tag.getInt(INTERVAL_ID);
     }
 
     @Override
@@ -292,7 +305,16 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      */
     public void syncData(int flags) {
         if (level == null || level.isClientSide) return;
-        var packet = new ClientSyncPacket(worldPosition, flags, sideConfig, transferRate, status, numberMode, mode);
+        var packet = new ClientSyncPacket(
+            worldPosition,
+            flags,
+            sideConfig,
+            transferRate,
+            status,
+            numberMode,
+            mode,
+            interval
+        );
         PacketHandler.CHANNEL.send(
             PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
             packet
@@ -426,7 +448,9 @@ public class MeterEntity extends BlockEntity implements MenuProvider, ISidedEner
      * Updates the connection status accordingly.
      */
     private void calculateTransferRate() {
-        if (averageCount != 0) {
+        assert level != null && !level.isClientSide;
+
+        if (averageCount != 0 && level.getGameTime() % interval == 0) {
             var oldTransferRate = transferRate;
             transferRate = (float) averageRate / averageCount;
             if (oldTransferRate != transferRate) syncData(SyncFlags.TRANSFER_RATE);

@@ -1,7 +1,6 @@
 package dev.rlnt.energymeter.network;
 
 import dev.rlnt.energymeter.component.SideConfiguration;
-import dev.rlnt.energymeter.core.Constants;
 import dev.rlnt.energymeter.core.Constants.SyncFlags;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;
 import dev.rlnt.energymeter.util.TypeEnums.NUMBER_MODE;
@@ -22,7 +21,9 @@ public class ClientSyncPacket {
     private STATUS status;
     private NUMBER_MODE numberMode;
     private MODE mode;
+    private int interval;
 
+    @SuppressWarnings("java:S107")
     public ClientSyncPacket(
         BlockPos pos,
         int flags,
@@ -30,7 +31,8 @@ public class ClientSyncPacket {
         float transferRate,
         STATUS status,
         NUMBER_MODE numberMode,
-        MODE mode
+        MODE mode,
+        int interval
     ) {
         this.pos = pos;
         this.flags = flags;
@@ -39,6 +41,7 @@ public class ClientSyncPacket {
         this.status = status;
         this.numberMode = numberMode;
         this.mode = mode;
+        this.interval = interval;
     }
 
     private ClientSyncPacket() {}
@@ -52,6 +55,7 @@ public class ClientSyncPacket {
         if ((packet.flags & SyncFlags.STATUS) != 0) packet.status = STATUS.values()[buffer.readInt()];
         if ((packet.flags & SyncFlags.NUMBER_MODE) != 0) packet.numberMode = NUMBER_MODE.values()[buffer.readInt()];
         if ((packet.flags & SyncFlags.MODE) != 0) packet.mode = MODE.values()[buffer.readInt()];
+        if ((packet.flags & SyncFlags.INTERVAL) != 0) packet.interval = buffer.readInt();
         return packet;
     }
 
@@ -92,13 +96,18 @@ public class ClientSyncPacket {
         return mode;
     }
 
+    int getInterval() {
+        return interval;
+    }
+
     void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos);
         buffer.writeInt(flags);
-        if ((flags & Constants.SyncFlags.SIDE_CONFIG) != 0) buffer.writeNbt(sideConfig);
-        if ((flags & Constants.SyncFlags.TRANSFER_RATE) != 0) buffer.writeFloat(transferRate);
-        if ((flags & Constants.SyncFlags.STATUS) != 0) buffer.writeInt(status.ordinal());
-        if ((flags & Constants.SyncFlags.NUMBER_MODE) != 0) buffer.writeInt(numberMode.ordinal());
-        if ((flags & Constants.SyncFlags.MODE) != 0) buffer.writeInt(mode.ordinal());
+        if ((flags & SyncFlags.SIDE_CONFIG) != 0) buffer.writeNbt(sideConfig);
+        if ((flags & SyncFlags.TRANSFER_RATE) != 0) buffer.writeFloat(transferRate);
+        if ((flags & SyncFlags.STATUS) != 0) buffer.writeInt(status.ordinal());
+        if ((flags & SyncFlags.NUMBER_MODE) != 0) buffer.writeInt(numberMode.ordinal());
+        if ((flags & SyncFlags.MODE) != 0) buffer.writeInt(mode.ordinal());
+        if ((flags & SyncFlags.INTERVAL) != 0) buffer.writeInt(interval);
     }
 }

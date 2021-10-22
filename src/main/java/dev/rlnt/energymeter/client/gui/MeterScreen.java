@@ -5,16 +5,17 @@ import static dev.rlnt.energymeter.core.Constants.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.rlnt.energymeter.meter.MeterContainer;
+import dev.rlnt.energymeter.meter.MeterEntity;
+import dev.rlnt.energymeter.network.IntervalUpdatePacket;
+import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.util.TextUtils;
+import dev.rlnt.energymeter.util.Tooltip;
 import dev.rlnt.energymeter.util.TypeEnums.*;
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,71 +24,80 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(MOD_ID, "textures/gui/meter.png");
     private static final int TEXTURE_WIDTH = 192;
-    private static final int TEXTURE_HEIGHT = 91;
+    private static final int TEXTURE_HEIGHT = 112;
+    private final Tooltip tooltip;
+    private TextBox textBox;
 
     public MeterScreen(MeterContainer container, Inventory inventory, Component name) {
         super(container, inventory, name);
         imageWidth = TEXTURE_WIDTH;
         imageHeight = TEXTURE_HEIGHT;
+        tooltip = setupTooltip();
+    }
+
+    TextBox getTextBox() {
+        return textBox;
     }
 
     /**
-     * Gets the {@link MutableComponent} for the "click to change mode" text in the tooltips.
+     * Changes the text of the text box to the specified integer.
+     * Automatically replaces the specified value with the minimum amount if it's lower.
+     * <p>
+     * When a true boolean is passed, the new value will be synced to the server.
      *
-     * @return the click to change mode tooltip
+     * @param value the value to place in the text box
+     * @param sync  whether the value should be synced to the server
      */
-    static MutableComponent getClickTooltip() {
-        return TextUtils
-            .colorize("> ", ChatFormatting.GRAY)
-            .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "click_1", ChatFormatting.AQUA))
-            .append(" ")
-            .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "click_2", ChatFormatting.GRAY));
+    void changeTextBoxValue(int value, boolean sync) {
+        textBox.setValue(String.valueOf(Math.max(value, MeterEntity.REFRESH_RATE)));
+        if (sync) PacketHandler.CHANNEL.sendToServer(
+            new IntervalUpdatePacket(Math.max(value, MeterEntity.REFRESH_RATE))
+        );
+    }
+
+    /**
+     * Checks if the current value of the text box is valid and syncs it if it changed.
+     * <p>
+     * Will replace the text with the previous value if invalid.
+     */
+    void validateTextBox() {
+        int oldValue = menu.getEntity().getInterval();
+        int value;
+        try {
+            value = Integer.parseInt(textBox.getValue());
+        } catch (NumberFormatException e) {
+            changeTextBoxValue(oldValue, false);
+            return;
+        }
+
+        if (value != oldValue) changeTextBoxValue(value, true);
     }
 
     @Override
     protected void init() {
         super.init();
         // clickable buttons
-        addWidgets(IOButton.create(this, BLOCK_SIDE.values()));
-        addRenderableWidget(new SettingButton(this, 128, SETTING.NUMBER));
-        addRenderableWidget(new SettingButton(this, 158, SETTING.MODE));
+        addRenderableWidgets(IOButton.create(this, BLOCK_SIDE.values()));
+        addRenderableWidget(new SettingButton(this, 128, 66, SETTING.NUMBER, "FE"));
+        addRenderableWidget(new SettingButton(this, 158, 66, SETTING.MODE, "M"));
+        addRenderableWidget(new ResetButton(this, 128, 87));
+        // text box
+        textBox = new TextBox(this, font, leftPos + 69, topPos + 87, 48, 14);
+        addRenderableWidget(textBox);
     }
 
     @Override
     public void render(PoseStack stack, int mX, int mY, float partial) {
         renderBackground(stack);
         super.render(stack, mX, mY, partial);
+        textBox.render(stack, mX, mY, partial);
         renderTooltip(stack, mX, mY);
     }
 
     @Override
     protected void renderTooltip(PoseStack stack, int mX, int mY) {
-        var tooltips = new ArrayList<Component>();
         if (isWithinRegion(mX, mY, 148, 17, 26, 17)) {
-            // io config front face
-            tooltips.add(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, SIDE_CONFIG_ID, ChatFormatting.GOLD));
-            tooltips.add(new TextComponent(" "));
-            tooltips.add(
-                TextUtils
-                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
-                    .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
-                    .append(
-                        TextUtils.translate(
-                            TRANSLATE_TYPE.BLOCK_SIDE,
-                            BLOCK_SIDE.FRONT.toString().toLowerCase(),
-                            ChatFormatting.WHITE
-                        )
-                    )
-            );
-            tooltips.add(
-                TextUtils
-                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
-                    .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
-                    .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, ChatFormatting.WHITE))
-            );
-        }
-        if (!tooltips.isEmpty()) {
-            renderComponentTooltip(stack, tooltips, mX, mY);
+            renderComponentTooltip(stack, tooltip.get(), mX, mY);
             return;
         }
         super.renderTooltip(stack, mX, mY);
@@ -97,26 +107,32 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     @Override
     protected void renderLabels(PoseStack stack, int pX, int pY) {
         // header labels
-        final var yPos = 12f;
         font.draw(
             stack,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, TRANSFER_RATE_ID) + ":",
             15,
-            yPos,
+            12,
             ChatFormatting.GOLD.getColor()
         );
         font.draw(
             stack,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, STATUS_ID) + ":",
             15,
-            yPos * 3,
+            38,
             ChatFormatting.WHITE.getColor()
         );
         font.draw(
             stack,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, MODE_ID) + ":",
             15,
-            yPos * 5,
+            61,
+            ChatFormatting.WHITE.getColor()
+        );
+        font.draw(
+            stack,
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, INTERVAL_ID) + ":",
+            15,
+            87,
             ChatFormatting.WHITE.getColor()
         );
 
@@ -135,12 +151,12 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
             24,
             ChatFormatting.WHITE.getColor()
         );
-        font.draw(stack, getStatusString(), 20, 48, getStatusColor().getColor());
+        font.draw(stack, getStatusString(), 20, 49, getStatusColor().getColor());
         font.draw(
             stack,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, menu.getEntity().getMode().toString().toLowerCase()),
             20,
-            72,
+            73,
             getModeColor().getColor()
         );
 
@@ -152,6 +168,33 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         // background texture
         RenderSystem.setShaderTexture(0, TEXTURE);
         blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+    }
+
+    private Tooltip setupTooltip() {
+        return Tooltip
+            .builder()
+            // header
+            .addHeader(SIDE_CONFIG_ID)
+            .addBlankLine()
+            // screen info
+            .add(
+                TextUtils
+                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
+                    .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
+                    .append(
+                        TextUtils.translate(
+                            TRANSLATE_TYPE.BLOCK_SIDE,
+                            BLOCK_SIDE.FRONT.toString().toLowerCase(),
+                            ChatFormatting.WHITE
+                        )
+                    )
+            )
+            .add(
+                TextUtils
+                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
+                    .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
+                    .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, ChatFormatting.WHITE))
+            );
     }
 
     /**
@@ -194,7 +237,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
      * @param widgets the list of widgets to add
      * @param <W>     the button class
      */
-    private <W extends Button> void addWidgets(List<W> widgets) {
+    private <W extends Button> void addRenderableWidgets(List<W> widgets) {
         for (var widget : widgets) {
             addRenderableWidget(widget);
         }
