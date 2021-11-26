@@ -1,4 +1,8 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-pnpm run pretty-quick
+# this uses my personal hook which redirects the tasks to my WSL sub-system
+# if you are using this, just run the npm script pretty-quick
+
+REPO=$(dirname "$0")
+C:/Users/Relentless/wsl-tools/wsl-reroute.bat $REPO pnpm run pretty-quick
