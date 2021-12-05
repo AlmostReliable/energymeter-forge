@@ -1,17 +1,15 @@
 package dev.rlnt.energymeter.client.gui;
 
-import static dev.rlnt.energymeter.core.Constants.*;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterTile;
 import dev.rlnt.energymeter.network.IntervalUpdatePacket;
 import dev.rlnt.energymeter.network.PacketHandler;
+import dev.rlnt.energymeter.util.GuiUtils;
+import dev.rlnt.energymeter.util.GuiUtils.Tooltip;
 import dev.rlnt.energymeter.util.TextUtils;
-import dev.rlnt.energymeter.util.Tooltip;
 import dev.rlnt.energymeter.util.TypeEnums.*;
-import java.util.List;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.entity.player.PlayerInventory;
@@ -20,14 +18,17 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 
+import static dev.rlnt.energymeter.core.Constants.*;
+
 public class MeterScreen extends ContainerScreen<MeterContainer> {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(MOD_ID, "textures/gui/meter.png");
-    private static final int TEXTURE_WIDTH = 192;
-    private static final int TEXTURE_HEIGHT = 112;
+    private static final int TEXTURE_WIDTH = 199;
+    private static final int TEXTURE_HEIGHT = 129;
     private final Tooltip tooltip;
     private TextBox textBox;
 
+    @SuppressWarnings("AssignmentToSuperclassField")
     public MeterScreen(MeterContainer container, PlayerInventory inventory, ITextComponent name) {
         super(container, inventory, name);
         imageWidth = TEXTURE_WIDTH;
@@ -35,22 +36,23 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
         tooltip = setupTooltip();
     }
 
-    TextBox getTextBox() {
-        return textBox;
-    }
-
-    /**
-     * Changes the text of the text box to the specified integer.
-     * Automatically replaces the specified value with the minimum amount if it's lower.
-     * <p>
-     * When a true boolean is passed, the new value will be synced to the server.
-     *
-     * @param value the value to place in the text box
-     * @param sync  whether the value should be synced to the server
-     */
-    void changeTextBoxValue(int value, boolean sync) {
-        textBox.setValue(String.valueOf(Math.max(value, MeterTile.REFRESH_RATE)));
-        if (sync) PacketHandler.CHANNEL.sendToServer(new IntervalUpdatePacket(Math.max(value, MeterTile.REFRESH_RATE)));
+    private static Tooltip setupTooltip() {
+        return Tooltip.builder()
+            // header
+            .addHeader(SIDE_CONFIG_ID)
+            .addBlankLine()
+            // screen info
+            .addComponent(TextUtils
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, TextFormatting.GREEN)
+                .append(TextUtils.colorize(": ", TextFormatting.GREEN))
+                .append(TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE,
+                    BLOCK_SIDE.FRONT.toString().toLowerCase(),
+                    TextFormatting.WHITE
+                )))
+            .addComponent(TextUtils
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, TextFormatting.GREEN)
+                .append(TextUtils.colorize(": ", TextFormatting.GREEN))
+                .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, TextFormatting.WHITE)));
     }
 
     /**
@@ -71,16 +73,30 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
         if (value != oldValue) changeTextBoxValue(value, true);
     }
 
+    /**
+     * Changes the text of the text box to the specified integer.
+     * Automatically replaces the specified value with the minimum amount if it's lower.
+     * <p>
+     * When a true boolean is passed, the new value will be synced to the server.
+     *
+     * @param value the value to place in the text box
+     * @param sync  whether the value should be synced to the server
+     */
+    void changeTextBoxValue(int value, boolean sync) {
+        textBox.setValue(String.valueOf(Math.max(value, MeterTile.REFRESH_RATE)));
+        if (sync) PacketHandler.CHANNEL.sendToServer(new IntervalUpdatePacket(Math.max(value, MeterTile.REFRESH_RATE)));
+    }
+
     @Override
     protected void init() {
         super.init();
         // clickable buttons
         addButtons(IOButton.create(this, BLOCK_SIDE.values()));
-        addButton(new SettingButton(this, 128, 66, SETTING.NUMBER, "FE"));
-        addButton(new SettingButton(this, 158, 66, SETTING.MODE, "M"));
-        addButton(new ResetButton(this, 128, 87));
+        addButton(new SettingButton(this, 136, 64, SETTING.NUMBER));
+        addButton(new SettingButton(this, 136, 86, SETTING.MODE));
+        addButton(new SettingButton(this, 136, 108, SETTING.ACCURACY));
         // text box
-        textBox = new TextBox(this, font, leftPos + 69, topPos + 87, 48, 14);
+        textBox = new TextBox(this, font, leftPos + 75, topPos + 109, 42, 8);
         addWidget(textBox);
     }
 
@@ -88,77 +104,97 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
     public void render(MatrixStack matrix, int mX, int mY, float partial) {
         renderBackground(matrix);
         super.render(matrix, mX, mY, partial);
-        textBox.render(matrix, mX, mY, partial);
+        if (menu.getTile().getAccuracy() == ACCURACY.INTERVAL) textBox.render(matrix, mX, mY, partial);
         renderTooltip(matrix, mX, mY);
     }
 
     @Override
     protected void renderTooltip(MatrixStack matrix, int mX, int mY) {
-        if (isWithinRegion(mX, mY, 148, 17, 26, 17)) {
-            renderComponentTooltip(matrix, tooltip.get(), mX, mY);
+        // front screen tooltip
+        if (isWithinRegion(mX, mY, 159, 16, 23, 16)) {
+            renderComponentTooltip(matrix, tooltip.resolve(), mX, mY);
             return;
         }
         super.renderTooltip(matrix, mX, mY);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     protected void renderLabels(MatrixStack matrix, int pX, int pY) {
-        // header labels
-        font.draw(
-            matrix,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, TRANSFER_RATE_ID) + ":",
-            15,
+        // header
+        GuiUtils.renderText(matrix,
+            11,
+            9,
+            1.3f,
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, METER_ID),
+            UI_COLORS.WHITE
+        );
+
+        // transfer rate
+        GuiUtils.renderText(matrix,
             12,
-            TextFormatting.GOLD.getColor()
+            26,
+            1.1f,
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, TRANSFER_RATE_ID) + ':',
+            UI_COLORS.GRAY
         );
-        font.draw(
-            matrix,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, STATUS_ID) + ":",
-            15,
-            38,
-            TextFormatting.WHITE.getColor()
-        );
-        font.draw(
-            matrix,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, MODE_ID) + ":",
-            15,
-            61,
-            TextFormatting.WHITE.getColor()
-        );
-        font.draw(
-            matrix,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, INTERVAL_ID) + ":",
-            15,
-            87,
-            TextFormatting.WHITE.getColor()
-        );
-
-        // smaller value labels
-        matrix.pushPose();
-        matrix.scale(0.98f, 0.98f, 0.98f);
-
-        Tuple<String, String> formattedFlow = TextUtils.formatEnergy(
-            menu.getTile().getTransferRate(),
+        Tuple<String, String> formattedFlow = TextUtils.formatEnergy(menu.getTile().getTransferRate(),
             menu.getTile().getNumberMode() == NUMBER_MODE.LONG
         );
-        font.draw(
-            matrix,
+        GuiUtils.renderText(matrix,
+            16,
+            37,
+            1.0f,
             String.format("%s %s/t", formattedFlow.getA(), formattedFlow.getB()),
-            20,
-            24,
-            TextFormatting.WHITE.getColor()
-        );
-        font.draw(matrix, getConnectionString(), 20, 49, getConnectionColor().getColor());
-        font.draw(
-            matrix,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, menu.getTile().getMode().toString().toLowerCase()),
-            20,
-            73,
-            getConsumerColor().getColor()
+            UI_COLORS.MINT
         );
 
-        matrix.popPose();
+        // status
+        GuiUtils.renderText(matrix,
+            12,
+            50,
+            1.1f,
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, STATUS_ID) + ':',
+            UI_COLORS.GRAY
+        );
+        GuiUtils.renderText(matrix,
+            16,
+            61,
+            1.0f,
+            TextUtils.translateAsString(TRANSLATE_TYPE.STATUS, menu.getTile().getStatus().toString().toLowerCase()),
+            getStatusColor()
+        );
+
+        // mode
+        GuiUtils.renderText(matrix,
+            12,
+            74,
+            1.1f,
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, MODE_ID) + ':',
+            UI_COLORS.GRAY
+        );
+        GuiUtils.renderText(matrix,
+            16,
+            85,
+            1.0f,
+            TextUtils.translateAsString(TRANSLATE_TYPE.MODE, menu.getTile().getMode().toString().toLowerCase()),
+            getModeColor()
+        );
+
+        // accuracy
+        GuiUtils.renderText(matrix,
+            12,
+            98,
+            1.1f,
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, ACCURACY_ID) + ':',
+            UI_COLORS.GRAY
+        );
+        GuiUtils.renderText(matrix,
+            16,
+            109,
+            1.0f,
+            TextUtils.translateAsString(TRANSLATE_TYPE.ACCURACY, menu.getTile().getAccuracy().toString().toLowerCase()),
+            getAccuracyColor()
+        );
     }
 
     @Override
@@ -171,59 +207,22 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
         blit(matrix, leftPos, topPos, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
     }
 
-    private Tooltip setupTooltip() {
-        return Tooltip
-            .builder()
-            // header
-            .addHeader(SIDE_CONFIG_ID)
-            .addBlankLine()
-            // screen info
-            .add(
-                TextUtils
-                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, TextFormatting.GREEN)
-                    .append(TextUtils.colorize(": ", TextFormatting.GREEN))
-                    .append(
-                        TextUtils.translate(
-                            TRANSLATE_TYPE.BLOCK_SIDE,
-                            BLOCK_SIDE.FRONT.toString().toLowerCase(),
-                            TextFormatting.WHITE
-                        )
-                    )
-            )
-            .add(
-                TextUtils
-                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, TextFormatting.GREEN)
-                    .append(TextUtils.colorize(": ", TextFormatting.GREEN))
-                    .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, TextFormatting.WHITE))
-            );
-    }
-
-    /**
-     * Gets a {@link String} representation of the current connection status.
-     *
-     * @return the current connection status
-     */
-    private String getConnectionString() {
-        STATUS connection = menu.getTile().getStatus();
-        return TextUtils.translateAsString(TRANSLATE_TYPE.STATUS, connection.toString().toLowerCase());
-    }
-
     /**
      * Gets a color representing the current connection status.
      *
      * @return the color of the current connection status
      */
-    private TextFormatting getConnectionColor() {
+    private int getStatusColor() {
         STATUS connection = menu.getTile().getStatus();
         switch (connection) {
             case DISCONNECTED:
-                return TextFormatting.RED;
+                return UI_COLORS.RED;
             case CONNECTED:
-                return TextFormatting.YELLOW;
+                return UI_COLORS.YELLOW;
             case TRANSFERRING:
-                return TextFormatting.GREEN;
+                return UI_COLORS.GREEN;
             case CONSUMING:
-                return TextFormatting.LIGHT_PURPLE;
+                return UI_COLORS.ROSE;
             default:
                 throw new IllegalStateException("There is no connection status with value: " + connection);
         }
@@ -234,20 +233,17 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
      *
      * @return the color of the current consumer mode
      */
-    private TextFormatting getConsumerColor() {
-        return menu.getTile().getMode() == MODE.CONSUMER ? TextFormatting.LIGHT_PURPLE : TextFormatting.AQUA;
+    private int getModeColor() {
+        return menu.getTile().getMode() == MODE.CONSUMER ? UI_COLORS.PURPLE : UI_COLORS.BLUE;
     }
 
     /**
-     * Convenience method to add multiple buttons at once.
+     * Gets a color representing the current accuracy mode.
      *
-     * @param buttons the list of buttons to add
-     * @param <T>     the button class
+     * @return the color of the current accuracy mode
      */
-    private <T extends Widget> void addButtons(List<T> buttons) {
-        for (T button : buttons) {
-            addButton(button);
-        }
+    private int getAccuracyColor() {
+        return menu.getTile().getAccuracy() == ACCURACY.EXACT ? UI_COLORS.ORANGE : UI_COLORS.PINK;
     }
 
     /**
@@ -256,13 +252,25 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
      * @param mX     mouse position on the x-axis
      * @param mY     mouse position on the y-axis
      * @param pX     left position on the x-axis
-     * @param widht  width to calculate the boundary on the x-axis
+     * @param width  width to calculate the boundary on the x-axis
      * @param pY     top position on the y-axis
      * @param height height to calculate the boundary on the y-axis
-     * @return true if the curser is within the region, false otherwise
+     * @return true if the cursor is within the region, false otherwise
      */
     @SuppressWarnings("SameParameterValue")
-    private boolean isWithinRegion(int mX, int mY, int pX, int widht, int pY, int height) {
-        return (mX >= leftPos + pX && mX <= leftPos + pX + widht && mY >= topPos + pY && mY <= topPos + pY + height);
+    private boolean isWithinRegion(int mX, int mY, int pX, int width, int pY, int height) {
+        return mX >= leftPos + pX && mX <= leftPos + pX + width && mY >= topPos + pY && mY <= topPos + pY + height;
+    }
+
+    /**
+     * Convenience method to add multiple buttons at once.
+     *
+     * @param multipleButtons the list of buttons to add
+     * @param <T>             the button class
+     */
+    private <T extends Widget> void addButtons(Iterable<T> multipleButtons) {
+        for (T button : multipleButtons) {
+            addButton(button);
+        }
     }
 }

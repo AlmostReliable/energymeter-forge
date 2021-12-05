@@ -1,57 +1,45 @@
 package dev.rlnt.energymeter.client.gui;
 
-import static dev.rlnt.energymeter.core.Constants.*;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.rlnt.energymeter.component.SideConfiguration;
 import dev.rlnt.energymeter.network.IOUpdatePacket;
 import dev.rlnt.energymeter.network.PacketHandler;
+import dev.rlnt.energymeter.util.GuiUtils.Tooltip;
 import dev.rlnt.energymeter.util.TextUtils;
-import dev.rlnt.energymeter.util.Tooltip;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import dev.rlnt.energymeter.util.TypeEnums.TRANSLATE_TYPE;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.TextFormatting;
 
-public class IOButton extends AbstractButton {
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static dev.rlnt.energymeter.core.Constants.IO_MODE_ID;
+import static dev.rlnt.energymeter.core.Constants.IO_SIDE_ID;
+import static dev.rlnt.energymeter.core.Constants.SIDE_CONFIG_ID;
+
+final class IOButton extends GenericButton {
 
     private static final String TEXTURE = "io";
-    private static final int POS_X = 132;
-    private static final int POS_Y = 10;
-    private static final int TEXTURE_WIDTH = 28;
-    private static final int TEXTURE_HEIGHT = 24;
-    private static final int BUTTON_SIZE = 16;
-    private static final int ZONE_SIZE = 17;
-    private static final int OVERLAY_SIZE = 12;
-    private static final int OVERLAY_OFFSET = 2;
+    private static final int POS_X = 141;
+    private static final int POS_Y = 5;
+    private static final int TEXTURE_WIDTH = 34;
+    private static final int TEXTURE_HEIGHT = 34;
+    private static final int BUTTON_SIZE = 17;
+    private static final int ZONE_SIZE = 18;
+    private static final int OVERLAY_SIZE = 17;
     private final BLOCK_SIDE side;
-    private final Tooltip tooltip;
+    private Tooltip tooltip;
     private IO_SETTING setting;
 
     private IOButton(MeterScreen screen, BLOCK_SIDE side) {
         super(screen, POS_X + getButtonPos(side).getA(), POS_Y + getButtonPos(side).getB(), BUTTON_SIZE, BUTTON_SIZE);
         this.side = side;
-        this.setting = container.getTile().getSideConfig().get(side);
+        setting = container.getTile().getSideConfig().get(side);
         tooltip = setupTooltip();
-    }
-
-    /**
-     * Creates an {@link IOButton} for each passed in {@link BLOCK_SIDE}.
-     *
-     * @param sides the sides for which the buttons should be created
-     * @return a list of all buttons created
-     */
-    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
-        List<IOButton> res = new ArrayList<>();
-        for (BLOCK_SIDE side : sides) {
-            if (side == BLOCK_SIDE.FRONT) continue;
-            res.add(new IOButton(screen, side));
-        }
-        return res;
     }
 
     /**
@@ -62,57 +50,63 @@ public class IOButton extends AbstractButton {
      */
     private static Tuple<Integer, Integer> getButtonPos(BLOCK_SIDE side) {
         switch (side) {
-            case BOTTOM:
-                return new Tuple<>(ZONE_SIZE, ZONE_SIZE * 2);
             case TOP:
                 return new Tuple<>(ZONE_SIZE, 0);
-            case BACK:
-                return new Tuple<>(ZONE_SIZE * 2, ZONE_SIZE * 2);
             case LEFT:
                 return new Tuple<>(0, ZONE_SIZE);
             case RIGHT:
                 return new Tuple<>(ZONE_SIZE * 2, ZONE_SIZE);
+            case BOTTOM:
+                return new Tuple<>(ZONE_SIZE, ZONE_SIZE * 2);
+            case BACK:
+                return new Tuple<>(ZONE_SIZE * 2, ZONE_SIZE * 2);
             default:
                 return new Tuple<>(0, 0);
         }
     }
 
     private Tooltip setupTooltip() {
-        return Tooltip
-            .builder()
+        return Tooltip.builder()
             // header
-            .addHeader(SIDE_CONFIG_ID)
-            .addBlankLine()
+            .addHeader(SIDE_CONFIG_ID).addBlankLine()
             // block side
-            .add(
-                TextUtils
-                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, TextFormatting.GREEN)
-                    .append(TextUtils.colorize(": ", TextFormatting.GREEN))
-                    .append(
-                        TextUtils.translate(
-                            TRANSLATE_TYPE.BLOCK_SIDE,
-                            side.toString().toLowerCase(),
-                            TextFormatting.WHITE
-                        )
-                    )
-            )
+            .addComponent(TextUtils
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, TextFormatting.GREEN)
+                .append(TextUtils.colorize(": ", TextFormatting.GREEN))
+                .append(TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE,
+                    side.toString().toLowerCase(),
+                    TextFormatting.WHITE
+                )))
             // current mode
-            .add(
-                TextUtils
-                    .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, TextFormatting.GREEN)
-                    .append(TextUtils.colorize(": ", TextFormatting.GREEN))
-                    .append(
-                        TextUtils.translate(
-                            TRANSLATE_TYPE.IO_SETTING,
-                            setting.toString().toLowerCase(),
-                            TextFormatting.WHITE
-                        )
-                    )
-            )
-            .addBlankLine()
+            .addComponent(TextUtils
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, TextFormatting.GREEN)
+                .append(TextUtils.colorize(": ", TextFormatting.GREEN))
+                .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING,
+                    setting.toString().toLowerCase(),
+                    TextFormatting.WHITE
+                ))).addBlankLine()
             // action
-            .addClickAction("action_1")
-            .addShiftClickAction("action_2");
+            .addClickAction("action_1").addShiftClickAction("action_2");
+    }
+
+    /**
+     * Creates an IOButton for each passed in {@link BLOCK_SIDE}.
+     *
+     * @param sides the sides for which the buttons should be created
+     * @return a list of all buttons created
+     */
+    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
+        return Arrays
+            .stream(sides)
+            .filter(side -> side != BLOCK_SIDE.FRONT)
+            .map(side -> new IOButton(screen, side))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    protected void clickHandler() {
+        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
+        tooltip = setupTooltip();
     }
 
     @Override
@@ -122,11 +116,6 @@ public class IOButton extends AbstractButton {
         renderIOOverlay(matrix);
         // tooltips
         if (isHovered) renderToolTip(matrix, mX, mY);
-    }
-
-    @Override
-    protected void clickHandler() {
-        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
     }
 
     @Override
@@ -144,35 +133,27 @@ public class IOButton extends AbstractButton {
         return TEXTURE_HEIGHT;
     }
 
+    /**
+     * Renders the I/O overlay for the IOButton depending on its {@link IO_SETTING}.
+     *
+     * @param matrix the matrix stack for the render call
+     */
+    private void renderIOOverlay(MatrixStack matrix) {
+        int textureOffset = (setting.ordinal() - 1) * OVERLAY_SIZE;
+        if (textureOffset >= 0) {
+            blit(matrix, x, y, BUTTON_SIZE, textureOffset, OVERLAY_SIZE, OVERLAY_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        }
+    }
+
     @Override
     public void renderToolTip(MatrixStack matrix, int mX, int mY) {
-        screen.renderComponentTooltip(matrix, tooltip.get(), mX, mY);
+        screen.renderComponentTooltip(matrix, tooltip.resolve(), mX, mY);
     }
 
     @Override
     public void onClick(double mX, double mY) {
         if (isHovered) changeMode(Screen.hasShiftDown());
         super.onClick(mX, mY);
-    }
-
-    /**
-     * Renders the I/O overlay for the {@link IOButton} depending on its {@link IO_SETTING}.
-     *
-     * @param matrix the matrix stack for the render call
-     */
-    private void renderIOOverlay(MatrixStack matrix) {
-        int textureOffset = (setting.ordinal() - 1) * OVERLAY_SIZE;
-        if (textureOffset >= 0) blit(
-            matrix,
-            x + OVERLAY_OFFSET,
-            y + OVERLAY_OFFSET,
-            BUTTON_SIZE,
-            textureOffset,
-            OVERLAY_SIZE,
-            OVERLAY_SIZE,
-            TEXTURE_WIDTH,
-            TEXTURE_HEIGHT
-        );
     }
 
     /**
