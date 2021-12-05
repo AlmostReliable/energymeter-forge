@@ -1,5 +1,5 @@
 @ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
-package dev.rlnt.energymeter.meter;
+package dev.rlnt.energymeter;
 
 import mcp.MethodsReturnNonnullByDefault;
 

@@ -2,36 +2,37 @@ package dev.rlnt.energymeter.component;
 
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
 import dev.rlnt.energymeter.util.TypeEnums.MODE;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 
-public class SidedEnergyStorage implements IEnergyStorage {
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-    private final ISidedEnergy parent;
+public final class SidedEnergyStorage implements IEnergyStorage {
+
+    private final IMeter parent;
     private final Direction side;
 
-    private SidedEnergyStorage(ISidedEnergy parent, Direction side) {
+    private SidedEnergyStorage(IMeter parent, Direction side) {
         this.parent = parent;
         this.side = side;
     }
 
     /**
-     * Creates a new {@link SidedEnergyStorage} for each {@link Direction}.
+     * Creates a new instance for each {@link Direction}.
      * Each of them will have the passed in parent and the direction linked to it.
      *
-     * @param parent the parent {@link TileEntity} which implements {@link ISidedEnergy}
-     * @return a {@link List} of all created {@link SidedEnergyStorage}s
+     * @param parent the parent {@link TileEntity} which implements {@link IMeter}
+     * @return a {@link List} of all created instances
      */
-    public static List<LazyOptional<SidedEnergyStorage>> create(ISidedEnergy parent) {
-        List<LazyOptional<SidedEnergyStorage>> res = new ArrayList<>();
-        for (Direction direction : Direction.values()) {
-            res.add(LazyOptional.of(() -> new SidedEnergyStorage(parent, direction)));
-        }
-        return res;
+    public static List<LazyOptional<SidedEnergyStorage>> create(IMeter parent) {
+        return Arrays
+            .stream(Direction.values())
+            .map(direction -> LazyOptional.of(() -> new SidedEnergyStorage(parent, direction)))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -64,8 +65,7 @@ public class SidedEnergyStorage implements IEnergyStorage {
     public boolean canReceive() {
         if (parent.getMode() == MODE.CONSUMER) {
             return parent.getSideConfig().get(side) == IO_SETTING.IN;
-        } else {
-            return parent.getSideConfig().get(side) == IO_SETTING.IN && parent.getSideConfig().hasOutput();
         }
+        return parent.getSideConfig().get(side) == IO_SETTING.IN && parent.getSideConfig().hasOutput();
     }
 }

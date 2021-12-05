@@ -3,11 +3,12 @@ package dev.rlnt.energymeter.component;
 import dev.rlnt.energymeter.meter.MeterBlock;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
-import java.util.EnumMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.INBTSerializable;
+
+import java.util.EnumMap;
 
 public class SideConfiguration implements INBTSerializable<CompoundNBT> {
 
@@ -47,6 +48,64 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
     }
 
     /**
+     * Gets the direction from the given block side depending on the facing of the block.
+     *
+     * @param side the block side to get the direction from
+     * @return the direction
+     */
+    public Direction getDirectionFromSide(BLOCK_SIDE side) {
+        return facing == bottom ? horizontalConversion(side) : verticalConversion(side);
+    }
+
+    /**
+     * Converts the given block side to a direction if the facing direction
+     * is any of the 4 compass directions.
+     *
+     * @param side the block side to convert
+     * @return the direction
+     */
+    private Direction horizontalConversion(BLOCK_SIDE side) {
+        switch (side) {
+            case TOP:
+                return Direction.UP;
+            case BOTTOM:
+                return Direction.DOWN;
+            case LEFT:
+                return facing.getClockWise();
+            case RIGHT:
+                return facing.getCounterClockWise();
+            case BACK:
+                return facing.getOpposite();
+            default:
+                return facing;
+        }
+    }
+
+    /**
+     * Converts the given block side to a direction if the facing direction
+     * is up or down.
+     *
+     * @param side the block side to convert
+     * @return the direction
+     */
+    private Direction verticalConversion(BLOCK_SIDE side) {
+        switch (side) {
+            case TOP:
+                return bottom.getOpposite();
+            case BOTTOM:
+                return bottom;
+            case LEFT:
+                return facing == Direction.UP ? bottom.getClockWise() : bottom.getCounterClockWise();
+            case RIGHT:
+                return facing == Direction.UP ? bottom.getCounterClockWise() : bottom.getClockWise();
+            case BACK:
+                return facing.getOpposite();
+            default:
+                return facing;
+        }
+    }
+
+    /**
      * Sets the specified block side to the specified IO setting.
      *
      * @param side    the side on which the setting should be changed
@@ -81,62 +140,6 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
      */
     public boolean hasMaxOutputs() {
         return config.values().stream().filter(setting -> setting == IO_SETTING.OUT).count() == MAX_OUTPUTS;
-    }
-
-    /**
-     * Gets the direction from the given block side depending on the facing of the block.
-     *
-     * @param side the block side to get the direction from
-     * @return the direction
-     */
-    public Direction getDirectionFromSide(BLOCK_SIDE side) {
-        return facing != bottom ? verticalConversion(side) : horizontalConversion(side);
-    }
-
-    /**
-     * Converts the given block side to a direction if the facing direction
-     * is up or down.
-     *
-     * @param side the block side to convert
-     * @return the direction
-     */
-    private Direction verticalConversion(BLOCK_SIDE side) {
-        if (side == BLOCK_SIDE.TOP) {
-            return bottom.getOpposite();
-        } else if (side == BLOCK_SIDE.BOTTOM) {
-            return bottom;
-        } else if (side == BLOCK_SIDE.LEFT) {
-            return facing == Direction.UP ? bottom.getClockWise() : bottom.getCounterClockWise();
-        } else if (side == BLOCK_SIDE.RIGHT) {
-            return facing == Direction.UP ? bottom.getCounterClockWise() : bottom.getClockWise();
-        } else if (side == BLOCK_SIDE.BACK) {
-            return facing.getOpposite();
-        } else {
-            return facing;
-        }
-    }
-
-    /**
-     * Converts the given block side to a direction if the facing direction
-     * is any of the 4 compass directions.
-     *
-     * @param side the block side to convert
-     * @return the direction
-     */
-    private Direction horizontalConversion(BLOCK_SIDE side) {
-        if (side == BLOCK_SIDE.TOP) {
-            return Direction.UP;
-        } else if (side == BLOCK_SIDE.BOTTOM) {
-            return Direction.DOWN;
-        } else if (side == BLOCK_SIDE.LEFT) {
-            return facing.getClockWise();
-        } else if (side == BLOCK_SIDE.RIGHT) {
-            return facing.getCounterClockWise();
-        } else if (side == BLOCK_SIDE.BACK) {
-            return facing.getOpposite();
-        } else {
-            return facing;
-        }
     }
 
     @Override

@@ -1,20 +1,14 @@
 package dev.rlnt.energymeter.meter;
 
-import static dev.rlnt.energymeter.core.Constants.*;
-
-import dev.rlnt.energymeter.component.ISidedEnergy;
+import dev.rlnt.energymeter.component.IMeter;
 import dev.rlnt.energymeter.component.SideConfiguration;
 import dev.rlnt.energymeter.component.SidedEnergyStorage;
-import dev.rlnt.energymeter.core.Setup;
+import dev.rlnt.energymeter.core.Setup.Tiles;
 import dev.rlnt.energymeter.network.ClientSyncPacket;
 import dev.rlnt.energymeter.network.PacketHandler;
 import dev.rlnt.energymeter.network.SettingUpdatePacket;
 import dev.rlnt.energymeter.util.TextUtils;
 import dev.rlnt.energymeter.util.TypeEnums.*;
-import java.util.*;
-import java.util.Map.Entry;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -36,62 +30,38 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-public class MeterTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, ISidedEnergy {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static dev.rlnt.energymeter.core.Constants.*;
+
+public class MeterTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, IMeter {
 
     public static final int REFRESH_RATE = 5;
+    private static final long THRESHOLD_LIMIT = 10;
     private final EnumMap<Direction, LazyOptional<IEnergyStorage>> outputCache = new EnumMap<>(Direction.class);
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
-    private boolean hasValidInput = false;
-    private boolean setupDone = false;
-    private LazyOptional<IEnergyStorage> inputCache = null;
-    private float transferRate = 0;
-    private int averageRate = 0;
-    private long lastAverageRate = 0;
-    private int averageCount = 0;
-    private STATUS status = STATUS.DISCONNECTED;
+    private final List<Double> energyRates = Collections.synchronizedList(new ArrayList<>());
+    private boolean hasValidInput;
+    private boolean setupDone;
+    private LazyOptional<IEnergyStorage> inputCache;
+    private double transferRate;
+    private double averageRate;
     private NUMBER_MODE numberMode = NUMBER_MODE.SHORT;
+    private STATUS status = STATUS.DISCONNECTED;
     private MODE mode = MODE.TRANSFER;
+    private ACCURACY accuracy = ACCURACY.EXACT;
     private int interval = REFRESH_RATE;
+    private double threshold;
 
+    @SuppressWarnings("ThisEscapedInObjectConstruction")
     public MeterTile(BlockState state) {
-        super(Setup.Tiles.METER.get());
+        super(Tiles.METER.get());
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration(state);
-    }
-
-    /**
-     * Handles the actual energy transfer process.
-     * <p>
-     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
-     * It will try to equally distribute it.
-     *
-     * @param energy  the energy to transfer
-     * @param outputs the possible outputs
-     * @return the accepted amount of energy
-     */
-    private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
-        int acceptedEnergy = 0;
-        int energyToTransfer = energy;
-        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            int equalSplit = energyToTransfer / outputs.size();
-            List<IEnergyStorage> outputsToRemove = new ArrayList<>();
-
-            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
-                int actualSplit = equalSplit;
-                if (output.getValue() < equalSplit) {
-                    actualSplit = output.getValue();
-                    outputsToRemove.add(output.getKey());
-                }
-                output.getKey().receiveEnergy(actualSplit, false);
-                energyToTransfer -= actualSplit;
-                acceptedEnergy += actualSplit;
-            }
-
-            outputsToRemove.forEach(outputs::remove);
-        }
-
-        return acceptedEnergy;
     }
 
     public int getInterval() {
@@ -102,51 +72,19 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         this.interval = interval;
     }
 
-    /**
-     * Flips the IO {@link BlockState} value and returns the new {@link BlockState}.
-     *
-     * @return the {@link BlockState} with the flipped IO value
-     */
-    private BlockState flipBlockState() {
-        BlockState state = getBlockState();
-        return state.setValue(MeterBlock.IO, !state.getValue(MeterBlock.IO));
+    public double getTransferRate() {
+        return Math.round(transferRate * 1_000.0) / 1_000.0;
     }
 
-    /**
-     * Updates the cached input and output values depending on the {@link Direction}.
-     * This ensures that the current status is always up-to-date.
-     *
-     * @param direction the {@link Direction} to update the cache for
-     */
-    public void updateCache(Direction direction) {
-        if (level == null || level.isClientSide) return;
-
-        IO_SETTING setting = sideConfig.get(direction);
-        if (setting == IO_SETTING.IN) {
-            hasValidInput = getInputFromCache(direction);
-        } else if (setting == IO_SETTING.OUT) {
-            getOutputFromCache(direction);
-        }
-        if (!sideConfig.hasInput()) {
-            hasValidInput = false;
-            inputCache = null;
-        }
-    }
-
-    public float getTransferRate() {
-        return transferRate;
-    }
-
-    public void setTransferRate(float transferRate) {
+    public void setTransferRate(double transferRate) {
         this.transferRate = transferRate;
     }
 
     public STATUS getStatus() {
-        if (status != STATUS.TRANSFERRING) {
-            return status;
-        } else {
+        if (status == STATUS.TRANSFERRING) {
             return mode == MODE.CONSUMER ? STATUS.CONSUMING : STATUS.TRANSFERRING;
         }
+        return status;
     }
 
     public void setStatus(STATUS status) {
@@ -161,6 +99,14 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         this.numberMode = numberMode;
     }
 
+    public ACCURACY getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(ACCURACY accuracy) {
+        this.accuracy = accuracy;
+    }
+
     /**
      * Convenience method used by the {@link SettingUpdatePacket} in order
      * to flip a specific setting after a button click on the client.
@@ -168,13 +114,52 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
      * @param setting the setting to update
      */
     public void updateSetting(SETTING setting) {
-        if (setting == SETTING.NUMBER) {
-            numberMode = numberMode == NUMBER_MODE.SHORT ? NUMBER_MODE.LONG : NUMBER_MODE.SHORT;
-            syncData(SyncFlags.NUMBER_MODE);
-        } else if (setting == SETTING.MODE) {
-            mode = mode == MODE.TRANSFER ? MODE.CONSUMER : MODE.TRANSFER;
-            syncData(SyncFlags.MODE);
+        switch (setting) {
+            case NUMBER:
+                numberMode = numberMode == NUMBER_MODE.SHORT ? NUMBER_MODE.LONG : NUMBER_MODE.SHORT;
+                syncData(SYNC_FLAGS.NUMBER_MODE);
+                break;
+            case MODE:
+                mode = mode == MODE.TRANSFER ? MODE.CONSUMER : MODE.TRANSFER;
+                syncData(SYNC_FLAGS.MODE);
+                break;
+            case ACCURACY:
+                int flags = SYNC_FLAGS.ACCURACY;
+                if (accuracy == ACCURACY.EXACT) {
+                    accuracy = ACCURACY.INTERVAL;
+                } else {
+                    accuracy = ACCURACY.EXACT;
+                    interval = REFRESH_RATE;
+                    flags |= SYNC_FLAGS.INTERVAL;
+                }
+                syncData(flags);
+                break;
         }
+    }
+
+    /**
+     * Syncs data to clients that track the current {@link Chunk} with a {@link ClientSyncPacket}.
+     * <p>
+     * Different flags from the {@link SYNC_FLAGS} can be passed to define what should be included
+     * in the packet to avoid unnecessary data being sent.
+     *
+     * @param flags the flags of the data to sync
+     */
+    public void syncData(int flags) {
+        if (level == null || level.isClientSide) return;
+        ClientSyncPacket packet = new ClientSyncPacket(worldPosition,
+            flags,
+            sideConfig,
+            transferRate,
+            numberMode,
+            status,
+            mode,
+            accuracy,
+            interval
+        );
+        PacketHandler.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
+            packet
+        );
     }
 
     @Override
@@ -184,6 +169,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         if (nbt.contains(NUMBER_MODE_ID)) numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         if (nbt.contains(MODE_ID)) mode = MODE.values()[nbt.getInt(MODE_ID)];
         if (nbt.contains(INTERVAL_ID)) interval = nbt.getInt(INTERVAL_ID);
+        if (nbt.contains(ACCURACY_ID)) accuracy = ACCURACY.values()[nbt.getInt(ACCURACY_ID)];
     }
 
     @Override
@@ -192,6 +178,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         nbt.putInt(MODE_ID, mode.ordinal());
         nbt.putInt(INTERVAL_ID, interval);
+        nbt.putInt(ACCURACY_ID, accuracy.ordinal());
         return super.save(nbt);
     }
 
@@ -199,11 +186,12 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     public CompoundNBT getUpdateTag() {
         CompoundNBT nbt = super.getUpdateTag();
         nbt.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
-        nbt.putFloat(TRANSFER_RATE_ID, transferRate);
+        nbt.putDouble(TRANSFER_RATE_ID, transferRate);
         nbt.putInt(STATUS_ID, status.ordinal());
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         nbt.putInt(MODE_ID, mode.ordinal());
         nbt.putInt(INTERVAL_ID, interval);
+        nbt.putInt(ACCURACY_ID, accuracy.ordinal());
         return nbt;
     }
 
@@ -215,6 +203,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         mode = MODE.values()[nbt.getInt(MODE_ID)];
         interval = nbt.getInt(INTERVAL_ID);
+        accuracy = ACCURACY.values()[nbt.getInt(ACCURACY_ID)];
     }
 
     @Override
@@ -225,7 +214,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         if (mode == MODE.CONSUMER) {
             if (!simulate) {
                 averageRate += energy;
-                averageCount++;
             }
             return energy;
         }
@@ -244,7 +232,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         int acceptedEnergy;
         if (maximumAccepted <= energy) {
             // if maximum accepted energy is less or equal the energy to transfer, fill all outputs with their maximum
-            outputs.keySet().forEach(cap -> cap.receiveEnergy(outputs.get(cap), false));
+            outputs.forEach((cap, integer) -> cap.receiveEnergy(integer, false));
             acceptedEnergy = maximumAccepted;
         } else {
             // otherwise, push the energy to all possible outputs equally
@@ -253,7 +241,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
         // adjust data for calculation in tick method
         averageRate += acceptedEnergy;
-        averageCount++;
 
         return acceptedEnergy;
     }
@@ -299,29 +286,52 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Syncs data to clients that track the current {@link Chunk} with a {@link ClientSyncPacket}.
+     * Handles the actual energy transfer process.
      * <p>
-     * Different flags from the {@link SyncFlags} can be passed to define what should be included
-     * in the packet to avoid unnecessary data being sent.
+     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
+     * It will try to equally distribute it.
      *
-     * @param flags the flags of the data to sync
+     * @param energy  the energy to transfer
+     * @param outputs the possible outputs
+     * @return the accepted amount of energy
      */
-    public void syncData(int flags) {
-        if (level == null || level.isClientSide) return;
-        ClientSyncPacket packet = new ClientSyncPacket(
-            worldPosition,
-            flags,
-            sideConfig,
-            transferRate,
-            status,
-            numberMode,
-            mode,
-            interval
-        );
-        PacketHandler.CHANNEL.send(
-            PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
-            packet
-        );
+    private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
+        int acceptedEnergy = 0;
+        int energyToTransfer = energy;
+        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
+            int equalSplit = energyToTransfer / outputs.size();
+            Collection<IEnergyStorage> outputsToRemove = new ArrayList<>();
+
+            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
+                int actualSplit = equalSplit;
+                if (output.getValue() < equalSplit) {
+                    actualSplit = output.getValue();
+                    outputsToRemove.add(output.getKey());
+                }
+                output.getKey().receiveEnergy(actualSplit, false);
+                energyToTransfer -= actualSplit;
+                acceptedEnergy += actualSplit;
+            }
+
+            outputsToRemove.forEach(outputs::remove);
+        }
+
+        return acceptedEnergy;
+    }
+
+    @Nullable
+    private LazyOptional<IEnergyStorage> getOutputFromCache(Direction direction) {
+        assert level != null && !level.isClientSide;
+
+        LazyOptional<IEnergyStorage> target = outputCache.get(direction);
+        if (target == null) {
+            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
+            if (provider == null || provider instanceof MeterTile) return null;
+            target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
+            outputCache.put(direction, target);
+            target.addListener(self -> outputCache.put(direction, null));
+        }
+        return target;
     }
 
     /**
@@ -331,6 +341,158 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     public void updateNeighbors() {
         if (level == null || level.isClientSide) return;
         level.setBlock(worldPosition, flipBlockState(), BlockFlags.NOTIFY_NEIGHBORS | BlockFlags.RERENDER_MAIN_THREAD);
+    }
+
+    /**
+     * Flips the IO {@link BlockState} value and returns the new {@link BlockState}.
+     *
+     * @return the {@link BlockState} with the flipped IO value
+     */
+    private BlockState flipBlockState() {
+        BlockState state = getBlockState();
+        return state.setValue(MeterBlock.IO, !state.getValue(MeterBlock.IO));
+    }
+
+    @Override
+    protected void invalidateCaps() {
+        for (LazyOptional<SidedEnergyStorage> cap : energyStorage) {
+            cap.invalidate();
+        }
+        super.invalidateCaps();
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
+        if (!remove && cap.equals(CapabilityEnergy.ENERGY) && direction != null &&
+            sideConfig.get(direction) != IO_SETTING.OFF) {
+            return energyStorage.get(direction.ordinal()).cast();
+        }
+        return super.getCapability(cap, direction);
+    }
+
+    @Override
+    public ITextComponent getDisplayName() {
+        return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
+    }
+
+    @Nullable
+    @Override
+    public Container createMenu(int windowID, PlayerInventory inventory, PlayerEntity player) {
+        return new MeterContainer(this, windowID);
+    }
+
+    @Override
+    public void tick() {
+        if (level == null || level.isClientSide) return;
+        if ((thresholdReached() || intervalReached()) && !energyRates.isEmpty()) calculateTransferRate();
+        if (level.getGameTime() % REFRESH_RATE != 0) return;
+
+        // initial setup
+        if (!setupDone) {
+            for (Direction direction : Direction.values()) {
+                if (sideConfig.get(direction) != IO_SETTING.OFF) updateCache(direction);
+            }
+            setupDone = true;
+        }
+
+        // if not properly connected or configured, set to disconnected
+        if ((mode == MODE.CONSUMER && !hasValidInput) ||
+            (mode == MODE.TRANSFER && (!hasValidInput || !sideConfig.hasOutput() || !hasValidOutput()))) {
+            updateStatus(STATUS.DISCONNECTED);
+            return;
+        }
+
+        energyRates.add(averageRate);
+        averageRate = 0;
+        calculateThreshold();
+
+        if (transferRate > 0) {
+            updateStatus(STATUS.TRANSFERRING);
+        } else {
+            updateStatus(STATUS.CONNECTED);
+        }
+    }
+
+    private boolean thresholdReached() {
+        return energyRates.size() > THRESHOLD_LIMIT && threshold == 0;
+    }
+
+    private boolean intervalReached() {
+        assert level != null;
+        return level.getGameTime() % interval == 0;
+    }
+
+    /**
+     * Calculates the flow rate depending on the energy received within the specified interval.
+     * Updates the status accordingly.
+     */
+    private void calculateTransferRate() {
+        assert level != null && !level.isClientSide;
+
+        double oldTransferRate = transferRate;
+        double average = energyRates.stream().mapToDouble(Double::valueOf).average().orElse(0);
+        transferRate = average / REFRESH_RATE;
+        if (oldTransferRate != transferRate) syncData(SYNC_FLAGS.TRANSFER_RATE);
+
+        energyRates.clear();
+        if (accuracy == ACCURACY.INTERVAL) energyRates.add(average);
+    }
+
+    /**
+     * Updates the cached input and output values depending on the {@link Direction}.
+     * This ensures that the current status is always up-to-date.
+     *
+     * @param direction the {@link Direction} to update the cache for
+     */
+    public void updateCache(Direction direction) {
+        if (level == null || level.isClientSide) return;
+
+        IO_SETTING setting = sideConfig.get(direction);
+        if (setting == IO_SETTING.IN) {
+            hasValidInput = getInputFromCache(direction);
+        } else if (setting == IO_SETTING.OUT) {
+            getOutputFromCache(direction);
+        }
+        if (!sideConfig.hasInput()) {
+            hasValidInput = false;
+            inputCache = null;
+        }
+    }
+
+    /**
+     * Checks if the output cache has at least one output which is still valid.
+     *
+     * @return true if there is at least one valid output, false otherwise
+     */
+    private boolean hasValidOutput() {
+        return outputCache.values().stream().anyMatch(Objects::nonNull);
+    }
+
+    /**
+     * Updates the status to the specified value.
+     * If it was different from the previous value, it will trigger a client sync.
+     *
+     * @param newStatus the new setting to set
+     */
+    private void updateStatus(STATUS newStatus) {
+        STATUS oldStatus = status;
+        status = newStatus;
+        averageRate = 0;
+        if (oldStatus != newStatus) {
+            int flags = SYNC_FLAGS.STATUS;
+            if (newStatus != STATUS.TRANSFERRING) {
+                energyRates.clear();
+                transferRate = 0;
+                flags |= SYNC_FLAGS.TRANSFER_RATE;
+            }
+            syncData(flags);
+        }
+    }
+
+    private void calculateThreshold() {
+        long skips = Math.max(0, energyRates.size() - THRESHOLD_LIMIT);
+        threshold = energyRates.stream().skip(skips).reduce(0.0, Double::sum);
     }
 
     /**
@@ -349,151 +511,14 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             if (provider instanceof MeterTile) return false;
             if (provider == null) {
                 Block block = level.getBlockState(worldPosition.relative(direction)).getBlock();
-                return (
-                    !block.is(Blocks.AIR) &&
-                    block.getRegistryName() != null &&
-                    block.getRegistryName().getNamespace().equals(PIPEZ_ID)
-                );
-            } else {
-                target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
-                inputCache = target;
-                target.addListener(self -> inputCache = null);
+                return !block.is(Blocks.AIR) && block.getRegistryName() != null &&
+                    block.getRegistryName().getNamespace().equals(PIPEZ_ID);
             }
+            target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
+            inputCache = target;
+            target.addListener(self -> inputCache = null);
         }
 
         return true;
-    }
-
-    @Nullable
-    private LazyOptional<IEnergyStorage> getOutputFromCache(Direction direction) {
-        assert level != null && !level.isClientSide;
-
-        LazyOptional<IEnergyStorage> target = outputCache.get(direction);
-        if (target == null) {
-            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
-            if (provider == null || provider instanceof MeterTile) return null;
-            target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
-            outputCache.put(direction, target);
-            target.addListener(self -> outputCache.put(direction, null));
-        }
-        return target;
-    }
-
-    @Override
-    protected void invalidateCaps() {
-        for (LazyOptional<SidedEnergyStorage> cap : energyStorage) {
-            cap.invalidate();
-        }
-        super.invalidateCaps();
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
-        if (
-            !remove &&
-            cap == CapabilityEnergy.ENERGY &&
-            direction != null &&
-            sideConfig.get(direction) != IO_SETTING.OFF
-        ) {
-            return energyStorage.get(direction.ordinal()).cast();
-        }
-        return super.getCapability(cap, direction);
-    }
-
-    @Override
-    public ITextComponent getDisplayName() {
-        return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
-    }
-
-    @Nullable
-    @Override
-    public Container createMenu(int windowID, PlayerInventory inventory, PlayerEntity player) {
-        return new MeterContainer(this, windowID);
-    }
-
-    /**
-     * Updates the status to the specified value.
-     * If it was different from the previous value, it will trigger a client sync.
-     *
-     * @param newStatus the new setting to set
-     */
-    private void updateStatus(STATUS newStatus) {
-        STATUS oldStatus = status;
-        status = newStatus;
-        averageRate = 0;
-        averageCount = 0;
-        if (oldStatus != newStatus) {
-            int flags = SyncFlags.STATUS;
-            if (newStatus != STATUS.TRANSFERRING) {
-                transferRate = 0;
-                flags = flags | SyncFlags.TRANSFER_RATE;
-            }
-            syncData(flags);
-        }
-    }
-
-    /**
-     * Checks if the output cache has at least one output which is still valid.
-     *
-     * @return true if there is at least one valid output, false otherwise
-     */
-    private boolean hasValidOutput() {
-        for (LazyOptional<IEnergyStorage> cap : outputCache.values()) {
-            if (cap != null) return true;
-        }
-        return false;
-    }
-
-    /**
-     * Calculates the flow rate depending on the energy received within {@value REFRESH_RATE} ticks.
-     * Updates the status accordingly.
-     */
-    private void calculateFlow() {
-        assert level != null && !level.isClientSide;
-
-        if (averageCount != 0 && level.getGameTime() % interval == 0) {
-            float oldTransferRate = transferRate;
-            transferRate = (float) averageRate / averageCount;
-            if (oldTransferRate != transferRate) syncData(SyncFlags.TRANSFER_RATE);
-        }
-
-        if (transferRate > 0) {
-            updateStatus(STATUS.TRANSFERRING);
-        } else {
-            updateStatus(STATUS.CONNECTED);
-        }
-
-        lastAverageRate = averageRate;
-    }
-
-    @Override
-    public void tick() {
-        if (level == null || level.isClientSide || level.getGameTime() % REFRESH_RATE != 0) return;
-
-        // initial setup
-        if (!setupDone) {
-            for (Direction direction : Direction.values()) {
-                if (sideConfig.get(direction) != IO_SETTING.OFF) updateCache(direction);
-            }
-            setupDone = true;
-        }
-
-        // if not properly connected or configured, set to disconnected
-        if (
-            (mode == MODE.CONSUMER && !hasValidInput) ||
-            (mode == MODE.TRANSFER && (!hasValidInput || !sideConfig.hasOutput() || !hasValidOutput()))
-        ) {
-            updateStatus(STATUS.DISCONNECTED);
-            return;
-        }
-
-        // if the average rate didn't change, set to connected
-        if (averageRate == lastAverageRate) {
-            updateStatus(STATUS.CONNECTED);
-            return;
-        }
-
-        calculateFlow();
     }
 }

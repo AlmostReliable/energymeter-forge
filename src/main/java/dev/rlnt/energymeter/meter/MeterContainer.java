@@ -1,6 +1,6 @@
 package dev.rlnt.energymeter.meter;
 
-import dev.rlnt.energymeter.core.Setup;
+import dev.rlnt.energymeter.core.Setup.Containers;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.tileentity.TileEntity;
@@ -11,18 +11,17 @@ public class MeterContainer extends Container {
     private final MeterTile tile;
 
     public MeterContainer(MeterTile tile, int windowID) {
-        super(Setup.Containers.METER_CONTAINER.get(), windowID);
+        super(Containers.METER_CONTAINER.get(), windowID);
         this.tile = tile;
     }
 
     @Override
     public boolean stillValid(PlayerEntity player) {
-        if (tile.getLevel() == null) return false;
-        return Container.stillValid(
-            IWorldPosCallable.create(tile.getLevel(), tile.getBlockPos()),
-            player,
-            tile.getBlockState().getBlock()
-        );
+        return tile.getLevel() != null &&
+            Container.stillValid(IWorldPosCallable.create(tile.getLevel(), tile.getBlockPos()),
+                player,
+                tile.getBlockState().getBlock()
+            );
     }
 
     /**
