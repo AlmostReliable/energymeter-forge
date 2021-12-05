@@ -96,13 +96,15 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3438494") // JEI - 7.7.1.121
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3530253") // JEI - 7.7.1.137
     runtimeOnly fg.deobf("curse.maven:top-245211:3319255") // TOP - 3.1.4
     runtimeOnly fg.deobf("curse.maven:lollipop-347954:3232534") // Lollipop - 3.2.9 - Powah Lib
     runtimeOnly fg.deobf("curse.maven:powah-352656:3232535") // Powah - 2.3.16
-    runtimeOnly fg.deobf("curse.maven:pipez-443900:3460157") // Pipez - 1.2.9
-    runtimeOnly fg.deobf("curse.maven:meka-268560:3206392") // Mekanism - 10.0.21.448
-    runtimeOnly fg.deobf("curse.maven:mekag-268566:3206395") // Mekanism Generators - 10.0.21.448
+    runtimeOnly fg.deobf("curse.maven:pipez-443900:3525428") // Pipez - 1.2.13
+    runtimeOnly fg.deobf("curse.maven:meka-268560:3516428") // Mekanism - 10.0.24.453
+    runtimeOnly fg.deobf("curse.maven:mekag-268566:3516430") // Mekanism Generators - 10.0.24.453
+    runtimeOnly fg.deobf("curse.maven:titanium-287342:3525770") // Titanium - 3.2.8.7-22 - Industrial Foregoing Lib
+    runtimeOnly fg.deobf("curse.maven:if-266515:3525789") // Industrial Foregoing - 3.2.14.7-16
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.
