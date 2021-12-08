@@ -1,6 +1,6 @@
 package dev.rlnt.energymeter.util;
 
-public class TypeEnums {
+public final class TypeEnums {
 
     private TypeEnums() {}
 
@@ -9,66 +9,55 @@ public class TypeEnums {
      * identify its key inside the lang file.
      */
     public enum TRANSLATE_TYPE {
-        CONTAINER,
-        LABEL,
-        TOOLTIP,
-        BLOCK_SIDE,
-        IO_SETTING,
-        STATUS
+        CONTAINER, LABEL, TOOLTIP, BLOCK_SIDE, IO_SETTING, NUMBER, STATUS, MODE, ACCURACY
     }
 
     /**
      * Defines the possible IO sides of a block.
      */
     public enum BLOCK_SIDE {
-        BOTTOM,
-        TOP,
-        FRONT,
-        BACK,
-        LEFT,
-        RIGHT
+        BOTTOM, TOP, FRONT, BACK, LEFT, RIGHT
     }
 
     /**
      * Enum to represent the different IO settings for the side configuration.
      */
     public enum IO_SETTING {
-        OFF,
-        IN,
-        OUT
+        OFF, IN, OUT
     }
 
     /**
      * Enum to represent a setting for the different GUI buttons.
      */
     public enum SETTING {
-        NUMBER,
-        MODE
-    }
-
-    /**
-     * Enum to represent the status of the meter.
-     */
-    public enum STATUS {
-        DISCONNECTED,
-        CONNECTED,
-        TRANSFERRING,
-        CONSUMING
-    }
-
-    /**
-     * Enum to represent the mode of the meter.
-     */
-    public enum MODE {
-        TRANSFER,
-        CONSUMER
+        NUMBER, MODE, ACCURACY
     }
 
     /**
      * Enum to represent the number mode of the meter.
      */
     public enum NUMBER_MODE {
-        SHORT,
-        LONG
+        SHORT, LONG
+    }
+
+    /**
+     * Enum to represent the status of the meter.
+     */
+    public enum STATUS {
+        DISCONNECTED, CONNECTED, TRANSFERRING, CONSUMING
+    }
+
+    /**
+     * Enum to represent the mode of the meter.
+     */
+    public enum MODE {
+        TRANSFER, CONSUMER
+    }
+
+    /**
+     * Enum to represent the calculation mode of the meter.
+     */
+    public enum ACCURACY {
+        EXACT, INTERVAL
     }
 }

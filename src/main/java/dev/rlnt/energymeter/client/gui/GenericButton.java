@@ -10,7 +10,7 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.util.text.StringTextComponent;
 
-public abstract class AbstractButton extends Button {
+public abstract class GenericButton extends Button {
 
     /**
      * Holds the parent {@link Container} of the parent {@link ContainerScreen}.
@@ -21,18 +21,25 @@ public abstract class AbstractButton extends Button {
      */
     final MeterScreen screen;
 
-    AbstractButton(MeterScreen screen, int pX, int pY, int width, int height) {
+    GenericButton(MeterScreen screen, int pX, int pY, int width, int height) {
         super(
             screen.getGuiLeft() + pX,
             screen.getGuiTop() + pY,
             width,
             height,
             StringTextComponent.EMPTY,
-            button -> ((AbstractButton) button).clickHandler()
+            button -> ((GenericButton) button).clickHandler()
         );
         container = screen.getMenu();
         this.screen = screen;
     }
+
+    /**
+     * Handles the functionality which is triggered when clicking the button.
+     * <p>
+     * Can be overwritten by buttons to get individual functionality.
+     */
+    protected abstract void clickHandler();
 
     @Override
     public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
@@ -46,13 +53,6 @@ public abstract class AbstractButton extends Button {
         // button texture
         blit(matrix, x, y, 0, 0, width, height, getTextureWidth(), getTextureHeight());
     }
-
-    /**
-     * Handles the functionality which is triggered when clicking the button.
-     * <p>
-     * Can be overwritten by buttons to get individual functionality.
-     */
-    protected abstract void clickHandler();
 
     /**
      * Gets the texture file name for the button as {@link String}.

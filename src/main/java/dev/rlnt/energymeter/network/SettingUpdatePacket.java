@@ -3,12 +3,13 @@ package dev.rlnt.energymeter.network;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterTile;
 import dev.rlnt.energymeter.util.TypeEnums.SETTING;
-import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
+
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class SettingUpdatePacket {
 
@@ -26,7 +27,7 @@ public class SettingUpdatePacket {
         return packet;
     }
 
-    static void handle(SettingUpdatePacket packet, Supplier<NetworkEvent.Context> context) {
+    static void handle(SettingUpdatePacket packet, Supplier<? extends Context> context) {
         ServerPlayerEntity player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);

@@ -1,14 +1,15 @@
 package dev.rlnt.energymeter.network;
 
-import dev.rlnt.energymeter.core.Constants.SyncFlags;
+import dev.rlnt.energymeter.core.Constants.SYNC_FLAGS;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterTile;
-import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
+
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class IntervalUpdatePacket {
 
@@ -26,7 +27,7 @@ public class IntervalUpdatePacket {
         return packet;
     }
 
-    static void handle(IntervalUpdatePacket packet, Supplier<NetworkEvent.Context> context) {
+    static void handle(IntervalUpdatePacket packet, Supplier<? extends Context> context) {
         ServerPlayerEntity player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);
@@ -38,7 +39,7 @@ public class IntervalUpdatePacket {
             World level = tile.getLevel();
             if (level == null || !level.isLoaded(tile.getBlockPos())) return;
             tile.setInterval(packet.value);
-            tile.syncData(SyncFlags.INTERVAL);
+            tile.syncData(SYNC_FLAGS.INTERVAL);
             tile.setChanged();
         }
     }

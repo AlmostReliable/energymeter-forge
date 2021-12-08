@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
+        maven {url = 'https://maven.minecraftforge.net'}
+        maven {url = 'https://maven.parchmentmc.org'}
         mavenCentral()
     }
     dependencies {
@@ -12,7 +12,7 @@ buildscript {
 
 plugins {
     id "com.matthewprenger.cursegradle" version "1.4.0"
-    id "org.sonarqube" version "3.2.0"
+    id "org.sonarqube" version "3.3"
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -22,8 +22,8 @@ apply plugin: 'maven-publish'
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "RLNT_minecraft_energymeter"
-        property "sonar.organization", "rlnt"
+        property "sonar.projectKey", "AlmostReliable_minecraft_energymeter"
+        property "sonar.organization", "almostreliable"
         property "sonar.host.url", "https://sonarcloud.io"
     }
 }
@@ -84,7 +84,7 @@ minecraft {
 }
 
 // resources from data generation
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceSets.main.resources {srcDir 'src/generated/resources'}
 
 repositories {
     maven {
@@ -96,31 +96,31 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3438494") // JEI - 7.7.1.121
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3530253") // JEI - 7.7.1.137
     runtimeOnly fg.deobf("curse.maven:top-245211:3319255") // TOP - 3.1.4
     runtimeOnly fg.deobf("curse.maven:lollipop-347954:3232534") // Lollipop - 3.2.9 - Powah Lib
     runtimeOnly fg.deobf("curse.maven:powah-352656:3232535") // Powah - 2.3.16
-    runtimeOnly fg.deobf("curse.maven:pipez-443900:3460157") // Pipez - 1.2.9
-    runtimeOnly fg.deobf("curse.maven:meka-268560:3206392") // Mekanism - 10.0.21.448
-    runtimeOnly fg.deobf("curse.maven:mekag-268566:3206395") // Mekanism Generators - 10.0.21.448
+    runtimeOnly fg.deobf("curse.maven:pipez-443900:3525428") // Pipez - 1.2.13
+    runtimeOnly fg.deobf("curse.maven:meka-268560:3516428") // Mekanism - 10.0.24.453
+    runtimeOnly fg.deobf("curse.maven:mekag-268566:3516430") // Mekanism Generators - 10.0.24.453
+    runtimeOnly fg.deobf("curse.maven:titanium-287342:3525770") // Titanium - 3.2.8.7-22 - Industrial Foregoing Lib
+    runtimeOnly fg.deobf("curse.maven:if-266515:3525789") // Industrial Foregoing - 3.2.14.7-16
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.
 // It copies them into the targets and expands all the defined properties.
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
 def intoTargets = ["$rootDir/out/production/resources/", "$rootDir/out/production/${project.name}.main/", "$rootDir/bin/main/"]
-def replaceProperties = [
-    mod_id                 : mod_id,
-    mod_name               : mod_name,
-    mod_version            : mod_version,
-    mod_authors            : mod_authors,
-    mod_description        : mod_description,
-    minecraft_version_range: minecraft_version_range,
-    forge_version_range    : forge_version_range,
-    loader_version_range   : loader_version_range,
-    github_user            : github_user,
-    github_repo            : github_repo
-]
+def replaceProperties = [mod_id                 : mod_id,
+                         mod_name               : mod_name,
+                         mod_version            : mod_version,
+                         mod_authors            : mod_authors,
+                         mod_description        : mod_description,
+                         minecraft_version_range: minecraft_version_range,
+                         forge_version_range    : forge_version_range,
+                         loader_version_range   : loader_version_range,
+                         github_user            : github_user,
+                         github_repo            : github_repo]
 processResources {
     inputs.properties replaceProperties
     replaceProperties.put 'project', project
@@ -129,7 +129,7 @@ processResources {
         expand replaceProperties
     }
 
-    intoTargets.each { target ->
+    intoTargets.each {target ->
         if (file(target).exists()) {
             copy {
                 from(sourceSets.main.resources) {
@@ -144,15 +144,13 @@ processResources {
 
 jar {
     manifest {
-        attributes([
-            "Specification-Title"     : mod_id,
-            "Specification-Vendor"    : mod_authors,
-            "Specification-Version"   : "1", // We are version 1 of ourselves
-            "Implementation-Title"    : project.name,
-            "Implementation-Version"  : mod_version,
-            "Implementation-Vendor"   : mod_authors,
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+        attributes(["Specification-Title"     : mod_id,
+                    "Specification-Vendor"    : mod_authors,
+                    "Specification-Version"   : "1", // We are version 1 of ourselves
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : mod_version,
+                    "Implementation-Vendor"   : mod_authors,
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 }
 

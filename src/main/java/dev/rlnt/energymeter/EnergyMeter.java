@@ -1,21 +1,24 @@
 package dev.rlnt.energymeter;
 
-import static dev.rlnt.energymeter.core.Constants.MOD_ID;
-
 import dev.rlnt.energymeter.client.MeterRenderer;
 import dev.rlnt.energymeter.client.gui.MeterScreen;
 import dev.rlnt.energymeter.core.Setup;
+import dev.rlnt.energymeter.core.Setup.Containers;
+import dev.rlnt.energymeter.core.Setup.Tiles;
 import dev.rlnt.energymeter.network.PacketHandler;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+import static dev.rlnt.energymeter.core.Constants.MOD_ID;
+
 @Mod(MOD_ID)
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class EnergyMeter {
 
     @SuppressWarnings("java:S1118")
@@ -37,9 +40,9 @@ public class EnergyMeter {
     private static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             // register screens
-            ScreenManager.register(Setup.Containers.METER_CONTAINER.get(), MeterScreen::new);
+            ScreenManager.register(Containers.METER_CONTAINER.get(), MeterScreen::new);
             // register renderers
-            ClientRegistry.bindTileEntityRenderer(Setup.Tiles.METER.get(), MeterRenderer::new);
+            ClientRegistry.bindTileEntityRenderer(Tiles.METER.get(), MeterRenderer::new);
         });
     }
 }

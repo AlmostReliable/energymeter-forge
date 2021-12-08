@@ -1,25 +1,25 @@
 package dev.rlnt.energymeter.util;
 
-import static dev.rlnt.energymeter.core.Constants.MOD_ID;
-import static dev.rlnt.energymeter.util.TypeEnums.TRANSLATE_TYPE;
-
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class TextUtils {
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+import static dev.rlnt.energymeter.core.Constants.MOD_ID;
+import static dev.rlnt.energymeter.util.TypeEnums.TRANSLATE_TYPE;
+
+public enum TextUtils {
+    ;
 
     private static final Locale LOCALE = Locale.getDefault();
     private static final DecimalFormat DF = (DecimalFormat) NumberFormat.getInstance(LOCALE).clone();
-    private static final String[] UNITS = new String[] { "", "k", "M", "G", "T", "P" };
-
-    private TextUtils() {}
+    private static final String[] UNITS = {"", "k", "M", "G", "T", "P"};
 
     /**
      * Gets a resource location with the given key
@@ -30,6 +30,17 @@ public class TextUtils {
      */
     public static ResourceLocation getRL(String key) {
         return new ResourceLocation(MOD_ID, key);
+    }
+
+    /**
+     * Gets a translated phrase within the mod's namespace.
+     *
+     * @param type the translation type to get the translation from
+     * @param key  the translation key
+     * @return the translated phrase
+     */
+    public static String translateAsString(TRANSLATE_TYPE type, String key) {
+        return translate(type, key).getString();
     }
 
     /**
@@ -47,28 +58,6 @@ public class TextUtils {
     }
 
     /**
-     * Gets a translated phrase within the mod's namespace.
-     *
-     * @param type the translation type to get the translation from
-     * @param key  the translation key
-     * @return the translated phrase
-     */
-    public static String translateAsString(TRANSLATE_TYPE type, String key) {
-        return translate(type, key).getString();
-    }
-
-    /**
-     * Colores a given String with the given color.
-     *
-     * @param input the string to color
-     * @param color an optional color
-     * @return the colorized string
-     */
-    public static StringTextComponent colorize(String input, TextFormatting color) {
-        return (StringTextComponent) new StringTextComponent(input).withStyle(color);
-    }
-
-    /**
      * Gets the translation key from the provided type and key.
      *
      * @param type the type of the translation
@@ -80,20 +69,29 @@ public class TextUtils {
     }
 
     /**
+     * Colors a given String with the given color.
+     *
+     * @param input the string to color
+     * @param color an optional color
+     * @return the colorized string
+     */
+    public static StringTextComponent colorize(String input, TextFormatting color) {
+        return (StringTextComponent) new StringTextComponent(input).withStyle(color);
+    }
+
+    /**
      * Formats Forge Energy into a readable String with an easy-to-read suffix.
      * Can also give back the full formatted energy amount if a true boolean is passed in.
      *
      * @param number   the energy amount to format
      * @param extended the boolean to define if full energy amount is used
      * @return the readable string representation of the energy
-     * @author Chronophylos
      */
     public static Tuple<String, String> formatEnergy(Number number, boolean extended) {
         if (!extended) {
             // convert numbers to compact form
-            int numberOfDigits = number.intValue() == 0
-                ? 0
-                : (int) (1 + Math.floor(Math.log10(Math.abs(number.doubleValue()))));
+            int numberOfDigits = number.intValue() == 0 ? 0 :
+                (int) (1 + Math.floor(Math.log10(Math.abs(number.doubleValue()))));
             int base10Exponent = numberOfDigits < 4 ? 0 : 3 * ((numberOfDigits - 1) / 3);
             double normalized = number.doubleValue() / Math.pow(10, base10Exponent);
             return new Tuple<>(formatNumber(normalized, 2), UNITS[base10Exponent / 3] + "FE");

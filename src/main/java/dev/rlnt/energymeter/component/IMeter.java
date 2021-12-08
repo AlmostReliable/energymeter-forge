@@ -4,7 +4,8 @@ import dev.rlnt.energymeter.util.TypeEnums.MODE;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.energy.IEnergyStorage;
 
-public interface ISidedEnergy {
+public interface IMeter {
+
     /**
      * Handles the receive-requests from the {@link IEnergyStorage}.
      * When transfer mode is active, it will try to equally split all incoming energy to

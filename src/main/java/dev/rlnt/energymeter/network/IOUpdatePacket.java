@@ -1,16 +1,17 @@
 package dev.rlnt.energymeter.network;
 
-import dev.rlnt.energymeter.core.Constants.SyncFlags;
+import dev.rlnt.energymeter.core.Constants.SYNC_FLAGS;
 import dev.rlnt.energymeter.meter.MeterContainer;
 import dev.rlnt.energymeter.meter.MeterTile;
 import dev.rlnt.energymeter.util.TypeEnums.BLOCK_SIDE;
 import dev.rlnt.energymeter.util.TypeEnums.IO_SETTING;
-import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
+
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class IOUpdatePacket {
 
@@ -31,7 +32,7 @@ public class IOUpdatePacket {
         return packet;
     }
 
-    static void handle(IOUpdatePacket packet, Supplier<Context> context) {
+    static void handle(IOUpdatePacket packet, Supplier<? extends Context> context) {
         ServerPlayerEntity player = context.get().getSender();
         context.get().enqueueWork(() -> handlePacket(packet, player));
         context.get().setPacketHandled(true);
@@ -45,7 +46,7 @@ public class IOUpdatePacket {
             tile.getSideConfig().set(packet.side, packet.setting);
             tile.updateNeighbors();
             tile.updateCache(tile.getSideConfig().getDirectionFromSide(packet.side));
-            tile.syncData(SyncFlags.SIDE_CONFIG);
+            tile.syncData(SYNC_FLAGS.SIDE_CONFIG);
             tile.setChanged();
         }
     }
