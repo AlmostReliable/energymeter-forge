@@ -82,8 +82,8 @@ class TextBox extends TextFieldWidget {
 
     @Override
     public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
-        fill(matrix, x - 1, y - 1, x + width + 1, y + height + 1, -65_434);
-        fill(matrix, x, y, x + width, y + height, -15_263_977);
+        fill(matrix, x - 3, y - 3, x + width + 3, y + height + 3, -65_434);
+        fill(matrix, x - 2, y - 2, x + width + 2, y + height + 2, -15_263_977);
         super.renderButton(matrix, mX, mY, partial);
     }
 }
