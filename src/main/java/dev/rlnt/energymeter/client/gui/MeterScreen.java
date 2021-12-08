@@ -131,7 +131,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
         // transfer rate
         GuiUtils.renderText(matrix,
-            12,
+            11,
             26,
             1.1f,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, TRANSFER_RATE_ID) + ':',
@@ -150,7 +150,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
         // status
         GuiUtils.renderText(matrix,
-            12,
+            11,
             50,
             1.1f,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, STATUS_ID) + ':',
@@ -166,7 +166,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
         // mode
         GuiUtils.renderText(matrix,
-            12,
+            11,
             74,
             1.1f,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, MODE_ID) + ':',
@@ -182,7 +182,7 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
 
         // accuracy
         GuiUtils.renderText(matrix,
-            12,
+            11,
             98,
             1.1f,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, ACCURACY_ID) + ':',
