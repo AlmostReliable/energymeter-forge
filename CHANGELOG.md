@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.4.0] - 2021-12-08
+
+### Added
+- accuracy mode ([#6])
+  - you can now switch between two modes
+  - exact: will work as the previous version and refresh the rate every 5 seconds
+  - interval: will respect your custom interval and calculate the average within that interval
+
+### Changed
+- completely overhauled the GUI
+- made the exact mode more precise
+- slightly improved performance
+- refactored a lot of code
+- improved localization
+
+### Fixed
+- fixed that zero flow rate is not taken into consideration when measuring with interval ([#6])
+
+<!-- Links -->
+[#6]: https://github.com/AlmostReliable/minecraft_energymeter/issues/6
+
+
 ## [1.3.0] - 2021-10-14
 
 ### Added
@@ -128,7 +150,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.3.0...HEAD
+[unreleased]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.4.0...HEAD
+[1.4.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.3.0..v1.16-1.4.0
 [1.3.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.2.1..v1.16-1.3.0
 [1.2.1]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.2.0..v1.16-1.2.1
 [1.2.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.1.1..v1.16-1.2.0
