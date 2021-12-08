@@ -34,8 +34,8 @@ and this project adheres to [Semantic Versioning].
 - fixed item not dropping after breaking the block ([#4], [#5])
 
 <!-- Links -->
-[#4]: https://github.com/RLNT/minecraft_energymeter/issues/4
-[#5]: https://github.com/RLNT/minecraft_energymeter/pull/5
+[#4]: https://github.com/AlmostReliable/minecraft_energymeter/issues/4
+[#5]: https://github.com/AlmostReliable/minecraft_energymeter/pull/5
 
 
 ## [1.2.0] - 2021-10-10
@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning].
 - fixed a crash when running the mod on a dedicated server ([#3])
 
 <!-- Links -->
-[#3]: https://github.com/RLNT/minecraft_energymeter/issues/3
+[#3]: https://github.com/AlmostReliable/minecraft_energymeter/issues/3
 
 
 ## [1.1.0] - 2021-10-05
@@ -89,7 +89,7 @@ and this project adheres to [Semantic Versioning].
 - code cleanup
 
 ### Fixed
-- fixed none-gamebreaking array out of bounds exception on world load
+- fixed none-game-breaking array out of bounds exception on world load
 
 ### Removed
 - removed unnecessary exception throws
@@ -128,14 +128,14 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.3.0...HEAD
-[1.3.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.1..v1.16-1.3.0
-[1.2.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.2.0..v1.16-1.2.1
-[1.2.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.1..v1.16-1.2.0
-[1.1.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.1.0..v1.16-1.1.1
-[1.1.0]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.4..v1.16-1.1.0
-[1.0.4]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.3..v1.16-1.0.4
-[1.0.3]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.2..v1.16-1.0.3
-[1.0.2]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.1..v1.16-1.0.2
-[1.0.1]: https://github.com/RLNT/minecraft_energymeter/compare/v1.16-1.0.0..v1.16-1.0.1
-[1.0.0]: https://github.com/RLNT/minecraft_energymeter/releases/tag/v1.16-1.0.0
+[unreleased]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.3.0...HEAD
+[1.3.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.2.1..v1.16-1.3.0
+[1.2.1]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.2.0..v1.16-1.2.1
+[1.2.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.1.1..v1.16-1.2.0
+[1.1.1]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.1.0..v1.16-1.1.1
+[1.1.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.4..v1.16-1.1.0
+[1.0.4]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.3..v1.16-1.0.4
+[1.0.3]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.2..v1.16-1.0.3
+[1.0.2]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.1..v1.16-1.0.2
+[1.0.1]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.0..v1.16-1.0.1
+[1.0.0]: https://github.com/AlmostReliable/minecraft_energymeter/releases/tag/v1.16-1.0.0

@@ -90,12 +90,12 @@ This project is licensed under the [MIT license][license].
 
 
 <!-- Badges -->
-[version_badge]: https://img.shields.io/github/v/release/RLNT/minecraft_energymeter?style=flat-square
-[version_link]: https://github.com/RLNT/minecraft_energymeter/releases/latest
+[version_badge]: https://img.shields.io/github/v/release/AlmostReliable/minecraft_energymeter?style=flat-square
+[version_link]: https://github.com/AlmostReliable/minecraft_energymeter/releases/latest
 [total_downloads_badge]: http://cf.way2muchnoise.eu/full_532169.svg?badge_style=flat
-[workflow_status_badge]: https://img.shields.io/github/workflow/status/RLNT/minecraft_energymeter/CI?style=flat-square
-[workflow_status_link]: https://github.com/RLNT/minecraft_energymeter/actions
-[license_badge]: https://img.shields.io/github/license/RLNT/minecraft_energymeter?style=flat-square
+[workflow_status_badge]: https://img.shields.io/github/workflow/status/AlmostReliable/minecraft_energymeter/CI?style=flat-square
+[workflow_status_link]: https://github.com/AlmostReliable/minecraft_energymeter/actions
+[license_badge]: https://img.shields.io/github/license/AlmostReliable/minecraft_energymeter?style=flat-square
 [style_badge]: https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square
 [style_link]: https://github.com/prettier/prettier
 
@@ -104,7 +104,7 @@ This project is licensed under the [MIT license][license].
 [discord]: https://discordapp.com/invite/Q3qxws6
 [curseforge]: https://www.curseforge.com/minecraft/mc-mods/energymeter
 [forge]: http://files.minecraftforge.net/
-[releases]: https://github.com/RLNT/minecraft_energymeter/releases
+[releases]: https://github.com/AlmostReliable/minecraft_energymeter/releases
 [Energy Meters]: https://www.curseforge.com/minecraft/mc-mods/energy-meters
 [@vladmarica]: https://github.com/vladmarica
 [changelog]: CHANGELOG.md
