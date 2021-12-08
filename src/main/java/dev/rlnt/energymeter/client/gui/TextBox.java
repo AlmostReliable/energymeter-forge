@@ -2,8 +2,10 @@ package dev.rlnt.energymeter.client.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.rlnt.energymeter.core.Constants.UI_COLORS;
+import dev.rlnt.energymeter.meter.MeterTile;
 import dev.rlnt.energymeter.util.GuiUtils.Tooltip;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -38,11 +40,16 @@ class TextBox extends TextFieldWidget {
     public void renderToolTip(MatrixStack matrix, int mX, int mY) {
         Tooltip tooltip = Tooltip.builder()
             // header
-            .addHeader("interval").addBlankLine()
+            .addHeader("interval")
+            .addBlankLine()
             // description
-            .addDescription("interval_desc_1").addDescription("interval_desc_2").addBlankLine()
+            .addDescription("interval_desc_1")
+            .addDescription("interval_desc_2")
+            .addBlankLine()
             // action
-            .addClickAction("action_5").addCustomAction("key.keyboard.enter", "action_6");
+            .addClickAction("action_5")
+            .addShiftClickAction("action_2")
+            .addCustomAction("key.keyboard.enter", "action_6");
 
         screen.renderComponentTooltip(matrix, tooltip.resolve(), mX, mY);
     }
@@ -69,6 +76,14 @@ class TextBox extends TextFieldWidget {
         }
         // otherwise, just run the original functionality
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        boolean clicked = super.mouseClicked(pMouseX, pMouseY, pButton);
+        // reset the interval to the default value when shift clicking
+        if (clicked && Screen.hasShiftDown()) screen.changeTextBoxValue(MeterTile.REFRESH_RATE, true);
+        return clicked;
     }
 
     @Override
