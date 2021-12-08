@@ -101,7 +101,7 @@ This project is licensed under the [MIT license][license].
 
 <!-- Links -->
 [minecraft]: https://www.minecraft.net/
-[discord]: https://discordapp.com/invite/Q3qxws6
+[discord]: https://discord.com/invite/ThFnwZCyYY
 [curseforge]: https://www.curseforge.com/minecraft/mc-mods/energymeter
 [forge]: http://files.minecraftforge.net/
 [releases]: https://github.com/AlmostReliable/minecraft_energymeter/releases
