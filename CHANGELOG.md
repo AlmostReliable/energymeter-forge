@@ -9,13 +9,39 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [2.3.0] - 2021-12-15
+
+### Notes
+- this will most likely be the EOL version for this Minecraft version
+- 1.16 is LTS and 1.18 will be the main version for the mod
+
+### Added
+- accuracy mode ([#6])
+  - you can now switch between two modes
+  - exact: will work as the previous version and refresh the rate every 5 seconds
+  - interval: will respect your custom interval and calculate the average within that interval
+
+### Changed
+- completely overhauled the GUI
+- made the exact mode more precise
+- slightly improved performance
+- refactored a lot of code
+- improved localization
+
+### Fixed
+- fixed that zero flow rate is not taken into consideration when measuring with interval ([#6])
+
+<!-- Links -->
+[#6]: https://github.com/AlmostReliable/energymeter/issues/6
+
+
 ## [2.2.0] - 2021-10-22
 
 ### Added
 - added the ability to define a custom update interval ([Enigmatica6/#3415])
-    - this will change how often the transfer rate is recalculated
-    - higher amounts will even out spikes but result in less updates of the value
-    - ported from 1.16 version
+  - this will change how often the transfer rate is recalculated
+  - higher amounts will even out spikes but result in less updates of the value
+  - ported from 1.16 version
 - added German translation
 
 ### Changed
@@ -34,7 +60,7 @@ and this project adheres to [Semantic Versioning].
 
 ### Added
 - added full support for all directions for the facing side
-    - this means you can also place Energy Meters with the screen at the top or the bottom
+  - this means you can also place Energy Meters with the screen at the top or the bottom
 
 ### Changed
 - increased performance a lot
@@ -49,7 +75,7 @@ and this project adheres to [Semantic Versioning].
 - code cleanup
 
 ### Fixed
-- fixed none-gamebreaking array out of bounds exception on world load
+- fixed none game breaking array out of bounds exception on world load
 - fixed some dedicated server synchronization issues
 
 ### Removed
@@ -59,12 +85,14 @@ and this project adheres to [Semantic Versioning].
 ## [2.0.0] - 2021-10-02
 - initial release
 
+
 <!-- Links -->
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.2.0...HEAD
+[unreleased]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.3.0...HEAD
+[2.3.0]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.2.0..v1.17-2.3.0
 [2.2.0]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.1.0..v1.17-2.2.0
 [2.1.0]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.0.0..v1.17-2.1.0
 [2.0.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.17-2.0.0
