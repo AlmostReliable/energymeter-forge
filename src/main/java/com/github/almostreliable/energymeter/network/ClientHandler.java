@@ -1,6 +1,5 @@
 package com.github.almostreliable.energymeter.network;
 
-import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
 import com.github.almostreliable.energymeter.meter.MeterTile;
 import net.minecraft.client.Minecraft;

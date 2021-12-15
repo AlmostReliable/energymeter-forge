@@ -1,6 +1,5 @@
 package com.github.almostreliable.energymeter.component;
 
-import com.github.almostreliable.energymeter.util.TypeEnums;
 import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
 import net.minecraft.tileentity.TileEntity;

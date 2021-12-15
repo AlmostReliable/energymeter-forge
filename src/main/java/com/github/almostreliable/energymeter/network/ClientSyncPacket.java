@@ -1,9 +1,7 @@
 package com.github.almostreliable.energymeter.network;
 
 import com.github.almostreliable.energymeter.component.SideConfiguration;
-import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
-import com.github.almostreliable.energymeter.util.TypeEnums;
 import com.github.almostreliable.energymeter.util.TypeEnums.ACCURACY;
 import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
 import com.github.almostreliable.energymeter.util.TypeEnums.NUMBER_MODE;

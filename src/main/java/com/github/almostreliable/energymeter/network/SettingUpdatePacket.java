@@ -2,7 +2,6 @@ package com.github.almostreliable.energymeter.network;
 
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.meter.MeterTile;
-import com.github.almostreliable.energymeter.util.TypeEnums;
 import com.github.almostreliable.energymeter.util.TypeEnums.SETTING;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;

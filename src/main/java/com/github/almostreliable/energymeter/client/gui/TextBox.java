@@ -1,9 +1,7 @@
 package com.github.almostreliable.energymeter.client.gui;
 
-import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
 import com.github.almostreliable.energymeter.meter.MeterTile;
-import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.FontRenderer;

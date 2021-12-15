@@ -1,6 +1,5 @@
 package com.github.almostreliable.energymeter.meter;
 
-import com.github.almostreliable.energymeter.core.Setup;
 import com.github.almostreliable.energymeter.core.Setup.Containers;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;

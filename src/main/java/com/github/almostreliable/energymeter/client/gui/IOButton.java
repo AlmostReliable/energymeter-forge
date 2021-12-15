@@ -1,13 +1,10 @@
 package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.component.SideConfiguration;
-import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.network.IOUpdatePacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
-import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
 import com.github.almostreliable.energymeter.util.TextUtils;
-import com.github.almostreliable.energymeter.util.TypeEnums;
 import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
 import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
@@ -19,6 +16,10 @@ import net.minecraft.util.text.TextFormatting;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.github.almostreliable.energymeter.core.Constants.IO_MODE_ID;
+import static com.github.almostreliable.energymeter.core.Constants.IO_SIDE_ID;
+import static com.github.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
 
 final class IOButton extends GenericButton {
 
@@ -67,10 +68,10 @@ final class IOButton extends GenericButton {
     private Tooltip setupTooltip() {
         return Tooltip.builder()
             // header
-            .addHeader(Constants.SIDE_CONFIG_ID).addBlankLine()
+            .addHeader(SIDE_CONFIG_ID).addBlankLine()
             // block side
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, Constants.IO_SIDE_ID, TextFormatting.GREEN)
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, TextFormatting.GREEN)
                 .append(TextUtils.colorize(": ", TextFormatting.GREEN))
                 .append(TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE,
                     side.toString().toLowerCase(),
@@ -78,7 +79,7 @@ final class IOButton extends GenericButton {
                 )))
             // current mode
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, Constants.IO_MODE_ID, TextFormatting.GREEN)
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, TextFormatting.GREEN)
                 .append(TextUtils.colorize(": ", TextFormatting.GREEN))
                 .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING,
                     setting.toString().toLowerCase(),

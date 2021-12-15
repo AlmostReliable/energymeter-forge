@@ -1,7 +1,6 @@
 package com.github.almostreliable.energymeter.component;
 
 import com.github.almostreliable.energymeter.meter.MeterBlock;
-import com.github.almostreliable.energymeter.util.TypeEnums;
 import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
 import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import net.minecraft.block.BlockState;

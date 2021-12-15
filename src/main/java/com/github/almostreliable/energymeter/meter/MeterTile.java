@@ -3,22 +3,12 @@ package com.github.almostreliable.energymeter.meter;
 import com.github.almostreliable.energymeter.component.IMeter;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
-import com.github.almostreliable.energymeter.core.Constants;
-import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
-import com.github.almostreliable.energymeter.core.Setup;
 import com.github.almostreliable.energymeter.core.Setup.Tiles;
 import com.github.almostreliable.energymeter.network.ClientSyncPacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.network.SettingUpdatePacket;
 import com.github.almostreliable.energymeter.util.TextUtils;
-import com.github.almostreliable.energymeter.util.TypeEnums;
-import com.github.almostreliable.energymeter.util.TypeEnums.ACCURACY;
-import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
-import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
-import com.github.almostreliable.energymeter.util.TypeEnums.NUMBER_MODE;
-import com.github.almostreliable.energymeter.util.TypeEnums.SETTING;
-import com.github.almostreliable.energymeter.util.TypeEnums.STATUS;
-import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
+import com.github.almostreliable.energymeter.util.TypeEnums.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -44,6 +34,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
+
+import static com.github.almostreliable.energymeter.core.Constants.*;
 
 public class MeterTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, IMeter {
 
@@ -173,51 +165,51 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     @Override
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
-        if (nbt.contains(Constants.SIDE_CONFIG_ID)) {
-            sideConfig.deserializeNBT(nbt.getCompound(Constants.SIDE_CONFIG_ID));
+        if (nbt.contains(SIDE_CONFIG_ID)) {
+            sideConfig.deserializeNBT(nbt.getCompound(SIDE_CONFIG_ID));
         }
-        if (nbt.contains(Constants.NUMBER_MODE_ID)) {
-            numberMode = NUMBER_MODE.values()[nbt.getInt(Constants.NUMBER_MODE_ID)];
+        if (nbt.contains(NUMBER_MODE_ID)) {
+            numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         }
-        if (nbt.contains(Constants.MODE_ID)) mode = MODE.values()[nbt.getInt(Constants.MODE_ID)];
-        if (nbt.contains(Constants.INTERVAL_ID)) interval = nbt.getInt(Constants.INTERVAL_ID);
-        if (nbt.contains(Constants.ACCURACY_ID)) {
-            accuracy = ACCURACY.values()[nbt.getInt(Constants.ACCURACY_ID)];
+        if (nbt.contains(MODE_ID)) mode = MODE.values()[nbt.getInt(MODE_ID)];
+        if (nbt.contains(INTERVAL_ID)) interval = nbt.getInt(INTERVAL_ID);
+        if (nbt.contains(ACCURACY_ID)) {
+            accuracy = ACCURACY.values()[nbt.getInt(ACCURACY_ID)];
         }
     }
 
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
-        nbt.put(Constants.SIDE_CONFIG_ID, sideConfig.serializeNBT());
-        nbt.putInt(Constants.NUMBER_MODE_ID, numberMode.ordinal());
-        nbt.putInt(Constants.MODE_ID, mode.ordinal());
-        nbt.putInt(Constants.INTERVAL_ID, interval);
-        nbt.putInt(Constants.ACCURACY_ID, accuracy.ordinal());
+        nbt.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
+        nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
+        nbt.putInt(MODE_ID, mode.ordinal());
+        nbt.putInt(INTERVAL_ID, interval);
+        nbt.putInt(ACCURACY_ID, accuracy.ordinal());
         return super.save(nbt);
     }
 
     @Override
     public CompoundNBT getUpdateTag() {
         CompoundNBT nbt = super.getUpdateTag();
-        nbt.put(Constants.SIDE_CONFIG_ID, sideConfig.serializeNBT());
-        nbt.putDouble(Constants.TRANSFER_RATE_ID, transferRate);
-        nbt.putInt(Constants.STATUS_ID, status.ordinal());
-        nbt.putInt(Constants.NUMBER_MODE_ID, numberMode.ordinal());
-        nbt.putInt(Constants.MODE_ID, mode.ordinal());
-        nbt.putInt(Constants.INTERVAL_ID, interval);
-        nbt.putInt(Constants.ACCURACY_ID, accuracy.ordinal());
+        nbt.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
+        nbt.putDouble(TRANSFER_RATE_ID, transferRate);
+        nbt.putInt(STATUS_ID, status.ordinal());
+        nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
+        nbt.putInt(MODE_ID, mode.ordinal());
+        nbt.putInt(INTERVAL_ID, interval);
+        nbt.putInt(ACCURACY_ID, accuracy.ordinal());
         return nbt;
     }
 
     @Override
     public void handleUpdateTag(BlockState state, CompoundNBT nbt) {
-        sideConfig.deserializeNBT(nbt.getCompound(Constants.SIDE_CONFIG_ID));
-        transferRate = nbt.getDouble(Constants.TRANSFER_RATE_ID);
-        status = STATUS.values()[nbt.getInt(Constants.STATUS_ID)];
-        numberMode = NUMBER_MODE.values()[nbt.getInt(Constants.NUMBER_MODE_ID)];
-        mode = MODE.values()[nbt.getInt(Constants.MODE_ID)];
-        interval = nbt.getInt(Constants.INTERVAL_ID);
-        accuracy = ACCURACY.values()[nbt.getInt(Constants.ACCURACY_ID)];
+        sideConfig.deserializeNBT(nbt.getCompound(SIDE_CONFIG_ID));
+        transferRate = nbt.getDouble(TRANSFER_RATE_ID);
+        status = STATUS.values()[nbt.getInt(STATUS_ID)];
+        numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
+        mode = MODE.values()[nbt.getInt(MODE_ID)];
+        interval = nbt.getInt(INTERVAL_ID);
+        accuracy = ACCURACY.values()[nbt.getInt(ACCURACY_ID)];
     }
 
     @Override
@@ -387,7 +379,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     @Override
     public ITextComponent getDisplayName() {
-        return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, Constants.METER_ID);
+        return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
     }
 
     @Nullable
@@ -526,7 +518,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             if (provider == null) {
                 Block block = level.getBlockState(worldPosition.relative(direction)).getBlock();
                 return !block.is(Blocks.AIR) && block.getRegistryName() != null &&
-                    block.getRegistryName().getNamespace().equals(Constants.PIPEZ_ID);
+                    block.getRegistryName().getNamespace().equals(PIPEZ_ID);
             }
             target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
             inputCache = target;
