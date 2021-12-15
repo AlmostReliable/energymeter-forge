@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning].
 - fixed that zero flow rate is not taken into consideration when measuring with interval ([#6])
 
 <!-- Links -->
-[#6]: https://github.com/AlmostReliable/energymeter/issues/6
+[#6]: https://github.com/AlmostReliable/energymeter-forge/issues/6
 
 
 ## [2.2.0] - 2021-10-22
@@ -91,8 +91,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.3.0...HEAD
-[2.3.0]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.2.0..v1.17-2.3.0
-[2.2.0]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.1.0..v1.17-2.2.0
-[2.1.0]: https://github.com/AlmostReliable/energymeter/compare/v1.17-2.0.0..v1.17-2.1.0
-[2.0.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.17-2.0.0
+[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.17-2.3.0...HEAD
+[2.3.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.17-2.2.0..v1.17-2.3.0
+[2.2.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.17-2.1.0..v1.17-2.2.0
+[2.1.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.17-2.0.0..v1.17-2.1.0
+[2.0.0]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.17-2.0.0
