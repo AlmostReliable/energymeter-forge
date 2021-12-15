@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
+        maven {url = 'https://maven.minecraftforge.net'}
+        maven {url = 'https://maven.parchmentmc.org'}
         mavenCentral()
     }
     dependencies {
@@ -84,7 +84,7 @@ minecraft {
 }
 
 // resources from data generation
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceSets.main.resources {srcDir 'src/generated/resources'}
 
 repositories {
     maven {
@@ -96,9 +96,9 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3474326") // JEI - 8.1.0.19
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3564653") // JEI - 8.3.0.45
     runtimeOnly fg.deobf("curse.maven:top-245211:3430022") // TOP - 4.0.2
-    runtimeOnly fg.deobf("curse.maven:pipez-443900:3472644") // Pipez - 1.0.4
+    runtimeOnly fg.deobf("curse.maven:pipez-443900:3546399") // Pipez - 1.0.9
     runtimeOnly fg.deobf("curse.maven:solargen-336538:3460172") // Solar Generation - 3.0.1
 }
 
@@ -106,18 +106,16 @@ dependencies {
 // It copies them into the targets and expands all the defined properties.
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
 def intoTargets = ["$rootDir/out/production/resources/", "$rootDir/out/production/${project.name}.main/", "$rootDir/bin/main/"]
-def replaceProperties = [
-    mod_id                 : mod_id,
-    mod_name               : mod_name,
-    mod_version            : mod_version,
-    mod_authors            : mod_authors,
-    mod_description        : mod_description,
-    minecraft_version_range: minecraft_version_range,
-    forge_version_range    : forge_version_range,
-    loader_version_range   : loader_version_range,
-    github_user            : github_user,
-    github_repo            : github_repo
-]
+def replaceProperties = [mod_id                 : mod_id,
+                         mod_name               : mod_name,
+                         mod_version            : mod_version,
+                         mod_authors            : mod_authors,
+                         mod_description        : mod_description,
+                         minecraft_version_range: minecraft_version_range,
+                         forge_version_range    : forge_version_range,
+                         loader_version_range   : loader_version_range,
+                         github_user            : github_user,
+                         github_repo            : github_repo]
 processResources {
     inputs.properties replaceProperties
     replaceProperties.put 'project', project
@@ -126,7 +124,7 @@ processResources {
         expand replaceProperties
     }
 
-    intoTargets.each { target ->
+    intoTargets.each {target ->
         if (file(target).exists()) {
             copy {
                 from(sourceSets.main.resources) {
@@ -141,15 +139,13 @@ processResources {
 
 jar {
     manifest {
-        attributes([
-            "Specification-Title"     : mod_id,
-            "Specification-Vendor"    : mod_authors,
-            "Specification-Version"   : "1", // We are version 1 of ourselves
-            "Implementation-Title"    : project.name,
-            "Implementation-Version"  : mod_version,
-            "Implementation-Vendor"   : mod_authors,
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+        attributes(["Specification-Title"     : mod_id,
+                    "Specification-Vendor"    : mod_authors,
+                    "Specification-Version"   : "1", // We are version 1 of ourselves
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : mod_version,
+                    "Implementation-Vendor"   : mod_authors,
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 }
 
