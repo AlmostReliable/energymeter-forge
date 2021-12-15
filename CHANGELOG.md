@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.4.1] - 2021-12-15
+
+### Fixed
+- minor issue which caused precision loss when loading a meter in a new chunk
+
+
 ## [1.4.0] - 2021-12-08
 
 ### Added
