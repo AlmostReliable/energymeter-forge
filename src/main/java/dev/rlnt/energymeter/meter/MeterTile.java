@@ -198,7 +198,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     @Override
     public void handleUpdateTag(BlockState state, CompoundNBT nbt) {
         sideConfig.deserializeNBT(nbt.getCompound(SIDE_CONFIG_ID));
-        transferRate = nbt.getFloat(TRANSFER_RATE_ID);
+        transferRate = nbt.getDouble(TRANSFER_RATE_ID);
         status = STATUS.values()[nbt.getInt(STATUS_ID)];
         numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         mode = MODE.values()[nbt.getInt(MODE_ID)];
