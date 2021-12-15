@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.4.1] - 2021-12-15
+
+### Fixed
+- minor issue which caused precision loss when loading a meter in a new chunk
+
+
 ## [1.4.0] - 2021-12-08
 
 ### Added
@@ -28,7 +34,7 @@ and this project adheres to [Semantic Versioning].
 - fixed that zero flow rate is not taken into consideration when measuring with interval ([#6])
 
 <!-- Links -->
-[#6]: https://github.com/AlmostReliable/minecraft_energymeter/issues/6
+[#6]: https://github.com/AlmostReliable/energymeter-forge/issues/6
 
 
 ## [1.3.0] - 2021-10-14
@@ -56,8 +62,8 @@ and this project adheres to [Semantic Versioning].
 - fixed item not dropping after breaking the block ([#4], [#5])
 
 <!-- Links -->
-[#4]: https://github.com/AlmostReliable/minecraft_energymeter/issues/4
-[#5]: https://github.com/AlmostReliable/minecraft_energymeter/pull/5
+[#4]: https://github.com/AlmostReliable/energymeter-forge/issues/4
+[#5]: https://github.com/AlmostReliable/energymeter-forge/pull/5
 
 
 ## [1.2.0] - 2021-10-10
@@ -82,7 +88,7 @@ and this project adheres to [Semantic Versioning].
 - fixed a crash when running the mod on a dedicated server ([#3])
 
 <!-- Links -->
-[#3]: https://github.com/AlmostReliable/minecraft_energymeter/issues/3
+[#3]: https://github.com/AlmostReliable/energymeter-forge/issues/3
 
 
 ## [1.1.0] - 2021-10-05
@@ -145,20 +151,22 @@ and this project adheres to [Semantic Versioning].
 ## [1.0.0] - 2021-09-29
 - initial release
 
+
 <!-- Links -->
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.4.0...HEAD
-[1.4.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.3.0..v1.16-1.4.0
-[1.3.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.2.1..v1.16-1.3.0
-[1.2.1]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.2.0..v1.16-1.2.1
-[1.2.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.1.1..v1.16-1.2.0
-[1.1.1]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.1.0..v1.16-1.1.1
-[1.1.0]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.4..v1.16-1.1.0
-[1.0.4]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.3..v1.16-1.0.4
-[1.0.3]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.2..v1.16-1.0.3
-[1.0.2]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.1..v1.16-1.0.2
-[1.0.1]: https://github.com/AlmostReliable/minecraft_energymeter/compare/v1.16-1.0.0..v1.16-1.0.1
-[1.0.0]: https://github.com/AlmostReliable/minecraft_energymeter/releases/tag/v1.16-1.0.0
+[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.1...HEAD
+[1.4.1]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.0..v1.16-1.4.1
+[1.4.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.3.0..v1.16-1.4.0
+[1.3.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.2.1..v1.16-1.3.0
+[1.2.1]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.2.0..v1.16-1.2.1
+[1.2.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.1.1..v1.16-1.2.0
+[1.1.1]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.1.0..v1.16-1.1.1
+[1.1.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.0.4..v1.16-1.1.0
+[1.0.4]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.0.3..v1.16-1.0.4
+[1.0.3]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.0.2..v1.16-1.0.3
+[1.0.2]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.0.1..v1.16-1.0.2
+[1.0.1]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.0.0..v1.16-1.0.1
+[1.0.0]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.16-1.0.0

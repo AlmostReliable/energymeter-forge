@@ -7,7 +7,6 @@ A [Minecraft] mod to easily measure your energy rates.
 [![Total Downloads][total_downloads_badge]][curseforge]
 [![Workflow Status][workflow_status_badge]][workflow_status_link]
 [![License][license_badge]][license]
-[![Style][style_badge]][style_link]
 
 [Discord] | [CurseForge]
 
@@ -90,21 +89,19 @@ This project is licensed under the [MIT license][license].
 
 
 <!-- Badges -->
-[version_badge]: https://img.shields.io/github/v/release/AlmostReliable/minecraft_energymeter?style=flat-square
-[version_link]: https://github.com/AlmostReliable/minecraft_energymeter/releases/latest
+[version_badge]: https://img.shields.io/github/v/release/AlmostReliable/energymeter-forge?style=flat-square
+[version_link]: https://github.com/AlmostReliable/energymeter-forge/releases/latest
 [total_downloads_badge]: http://cf.way2muchnoise.eu/full_532169.svg?badge_style=flat
-[workflow_status_badge]: https://img.shields.io/github/workflow/status/AlmostReliable/minecraft_energymeter/CI?style=flat-square
-[workflow_status_link]: https://github.com/AlmostReliable/minecraft_energymeter/actions
-[license_badge]: https://img.shields.io/github/license/AlmostReliable/minecraft_energymeter?style=flat-square
-[style_badge]: https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square
-[style_link]: https://github.com/prettier/prettier
+[workflow_status_badge]: https://img.shields.io/github/workflow/status/AlmostReliable/energymeter-forge/CI?style=flat-square
+[workflow_status_link]: https://github.com/AlmostReliable/energymeter-forge/actions
+[license_badge]: https://img.shields.io/github/license/AlmostReliable/energymeter-forge?style=flat-square
 
 <!-- Links -->
 [minecraft]: https://www.minecraft.net/
 [discord]: https://discord.com/invite/ThFnwZCyYY
 [curseforge]: https://www.curseforge.com/minecraft/mc-mods/energymeter
 [forge]: http://files.minecraftforge.net/
-[releases]: https://github.com/AlmostReliable/minecraft_energymeter/releases
+[releases]: https://github.com/AlmostReliable/energymeter-forge/releases
 [Energy Meters]: https://www.curseforge.com/minecraft/mc-mods/energy-meters
 [@vladmarica]: https://github.com/vladmarica
 [changelog]: CHANGELOG.md
