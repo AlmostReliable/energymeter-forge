@@ -4,28 +4,42 @@
   "block.energymeter.meter": "Energy Meter",
   "container.energymeter.meter": "Energy Meter",
 
+  "label.energymeter.meter": "Energy Meter",
   "label.energymeter.transfer_rate": "Transfer Rate",
+  "label.energymeter.number": "Number",
   "label.energymeter.status": "Status",
   "label.energymeter.mode": "Mode",
-  "label.energymeter.interval": "Interval",
-  "label.energymeter.consumer": "Consumer",
-  "label.energymeter.transfer": "Transfer",
+  "label.energymeter.accuracy": "Accuracy",
 
   "tooltip.energymeter.side_config": "I/O Configuration",
   "tooltip.energymeter.io_side": "Side",
   "tooltip.energymeter.io_mode": "Mode",
+  "tooltip.energymeter.current": "Current",
+
   "tooltip.energymeter.number": "Number Setting",
+  "tooltip.energymeter.number_desc_1": "Defines if the formatting of the transfer rate should be short or long.",
+  "tooltip.energymeter.number_desc_2": "Only affects the number if it's more than 1.000 FE/t.",
+
   "tooltip.energymeter.mode": "Mode Setting",
+  "tooltip.energymeter.mode_desc_1": "Defines the mode of the Energy Meter.",
+  "tooltip.energymeter.mode_desc_2": "Acts like a normal cable. Energy will be equally distributed and is only limited by the input/output.",
+  "tooltip.energymeter.mode_desc_3": "Acts like a trash can. Incoming energy will be voided. This can be used to measure the maximum incoming energy.",
+
+  "tooltip.energymeter.accuracy": "Accuracy Setting",
+  "tooltip.energymeter.accuracy_desc_1": "Defines the accuracy of the Energy Meter.",
+  "tooltip.energymeter.accuracy_desc_2": "This will display the average rate of the last 5 ticks. It will ignore the last values and update a lot if you have any spikes in your energy rate.",
+  "tooltip.energymeter.accuracy_desc_3": "This will accept a custom amount of ticks and calculate the average. Additionally, it will respect the rate from the previous calculation to prevent spikes. It takes time to be accurate.",
+
   "tooltip.energymeter.interval": "Update Interval",
   "tooltip.energymeter.interval_desc_1": "Defines the amount of ticks (1s = 20 ticks) between each calculation of the transfer rate.",
-  "tooltip.energymeter.interval_desc_2": "Higher values will even out spikes but result in less updates to the number.",
-  "tooltip.energymeter.reset": "Reset Interval",
-  "tooltip.energymeter.reset_desc": "Resets the update interval to the default value.",
+  "tooltip.energymeter.interval_desc_2": "Higher values will even out spikes but result in fewer updates to the number.",
+
   "tooltip.energymeter.action_click": "Click",
-  "tooltip.energymeter.action_1": "to switch mode",
-  "tooltip.energymeter.action_2": "to reset mode",
+  "tooltip.energymeter.action_hold": "Hold",
+  "tooltip.energymeter.action_1": "to switch",
+  "tooltip.energymeter.action_2": "to reset",
   "tooltip.energymeter.action_3": "to toggle",
-  "tooltip.energymeter.action_4": "to reset",
+  "tooltip.energymeter.action_4": "to show extended info",
   "tooltip.energymeter.action_5": "to change interval",
   "tooltip.energymeter.action_6": "to apply interval",
 
@@ -41,8 +55,17 @@
   "io_setting.energymeter.out": "Output",
   "io_setting.energymeter.screen": "Screen",
 
+  "number.energymeter.long": "Long",
+  "number.energymeter.short": "Short",
+
   "status.energymeter.disconnected": "Disconnected",
   "status.energymeter.connected": "Connected",
   "status.energymeter.transferring": "Transferring",
-  "status.energymeter.consuming": "Consuming"
+  "status.energymeter.consuming": "Consuming",
+
+  "mode.energymeter.transfer": "Transfer",
+  "mode.energymeter.consumer": "Consumer",
+
+  "accuracy.energymeter.exact": "Exact",
+  "accuracy.energymeter.interval": "Interval"
 }
