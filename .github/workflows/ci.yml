@@ -12,8 +12,6 @@ on:
       - '1.17'
 
 env:
-  NODE_VERSION: 16.8.0
-  PNPM_VERSION: 6.15.1
   JAVA_VERSION: 16
   JAR_NAME: 'energymeter'
   FILE_NAME: 'EnergyMeter'
@@ -31,31 +29,11 @@ jobs:
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v1.0.3
 
-      - name: Setup NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v2.2.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm Cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-node${{ env.NODE_VERSION }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          run_install: true
-
-      - name: Check Prettier Format
-        run: pnpx pretty-quick --check --verbose
-
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'adopt'
+          distribution: 'zulu'
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
@@ -110,7 +88,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'adopt'
+          distribution: 'zulu'
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
