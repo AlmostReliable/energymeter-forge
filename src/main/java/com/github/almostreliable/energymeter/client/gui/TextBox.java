@@ -80,7 +80,7 @@ public class TextBox extends EditBox {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        boolean clicked = super.mouseClicked(pMouseX, pMouseY, pButton);
+        var clicked = super.mouseClicked(pMouseX, pMouseY, pButton);
         // reset the interval to the default value when shift clicking
         if (clicked && Screen.hasShiftDown()) screen.changeTextBoxValue(MeterEntity.REFRESH_RATE, true);
         return clicked;

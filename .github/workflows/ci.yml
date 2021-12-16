@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - '1.17'
+      - '1.18'
     tags:
-      - 'v1.17-*.*.*'
+      - 'v1.18-*.*.*'
   pull_request:
     branches:
-      - '1.17'
+      - '1.18'
 
 env:
-  JAVA_VERSION: 16
+  JAVA_VERSION: 17
   JAR_NAME: 'energymeter'
   FILE_NAME: 'EnergyMeter'
 

@@ -4,7 +4,7 @@ import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;

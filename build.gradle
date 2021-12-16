@@ -32,7 +32,7 @@ version = "${minecraft_version}-${mod_version}"
 group = "${mod_base_package}.${mod_id}"
 archivesBaseName = mod_id
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
@@ -96,10 +96,12 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3564653") // JEI - 8.3.0.45
-    runtimeOnly fg.deobf("curse.maven:top-245211:3430022") // TOP - 4.0.2
-    runtimeOnly fg.deobf("curse.maven:pipez-443900:3546399") // Pipez - 1.0.9
-    runtimeOnly fg.deobf("curse.maven:solargen-336538:3460172") // Solar Generation - 3.0.1
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3566128") // JEI - 9.1.9.46
+    runtimeOnly fg.deobf("curse.maven:top-245211:3550084") // TOP - 5.0.0
+    runtimeOnly fg.deobf("curse.maven:pipez-443900:3558815") // Pipez - 1.0.0
+    runtimeOnly fg.deobf("curse.maven:solare-381462:3561933") // Solar Energy - 0.4.0.1
+    runtimeOnly fg.deobf("curse.maven:smartijnlib-454372:3544563") // SuperMartijn642's Core Lib - 1.0.15a - Trash Cans Lib
+    runtimeOnly fg.deobf("curse.maven:trash-394535:3565584") // Trash Cans - 1.0.11
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.

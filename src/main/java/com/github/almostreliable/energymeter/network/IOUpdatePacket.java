@@ -6,7 +6,7 @@ import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
 import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;

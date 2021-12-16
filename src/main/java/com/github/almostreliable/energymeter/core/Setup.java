@@ -13,13 +13,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplier;
 import net.minecraft.world.level.block.entity.BlockEntityType.Builder;
-import net.minecraftforge.common.extensions.IForgeContainerType;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fmllegacy.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.registries.*;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -72,7 +68,7 @@ public enum Setup {
         private static <C extends MeterContainer> RegistryObject<MenuType<C>> register(
             String id, BiFunction<? super MeterEntity, ? super Integer, ? extends C> constructor
         ) {
-            return REGISTRY.register(id, () -> IForgeContainerType.create((containerID, inventory, data) -> {
+            return REGISTRY.register(id, () -> IForgeMenuType.create((containerID, inventory, data) -> {
                 var entity = (MeterEntity) inventory.player.level.getBlockEntity(data.readBlockPos());
                 return constructor.apply(entity, containerID);
             }));

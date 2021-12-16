@@ -16,6 +16,12 @@
       <option name="JD_KEEP_INVALID_TAGS" value="false" />
       <option name="JD_DO_NOT_WRAP_ONE_LINE_COMMENTS" value="true" />
     </JavaCodeStyleSettings>
+    <Markdown>
+      <option name="MAX_LINES_AROUND_HEADER" value="0" />
+      <option name="MIN_LINES_AROUND_HEADER" value="2" />
+      <option name="MAX_LINES_AROUND_BLOCK_ELEMENTS" value="0" />
+      <option name="MAX_LINES_BETWEEN_PARAGRAPHS" value="0" />
+    </Markdown>
     <Properties>
       <option name="SPACES_AROUND_KEY_VALUE_DELIMITER" value="true" />
       <option name="KEEP_BLANK_LINES" value="true" />
