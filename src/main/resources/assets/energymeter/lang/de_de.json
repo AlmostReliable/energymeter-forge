@@ -5,7 +5,7 @@
   "container.energymeter.meter": "Energiemesser",
 
   "label.energymeter.meter": "Energiemesser",
-  "label.energymeter.transfer_rate": "Transferrate",
+  "label.energymeter.transfer_rate": "Übertragungsrate",
   "label.energymeter.number": "Nummer",
   "label.energymeter.status": "Status",
   "label.energymeter.mode": "Modus",
@@ -17,7 +17,7 @@
   "tooltip.energymeter.current": "Derzeit",
 
   "tooltip.energymeter.number": "Nummer-Einstellung",
-  "tooltip.energymeter.number_desc_1": "Legt fest, ob das Format der Transferrate kurz oder lang sein soll.",
+  "tooltip.energymeter.number_desc_1": "Legt fest, ob das Format der Übertragungsrate kurz oder lang sein soll.",
   "tooltip.energymeter.number_desc_2": "Betrifft nur Raten, die über 1.000 FE/t sind.",
 
   "tooltip.energymeter.mode": "Modus-Einstellung",
@@ -27,12 +27,12 @@
 
   "tooltip.energymeter.accuracy": "Genauigkeit-Einstellung",
   "tooltip.energymeter.accuracy_desc_1": "Legt die Genauigkeit des Energiemessers fest.",
-  "tooltip.energymeter.accuracy_desc_2": "Dies zeigt die Durchschnittsrate der letzten 5 Ticks. Der Modus ignoriert die letzten Werte und aktualisiert häufig, wenn man Spitzen hat.",
-  "tooltip.energymeter.accuracy_desc_3": "Dies akzeptiert eine benutzerdefinierte Anzahl an Ticks und berechnet den Durchschnitt. Zusätzlich wird der vorherige Wert mit einkalkuliert um Spitzen zu verhindern. Es wird Zeit für Genauigkeit benötigt.",
+  "tooltip.energymeter.accuracy_desc_2": "Zeigt die Durchschnittsrate der letzten 5 Ticks. In jedem Zeitraum werden vorherige Werte verworfen und nur die aktuelle Periode wird gezeigt, was zu Ausschlägen führen kann, wenn die Energie nicht gleichmäßig fließt.",
+  "tooltip.energymeter.accuracy_desc_3": "Akzeptiert eine benutzerdefinierte Tickzahl und berechnet den Durchschnitt dieses Zeitraums. Weiterhin wird die Rate des vorherigen Durchgangs berücksichtigt, wodurch Ausschläge geglättet und die Genauigkeit über mehrere Zyklen verbessert werden kann.",
 
   "tooltip.energymeter.interval": "Aktualisierungsintervall",
-  "tooltip.energymeter.interval_desc_1": "Gibt die Anzahl der Ticks (1s = 20 ticks) an, zwischen denen die Transferrate neu berechnet wird.",
-  "tooltip.energymeter.interval_desc_2": "Höhere Werte werden Abweichungen ausgleichen aber zu selteneren Aktualisierungen führen",
+  "tooltip.energymeter.interval_desc_1": "Definiert die Anzahl der Ticks (1s = 20 ticks) zwischen jeder Berechnung der Übertragungsrate.",
+  "tooltip.energymeter.interval_desc_2": "Höhere Werte gleichen Ausschläge aus, führen aber zu einer langsameren Aktualisierung der Anzeige.",
 
   "tooltip.energymeter.action_click": "Klicke",
   "tooltip.energymeter.action_hold": "Halte",
