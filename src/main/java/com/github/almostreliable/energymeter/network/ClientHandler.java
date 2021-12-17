@@ -27,6 +27,7 @@ enum ClientHandler {
             if ((packet.getFlags() & SYNC_FLAGS.MODE) != 0) tile.setMode(packet.getMode());
             if ((packet.getFlags() & SYNC_FLAGS.ACCURACY) != 0) tile.setAccuracy(packet.getAccuracy());
             if ((packet.getFlags() & SYNC_FLAGS.INTERVAL) != 0) tile.setInterval(packet.getInterval());
+            if ((packet.getFlags() & SYNC_FLAGS.THRESHOLD) != 0) tile.setThreshold(packet.getThreshold());
         }
     }
 }

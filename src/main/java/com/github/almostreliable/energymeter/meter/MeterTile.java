@@ -40,7 +40,6 @@ import static com.github.almostreliable.energymeter.core.Constants.*;
 public class MeterTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, IMeter {
 
     public static final int REFRESH_RATE = 5;
-    private static final long THRESHOLD_LIMIT = 10;
     private final EnumMap<Direction, LazyOptional<IEnergyStorage>> outputCache = new EnumMap<>(Direction.class);
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
@@ -55,7 +54,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private MODE mode = MODE.TRANSFER;
     private ACCURACY accuracy = ACCURACY.EXACT;
     private int interval = REFRESH_RATE;
-    private double threshold;
+    private int threshold = REFRESH_RATE;
+    private double zeroThreshold;
 
     @SuppressWarnings("ThisEscapedInObjectConstruction")
     public MeterTile(BlockState state) {
@@ -70,6 +70,14 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
 
     public void setInterval(int interval) {
         this.interval = interval;
+    }
+
+    public int getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(int threshold) {
+        this.threshold = threshold;
     }
 
     public double getTransferRate() {
@@ -155,7 +163,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             status,
             mode,
             accuracy,
-            interval
+            interval,
+            threshold
         );
         PacketHandler.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
             packet
@@ -165,17 +174,12 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     @Override
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
-        if (nbt.contains(SIDE_CONFIG_ID)) {
-            sideConfig.deserializeNBT(nbt.getCompound(SIDE_CONFIG_ID));
-        }
-        if (nbt.contains(NUMBER_MODE_ID)) {
-            numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
-        }
+        if (nbt.contains(SIDE_CONFIG_ID)) sideConfig.deserializeNBT(nbt.getCompound(SIDE_CONFIG_ID));
+        if (nbt.contains(NUMBER_MODE_ID)) numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         if (nbt.contains(MODE_ID)) mode = MODE.values()[nbt.getInt(MODE_ID)];
+        if (nbt.contains(ACCURACY_ID)) accuracy = ACCURACY.values()[nbt.getInt(ACCURACY_ID)];
         if (nbt.contains(INTERVAL_ID)) interval = nbt.getInt(INTERVAL_ID);
-        if (nbt.contains(ACCURACY_ID)) {
-            accuracy = ACCURACY.values()[nbt.getInt(ACCURACY_ID)];
-        }
+        if (nbt.contains(THRESHOLD_ID)) threshold = nbt.getInt(THRESHOLD_ID);
     }
 
     @Override
@@ -183,8 +187,9 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         nbt.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         nbt.putInt(MODE_ID, mode.ordinal());
-        nbt.putInt(INTERVAL_ID, interval);
         nbt.putInt(ACCURACY_ID, accuracy.ordinal());
+        nbt.putInt(INTERVAL_ID, interval);
+        nbt.putInt(THRESHOLD_ID, threshold);
         return super.save(nbt);
     }
 
@@ -196,8 +201,9 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         nbt.putInt(STATUS_ID, status.ordinal());
         nbt.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         nbt.putInt(MODE_ID, mode.ordinal());
-        nbt.putInt(INTERVAL_ID, interval);
         nbt.putInt(ACCURACY_ID, accuracy.ordinal());
+        nbt.putInt(INTERVAL_ID, interval);
+        nbt.putInt(THRESHOLD_ID, threshold);
         return nbt;
     }
 
@@ -208,8 +214,9 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         status = STATUS.values()[nbt.getInt(STATUS_ID)];
         numberMode = NUMBER_MODE.values()[nbt.getInt(NUMBER_MODE_ID)];
         mode = MODE.values()[nbt.getInt(MODE_ID)];
-        interval = nbt.getInt(INTERVAL_ID);
         accuracy = ACCURACY.values()[nbt.getInt(ACCURACY_ID)];
+        interval = nbt.getInt(INTERVAL_ID);
+        threshold = nbt.getInt(THRESHOLD_ID);
     }
 
     @Override
@@ -421,7 +428,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     private boolean thresholdReached() {
-        return energyRates.size() > THRESHOLD_LIMIT && threshold == 0;
+        return energyRates.size() * REFRESH_RATE >= threshold && zeroThreshold == 0;
     }
 
     private boolean intervalReached() {
@@ -497,8 +504,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     private void calculateThreshold() {
-        long skips = Math.max(0, energyRates.size() - THRESHOLD_LIMIT);
-        threshold = energyRates.stream().skip(skips).reduce(0.0, Double::sum);
+        long skips = Math.max(0, energyRates.size() * REFRESH_RATE - threshold);
+        zeroThreshold = energyRates.stream().skip(skips).reduce(0.0, Double::sum);
     }
 
     /**

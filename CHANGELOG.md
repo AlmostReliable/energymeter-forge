@@ -9,16 +9,36 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.5.0] - 2021-12-17
+
+### Added
+- added threshold modification
+  - this value defines the duration how long a zero transferrate is tolerated before it's reset to zero
+  - this can be used for power setups where a lot of the time no energy is transferred
+  - the threshold can't exceed the interval because it wouldn't have any effect
+- added some more ways to properly sync the text box values when special keys are used
+
+### Changed
+- moved the text boxes below the main UI
+- both text boxes are only visible in interval mode
+- improved German translation
+- improved English translation
+- improved performance when rendering tooltips
+
+### Fixed
+- fixed a rendering bug where UI elements were not visible through tooltips or overlapped
+
+
 ## [1.4.1] - 2021-12-15
 
 ### Fixed
-- minor issue which caused precision loss when loading a meter in a new chunk
+- fixed minor issue which caused precision loss when loading a meter in a new chunk
 
 
 ## [1.4.0] - 2021-12-08
 
 ### Added
-- accuracy mode ([#6])
+- added accuracy mode ([#6])
   - you can now switch between two modes
   - exact: will work as the previous version and refresh the rate every 5 seconds
   - interval: will respect your custom interval and calculate the average within that interval
@@ -157,7 +177,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.1...HEAD
+[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.5.0...HEAD
+[1.5.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.1..v1.16-1.5.0
 [1.4.1]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.0..v1.16-1.4.1
 [1.4.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.3.0..v1.16-1.4.0
 [1.3.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.2.1..v1.16-1.3.0

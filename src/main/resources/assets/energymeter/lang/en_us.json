@@ -10,6 +10,8 @@
   "label.energymeter.status": "Status",
   "label.energymeter.mode": "Mode",
   "label.energymeter.accuracy": "Accuracy",
+  "label.energymeter.interval": "I",
+  "label.energymeter.threshold": "T",
 
   "tooltip.energymeter.side_config": "I/O Configuration",
   "tooltip.energymeter.io_side": "Side",
@@ -27,12 +29,16 @@
 
   "tooltip.energymeter.accuracy": "Accuracy Setting",
   "tooltip.energymeter.accuracy_desc_1": "Defines the accuracy of the Energy Meter.",
-  "tooltip.energymeter.accuracy_desc_2": "This will display the average rate of the last 5 ticks. It will ignore the last values and update a lot if you have any spikes in your energy rate.",
-  "tooltip.energymeter.accuracy_desc_3": "This will accept a custom amount of ticks and calculate the average. Additionally, it will respect the rate from the previous calculation to prevent spikes. It takes time to be accurate.",
+  "tooltip.energymeter.accuracy_desc_2": "Displays the average rate over the last 5 ticks. Each period, it will discard previous values and show only the current period, leading to spikes if energy is flowing inconsistently.",
+  "tooltip.energymeter.accuracy_desc_3": "Accepts a custom tick interval and calculates the average over that period. Additionally, it will factor in the rate from the previous period, smoothing out spikes and improving accuracy over multiple cycles.",
 
   "tooltip.energymeter.interval": "Update Interval",
-  "tooltip.energymeter.interval_desc_1": "Defines the amount of ticks (1s = 20 ticks) between each calculation of the transfer rate.",
-  "tooltip.energymeter.interval_desc_2": "Higher values will even out spikes but result in fewer updates to the number.",
+  "tooltip.energymeter.interval_desc_1": "Defines the number of ticks (1s = 20 ticks) between each calculation of the transfer rate.",
+  "tooltip.energymeter.interval_desc_2": "Higher values will even out spikes but result in slower updates on the display.",
+
+  "tooltip.energymeter.threshold": "Zero Threshold",
+  "tooltip.energymeter.threshold_desc_1": "Defines the reset threshold in ticks (1s = 20 ticks). If no energy is received during this period, metering resets to zero.",
+  "tooltip.energymeter.threshold_desc_2": "Lower values will detect energy loss quicker. The value cannot be higher than the interval, as this would be of no use.",
 
   "tooltip.energymeter.action_click": "Click",
   "tooltip.energymeter.action_hold": "Hold",
