@@ -10,6 +10,8 @@
   "label.energymeter.status": "Status",
   "label.energymeter.mode": "Modus",
   "label.energymeter.accuracy": "Genauigkeit",
+  "label.energymeter.interval": "I",
+  "label.energymeter.threshold": "S",
 
   "tooltip.energymeter.side_config": "I/O-Konfiguration",
   "tooltip.energymeter.io_side": "Seite",
@@ -33,6 +35,10 @@
   "tooltip.energymeter.interval": "Aktualisierungsintervall",
   "tooltip.energymeter.interval_desc_1": "Definiert die Anzahl der Ticks (1s = 20 ticks) zwischen jeder Berechnung der Übertragungsrate.",
   "tooltip.energymeter.interval_desc_2": "Höhere Werte gleichen Ausschläge aus, führen aber zu einer langsameren Aktualisierung der Anzeige.",
+
+  "tooltip.energymeter.threshold": "Null-Schwellwert",
+  "tooltip.energymeter.threshold_desc_1": "Definiert die Rücksetzschwelle in Ticks (1s = 20 ticks). Wenn in dem Zeitraum keine Energie empfangen wird, wird die Messung auf Null zurückgesetzt.",
+  "tooltip.energymeter.threshold_desc_2": "Bei niedrigeren Werten wird der Energieverlust schneller erkannt. Der Wert kann nicht höher als der Intervall sein, da dies keinen Nutzen hätte.",
 
   "tooltip.energymeter.action_click": "Klicke",
   "tooltip.energymeter.action_hold": "Halte",

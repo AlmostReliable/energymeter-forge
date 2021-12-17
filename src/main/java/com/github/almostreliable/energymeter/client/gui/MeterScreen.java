@@ -1,9 +1,6 @@
 package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.meter.MeterContainer;
-import com.github.almostreliable.energymeter.meter.MeterTile;
-import com.github.almostreliable.energymeter.network.IntervalUpdatePacket;
-import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
 import com.github.almostreliable.energymeter.util.TextUtils;
@@ -18,6 +15,9 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import static com.github.almostreliable.energymeter.core.Constants.*;
 
 public class MeterScreen extends ContainerScreen<MeterContainer> {
@@ -25,15 +25,16 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(MOD_ID, "textures/gui/meter.png");
     private static final int TEXTURE_WIDTH = 199;
     private static final int TEXTURE_HEIGHT = 129;
-    private final Tooltip tooltip;
-    private TextBox textBox;
+    private static final Tooltip TOOLTIP = setupTooltip();
+    private final Collection<Widget> renderables = new ArrayList<>();
+    private IntervalBox intervalBox;
+    private ThresholdBox thresholdBox;
 
     @SuppressWarnings("AssignmentToSuperclassField")
     public MeterScreen(MeterContainer container, PlayerInventory inventory, ITextComponent name) {
         super(container, inventory, name);
         imageWidth = TEXTURE_WIDTH;
         imageHeight = TEXTURE_HEIGHT;
-        tooltip = setupTooltip();
     }
 
     private static Tooltip setupTooltip() {
@@ -55,56 +56,51 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
                 .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, TextFormatting.WHITE)));
     }
 
-    /**
-     * Checks if the current value of the text box is valid and syncs it if it changed.
-     * <p>
-     * Will replace the text with the previous value if invalid.
-     */
-    void validateTextBox() {
-        int oldValue = menu.getTile().getInterval();
-        int value;
-        try {
-            value = Integer.parseInt(textBox.getValue());
-        } catch (NumberFormatException e) {
-            changeTextBoxValue(oldValue, false);
-            return;
-        }
-
-        if (value != oldValue) changeTextBoxValue(value, true);
+    IntervalBox getIntervalBox() {
+        return intervalBox;
     }
 
-    /**
-     * Changes the text of the text box to the specified integer.
-     * Automatically replaces the specified value with the minimum amount if it's lower.
-     * <p>
-     * When a true boolean is passed, the new value will be synced to the server.
-     *
-     * @param value the value to place in the text box
-     * @param sync  whether the value should be synced to the server
-     */
-    void changeTextBoxValue(int value, boolean sync) {
-        textBox.setValue(String.valueOf(Math.max(value, MeterTile.REFRESH_RATE)));
-        if (sync) PacketHandler.CHANNEL.sendToServer(new IntervalUpdatePacket(Math.max(value, MeterTile.REFRESH_RATE)));
+    ThresholdBox getThresholdBox() {
+        return thresholdBox;
     }
 
     @Override
     protected void init() {
         super.init();
+        // interval box
+        intervalBox = new IntervalBox(this, font, leftPos + 18, topPos + imageHeight + 5, 42, 8);
+        addRenderable(intervalBox);
+        // threshold box
+        thresholdBox = new ThresholdBox(this, font, leftPos + 81, topPos + imageHeight + 5, 42, 8);
+        addRenderable(thresholdBox);
         // clickable buttons
-        addButtons(IOButton.create(this, BLOCK_SIDE.values()));
-        addButton(new SettingButton(this, 136, 64, SETTING.NUMBER));
-        addButton(new SettingButton(this, 136, 86, SETTING.MODE));
-        addButton(new SettingButton(this, 136, 108, SETTING.ACCURACY));
-        // text box
-        textBox = new TextBox(this, font, leftPos + 75, topPos + 109, 42, 8);
-        addWidget(textBox);
+        addRenderables(IOButton.create(this, BLOCK_SIDE.values()));
+        addRenderable(new SettingButton(this, 136, 64, SETTING.NUMBER));
+        addRenderable(new SettingButton(this, 136, 86, SETTING.MODE));
+        addRenderable(new SettingButton(this, 136, 108, SETTING.ACCURACY));
+    }
+
+    private void addRenderable(Widget widget) {
+        addButton(widget);
+        renderables.add(widget);
+    }
+
+    /**
+     * Convenience method to add multiple buttons at once.
+     *
+     * @param widgets the list of buttons to add
+     * @param <T>     the button class
+     */
+    private <T extends Widget> void addRenderables(Iterable<T> widgets) {
+        for (T widget : widgets) {
+            addRenderable(widget);
+        }
     }
 
     @Override
     public void render(MatrixStack matrix, int mX, int mY, float partial) {
         renderBackground(matrix);
         super.render(matrix, mX, mY, partial);
-        if (menu.getTile().getAccuracy() == ACCURACY.INTERVAL) textBox.render(matrix, mX, mY, partial);
         renderTooltip(matrix, mX, mY);
     }
 
@@ -112,8 +108,14 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
     protected void renderTooltip(MatrixStack matrix, int mX, int mY) {
         // front screen tooltip
         if (isWithinRegion(mX, mY, 159, 16, 23, 16)) {
-            renderComponentTooltip(matrix, tooltip.resolve(), mX, mY);
+            renderComponentTooltip(matrix, TOOLTIP.resolve(), mX, mY);
             return;
+        }
+        // widget tooltips
+        for (Widget widget : renderables) {
+            if (widget.isHovered() && widget.visible) {
+                widget.renderToolTip(matrix, mX, mY);
+            }
         }
         super.renderTooltip(matrix, mX, mY);
     }
@@ -260,17 +262,5 @@ public class MeterScreen extends ContainerScreen<MeterContainer> {
     @SuppressWarnings("SameParameterValue")
     private boolean isWithinRegion(int mX, int mY, int pX, int width, int pY, int height) {
         return mX >= leftPos + pX && mX <= leftPos + pX + width && mY >= topPos + pY && mY <= topPos + pY + height;
-    }
-
-    /**
-     * Convenience method to add multiple buttons at once.
-     *
-     * @param multipleButtons the list of buttons to add
-     * @param <T>             the button class
-     */
-    private <T extends Widget> void addButtons(Iterable<T> multipleButtons) {
-        for (T button : multipleButtons) {
-            addButton(button);
-        }
     }
 }

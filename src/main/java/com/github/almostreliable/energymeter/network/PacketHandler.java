@@ -45,10 +45,10 @@ public enum PacketHandler {
             .add();
 
         CHANNEL
-            .messageBuilder(IntervalUpdatePacket.class, ++id, NetworkDirection.PLAY_TO_SERVER)
-            .decoder(IntervalUpdatePacket::decode)
-            .encoder(IntervalUpdatePacket::encode)
-            .consumer(IntervalUpdatePacket::handle)
+            .messageBuilder(AccuracyUpdatePacket.class, ++id, NetworkDirection.PLAY_TO_SERVER)
+            .decoder(AccuracyUpdatePacket::decode)
+            .encoder(AccuracyUpdatePacket::encode)
+            .consumer(AccuracyUpdatePacket::handle)
             .add();
     }
 }

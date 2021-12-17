@@ -3,7 +3,6 @@ package com.github.almostreliable.energymeter.client.gui;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -43,9 +42,6 @@ public abstract class GenericButton extends Button {
 
     @Override
     public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        // background texture
         Minecraft
             .getInstance()
             .getTextureManager()

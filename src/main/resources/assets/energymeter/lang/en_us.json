@@ -10,6 +10,8 @@
   "label.energymeter.status": "Status",
   "label.energymeter.mode": "Mode",
   "label.energymeter.accuracy": "Accuracy",
+  "label.energymeter.interval": "I",
+  "label.energymeter.threshold": "T",
 
   "tooltip.energymeter.side_config": "I/O Configuration",
   "tooltip.energymeter.io_side": "Side",
@@ -33,6 +35,10 @@
   "tooltip.energymeter.interval": "Update Interval",
   "tooltip.energymeter.interval_desc_1": "Defines the number of ticks (1s = 20 ticks) between each calculation of the transfer rate.",
   "tooltip.energymeter.interval_desc_2": "Higher values will even out spikes but result in slower updates on the display.",
+
+  "tooltip.energymeter.threshold": "Zero Threshold",
+  "tooltip.energymeter.threshold_desc_1": "Defines the reset threshold in ticks (1s = 20 ticks). If no energy is received during this period, metering resets to zero.",
+  "tooltip.energymeter.threshold_desc_2": "Lower values will detect energy loss quicker. The value cannot be higher than the interval, as this would be of no use.",
 
   "tooltip.energymeter.action_click": "Click",
   "tooltip.energymeter.action_hold": "Hold",

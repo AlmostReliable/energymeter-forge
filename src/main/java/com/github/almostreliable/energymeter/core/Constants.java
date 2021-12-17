@@ -25,6 +25,7 @@ public enum Constants {
     public static final String IO_MODE_ID = "io_mode";
     public static final String IO_SCREEN_ID = "screen";
     public static final String INTERVAL_ID = "interval";
+    public static final String THRESHOLD_ID = "threshold";
 
     /**
      * Decimal color values to ensure consistent color values.
@@ -58,5 +59,6 @@ public enum Constants {
         public static final int MODE = 1 << 4;
         public static final int ACCURACY = 1 << 5;
         public static final int INTERVAL = 1 << 6;
+        public static final int THRESHOLD = 1 << 7;
     }
 }
