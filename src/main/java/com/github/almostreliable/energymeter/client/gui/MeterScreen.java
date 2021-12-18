@@ -1,7 +1,5 @@
 package com.github.almostreliable.energymeter.client.gui;
 
-import com.github.almostreliable.energymeter.core.Constants;
-import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
@@ -19,9 +17,11 @@ import net.minecraft.world.entity.player.Inventory;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.github.almostreliable.energymeter.core.Constants.*;
+
 public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/gui/meter.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(MOD_ID, "textures/gui/meter.png");
     private static final int TEXTURE_WIDTH = 199;
     private static final int TEXTURE_HEIGHT = 129;
     private static final Tooltip TOOLTIP = setupTooltip();
@@ -39,20 +39,20 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     private static Tooltip setupTooltip() {
         return Tooltip.builder()
             // header
-            .addHeader(Constants.SIDE_CONFIG_ID)
+            .addHeader(SIDE_CONFIG_ID)
             .addBlankLine()
             // screen info
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, Constants.IO_SIDE_ID, ChatFormatting.GREEN)
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE,
                     BLOCK_SIDE.FRONT.toString().toLowerCase(),
                     ChatFormatting.WHITE
                 )))
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, Constants.IO_MODE_ID, ChatFormatting.GREEN)
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
-                .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, Constants.IO_SCREEN_ID, ChatFormatting.WHITE)));
+                .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, ChatFormatting.WHITE)));
     }
 
     IntervalBox getIntervalBox() {
@@ -85,9 +85,9 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     }
 
     /**
-     * Convenience method to addComponent multiple widgets at once.
+     * Convenience method to add multiple widgets at once.
      *
-     * @param widgets the list of widgets to addComponent
+     * @param widgets the list of widgets to add
      */
     private void addRenderables(Iterable<? extends AbstractWidget> widgets) {
         for (var widget : widgets) {
@@ -125,7 +125,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
             11,
             9,
             1.3f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, Constants.METER_ID),
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, METER_ID),
             UI_COLORS.WHITE
         );
 
@@ -134,7 +134,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
             11,
             26,
             1.1f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, Constants.TRANSFER_RATE_ID) + ':',
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, TRANSFER_RATE_ID) + ':',
             UI_COLORS.GRAY
         );
         var formattedFlow = TextUtils.formatEnergy(menu.getEntity().getTransferRate(),
@@ -153,7 +153,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
             11,
             50,
             1.1f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, Constants.STATUS_ID) + ':',
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, STATUS_ID) + ':',
             UI_COLORS.GRAY
         );
         GuiUtils.renderText(stack,
@@ -169,7 +169,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
             11,
             74,
             1.1f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, Constants.MODE_ID) + ':',
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, MODE_ID) + ':',
             UI_COLORS.GRAY
         );
         GuiUtils.renderText(stack,
@@ -185,7 +185,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
             11,
             98,
             1.1f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, Constants.ACCURACY_ID) + ':',
+            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, ACCURACY_ID) + ':',
             UI_COLORS.GRAY
         );
         GuiUtils.renderText(stack,
