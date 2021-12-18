@@ -83,7 +83,7 @@ abstract class GenericTextBox extends EditBox {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        boolean clicked = super.mouseClicked(pMouseX, pMouseY, pButton);
+        var clicked = super.mouseClicked(pMouseX, pMouseY, pButton);
         // reset the interval to the default value when shift clicking
         if (clicked && Screen.hasShiftDown()) {
             reset();
@@ -108,8 +108,8 @@ abstract class GenericTextBox extends EditBox {
     @Override
     public void renderButton(PoseStack stack, int mX, int mY, float partial) {
         if (screen.getMenu().getEntity().getAccuracy() == ACCURACY.EXACT) return;
-        String label = TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, identifier.toString().toLowerCase()) + ":";
-        int labelWidth = font.width(label);
+        var label = TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, identifier.toString().toLowerCase()) + ":";
+        var labelWidth = font.width(label);
         // expand the tooltip range to the text box
         isHovered = mX >= x - 4 - labelWidth && mY >= y - 3 && mX < x + width + 3 && mY < y + height + 3;
         // render small identifier label in front of the box
@@ -133,7 +133,7 @@ abstract class GenericTextBox extends EditBox {
      * Will replace the text with the previous value if invalid.
      */
     void validateTextBox() {
-        int oldValue = getOldValue();
+        var oldValue = getOldValue();
         int value;
         try {
             value = Integer.parseInt(getValue());

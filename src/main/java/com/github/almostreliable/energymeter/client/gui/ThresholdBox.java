@@ -2,7 +2,6 @@ package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.meter.MeterEntity;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
-import com.github.almostreliable.energymeter.util.TypeEnums;
 import com.github.almostreliable.energymeter.util.TypeEnums.TEXT_BOX;
 import net.minecraft.client.gui.Font;
 
