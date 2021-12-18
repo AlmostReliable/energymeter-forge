@@ -3,9 +3,6 @@ package com.github.almostreliable.energymeter.client.gui;
 import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
-import com.github.almostreliable.energymeter.meter.MeterEntity;
-import com.github.almostreliable.energymeter.network.IntervalUpdatePacket;
-import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
 import com.github.almostreliable.energymeter.util.TextUtils;
@@ -13,26 +10,30 @@ import com.github.almostreliable.energymeter.util.TypeEnums.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/gui/meter.png");
     private static final int TEXTURE_WIDTH = 199;
     private static final int TEXTURE_HEIGHT = 129;
-    private final Tooltip tooltip;
-    private TextBox textBox;
+    private static final Tooltip TOOLTIP = setupTooltip();
+    private final Collection<AbstractWidget> renderables = new ArrayList<>();
+    private IntervalBox intervalBox;
+    private ThresholdBox thresholdBox;
 
     @SuppressWarnings("AssignmentToSuperclassField")
     public MeterScreen(MeterContainer container, Inventory inventory, Component name) {
         super(container, inventory, name);
         imageWidth = TEXTURE_WIDTH;
         imageHeight = TEXTURE_HEIGHT;
-        tooltip = setupTooltip();
     }
 
     private static Tooltip setupTooltip() {
@@ -54,58 +55,50 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
                 .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, Constants.IO_SCREEN_ID, ChatFormatting.WHITE)));
     }
 
-    /**
-     * Checks if the current value of the text box is valid and syncs it if it changed.
-     * <p>
-     * Will replace the text with the previous value if invalid.
-     */
-    void validateTextBox() {
-        var oldValue = menu.getEntity().getInterval();
-        int value;
-        try {
-            value = Integer.parseInt(textBox.getValue());
-        } catch (NumberFormatException e) {
-            changeTextBoxValue(oldValue, false);
-            return;
-        }
-
-        if (value != oldValue) changeTextBoxValue(value, true);
+    IntervalBox getIntervalBox() {
+        return intervalBox;
     }
 
-    /**
-     * Changes the text of the text box to the specified integer.
-     * Automatically replaces the specified value with the minimum amount if it's lower.
-     * <p>
-     * When a true boolean is passed, the new value will be synced to the server.
-     *
-     * @param value the value to place in the text box
-     * @param sync  whether the value should be synced to the server
-     */
-    void changeTextBoxValue(int value, boolean sync) {
-        textBox.setValue(String.valueOf(Math.max(value, MeterEntity.REFRESH_RATE)));
-        if (sync) {
-            PacketHandler.CHANNEL.sendToServer(new IntervalUpdatePacket(Math.max(value, MeterEntity.REFRESH_RATE)));
-        }
+    ThresholdBox getThresholdBox() {
+        return thresholdBox;
     }
 
     @Override
     protected void init() {
         super.init();
+        // interval box
+        intervalBox = new IntervalBox(this, font, leftPos + 18, topPos + imageHeight + 5, 42, 8);
+        addRenderable(intervalBox);
+        // threshold box
+        thresholdBox = new ThresholdBox(this, font, leftPos + 81, topPos + imageHeight + 5, 42, 8);
+        addRenderable(thresholdBox);
         // clickable buttons
-        addRenderableWidgets(IOButton.create(this, BLOCK_SIDE.values()));
-        addRenderableWidget(new SettingButton(this, 136, 64, SETTING.NUMBER));
-        addRenderableWidget(new SettingButton(this, 136, 86, SETTING.MODE));
-        addRenderableWidget(new SettingButton(this, 136, 108, SETTING.ACCURACY));
-        // text box
-        textBox = new TextBox(this, font, leftPos + 75, topPos + 109, 42, 8);
-        addWidget(textBox);
+        addRenderables(IOButton.create(this, BLOCK_SIDE.values()));
+        addRenderable(new SettingButton(this, 136, 64, SETTING.NUMBER));
+        addRenderable(new SettingButton(this, 136, 86, SETTING.MODE));
+        addRenderable(new SettingButton(this, 136, 108, SETTING.ACCURACY));
+    }
+
+    private void addRenderable(AbstractWidget widget) {
+        addRenderableWidget(widget);
+        renderables.add(widget);
+    }
+
+    /**
+     * Convenience method to addComponent multiple widgets at once.
+     *
+     * @param widgets the list of widgets to addComponent
+     */
+    private void addRenderables(Iterable<? extends AbstractWidget> widgets) {
+        for (var widget : widgets) {
+            addRenderableWidget(widget);
+        }
     }
 
     @Override
     public void render(PoseStack stack, int mX, int mY, float partial) {
         renderBackground(stack);
         super.render(stack, mX, mY, partial);
-        if (menu.getEntity().getAccuracy() == ACCURACY.INTERVAL) textBox.render(stack, mX, mY, partial);
         renderTooltip(stack, mX, mY);
     }
 
@@ -113,8 +106,14 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     protected void renderTooltip(PoseStack stack, int mX, int mY) {
         // front screen tooltip
         if (isWithinRegion(mX, mY, 159, 16, 23, 16)) {
-            renderComponentTooltip(stack, tooltip.resolve(), mX, mY);
+            renderComponentTooltip(stack, TOOLTIP.resolve(), mX, mY);
             return;
+        }
+        // widget tooltips
+        for (var widget : renderables) {
+            if (widget.isHoveredOrFocused() && widget.visible) {
+                widget.renderToolTip(stack, mX, mY);
+            }
         }
         super.renderTooltip(stack, mX, mY);
     }
@@ -254,17 +253,5 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     @SuppressWarnings("SameParameterValue")
     private boolean isWithinRegion(int mX, int mY, int pX, int width, int pY, int height) {
         return mX >= leftPos + pX && mX <= leftPos + pX + width && mY >= topPos + pY && mY <= topPos + pY + height;
-    }
-
-    /**
-     * Convenience method to addComponent multiple widgets at once.
-     *
-     * @param widgets the list of widgets to addComponent
-     * @param <W>     the button class
-     */
-    private <W extends Button> void addRenderableWidgets(Iterable<W> widgets) {
-        for (var widget : widgets) {
-            addRenderableWidget(widget);
-        }
     }
 }

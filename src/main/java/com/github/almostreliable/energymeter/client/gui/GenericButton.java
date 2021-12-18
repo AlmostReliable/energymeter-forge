@@ -42,8 +42,6 @@ public abstract class GenericButton extends Button {
 
     @Override
     public void renderButton(PoseStack stack, int mX, int mY, float partial) {
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
         // background texture
         RenderSystem.setShaderTexture(0, TextUtils.getRL("textures/gui/buttons/" + getTexture() + ".png"));
         // button texture

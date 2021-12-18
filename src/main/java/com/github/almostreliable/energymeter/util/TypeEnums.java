@@ -59,4 +59,11 @@ public final class TypeEnums {
     public enum ACCURACY {
         EXACT, INTERVAL
     }
+
+    /**
+     * Enum to represent the different types of text boxes.
+     */
+    public enum TEXT_BOX {
+        INTERVAL, THRESHOLD
+    }
 }

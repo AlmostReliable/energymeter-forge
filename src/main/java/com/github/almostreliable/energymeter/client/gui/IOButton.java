@@ -104,8 +104,6 @@ public final class IOButton extends GenericButton {
         super.renderButton(stack, mX, mY, partial);
         // io overlay
         renderIOOverlay(stack);
-        // tooltips
-        if (isHovered) renderToolTip(stack, mX, mY);
     }
 
     @Override
