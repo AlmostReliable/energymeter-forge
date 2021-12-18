@@ -78,7 +78,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     }
 
     public double getTransferRate() {
-        return transferRate;
+        return Math.round(transferRate * 1_000.0) / 1_000.0;
     }
 
     public void setTransferRate(double transferRate) {
