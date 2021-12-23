@@ -1,5 +1,8 @@
 package com.github.almostreliable.energymeter.meter;
 
+import com.github.almostreliable.energymeter.compat.CapabilityAdapterFactory;
+import com.github.almostreliable.energymeter.compat.ICapabilityAdapter;
+import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
 import com.github.almostreliable.energymeter.component.IMeter;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
@@ -44,6 +47,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
     private final List<Double> energyRates = Collections.synchronizedList(new ArrayList<>());
+    @Nullable
+    private final ICapabilityAdapter<MeterPeripheral> meterPeripheral;
     private boolean hasValidInput;
     private boolean setupDone;
     private LazyOptional<IEnergyStorage> inputCache;
@@ -62,6 +67,41 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         super(Tiles.METER.get());
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration(state);
+        meterPeripheral = CapabilityAdapterFactory.createMeterPeripheral(this);
+    }
+
+    /**
+     * Handles the actual energy transfer process.
+     * <p>
+     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
+     * It will try to equally distribute it.
+     *
+     * @param energy  the energy to transfer
+     * @param outputs the possible outputs
+     * @return the accepted amount of energy
+     */
+    private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
+        int acceptedEnergy = 0;
+        int energyToTransfer = energy;
+        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
+            int equalSplit = energyToTransfer / outputs.size();
+            Collection<IEnergyStorage> outputsToRemove = new ArrayList<>();
+
+            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
+                int actualSplit = equalSplit;
+                if (output.getValue() < equalSplit) {
+                    actualSplit = output.getValue();
+                    outputsToRemove.add(output.getKey());
+                }
+                output.getKey().receiveEnergy(actualSplit, false);
+                energyToTransfer -= actualSplit;
+                acceptedEnergy += actualSplit;
+            }
+
+            outputsToRemove.forEach(outputs::remove);
+        }
+
+        return acceptedEnergy;
     }
 
     public int getInterval() {
@@ -298,40 +338,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         return outputs;
     }
 
-    /**
-     * Handles the actual energy transfer process.
-     * <p>
-     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
-     * It will try to equally distribute it.
-     *
-     * @param energy  the energy to transfer
-     * @param outputs the possible outputs
-     * @return the accepted amount of energy
-     */
-    private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
-        int acceptedEnergy = 0;
-        int energyToTransfer = energy;
-        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            int equalSplit = energyToTransfer / outputs.size();
-            Collection<IEnergyStorage> outputsToRemove = new ArrayList<>();
-
-            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
-                int actualSplit = equalSplit;
-                if (output.getValue() < equalSplit) {
-                    actualSplit = output.getValue();
-                    outputsToRemove.add(output.getKey());
-                }
-                output.getKey().receiveEnergy(actualSplit, false);
-                energyToTransfer -= actualSplit;
-                acceptedEnergy += actualSplit;
-            }
-
-            outputsToRemove.forEach(outputs::remove);
-        }
-
-        return acceptedEnergy;
-    }
-
     @Nullable
     private LazyOptional<IEnergyStorage> getOutputFromCache(Direction direction) {
         assert level != null && !level.isClientSide;
@@ -371,6 +377,11 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         for (LazyOptional<SidedEnergyStorage> cap : energyStorage) {
             cap.invalidate();
         }
+
+        if (meterPeripheral != null) {
+            meterPeripheral.getLazy().invalidate();
+        }
+
         super.invalidateCaps();
     }
 
@@ -381,6 +392,11 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             sideConfig.get(direction) != IO_SETTING.OFF) {
             return energyStorage.get(direction.ordinal()).cast();
         }
+
+        if (meterPeripheral != null && meterPeripheral.isCapability(cap)) {
+            return meterPeripheral.getLazy().cast();
+        }
+
         return super.getCapability(cap, direction);
     }
 
