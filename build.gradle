@@ -91,6 +91,12 @@ repositories {
         name 'Cursemaven'
         url 'https://www.cursemaven.com/'
     }
+    maven {
+        url 'https://squiddev.cc/maven/'
+        content {
+            includeGroup 'org.squiddev'
+        }
+    }
 }
 
 dependencies {
@@ -105,6 +111,8 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:mekag-268566:3516430") // Mekanism Generators - 10.0.24.453
     runtimeOnly fg.deobf("curse.maven:titanium-287342:3525770") // Titanium - 3.2.8.7-22 - Industrial Foregoing Lib
     runtimeOnly fg.deobf("curse.maven:if-266515:3525789") // Industrial Foregoing - 3.2.14.7-16
+
+    implementation fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.
