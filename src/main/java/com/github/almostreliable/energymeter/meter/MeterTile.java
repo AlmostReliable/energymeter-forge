@@ -47,6 +47,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
     private final List<Double> energyRates = Collections.synchronizedList(new ArrayList<>());
+    private final Set<IMeterTileObserver> observers = Collections.synchronizedSet(new HashSet<>());
     @Nullable
     private final ICapabilityAdapter<MeterPeripheral> meterPeripheral;
     private boolean hasValidInput;
@@ -209,6 +210,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         PacketHandler.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
             packet
         );
+
+        for (IMeterTileObserver observer : observers) {
+            observer.onMeterTileChanged(this, flags);
+        }
     }
 
     @Override
@@ -409,6 +414,22 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     @Override
     public Container createMenu(int windowID, PlayerInventory inventory, PlayerEntity player) {
         return new MeterContainer(this, windowID);
+    }
+
+    @Override
+    public void setRemoved() {
+        for (IMeterTileObserver observer : observers) {
+            observer.onMeterTileRemoved(this);
+        }
+        super.setRemoved();
+    }
+
+    public void subscribe(IMeterTileObserver observer) {
+        observers.add(observer);
+    }
+
+    public void unsubscribe(IMeterTileObserver observer) {
+        observers.remove(observer);
     }
 
     @Override
