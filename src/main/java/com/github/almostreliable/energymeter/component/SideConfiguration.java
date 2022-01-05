@@ -8,18 +8,24 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import javax.annotation.Nullable;
 import java.util.EnumMap;
+
+import static com.github.almostreliable.energymeter.core.Constants.BOTTOM_ID;
+import static com.github.almostreliable.energymeter.core.Constants.FACING_ID;
 
 public class SideConfiguration implements INBTSerializable<CompoundNBT> {
 
     private static final int MAX_OUTPUTS = 4;
     private final EnumMap<Direction, IO_SETTING> config = new EnumMap<>(Direction.class);
-    private final Direction facing;
-    private final Direction bottom;
+    private Direction facing = Direction.NORTH;
+    private Direction bottom = Direction.NORTH;
 
-    public SideConfiguration(BlockState state) {
-        facing = state.getValue(MeterBlock.FACING);
-        bottom = state.getValue(MeterBlock.BOTTOM);
+    public SideConfiguration(@Nullable BlockState state) {
+        if (state != null) {
+            facing = state.getValue(MeterBlock.FACING);
+            bottom = state.getValue(MeterBlock.BOTTOM);
+        }
         for (Direction direction : Direction.values()) {
             config.put(direction, IO_SETTING.OFF);
         }
@@ -148,6 +154,8 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
         for (Direction direction : Direction.values()) {
             nbt.putInt(direction.toString(), config.get(direction).ordinal());
         }
+        nbt.putInt(FACING_ID, facing.ordinal());
+        nbt.putInt(BOTTOM_ID, bottom.ordinal());
         return nbt;
     }
 
@@ -156,5 +164,7 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
         for (Direction direction : Direction.values()) {
             config.put(direction, IO_SETTING.values()[nbt.getInt(direction.toString())]);
         }
+        if (nbt.contains(FACING_ID)) facing = Direction.values()[nbt.getInt(FACING_ID)];
+        if (nbt.contains(BOTTOM_ID)) bottom = Direction.values()[nbt.getInt(BOTTOM_ID)];
     }
 }

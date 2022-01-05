@@ -47,7 +47,7 @@ public enum Setup {
         ) {
             //noinspection ConstantConditions
             return REGISTRY.register(id,
-                () -> Builder.of(() -> constructor.apply(block.get().defaultBlockState()), block.get()).build(null)
+                () -> Builder.of(() -> constructor.apply(null), block.get()).build(null)
             );
         }
 
