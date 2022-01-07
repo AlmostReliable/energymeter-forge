@@ -38,7 +38,7 @@ final class IOButton extends GenericButton {
     private IOButton(MeterScreen screen, BLOCK_SIDE side) {
         super(screen, POS_X + getButtonPos(side).getA(), POS_Y + getButtonPos(side).getB(), BUTTON_SIZE, BUTTON_SIZE);
         this.side = side;
-        setting = container.getTile().getSideConfig().get(side);
+        setting = container.getTile().getSideConfig().get(screen.getMenu().getTile().getBlockState(), side);
         tooltip = setupTooltip();
     }
 

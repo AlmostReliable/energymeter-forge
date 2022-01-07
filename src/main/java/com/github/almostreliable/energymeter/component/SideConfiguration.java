@@ -8,69 +8,41 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import javax.annotation.Nullable;
 import java.util.EnumMap;
-
-import static com.github.almostreliable.energymeter.core.Constants.BOTTOM_ID;
-import static com.github.almostreliable.energymeter.core.Constants.FACING_ID;
 
 public class SideConfiguration implements INBTSerializable<CompoundNBT> {
 
     private static final int MAX_OUTPUTS = 4;
     private final EnumMap<Direction, IO_SETTING> config = new EnumMap<>(Direction.class);
-    private Direction facing = Direction.NORTH;
-    private Direction bottom = Direction.NORTH;
 
-    public SideConfiguration(@Nullable BlockState state) {
-        if (state != null) {
-            facing = state.getValue(MeterBlock.FACING);
-            bottom = state.getValue(MeterBlock.BOTTOM);
-        }
+    public SideConfiguration() {
         for (Direction direction : Direction.values()) {
             config.put(direction, IO_SETTING.OFF);
         }
     }
 
     /**
-     * Gets an IO setting by a specified direction.
-     * This automatically takes the facing direction into account.
-     *
-     * @param direction the direction to get the IO setting from
-     * @return the IO setting
-     */
-    public IO_SETTING get(Direction direction) {
-        return config.get(direction);
-    }
-
-    /**
-     * Gets an IO setting by a specified block side.
-     * This automatically takes the facing direction into account.
-     *
-     * @param side the block side to get the IO setting from
-     * @return the IO setting
-     */
-    public IO_SETTING get(BLOCK_SIDE side) {
-        return config.get(getDirectionFromSide(side));
-    }
-
-    /**
      * Gets the direction from the given block side depending on the facing of the block.
      *
-     * @param side the block side to get the direction from
+     * @param state the block state
+     * @param side  the block side to get the direction from
      * @return the direction
      */
-    public Direction getDirectionFromSide(BLOCK_SIDE side) {
-        return facing == bottom ? horizontalConversion(side) : verticalConversion(side);
+    public static Direction getDirectionFromSide(BlockState state, BLOCK_SIDE side) {
+        Direction facing = state.getValue(MeterBlock.FACING);
+        Direction bottom = state.getValue(MeterBlock.BOTTOM);
+        return facing == bottom ? horizontalConversion(facing, side) : verticalConversion(facing, bottom, side);
     }
 
     /**
      * Converts the given block side to a direction if the facing direction
      * is any of the 4 compass directions.
      *
-     * @param side the block side to convert
+     * @param facing the facing direction
+     * @param side   the block side to convert
      * @return the direction
      */
-    private Direction horizontalConversion(BLOCK_SIDE side) {
+    private static Direction horizontalConversion(Direction facing, BLOCK_SIDE side) {
         switch (side) {
             case TOP:
                 return Direction.UP;
@@ -91,10 +63,12 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
      * Converts the given block side to a direction if the facing direction
      * is up or down.
      *
-     * @param side the block side to convert
+     * @param facing the facing direction
+     * @param bottom the bottom direction
+     * @param side   the block side to convert
      * @return the direction
      */
-    private Direction verticalConversion(BLOCK_SIDE side) {
+    private static Direction verticalConversion(Direction facing, Direction bottom, BLOCK_SIDE side) {
         switch (side) {
             case TOP:
                 return bottom.getOpposite();
@@ -112,13 +86,37 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
     }
 
     /**
+     * Gets an IO setting by a specified direction.
+     * This automatically takes the facing direction into account.
+     *
+     * @param direction the direction to get the IO setting from
+     * @return the IO setting
+     */
+    public IO_SETTING get(Direction direction) {
+        return config.get(direction);
+    }
+
+    /**
+     * Gets an IO setting by a specified block side.
+     * This automatically takes the facing direction into account.
+     *
+     * @param state the block state
+     * @param side  the block side to get the IO setting from
+     * @return the IO setting
+     */
+    public IO_SETTING get(BlockState state, BLOCK_SIDE side) {
+        return config.get(getDirectionFromSide(state, side));
+    }
+
+    /**
      * Sets the specified block side to the specified IO setting.
      *
+     * @param state   the block state
      * @param side    the side on which the setting should be changed
      * @param setting the setting which should be set
      */
-    public void set(BLOCK_SIDE side, IO_SETTING setting) {
-        config.put(getDirectionFromSide(side), setting);
+    public void set(BlockState state, BLOCK_SIDE side, IO_SETTING setting) {
+        config.put(getDirectionFromSide(state, side), setting);
     }
 
     /**
@@ -154,8 +152,6 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
         for (Direction direction : Direction.values()) {
             nbt.putInt(direction.toString(), config.get(direction).ordinal());
         }
-        nbt.putInt(FACING_ID, facing.ordinal());
-        nbt.putInt(BOTTOM_ID, bottom.ordinal());
         return nbt;
     }
 
@@ -164,7 +160,5 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
         for (Direction direction : Direction.values()) {
             config.put(direction, IO_SETTING.values()[nbt.getInt(direction.toString())]);
         }
-        if (nbt.contains(FACING_ID)) facing = Direction.values()[nbt.getInt(FACING_ID)];
-        if (nbt.contains(BOTTOM_ID)) bottom = Direction.values()[nbt.getInt(BOTTOM_ID)];
     }
 }

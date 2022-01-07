@@ -4,7 +4,6 @@ import com.github.almostreliable.energymeter.meter.MeterBlock;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.meter.MeterTile;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -20,7 +19,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public enum Setup {
@@ -43,12 +41,10 @@ public enum Setup {
 
         @SuppressWarnings("SameParameterValue")
         private static <T extends MeterTile, B extends MeterBlock> RegistryObject<TileEntityType<T>> register(
-            String id, RegistryObject<B> block, Function<? super BlockState, T> constructor
+            String id, RegistryObject<B> block, Supplier<T> constructor
         ) {
             //noinspection ConstantConditions
-            return REGISTRY.register(id,
-                () -> Builder.of(() -> constructor.apply(null), block.get()).build(null)
-            );
+            return REGISTRY.register(id, () -> Builder.of(constructor, block.get()).build(null));
         }
 
         public static final RegistryObject<TileEntityType<MeterTile>> METER = register(Constants.METER_ID,
