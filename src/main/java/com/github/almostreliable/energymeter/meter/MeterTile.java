@@ -58,10 +58,44 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private double zeroThreshold;
 
     @SuppressWarnings("ThisEscapedInObjectConstruction")
-    public MeterTile(BlockState state) {
+    public MeterTile() {
         super(Tiles.METER.get());
         energyStorage = SidedEnergyStorage.create(this);
-        sideConfig = new SideConfiguration(state);
+        sideConfig = new SideConfiguration();
+    }
+
+    /**
+     * Handles the actual energy transfer process.
+     * <p>
+     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
+     * It will try to equally distribute it.
+     *
+     * @param energy  the energy to transfer
+     * @param outputs the possible outputs
+     * @return the accepted amount of energy
+     */
+    private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
+        int acceptedEnergy = 0;
+        int energyToTransfer = energy;
+        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
+            int equalSplit = energyToTransfer / outputs.size();
+            Collection<IEnergyStorage> outputsToRemove = new ArrayList<>();
+
+            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
+                int actualSplit = equalSplit;
+                if (output.getValue() < equalSplit) {
+                    actualSplit = output.getValue();
+                    outputsToRemove.add(output.getKey());
+                }
+                output.getKey().receiveEnergy(actualSplit, false);
+                energyToTransfer -= actualSplit;
+                acceptedEnergy += actualSplit;
+            }
+
+            outputsToRemove.forEach(outputs::remove);
+        }
+
+        return acceptedEnergy;
     }
 
     public int getInterval() {
@@ -296,40 +330,6 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
             });
         }
         return outputs;
-    }
-
-    /**
-     * Handles the actual energy transfer process.
-     * <p>
-     * Automatically checks if the energy to transfer can be accepted by the possible outputs.
-     * It will try to equally distribute it.
-     *
-     * @param energy  the energy to transfer
-     * @param outputs the possible outputs
-     * @return the accepted amount of energy
-     */
-    private static int transferEnergy(int energy, Map<IEnergyStorage, Integer> outputs) {
-        int acceptedEnergy = 0;
-        int energyToTransfer = energy;
-        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            int equalSplit = energyToTransfer / outputs.size();
-            Collection<IEnergyStorage> outputsToRemove = new ArrayList<>();
-
-            for (Entry<IEnergyStorage, Integer> output : outputs.entrySet()) {
-                int actualSplit = equalSplit;
-                if (output.getValue() < equalSplit) {
-                    actualSplit = output.getValue();
-                    outputsToRemove.add(output.getKey());
-                }
-                output.getKey().receiveEnergy(actualSplit, false);
-                energyToTransfer -= actualSplit;
-                acceptedEnergy += actualSplit;
-            }
-
-            outputsToRemove.forEach(outputs::remove);
-        }
-
-        return acceptedEnergy;
     }
 
     @Nullable

@@ -75,7 +75,7 @@ public class MeterBlock extends Block {
     @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader level) {
-        return new MeterTile(state);
+        return new MeterTile();
     }
 
     @SuppressWarnings("deprecation")

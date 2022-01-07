@@ -1,5 +1,6 @@
 package com.github.almostreliable.energymeter.network;
 
+import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.meter.MeterTile;
@@ -43,9 +44,9 @@ public class IOUpdatePacket {
             MeterTile tile = ((MeterContainer) player.containerMenu).getTile();
             World level = tile.getLevel();
             if (level == null || !level.isLoaded(tile.getBlockPos())) return;
-            tile.getSideConfig().set(packet.side, packet.setting);
+            tile.getSideConfig().set(tile.getBlockState(), packet.side, packet.setting);
             tile.updateNeighbors();
-            tile.updateCache(tile.getSideConfig().getDirectionFromSide(packet.side));
+            tile.updateCache(SideConfiguration.getDirectionFromSide(tile.getBlockState(), packet.side));
             tile.syncData(SYNC_FLAGS.SIDE_CONFIG);
             tile.setChanged();
         }
