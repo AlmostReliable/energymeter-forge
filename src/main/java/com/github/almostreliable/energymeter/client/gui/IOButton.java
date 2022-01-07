@@ -65,6 +65,20 @@ final class IOButton extends GenericButton {
         }
     }
 
+    /**
+     * Creates an IOButton for each passed in {@link BLOCK_SIDE}.
+     *
+     * @param sides the sides for which the buttons should be created
+     * @return a list of all buttons created
+     */
+    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
+        return Arrays
+            .stream(sides)
+            .filter(side -> side != BLOCK_SIDE.FRONT)
+            .map(side -> new IOButton(screen, side))
+            .collect(Collectors.toList());
+    }
+
     private Tooltip setupTooltip() {
         return Tooltip.builder()
             // header
@@ -87,20 +101,6 @@ final class IOButton extends GenericButton {
                 ))).addBlankLine()
             // action
             .addClickAction("action_1").addShiftClickAction("action_2");
-    }
-
-    /**
-     * Creates an IOButton for each passed in {@link BLOCK_SIDE}.
-     *
-     * @param sides the sides for which the buttons should be created
-     * @return a list of all buttons created
-     */
-    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
-        return Arrays
-            .stream(sides)
-            .filter(side -> side != BLOCK_SIDE.FRONT)
-            .map(side -> new IOButton(screen, side))
-            .collect(Collectors.toList());
     }
 
     @Override
