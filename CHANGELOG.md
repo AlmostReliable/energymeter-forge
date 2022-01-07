@@ -6,7 +6,12 @@ The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
-- /
+
+### Fixed
+- fixed syncing issue of I/O configuration after world restart ([#8])
+
+<!-- Links -->
+[#8]: https://github.com/AlmostReliable/energymeter-forge/issues/8
 
 
 ## [1.5.0] - 2021-12-17
