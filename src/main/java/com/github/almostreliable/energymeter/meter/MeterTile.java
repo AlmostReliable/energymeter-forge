@@ -1,5 +1,8 @@
 package com.github.almostreliable.energymeter.meter;
 
+import com.github.almostreliable.energymeter.compat.CapabilityAdapterFactory;
+import com.github.almostreliable.energymeter.compat.ICapabilityAdapter;
+import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
 import com.github.almostreliable.energymeter.component.IMeter;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
@@ -44,6 +47,9 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
     private final List<Double> energyRates = Collections.synchronizedList(new ArrayList<>());
+    private final Set<IMeterTileObserver> observers = Collections.synchronizedSet(new HashSet<>());
+    @Nullable
+    private final ICapabilityAdapter<MeterPeripheral> meterPeripheral;
     private boolean hasValidInput;
     private boolean setupDone;
     private LazyOptional<IEnergyStorage> inputCache;
@@ -62,6 +68,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         super(Tiles.METER.get());
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration();
+        meterPeripheral = CapabilityAdapterFactory.createMeterPeripheral(this);
     }
 
     /**
@@ -203,6 +210,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         PacketHandler.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
             packet
         );
+
+        for (IMeterTileObserver observer : observers) {
+            observer.onMeterTileChanged(this, flags);
+        }
     }
 
     @Override
@@ -371,16 +382,27 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         for (LazyOptional<SidedEnergyStorage> cap : energyStorage) {
             cap.invalidate();
         }
+
+        if (meterPeripheral != null) {
+            meterPeripheral.getLazyAdapter().invalidate();
+        }
+
         super.invalidateCaps();
     }
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
-        if (!remove && cap.equals(CapabilityEnergy.ENERGY) && direction != null &&
-            sideConfig.get(direction) != IO_SETTING.OFF) {
-            return energyStorage.get(direction.ordinal()).cast();
+        if (!remove) {
+            if (cap.equals(CapabilityEnergy.ENERGY) && direction != null &&
+                sideConfig.get(direction) != IO_SETTING.OFF) {
+                return energyStorage.get(direction.ordinal()).cast();
+            }
+            if (meterPeripheral != null && meterPeripheral.isCapability(cap)) {
+                return meterPeripheral.getLazyAdapter().cast();
+            }
         }
+
         return super.getCapability(cap, direction);
     }
 
@@ -393,6 +415,22 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     @Override
     public Container createMenu(int windowID, PlayerInventory inventory, PlayerEntity player) {
         return new MeterContainer(this, windowID);
+    }
+
+    @Override
+    public void setRemoved() {
+        for (IMeterTileObserver observer : observers) {
+            observer.onMeterTileRemoved(this);
+        }
+        super.setRemoved();
+    }
+
+    public void subscribe(IMeterTileObserver observer) {
+        observers.add(observer);
+    }
+
+    public void unsubscribe(IMeterTileObserver observer) {
+        observers.remove(observer);
     }
 
     @Override

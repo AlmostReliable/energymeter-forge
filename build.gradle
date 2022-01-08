@@ -91,11 +91,21 @@ repositories {
         name 'Cursemaven'
         url 'https://www.cursemaven.com/'
     }
+    maven {
+        url 'https://squiddev.cc/maven/'
+        content {
+            includeGroup 'org.squiddev'
+        }
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
+    // optional dependencies
+    implementation fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
+
+    // runtime dependencies
     runtimeOnly fg.deobf("curse.maven:jei-238222:3530253") // JEI - 7.7.1.137
     runtimeOnly fg.deobf("curse.maven:top-245211:3319255") // TOP - 3.1.4
     runtimeOnly fg.deobf("curse.maven:lollipop-347954:3232534") // Lollipop - 3.2.9 - Powah Lib
@@ -119,6 +129,7 @@ def replaceProperties = [mod_id                 : mod_id,
                          minecraft_version_range: minecraft_version_range,
                          forge_version_range    : forge_version_range,
                          loader_version_range   : loader_version_range,
+                         cct_version_range      : cct_version_range,
                          github_user            : github_user,
                          github_repo            : github_repo]
 processResources {

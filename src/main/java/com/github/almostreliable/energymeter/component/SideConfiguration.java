@@ -9,6 +9,9 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class SideConfiguration implements INBTSerializable<CompoundNBT> {
 
@@ -160,5 +163,18 @@ public class SideConfiguration implements INBTSerializable<CompoundNBT> {
         for (Direction direction : Direction.values()) {
             config.put(direction, IO_SETTING.values()[nbt.getInt(direction.toString())]);
         }
+    }
+
+    /**
+     * Converts the current side configuration as string map and returns it.
+     *
+     * @return the side configuration as string map
+     */
+    public Map<String, String> asStringMap() {
+        Map<String, String> stringMap = new HashMap<>();
+        for (Entry<Direction, IO_SETTING> entry : config.entrySet()) {
+            stringMap.put(entry.getKey().getName(), entry.getValue().name());
+        }
+        return stringMap;
     }
 }

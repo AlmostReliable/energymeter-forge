@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+### Added
+- CC: Tweaked integration ([#9])
+
 ### Fixed
 - fixed syncing issue of I/O configuration after world restart ([#8])
 
 <!-- Links -->
 [#8]: https://github.com/AlmostReliable/energymeter-forge/issues/8
+[#9]: https://github.com/AlmostReliable/energymeter-forge/pull/9
 
 
 ## [1.5.0] - 2021-12-17
