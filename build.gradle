@@ -129,6 +129,7 @@ def replaceProperties = [mod_id                 : mod_id,
                          minecraft_version_range: minecraft_version_range,
                          forge_version_range    : forge_version_range,
                          loader_version_range   : loader_version_range,
+                         cct_version_range      : cct_version_range,
                          github_user            : github_user,
                          github_repo            : github_repo]
 processResources {
