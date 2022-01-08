@@ -31,6 +31,19 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
         font = mc.font;
     }
 
+    private static Vector3f getFacingVector(Direction facing) {
+        if (facing.ordinal() < 2) {
+            // up or down
+            return new Vector3f(HALF, facing == Direction.UP ? 1 + OFFSET : -OFFSET, HALF);
+        }
+        if (facing.ordinal() < 4) {
+            // north or south
+            return new Vector3f(HALF, HALF, facing == Direction.NORTH ? -OFFSET : 1 + OFFSET);
+        }
+        // west or east
+        return new Vector3f(facing == Direction.WEST ? -OFFSET : 1 + OFFSET, HALF, HALF);
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Override
     public void render(
@@ -87,18 +100,5 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
         font.draw(matrix, unit, font.width(unit) / -2f, OFFSET, TextFormatting.WHITE.getColor());
 
         matrix.popPose();
-    }
-
-    private static Vector3f getFacingVector(Direction facing) {
-        if (facing.ordinal() < 2) {
-            // up or down
-            return new Vector3f(HALF, facing == Direction.UP ? 1 + OFFSET : -OFFSET, HALF);
-        }
-        if (facing.ordinal() < 4) {
-            // north or south
-            return new Vector3f(HALF, HALF, facing == Direction.NORTH ? -OFFSET : 1 + OFFSET);
-        }
-        // west or east
-        return new Vector3f(facing == Direction.WEST ? -OFFSET : 1 + OFFSET, HALF, HALF);
     }
 }

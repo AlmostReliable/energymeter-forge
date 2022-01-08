@@ -64,10 +64,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     private double zeroThreshold;
 
     @SuppressWarnings("ThisEscapedInObjectConstruction")
-    public MeterTile(BlockState state) {
+    public MeterTile() {
         super(Tiles.METER.get());
         energyStorage = SidedEnergyStorage.create(this);
-        sideConfig = new SideConfiguration(state);
+        sideConfig = new SideConfiguration();
         meterPeripheral = CapabilityAdapterFactory.createMeterPeripheral(this);
     }
 
