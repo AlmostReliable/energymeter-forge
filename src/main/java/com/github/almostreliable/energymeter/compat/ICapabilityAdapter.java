@@ -7,5 +7,5 @@ public interface ICapabilityAdapter<T> {
 
     boolean isCapability(Capability<?> cap);
 
-    LazyOptional<T> getLazy();
+    LazyOptional<T> getLazyAdapter();
 }

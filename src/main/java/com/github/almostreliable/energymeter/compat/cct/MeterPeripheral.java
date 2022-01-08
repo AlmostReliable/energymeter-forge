@@ -1,6 +1,5 @@
 package com.github.almostreliable.energymeter.compat.cct;
 
-import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
 import com.github.almostreliable.energymeter.meter.IMeterTileObserver;
 import com.github.almostreliable.energymeter.meter.MeterTile;
@@ -9,138 +8,125 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.util.Direction;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.github.almostreliable.energymeter.core.Constants.*;
+
+@SuppressWarnings("unused")
 public class MeterPeripheral implements IPeripheral, IMeterTileObserver {
 
-    public static final String EM_TYPE = "energymeter";
-    private static final Logger LOGGER = LogManager.getLogger();
-
-    private final MeterTile meterTile;
+    private final MeterTile tile;
     private IComputerAccess computer;
 
-    public MeterPeripheral(MeterTile meterTile) {
-        this.meterTile = meterTile;
+    MeterPeripheral(MeterTile tile) {
+        this.tile = tile;
     }
 
     @Nonnull
     @Override
     public String getType() {
-        return EM_TYPE;
+        return MOD_ID;
     }
 
+    @SuppressWarnings("java:S1201")
     @Override
     public boolean equals(@Nullable IPeripheral other) {
-        if (other instanceof MeterPeripheral) {
-            return meterTile.equals(((MeterPeripheral) other).meterTile);
-        }
-
-        return false;
+        return other instanceof MeterPeripheral && tile.equals(((MeterPeripheral) other).tile);
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getInterval() {
-        return MethodResult.of(meterTile.getInterval());
+    public MethodResult getInterval() {
+        return MethodResult.of(tile.getInterval());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getTransferRate() {
-        return MethodResult.of(meterTile.getTransferRate());
+    public MethodResult getTransferRate() {
+        return MethodResult.of(tile.getTransferRate());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getThreshold() {
-        return MethodResult.of(meterTile.getThreshold());
+    public MethodResult getThreshold() {
+        return MethodResult.of(tile.getThreshold());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getNumberMode() {
-        return MethodResult.of(meterTile.getNumberMode().name());
+    public MethodResult getNumberMode() {
+        return MethodResult.of(tile.getNumberMode().name());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getMode() {
-        return MethodResult.of(meterTile.getMode().name());
-    }
-    
-    @LuaFunction(mainThread = true)
-    public final MethodResult getAccuracy() {
-        return MethodResult.of(meterTile.getAccuracy().name());
+    public MethodResult getMode() {
+        return MethodResult.of(tile.getMode().name());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getStatus() {
-        return MethodResult.of(meterTile.getStatus().name());
+    public MethodResult getAccuracy() {
+        return MethodResult.of(tile.getAccuracy().name());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getSideConfig(Direction direction) {
-        return MethodResult.of(meterTile.getSideConfig().get(direction).name());
+    public MethodResult getStatus() {
+        return MethodResult.of(tile.getStatus().name());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getFullSideConfig() {
-        return MethodResult.of(sideConfigToMap(meterTile.getSideConfig()));
+    public MethodResult getSideConfig(Direction direction) {
+        return MethodResult.of(tile.getSideConfig().get(direction).name());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult hasInput() {
-        return MethodResult.of(meterTile.getSideConfig().hasInput());
+    public MethodResult getFullSideConfig() {
+        return MethodResult.of(tile.getSideConfig().asStringMap());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult hasOutput() {
-        return MethodResult.of(meterTile.getSideConfig().hasOutput());
+    public MethodResult hasInput() {
+        return MethodResult.of(tile.getSideConfig().hasInput());
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult hasMaxOutputs() {
-        return MethodResult.of(meterTile.getSideConfig().hasMaxOutputs());
+    public MethodResult hasOutput() {
+        return MethodResult.of(tile.getSideConfig().hasOutput());
+    }
+
+    @LuaFunction(mainThread = true)
+    public MethodResult hasMaxOutputs() {
+        return MethodResult.of(tile.getSideConfig().hasMaxOutputs());
     }
 
     @Override
     public void attach(@Nonnull IComputerAccess computer) {
         this.computer = computer;
-        meterTile.subscribe(this);
+        tile.subscribe(this);
     }
 
     @Override
     public void detach(@Nonnull IComputerAccess computer) {
-        meterTile.unsubscribe(this);
+        tile.unsubscribe(this);
     }
 
     @Override
     public void onMeterTileChanged(MeterTile tile, int flags) {
-        if (meterTile.equals(tile)) {
-            Map<String, Object> data = new HashMap<>();
-            if ((flags & SYNC_FLAGS.SIDE_CONFIG) != 0) data.put("side_config", sideConfigToMap(tile.getSideConfig()));
-            if ((flags & SYNC_FLAGS.TRANSFER_RATE) != 0) data.put("transfer_rate", tile.getTransferRate());
-            if ((flags & SYNC_FLAGS.NUMBER_MODE) != 0) data.put("number_mode", tile.getNumberMode().name());
-            if ((flags & SYNC_FLAGS.STATUS) != 0) data.put("status", tile.getStatus().name());
-            if ((flags & SYNC_FLAGS.MODE) != 0) data.put("mode", tile.getMode().name());
-            if ((flags & SYNC_FLAGS.ACCURACY) != 0) data.put("accuracy", tile.getAccuracy().name());
-            if ((flags & SYNC_FLAGS.INTERVAL) != 0) data.put("interval", tile.getInterval());
-            if ((flags & SYNC_FLAGS.THRESHOLD) != 0) data.put("threshold", tile.getThreshold());
-            computer.queueEvent("em_data_changed", data);
-        }
+        if (!this.tile.equals(tile)) return;
+
+        Map<String, Object> data = new HashMap<>();
+        if ((flags & SYNC_FLAGS.SIDE_CONFIG) != 0) data.put(SIDE_CONFIG_ID, tile.getSideConfig().asStringMap());
+        if ((flags & SYNC_FLAGS.TRANSFER_RATE) != 0) data.put(TRANSFER_RATE_ID, tile.getTransferRate());
+        if ((flags & SYNC_FLAGS.NUMBER_MODE) != 0) data.put(NUMBER_MODE_ID, tile.getNumberMode().name());
+        if ((flags & SYNC_FLAGS.STATUS) != 0) data.put(STATUS_ID, tile.getStatus().name());
+        if ((flags & SYNC_FLAGS.MODE) != 0) data.put(MODE_ID, tile.getMode().name());
+        if ((flags & SYNC_FLAGS.ACCURACY) != 0) data.put(ACCURACY_ID, tile.getAccuracy().name());
+        if ((flags & SYNC_FLAGS.INTERVAL) != 0) data.put(INTERVAL_ID, tile.getInterval());
+        if ((flags & SYNC_FLAGS.THRESHOLD) != 0) data.put(THRESHOLD_ID, tile.getThreshold());
+        computer.queueEvent("em_data_changed", data);
     }
 
     @Override
     public void onMeterTileRemoved(MeterTile tile) {
         computer.queueEvent("em_removed");
-    }
-
-    private Map<String, String> sideConfigToMap(SideConfiguration sideConfig) {
-        Map<String, String> config = new HashMap<>();
-        for (Direction value : Direction.values()) {
-            config.put(value.getName(), sideConfig.get(value).name());
-        }
-        return config;
     }
 }

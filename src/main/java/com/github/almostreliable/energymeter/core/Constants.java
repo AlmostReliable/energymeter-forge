@@ -9,6 +9,7 @@ public enum Constants {
     // mod info
     public static final String MOD_ID = "energymeter";
     public static final String PIPEZ_ID = "pipez";
+    public static final String CCT_ID = "computercraft";
     // ids
     public static final String METER_ID = "meter";
     // utility keys
@@ -16,8 +17,6 @@ public enum Constants {
     public static final String NETWORK_ID = "network";
     // translation & nbt keys
     public static final String SIDE_CONFIG_ID = "side_config";
-    public static final String FACING_ID = "facing";
-    public static final String BOTTOM_ID = "bottom";
     public static final String TRANSFER_RATE_ID = "transfer_rate";
     public static final String STATUS_ID = "status";
     public static final String NUMBER_MODE_ID = "number_mode";

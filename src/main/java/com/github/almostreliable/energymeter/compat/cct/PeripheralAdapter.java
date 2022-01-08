@@ -8,19 +8,19 @@ import net.minecraftforge.common.util.LazyOptional;
 
 public class PeripheralAdapter implements ICapabilityAdapter<MeterPeripheral> {
 
-    private final LazyOptional<MeterPeripheral> lazy;
+    private final LazyOptional<MeterPeripheral> lazyAdapter;
 
     public PeripheralAdapter(MeterTile tile) {
-        lazy = LazyOptional.of(() -> new MeterPeripheral(tile));
+        lazyAdapter = LazyOptional.of(() -> new MeterPeripheral(tile));
     }
 
     @Override
     public boolean isCapability(Capability<?> cap) {
-        return cap == Capabilities.CAPABILITY_PERIPHERAL;
+        return cap.equals(Capabilities.CAPABILITY_PERIPHERAL);
     }
 
     @Override
-    public LazyOptional<MeterPeripheral> getLazy() {
-        return lazy;
+    public LazyOptional<MeterPeripheral> getLazyAdapter() {
+        return lazyAdapter;
     }
 }

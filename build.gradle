@@ -102,6 +102,10 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
+    // optional dependencies
+    implementation fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
+
+    // runtime dependencies
     runtimeOnly fg.deobf("curse.maven:jei-238222:3530253") // JEI - 7.7.1.137
     runtimeOnly fg.deobf("curse.maven:top-245211:3319255") // TOP - 3.1.4
     runtimeOnly fg.deobf("curse.maven:lollipop-347954:3232534") // Lollipop - 3.2.9 - Powah Lib
@@ -111,8 +115,6 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:mekag-268566:3516430") // Mekanism Generators - 10.0.24.453
     runtimeOnly fg.deobf("curse.maven:titanium-287342:3525770") // Titanium - 3.2.8.7-22 - Industrial Foregoing Lib
     runtimeOnly fg.deobf("curse.maven:if-266515:3525789") // Industrial Foregoing - 3.2.14.7-16
-
-    implementation fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.

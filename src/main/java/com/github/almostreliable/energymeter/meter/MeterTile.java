@@ -384,7 +384,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         }
 
         if (meterPeripheral != null) {
-            meterPeripheral.getLazy().invalidate();
+            meterPeripheral.getLazyAdapter().invalidate();
         }
 
         super.invalidateCaps();
@@ -393,13 +393,14 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
-        if (!remove && cap.equals(CapabilityEnergy.ENERGY) && direction != null &&
-            sideConfig.get(direction) != IO_SETTING.OFF) {
-            return energyStorage.get(direction.ordinal()).cast();
-        }
-
-        if (meterPeripheral != null && meterPeripheral.isCapability(cap)) {
-            return meterPeripheral.getLazy().cast();
+        if (!remove) {
+            if (cap.equals(CapabilityEnergy.ENERGY) && direction != null &&
+                sideConfig.get(direction) != IO_SETTING.OFF) {
+                return energyStorage.get(direction.ordinal()).cast();
+            }
+            if (meterPeripheral != null && meterPeripheral.isCapability(cap)) {
+                return meterPeripheral.getLazyAdapter().cast();
+            }
         }
 
         return super.getCapability(cap, direction);
