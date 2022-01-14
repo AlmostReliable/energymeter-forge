@@ -9,9 +9,18 @@ import javax.annotation.Nullable;
 
 import static com.github.almostreliable.energymeter.core.Constants.CCT_ID;
 
-public enum CapabilityAdapterFactory {
-    ;
+public final class CapabilityAdapterFactory {
 
+    private CapabilityAdapterFactory() {}
+
+    /**
+     * Creates a new peripheral adapter for the given tile.
+     * <p>
+     * Ensures that CCT is actually loaded to avoid loading its classes and causing a crash.
+     *
+     * @param tile The tile to create an adapter for.
+     * @return The adapter, or null if CCT is not loaded.
+     */
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     @Nullable
     public static ICapabilityAdapter<MeterPeripheral> createMeterPeripheral(MeterTile tile) {

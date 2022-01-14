@@ -14,12 +14,13 @@ import java.util.Locale;
 import static com.github.almostreliable.energymeter.core.Constants.MOD_ID;
 import static com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 
-public enum TextUtils {
-    ;
+public final class TextUtils {
 
     private static final Locale LOCALE = Locale.getDefault();
     private static final DecimalFormat DF = (DecimalFormat) NumberFormat.getInstance(LOCALE).clone();
     private static final String[] UNITS = {"", "k", "M", "G", "T", "P"};
+
+    private TextUtils() {}
 
     /**
      * Gets a resource location with the given key
@@ -58,17 +59,6 @@ public enum TextUtils {
     }
 
     /**
-     * Gets the translation key from the provided type and key.
-     *
-     * @param type the type of the translation
-     * @param key  the unique key of the translation
-     * @return the translation key
-     */
-    private static String getTranslationKey(TRANSLATE_TYPE type, String key) {
-        return String.format("%s.%s.%s", type.toString().toLowerCase(), MOD_ID, key);
-    }
-
-    /**
      * Colors a given String with the given color.
      *
      * @param input the string to color
@@ -98,6 +88,17 @@ public enum TextUtils {
         }
         // normal energy format
         return new Tuple<>(formatNumber(number, 3), "FE");
+    }
+
+    /**
+     * Gets the translation key from the provided type and key.
+     *
+     * @param type the type of the translation
+     * @param key  the unique key of the translation
+     * @return the translation key
+     */
+    private static String getTranslationKey(TRANSLATE_TYPE type, String key) {
+        return String.format("%s.%s.%s", type.toString().toLowerCase(), MOD_ID, key);
     }
 
     /**

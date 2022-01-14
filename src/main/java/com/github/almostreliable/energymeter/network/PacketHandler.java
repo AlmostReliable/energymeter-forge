@@ -8,8 +8,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import static com.github.almostreliable.energymeter.core.Constants.NETWORK_ID;
 
-public enum PacketHandler {
-    ;
+public final class PacketHandler {
 
     private static final ResourceLocation ID = TextUtils.getRL(NETWORK_ID);
     private static final String PROTOCOL = "1";
@@ -18,6 +17,8 @@ public enum PacketHandler {
         PROTOCOL::equals,
         PROTOCOL::equals
     );
+
+    private PacketHandler() {}
 
     @SuppressWarnings("ValueOfIncrementOrDecrementUsed")
     public static void init() {

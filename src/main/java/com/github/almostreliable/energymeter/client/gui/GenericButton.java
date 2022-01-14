@@ -33,13 +33,6 @@ public abstract class GenericButton extends Button {
         this.screen = screen;
     }
 
-    /**
-     * Handles the functionality which is triggered when clicking the button.
-     * <p>
-     * Can be overwritten by buttons to get individual functionality.
-     */
-    protected abstract void clickHandler();
-
     @Override
     public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
         Minecraft
@@ -49,6 +42,13 @@ public abstract class GenericButton extends Button {
         // button texture
         blit(matrix, x, y, 0, 0, width, height, getTextureWidth(), getTextureHeight());
     }
+
+    /**
+     * Handles the functionality which is triggered when clicking the button.
+     * <p>
+     * Can be overwritten by buttons to get individual functionality.
+     */
+    protected abstract void clickHandler();
 
     /**
      * Gets the texture file name for the button as {@link String}.

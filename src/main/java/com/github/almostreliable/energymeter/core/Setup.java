@@ -21,10 +21,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public enum Setup {
-    ;
+public final class Setup {
 
     private static final Tab TAB = new Tab(Constants.MOD_ID);
+
+    private Setup() {}
 
     public static void init(IEventBus modEventBus) {
         Blocks.REGISTRY.register(modEventBus);
@@ -33,11 +34,12 @@ public enum Setup {
         Containers.REGISTRY.register(modEventBus);
     }
 
-    public enum Tiles {
-        ;
+    public static final class Tiles {
 
         private static final DeferredRegister<TileEntityType<?>> REGISTRY
             = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, Constants.MOD_ID);
+
+        private Tiles() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <T extends MeterTile, B extends MeterBlock> RegistryObject<TileEntityType<T>> register(
@@ -53,11 +55,12 @@ public enum Setup {
         );
     }
 
-    public enum Containers {
-        ;
+    public static final class Containers {
 
         private static final DeferredRegister<ContainerType<?>> REGISTRY
             = DeferredRegister.create(ForgeRegistries.CONTAINERS, Constants.MOD_ID);
+
+        private Containers() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <C extends MeterContainer> RegistryObject<ContainerType<C>> register(
