@@ -1,6 +1,6 @@
 package com.github.almostreliable.energymeter.compat.cct;
 
-import com.github.almostreliable.energymeter.meter.IMeterTileObserver;
+import com.github.almostreliable.energymeter.compat.IMeterTileObserver;
 import com.github.almostreliable.energymeter.meter.MeterTile;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;

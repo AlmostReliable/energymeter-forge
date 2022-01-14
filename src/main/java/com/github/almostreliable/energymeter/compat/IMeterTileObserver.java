@@ -1,4 +1,6 @@
-package com.github.almostreliable.energymeter.meter;
+package com.github.almostreliable.energymeter.compat;
+
+import com.github.almostreliable.energymeter.meter.MeterTile;
 
 public interface IMeterTileObserver {
 

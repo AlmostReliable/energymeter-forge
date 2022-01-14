@@ -2,6 +2,7 @@ package com.github.almostreliable.energymeter.meter;
 
 import com.github.almostreliable.energymeter.compat.CapabilityAdapterFactory;
 import com.github.almostreliable.energymeter.compat.ICapabilityAdapter;
+import com.github.almostreliable.energymeter.compat.IMeterTileObserver;
 import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
 import com.github.almostreliable.energymeter.component.IMeter;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
