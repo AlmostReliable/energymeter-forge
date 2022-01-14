@@ -6,6 +6,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
+/**
+ * Class is required for handling client-only packets.
+ * <p>
+ * Ensures that client-only packets are not processed server-side and cause a crash.
+ */
 final class ClientHandler {
 
     private ClientHandler() {}

@@ -3,7 +3,6 @@ package com.github.almostreliable.energymeter.meter;
 import com.github.almostreliable.energymeter.core.Setup.Containers;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IWorldPosCallable;
 
 public class MeterContainer extends Container {
@@ -24,11 +23,6 @@ public class MeterContainer extends Container {
             );
     }
 
-    /**
-     * Gets the parent {@link TileEntity} of the {@link Container}.
-     *
-     * @return the parent
-     */
     public MeterTile getTile() {
         return tile;
     }

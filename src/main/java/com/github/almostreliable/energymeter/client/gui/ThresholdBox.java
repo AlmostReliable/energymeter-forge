@@ -15,28 +15,16 @@ class ThresholdBox extends GenericTextBox {
     }
 
     private static Tooltip setupTooltip() {
-        return Tooltip.builder()
-            // header
+        return Tooltip
+            .builder()
             .addHeader("threshold")
             .addBlankLine()
-            // description
             .addDescription("threshold_desc_1")
             .addDescription("threshold_desc_2")
             .addBlankLine()
-            // action
             .addClickAction("action_5")
             .addShiftClickAction("action_2")
             .addCustomAction("key.keyboard.enter", "action_6");
-    }
-
-    @Override
-    protected Tooltip getTooltip() {
-        return TOOLTIP;
-    }
-
-    @Override
-    protected int getOldValue() {
-        return screen.getMenu().getTile().getThreshold();
     }
 
     @Override
@@ -48,5 +36,15 @@ class ThresholdBox extends GenericTextBox {
             newValue = MeterTile.REFRESH_RATE;
         }
         super.changeTextBoxValue(newValue, sync);
+    }
+
+    @Override
+    protected Tooltip getTooltip() {
+        return TOOLTIP;
+    }
+
+    @Override
+    protected int getOldValue() {
+        return screen.getMenu().getTile().getThreshold();
     }
 }

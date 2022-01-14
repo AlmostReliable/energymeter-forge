@@ -43,9 +43,10 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Creates an IOButton for each passed in {@link BLOCK_SIDE}.
+     * Creates an IOButton for each block side which is passed in.
      *
-     * @param sides the sides for which the buttons should be created
+     * @param screen the screen to create the buttons for
+     * @param sides  the sides for which the buttons should be created
      * @return a list of all buttons created
      */
     static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
@@ -57,10 +58,10 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Returns the x and y positions for the texture depending on the {@link BLOCK_SIDE}.
+     * Returns the x and y positions for the texture depending on the block side.
      *
-     * @param side the BLOCK_SIDE to get the positions for
-     * @return the x and y position for the BLOCK_SIDE
+     * @param side the block side to get the positions for
+     * @return the x and y position for the block side
      */
     private static Tuple<Integer, Integer> getButtonPos(BLOCK_SIDE side) {
         switch (side) {
@@ -91,16 +92,15 @@ final class IOButton extends GenericButton {
     }
 
     @Override
-    protected void clickHandler() {
-        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
-        tooltip = setupTooltip();
+    public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
+        super.renderButton(matrix, mX, mY, partial);
+        renderIOOverlay(matrix);
     }
 
     @Override
-    public void renderButton(MatrixStack matrix, int mX, int mY, float partial) {
-        super.renderButton(matrix, mX, mY, partial);
-        // io overlay
-        renderIOOverlay(matrix);
+    protected void clickHandler() {
+        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
+        tooltip = setupTooltip();
     }
 
     @Override
@@ -119,10 +119,10 @@ final class IOButton extends GenericButton {
     }
 
     private Tooltip setupTooltip() {
-        return Tooltip.builder()
-            // header
-            .addHeader(SIDE_CONFIG_ID).addBlankLine()
-            // block side
+        return Tooltip
+            .builder()
+            .addHeader(SIDE_CONFIG_ID)
+            .addBlankLine()
             .addComponent(TextUtils
                 .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, TextFormatting.GREEN)
                 .append(TextUtils.colorize(": ", TextFormatting.GREEN))
@@ -130,20 +130,20 @@ final class IOButton extends GenericButton {
                     side.toString().toLowerCase(),
                     TextFormatting.WHITE
                 )))
-            // current mode
             .addComponent(TextUtils
                 .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, TextFormatting.GREEN)
                 .append(TextUtils.colorize(": ", TextFormatting.GREEN))
                 .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING,
                     setting.toString().toLowerCase(),
                     TextFormatting.WHITE
-                ))).addBlankLine()
-            // action
-            .addClickAction("action_1").addShiftClickAction("action_2");
+                )))
+            .addBlankLine()
+            .addClickAction("action_1")
+            .addShiftClickAction("action_2");
     }
 
     /**
-     * Renders the I/O overlay for the IOButton depending on its {@link IO_SETTING}.
+     * Renders the I/O overlay for the IOButton depending on its io setting.
      *
      * @param matrix the matrix stack for the render call
      */
@@ -155,7 +155,7 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Changes the mode of a {@link BLOCK_SIDE} depending on its current {@link IO_SETTING}.
+     * Changes the mode of a block side depending on its current io setting.
      *
      * @param reset whether the field should be reset to OFF
      */

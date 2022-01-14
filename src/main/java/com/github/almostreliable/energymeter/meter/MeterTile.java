@@ -9,7 +9,6 @@ import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
 import com.github.almostreliable.energymeter.core.Setup.Tiles;
 import com.github.almostreliable.energymeter.network.ClientSyncPacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
-import com.github.almostreliable.energymeter.network.SettingUpdatePacket;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.github.almostreliable.energymeter.util.TypeEnums.*;
 import net.minecraft.block.Block;
@@ -24,7 +23,6 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.Constants.BlockFlags;
@@ -72,7 +70,7 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Convenience method used by the {@link SettingUpdatePacket} in order
+     * Convenience method used by the SettingUpdatePacket in order
      * to flip a specific setting after a button click on the client.
      *
      * @param setting the setting to update
@@ -102,9 +100,9 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Syncs data to clients that track the current {@link Chunk} with a {@link ClientSyncPacket}.
+     * Syncs data to clients tracking the current chunk with a ClientSyncPacket.
      * <p>
-     * Different flags from the {@link SYNC_FLAGS} can be passed to define what should be included
+     * Different flags from the sync flags can be passed to define what should be included
      * in the packet to avoid unnecessary data being sent.
      *
      * @param flags the flags of the data to sync
@@ -226,8 +224,8 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Updates the neighbor blocks of the {@link TileEntity}.
-     * Can be useful to connect cables.
+     * Updates the neighbor blocks of the tile.
+     * Used to connect cables.
      */
     public void updateNeighbors() {
         if (level == null || level.isClientSide) return;
@@ -295,10 +293,10 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Updates the cached input and output values depending on the {@link Direction}.
+     * Updates the cached input and output values depending on the direction.
      * This ensures that the current status is always up-to-date.
      *
-     * @param direction the {@link Direction} to update the cache for
+     * @param direction the direction to update the cache for
      */
     public void updateCache(Direction direction) {
         if (level == null || level.isClientSide) return;
@@ -420,9 +418,9 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
     }
 
     /**
-     * Flips the IO {@link BlockState} value and returns the new {@link BlockState}.
+     * Flips the IO block state value and returns the new block state.
      *
-     * @return the {@link BlockState} with the flipped IO value
+     * @return the block state with the flipped IO value
      */
     private BlockState flipBlockState() {
         BlockState state = getBlockState();

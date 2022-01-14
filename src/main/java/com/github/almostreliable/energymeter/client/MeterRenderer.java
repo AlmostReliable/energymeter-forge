@@ -36,7 +36,7 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
     public void render(
         MeterTile tile, float partial, MatrixStack matrix, IRenderTypeBuffer buffer, int light, int overlay
     ) {
-        // don't display something if the player is too far away
+        // turn off display if player is too far away
         if (tile.getBlockPos().distSqr(mc.player.blockPosition()) > Math.pow(MAX_DISTANCE, 2)) {
             return;
         }
@@ -47,8 +47,7 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
         Vector3f vector = getFacingVector(facing);
 
         matrix.pushPose();
-        // move and rotate the position according to the facing
-        matrix.translate(vector.x(), vector.y(), vector.z());
+
         /*
           The rotation of the matrix depends on the facing direction of the block and
           where the screen is located.
@@ -62,6 +61,9 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
           When we rotate 90 degrees around z (blue axis), the red axis (x) becomes
           the green axis (y).
         */
+
+        // move and rotate the position according to the facing
+        matrix.translate(vector.x(), vector.y(), vector.z());
         if (facing == bottom) {
             matrix.mulPose(new Quaternion(0, ANGLE[facing.ordinal()], 180, true));
         } else {
@@ -70,8 +72,10 @@ public class MeterRenderer extends TileEntityRenderer<MeterTile> {
             matrix.mulPose(Vector3f.ZN.rotationDegrees(
                 facing == Direction.DOWN ? (180 - ANGLE[bottom.ordinal()]) : ANGLE[bottom.ordinal()]));
         }
+
         // scale the matrix so the text fits on the screen
         matrix.scale(PIXEL_SIZE, PIXEL_SIZE, 0);
+
         // format the current flow rate and draw it according to its size, so it's centered
         Tuple<String, String> text = TextUtils.formatEnergy(tile.getTransferRate(), false);
         String flowRate = text.getA();

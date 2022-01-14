@@ -13,18 +13,13 @@ import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.text.StringTextComponent;
 import org.apache.commons.lang3.StringUtils;
 
 abstract class GenericTextBox extends TextFieldWidget {
 
-    /**
-     * Holds the parent {@link ContainerScreen} the {@link Button} is rendered in.
-     */
     protected final MeterScreen screen;
     private final FontRenderer font;
     private final TEXT_BOX identifier;

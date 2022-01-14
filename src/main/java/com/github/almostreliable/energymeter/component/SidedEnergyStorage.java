@@ -3,7 +3,6 @@ package com.github.almostreliable.energymeter.component;
 import com.github.almostreliable.energymeter.meter.MeterTile;
 import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -23,11 +22,10 @@ public final class SidedEnergyStorage implements IEnergyStorage {
     }
 
     /**
-     * Creates a new instance for each {@link Direction}.
-     * Each of them will have the passed in parent and the direction linked to it.
+     * Creates a new instance for each direction.
      *
-     * @param parent the parent {@link TileEntity}
-     * @return a {@link List} of all created instances
+     * @param parent the parent tile
+     * @return a list of all created instances
      */
     public static List<LazyOptional<SidedEnergyStorage>> create(MeterTile parent) {
         return Arrays
