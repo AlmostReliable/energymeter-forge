@@ -425,10 +425,24 @@ public class MeterTile extends TileEntity implements ITickableTileEntity, INamed
         super.setRemoved();
     }
 
+    /**
+     * Adds a new observer to the list of observers.
+     * <p>
+     * Observers are CCT components that are notified about specific events.
+     *
+     * @param observer the observer to add
+     */
     public void subscribe(IMeterTileObserver observer) {
         observers.add(observer);
     }
 
+    /**
+     * Removes an observer from the list of observers.
+     * <p>
+     * Observers are CCT components that are notified about specific events.
+     *
+     * @param observer the observer to remove
+     */
     public void unsubscribe(IMeterTileObserver observer) {
         observers.remove(observer);
     }
