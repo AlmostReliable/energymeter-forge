@@ -6,8 +6,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-enum ClientHandler {
-    ;
+final class ClientHandler {
+
+    private ClientHandler() {}
 
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     static void handleClientSyncPacket(ClientSyncPacket packet) {

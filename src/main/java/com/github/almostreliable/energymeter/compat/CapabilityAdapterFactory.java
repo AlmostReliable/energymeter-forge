@@ -9,8 +9,9 @@ import javax.annotation.Nullable;
 
 import static com.github.almostreliable.energymeter.core.Constants.CCT_ID;
 
-public enum CapabilityAdapterFactory {
-    ;
+public final class CapabilityAdapterFactory {
+
+    private CapabilityAdapterFactory() {}
 
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     @Nullable
