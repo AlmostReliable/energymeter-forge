@@ -6,16 +6,28 @@ The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
+- /
+
+
+## [1.6.0] - 2022-01-14
 
 ### Added
 - CC: Tweaked integration ([#9])
+  - for more information, see the [wiki]
+
+### Changed
+- cleanup ([#11])
 
 ### Fixed
 - fixed syncing issue of I/O configuration after world restart ([#8])
+  - this should also apply to already existing Energy Meters
+  - if your Meter behaves odd, try to replace it
 
 <!-- Links -->
+[wiki]: https://github.com/AlmostReliable/energymeter-forge/wiki/CC:-Tweaked-Integration
 [#8]: https://github.com/AlmostReliable/energymeter-forge/issues/8
 [#9]: https://github.com/AlmostReliable/energymeter-forge/pull/9
+[#11]: https://github.com/AlmostReliable/energymeter-forge/pull/11
 
 
 ## [1.5.0] - 2021-12-17
@@ -186,7 +198,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.5.0...HEAD
+[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.6.0...HEAD
+[1.6.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.5.0..v1.16-1.6.0
 [1.5.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.1..v1.16-1.5.0
 [1.4.1]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.0..v1.16-1.4.1
 [1.4.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.3.0..v1.16-1.4.0
