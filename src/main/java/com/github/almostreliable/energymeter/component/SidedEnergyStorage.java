@@ -1,5 +1,6 @@
 package com.github.almostreliable.energymeter.component;
 
+import com.github.almostreliable.energymeter.meter.MeterTile;
 import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
 import net.minecraft.tileentity.TileEntity;
@@ -13,10 +14,10 @@ import java.util.stream.Collectors;
 
 public final class SidedEnergyStorage implements IEnergyStorage {
 
-    private final IMeter parent;
+    private final MeterTile parent;
     private final Direction side;
 
-    private SidedEnergyStorage(IMeter parent, Direction side) {
+    private SidedEnergyStorage(MeterTile parent, Direction side) {
         this.parent = parent;
         this.side = side;
     }
@@ -25,10 +26,10 @@ public final class SidedEnergyStorage implements IEnergyStorage {
      * Creates a new instance for each {@link Direction}.
      * Each of them will have the passed in parent and the direction linked to it.
      *
-     * @param parent the parent {@link TileEntity} which implements {@link IMeter}
+     * @param parent the parent {@link TileEntity}
      * @return a {@link List} of all created instances
      */
-    public static List<LazyOptional<SidedEnergyStorage>> create(IMeter parent) {
+    public static List<LazyOptional<SidedEnergyStorage>> create(MeterTile parent) {
         return Arrays
             .stream(Direction.values())
             .map(direction -> LazyOptional.of(() -> new SidedEnergyStorage(parent, direction)))
