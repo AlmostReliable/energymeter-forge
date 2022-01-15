@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static com.github.almostreliable.energymeter.core.Constants.*;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FinalMethod"})
 public class MeterPeripheral implements IPeripheral, IMeterTileObserver {
 
     private final MeterEntity entity;
@@ -38,62 +38,62 @@ public class MeterPeripheral implements IPeripheral, IMeterTileObserver {
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getInterval() {
+    public final MethodResult getInterval() {
         return MethodResult.of(entity.getInterval());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getTransferRate() {
+    public final MethodResult getTransferRate() {
         return MethodResult.of(entity.getTransferRate());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getThreshold() {
+    public final MethodResult getThreshold() {
         return MethodResult.of(entity.getThreshold());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getNumberMode() {
+    public final MethodResult getNumberMode() {
         return MethodResult.of(entity.getNumberMode().name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getMode() {
+    public final MethodResult getMode() {
         return MethodResult.of(entity.getMode().name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getAccuracy() {
+    public final MethodResult getAccuracy() {
         return MethodResult.of(entity.getAccuracy().name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getStatus() {
+    public final MethodResult getStatus() {
         return MethodResult.of(entity.getStatus().name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getSideConfig(Direction direction) {
+    public final MethodResult getSideConfig(Direction direction) {
         return MethodResult.of(entity.getSideConfig().get(direction).name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getFullSideConfig() {
+    public final MethodResult getFullSideConfig() {
         return MethodResult.of(entity.getSideConfig().asStringMap());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult hasInput() {
+    public final MethodResult hasInput() {
         return MethodResult.of(entity.getSideConfig().hasInput());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult hasOutput() {
+    public final MethodResult hasOutput() {
         return MethodResult.of(entity.getSideConfig().hasOutput());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult hasMaxOutputs() {
+    public final MethodResult hasMaxOutputs() {
         return MethodResult.of(entity.getSideConfig().hasMaxOutputs());
     }
 
