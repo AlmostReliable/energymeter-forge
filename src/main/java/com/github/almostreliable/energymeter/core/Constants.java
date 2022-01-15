@@ -9,6 +9,7 @@ public enum Constants {
     // mod info
     public static final String MOD_ID = "energymeter";
     public static final String PIPEZ_ID = "pipez";
+    public static final String CCT_ID = "computercraft";
     // ids
     public static final String METER_ID = "meter";
     // utility keys
