@@ -6,7 +6,12 @@ The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
-- /
+
+### Added
+- CC: Tweaked integration ([#9])
+
+<!-- Links -->
+[#9]: https://github.com/AlmostReliable/energymeter-forge/pull/9
 
 
 ## [3.0.0] - 2021-12-16

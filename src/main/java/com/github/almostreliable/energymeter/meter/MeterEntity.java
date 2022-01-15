@@ -1,5 +1,9 @@
 package com.github.almostreliable.energymeter.meter;
 
+import com.github.almostreliable.energymeter.compat.CapabilityAdapterFactory;
+import com.github.almostreliable.energymeter.compat.ICapabilityAdapter;
+import com.github.almostreliable.energymeter.compat.IMeterTileObserver;
+import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
 import com.github.almostreliable.energymeter.component.IMeter;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
@@ -41,6 +45,9 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
     private final List<Double> energyRates = Collections.synchronizedList(new ArrayList<>());
+    private final Set<IMeterTileObserver> observers = Collections.synchronizedSet(new HashSet<>());
+    @Nullable
+    private final ICapabilityAdapter<MeterPeripheral> meterPeripheral;
     private boolean hasValidInput;
     private boolean setupDone;
     private LazyOptional<IEnergyStorage> inputCache;
@@ -59,6 +66,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         super(Entities.METER.get(), pos, state);
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration(state);
+        meterPeripheral = CapabilityAdapterFactory.createMeterPeripheral(this);
     }
 
     public int getThreshold() {
@@ -166,6 +174,10 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         PacketHandler.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
             packet
         );
+
+        for (var observer : observers) {
+            observer.onMeterTileChanged(this, flags);
+        }
     }
 
     @Override
@@ -369,15 +381,24 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         for (var cap : energyStorage) {
             cap.invalidate();
         }
+
+        if (meterPeripheral != null) {
+            meterPeripheral.getLazyAdapter().invalidate();
+        }
+
         super.invalidateCaps();
     }
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
-        if (!remove && cap.equals(CapabilityEnergy.ENERGY) && direction != null &&
-            sideConfig.get(direction) != IO_SETTING.OFF) {
-            return energyStorage.get(direction.ordinal()).cast();
+        if (!remove) {
+            if (cap.equals(CapabilityEnergy.ENERGY) && direction != null && sideConfig.get(direction) != IO_SETTING.OFF) {
+                return energyStorage.get(direction.ordinal()).cast();
+            }
+            if (meterPeripheral != null && meterPeripheral.isCapability(cap)) {
+                return meterPeripheral.getLazyAdapter().cast();
+            }
         }
         return super.getCapability(cap, direction);
     }
@@ -385,6 +406,22 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     @Override
     public Component getDisplayName() {
         return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
+    }
+
+    @Override
+    public void setRemoved() {
+        for (var observer : observers) {
+            observer.onMeterTileRemoved(this);
+        }
+        super.setRemoved();
+    }
+
+    public void subscribe(IMeterTileObserver observer) {
+        observers.add(observer);
+    }
+
+    public void unsubscribe(IMeterTileObserver observer) {
+        observers.remove(observer);
     }
 
     @Nullable
