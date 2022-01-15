@@ -12,6 +12,7 @@ on:
       - '1.18'
 
 env:
+  JAVA_DIST: 'temurin'
   JAVA_VERSION: 17
   JAR_NAME: 'energymeter'
   FILE_NAME: 'EnergyMeter'
@@ -26,26 +27,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Gradle Wrapper Validation
-        uses: gradle/wrapper-validation-action@v1.0.3
-
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
+          distribution: ${{ env.JAVA_DIST }}
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Gradle packages
+      - name: Gradle Cache
         uses: actions/cache@v2
         with:
           path: |
@@ -55,20 +43,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Analyze
+      - name: SonarCloud Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Build and Analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonarqube --info
-
-      - name: Build
-        run: ./gradlew build --no-daemon
-
-      - name: Checks
-        run: ./gradlew check --no-daemon
-
-      - name: Test
-        run: ./gradlew test --no-daemon
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build sonarqube --stacktrace --no-daemon
 
   publish:
     name: Publish
@@ -81,19 +69,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Gradle Wrapper Validation
-        uses: gradle/wrapper-validation-action@v1.0.3
-
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
+          distribution: ${{ env.JAVA_DIST }}
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Cache Gradle packages
+      - name: Gradle Cache
         uses: actions/cache@v2
         with:
           path: |
@@ -103,17 +85,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build
-        run: ./gradlew build --no-daemon
-
-      - name: Checks
-        run: ./gradlew check --no-daemon
-
-      - name: Test
-        run: ./gradlew test --no-daemon
-
-      - name: Assemble
-        run: ./gradlew jar --no-daemon
+      - name: Assemble the jar
+        run: |
+          chmod +x ./gradlew
+          ./gradlew jar --no-daemon
 
       - name: Find the jar
         run: echo "JAR_FILE=$(find build/libs/${{ env.JAR_NAME }}-*-*.jar)" >> $GITHUB_ENV
