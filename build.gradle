@@ -88,20 +88,23 @@ sourceSets.main.resources {srcDir 'src/generated/resources'}
 
 repositories {
     maven {
-        name 'Cursemaven'
-        url 'https://www.cursemaven.com/'
+        name 'CurseMaven'
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
     }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3566128") // JEI - 9.1.9.46
-    runtimeOnly fg.deobf("curse.maven:top-245211:3550084") // TOP - 5.0.0
-    runtimeOnly fg.deobf("curse.maven:pipez-443900:3558815") // Pipez - 1.0.0
-    runtimeOnly fg.deobf("curse.maven:solare-381462:3561933") // Solar Energy - 0.4.0.1
-    runtimeOnly fg.deobf("curse.maven:smartijnlib-454372:3544563") // SuperMartijn642's Core Lib - 1.0.15a - Trash Cans Lib
-    runtimeOnly fg.deobf("curse.maven:trash-394535:3565584") // Trash Cans - 1.0.11
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3606055") // JEI - 9.2.2.74
+    runtimeOnly fg.deobf("curse.maven:top-245211:3586969") // TOP - 5.0.2
+    runtimeOnly fg.deobf("curse.maven:pipez-443900:3569514") // Pipez - 1.0.1
+    runtimeOnly fg.deobf("curse.maven:solare-381462:3569095") // Solar Energy - 0.4.0.3
+    runtimeOnly fg.deobf("curse.maven:smartijnlib-454372:3596492") // SuperMartijn642's Core Lib - 1.0.16 - Trash Cans Lib
+    runtimeOnly fg.deobf("curse.maven:trash-394535:3597654") // Trash Cans - 1.0.12
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.
