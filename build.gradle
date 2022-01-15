@@ -93,12 +93,23 @@ repositories {
         content {
             includeGroup "curse.maven"
         }
+        maven {
+            name 'CC Tweaked'
+            url 'https://squiddev.cc/maven/'
+            content {
+                includeGroup 'org.squiddev'
+            }
+        }
     }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
+    // optional dependencies
+    implementation fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
+
+    // runtime dependencies
     runtimeOnly fg.deobf("curse.maven:jei-238222:3606055") // JEI - 9.2.2.74
     runtimeOnly fg.deobf("curse.maven:top-245211:3586969") // TOP - 5.0.2
     runtimeOnly fg.deobf("curse.maven:pipez-443900:3569514") // Pipez - 1.0.1
@@ -119,6 +130,7 @@ def replaceProperties = [mod_id                 : mod_id,
                          minecraft_version_range: minecraft_version_range,
                          forge_version_range    : forge_version_range,
                          loader_version_range   : loader_version_range,
+                         cct_version_range      : cct_version_range,
                          github_user            : github_user,
                          github_repo            : github_repo]
 processResources {
