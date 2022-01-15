@@ -1,7 +1,6 @@
 package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
-import com.github.almostreliable.energymeter.meter.MeterEntity;
 import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.network.SettingUpdatePacket;
 import com.github.almostreliable.energymeter.util.GuiUtils;
@@ -108,7 +107,10 @@ public class SettingButton extends GenericButton {
     protected void clickHandler() {
         PacketHandler.CHANNEL.sendToServer(new SettingUpdatePacket(setting));
         container.getEntity().updateSetting(setting);
-        screen.changeTextBoxValue(MeterEntity.REFRESH_RATE, false);
+        if (setting == SETTING.ACCURACY) {
+            screen.getIntervalBox().reset();
+            screen.getThresholdBox().reset();
+        }
         tooltip = setupTooltip(false);
         tooltipLong = setupTooltip(true);
     }
@@ -120,13 +122,6 @@ public class SettingButton extends GenericButton {
         var pX = (width - font.width(label)) / 2 + x + 1;
         var pY = (height - font.lineHeight) / 2 + y + 1;
         GuiUtils.renderText(stack, pX, pY, 1.0f, label, UI_COLORS.WHITE);
-        // tooltips
-        if (isHovered) renderToolTip(stack, mX, mY);
-    }
-
-    @Override
-    public void renderToolTip(PoseStack stack, int mX, int mY) {
-        screen.renderComponentTooltip(stack, (Screen.hasShiftDown() ? tooltipLong : tooltip).resolve(), mX, mY);
     }
 
     @Override
@@ -142,5 +137,10 @@ public class SettingButton extends GenericButton {
     @Override
     protected int getTextureHeight() {
         return TEXTURE_HEIGHT;
+    }
+
+    @Override
+    public void renderToolTip(PoseStack stack, int mX, int mY) {
+        screen.renderComponentTooltip(stack, (Screen.hasShiftDown() ? tooltipLong : tooltip).resolve(), mX, mY);
     }
 }

@@ -274,5 +274,6 @@ gradle-app.setting
 # project specific
 .idea/runConfigurations
 .idea/discord.xml
+.idea/vcs.xml
 src/generated
 src/test

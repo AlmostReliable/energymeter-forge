@@ -3,8 +3,6 @@ package com.github.almostreliable.energymeter.meter;
 import com.github.almostreliable.energymeter.component.IMeter;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
-import com.github.almostreliable.energymeter.core.Constants;
-import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
 import com.github.almostreliable.energymeter.core.Setup.Entities;
 import com.github.almostreliable.energymeter.network.ClientSyncPacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
@@ -34,10 +32,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static com.github.almostreliable.energymeter.core.Constants.*;
+
 public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
 
     public static final int REFRESH_RATE = 5;
-    private static final long THRESHOLD_LIMIT = 10;
     private final EnumMap<Direction, LazyOptional<IEnergyStorage>> outputCache = new EnumMap<>(Direction.class);
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
@@ -52,13 +51,22 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     private MODE mode = MODE.TRANSFER;
     private ACCURACY accuracy = ACCURACY.EXACT;
     private int interval = REFRESH_RATE;
-    private double threshold;
+    private int threshold = REFRESH_RATE;
+    private double zeroThreshold;
 
     @SuppressWarnings("ThisEscapedInObjectConstruction")
     public MeterEntity(BlockPos pos, BlockState state) {
         super(Entities.METER.get(), pos, state);
         energyStorage = SidedEnergyStorage.create(this);
         sideConfig = new SideConfiguration(state);
+    }
+
+    public int getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(int threshold) {
+        this.threshold = threshold;
     }
 
     public int getInterval() {
@@ -70,7 +78,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     }
 
     public double getTransferRate() {
-        return transferRate;
+        return Math.round(transferRate * 1_000.0) / 1_000.0;
     }
 
     public void setTransferRate(double transferRate) {
@@ -152,7 +160,8 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
             status,
             mode,
             accuracy,
-            interval
+            interval,
+            threshold
         );
         PacketHandler.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
             packet
@@ -162,49 +171,49 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        if (tag.contains(Constants.SIDE_CONFIG_ID)) {
-            sideConfig.deserializeNBT(tag.getCompound(Constants.SIDE_CONFIG_ID));
-        }
-        if (tag.contains(Constants.NUMBER_MODE_ID)) {
-            numberMode = NUMBER_MODE.values()[tag.getInt(Constants.NUMBER_MODE_ID)];
-        }
-        if (tag.contains(Constants.MODE_ID)) mode = MODE.values()[tag.getInt(Constants.MODE_ID)];
-        if (tag.contains(Constants.INTERVAL_ID)) interval = tag.getInt(Constants.INTERVAL_ID);
-        if (tag.contains(Constants.ACCURACY_ID)) accuracy = ACCURACY.values()[tag.getInt(Constants.ACCURACY_ID)];
+        if (tag.contains(SIDE_CONFIG_ID)) sideConfig.deserializeNBT(tag.getCompound(SIDE_CONFIG_ID));
+        if (tag.contains(NUMBER_MODE_ID)) numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
+        if (tag.contains(MODE_ID)) mode = MODE.values()[tag.getInt(MODE_ID)];
+        if (tag.contains(ACCURACY_ID)) accuracy = ACCURACY.values()[tag.getInt(ACCURACY_ID)];
+        if (tag.contains(INTERVAL_ID)) interval = tag.getInt(INTERVAL_ID);
+        if (tag.contains(THRESHOLD_ID)) threshold = tag.getInt(THRESHOLD_ID);
     }
 
     @Override
     public CompoundTag save(CompoundTag tag) {
-        tag.put(Constants.SIDE_CONFIG_ID, sideConfig.serializeNBT());
-        tag.putInt(Constants.NUMBER_MODE_ID, numberMode.ordinal());
-        tag.putInt(Constants.MODE_ID, mode.ordinal());
-        tag.putInt(Constants.INTERVAL_ID, interval);
-        tag.putInt(Constants.ACCURACY_ID, accuracy.ordinal());
+        tag.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
+        tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
+        tag.putInt(MODE_ID, mode.ordinal());
+        tag.putInt(ACCURACY_ID, accuracy.ordinal());
+        tag.putInt(INTERVAL_ID, interval);
+        tag.putInt(THRESHOLD_ID, threshold);
         return super.save(tag);
     }
 
     @Override
     public CompoundTag getUpdateTag() {
         var tag = super.getUpdateTag();
-        tag.put(Constants.SIDE_CONFIG_ID, sideConfig.serializeNBT());
-        tag.putDouble(Constants.TRANSFER_RATE_ID, transferRate);
-        tag.putInt(Constants.STATUS_ID, status.ordinal());
-        tag.putInt(Constants.NUMBER_MODE_ID, numberMode.ordinal());
-        tag.putInt(Constants.MODE_ID, mode.ordinal());
-        tag.putInt(Constants.INTERVAL_ID, interval);
-        tag.putInt(Constants.ACCURACY_ID, accuracy.ordinal());
+        tag.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
+        tag.putDouble(TRANSFER_RATE_ID, transferRate);
+        tag.putInt(STATUS_ID, status.ordinal());
+        tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
+        tag.putInt(MODE_ID, mode.ordinal());
+        tag.putInt(ACCURACY_ID, accuracy.ordinal());
+        tag.putInt(INTERVAL_ID, interval);
+        tag.putInt(THRESHOLD_ID, threshold);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(CompoundTag tag) {
-        sideConfig.deserializeNBT(tag.getCompound(Constants.SIDE_CONFIG_ID));
-        transferRate = tag.getDouble(Constants.TRANSFER_RATE_ID);
-        status = STATUS.values()[tag.getInt(Constants.STATUS_ID)];
-        numberMode = NUMBER_MODE.values()[tag.getInt(Constants.NUMBER_MODE_ID)];
-        mode = MODE.values()[tag.getInt(Constants.MODE_ID)];
-        interval = tag.getInt(Constants.INTERVAL_ID);
-        accuracy = ACCURACY.values()[tag.getInt(Constants.ACCURACY_ID)];
+        sideConfig.deserializeNBT(tag.getCompound(SIDE_CONFIG_ID));
+        transferRate = tag.getDouble(TRANSFER_RATE_ID);
+        status = STATUS.values()[tag.getInt(STATUS_ID)];
+        numberMode = NUMBER_MODE.values()[tag.getInt(NUMBER_MODE_ID)];
+        mode = MODE.values()[tag.getInt(MODE_ID)];
+        accuracy = ACCURACY.values()[tag.getInt(ACCURACY_ID)];
+        interval = tag.getInt(INTERVAL_ID);
+        threshold = tag.getInt(THRESHOLD_ID);
     }
 
     @Override
@@ -375,7 +384,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
 
     @Override
     public Component getDisplayName() {
-        return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, Constants.METER_ID);
+        return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
     }
 
     @Nullable
@@ -421,7 +430,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     }
 
     private boolean thresholdReached() {
-        return energyRates.size() > THRESHOLD_LIMIT && threshold == 0;
+        return energyRates.size() * REFRESH_RATE >= threshold && zeroThreshold == 0;
     }
 
     private boolean intervalReached() {
@@ -497,8 +506,8 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     }
 
     private void calculateThreshold() {
-        var skips = Math.max(0, energyRates.size() - THRESHOLD_LIMIT);
-        threshold = energyRates.stream().skip(skips).reduce(0.0, Double::sum);
+        var skips = Math.max(0, energyRates.size() * REFRESH_RATE - threshold);
+        zeroThreshold = energyRates.stream().skip(skips).reduce(0.0, Double::sum);
     }
 
     /**
@@ -518,7 +527,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
             if (provider == null) {
                 var state = level.getBlockState(worldPosition.relative(direction));
                 return !state.isAir() && state.getBlock().getRegistryName() != null &&
-                    state.getBlock().getRegistryName().getNamespace().equals(Constants.PIPEZ_ID);
+                    state.getBlock().getRegistryName().getNamespace().equals(PIPEZ_ID);
             }
             target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
             inputCache = target;

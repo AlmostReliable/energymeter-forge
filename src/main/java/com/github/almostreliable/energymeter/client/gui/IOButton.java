@@ -1,6 +1,5 @@
 package com.github.almostreliable.energymeter.client.gui;
 
-import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.network.IOUpdatePacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
@@ -17,7 +16,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class IOButton extends GenericButton {
+import static com.github.almostreliable.energymeter.core.Constants.IO_MODE_ID;
+import static com.github.almostreliable.energymeter.core.Constants.IO_SIDE_ID;
+import static com.github.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
+
+final class IOButton extends GenericButton {
 
     private static final String TEXTURE = "io";
     private static final int POS_X = 141;
@@ -58,10 +61,10 @@ public final class IOButton extends GenericButton {
     private Tooltip setupTooltip() {
         return Tooltip.builder()
             // header
-            .addHeader(Constants.SIDE_CONFIG_ID).addBlankLine()
+            .addHeader(SIDE_CONFIG_ID).addBlankLine()
             // block side
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, Constants.IO_SIDE_ID, ChatFormatting.GREEN)
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE,
                     side.toString().toLowerCase(),
@@ -69,7 +72,7 @@ public final class IOButton extends GenericButton {
                 )))
             // current mode
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, Constants.IO_MODE_ID, ChatFormatting.GREEN)
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING,
                     setting.toString().toLowerCase(),
@@ -104,8 +107,6 @@ public final class IOButton extends GenericButton {
         super.renderButton(stack, mX, mY, partial);
         // io overlay
         renderIOOverlay(stack);
-        // tooltips
-        if (isHovered) renderToolTip(stack, mX, mY);
     }
 
     @Override

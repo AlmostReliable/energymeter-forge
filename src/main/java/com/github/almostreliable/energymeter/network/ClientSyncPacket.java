@@ -25,11 +25,12 @@ public class ClientSyncPacket {
     private MODE mode;
     private ACCURACY accuracy;
     private int interval;
+    private int threshold;
 
     @SuppressWarnings("java:S107")
     public ClientSyncPacket(
         BlockPos pos, int flags, SideConfiguration sideConfig, double transferRate, NUMBER_MODE numberMode,
-        STATUS status, MODE mode, ACCURACY accuracy, int interval
+        STATUS status, MODE mode, ACCURACY accuracy, int interval, int threshold
     ) {
         this.pos = pos;
         this.flags = flags;
@@ -40,6 +41,7 @@ public class ClientSyncPacket {
         this.mode = mode;
         this.accuracy = accuracy;
         this.interval = interval;
+        this.threshold = threshold;
     }
 
     private ClientSyncPacket() {}
@@ -65,10 +67,6 @@ public class ClientSyncPacket {
 
     private static void handlePacket(ClientSyncPacket packet) {
         ClientHandler.handleClientSyncPacket(packet);
-    }
-
-    int getInterval() {
-        return interval;
     }
 
     BlockPos getPos() {
@@ -103,6 +101,14 @@ public class ClientSyncPacket {
         return accuracy;
     }
 
+    int getInterval() {
+        return interval;
+    }
+
+    int getThreshold() {
+        return threshold;
+    }
+
     void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos);
         buffer.writeInt(flags);
@@ -113,5 +119,6 @@ public class ClientSyncPacket {
         if ((flags & SYNC_FLAGS.MODE) != 0) buffer.writeInt(mode.ordinal());
         if ((flags & SYNC_FLAGS.ACCURACY) != 0) buffer.writeInt(accuracy.ordinal());
         if ((flags & SYNC_FLAGS.INTERVAL) != 0) buffer.writeInt(interval);
+        if ((flags & SYNC_FLAGS.THRESHOLD) != 0) buffer.writeInt(threshold);
     }
 }
