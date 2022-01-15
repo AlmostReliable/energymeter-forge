@@ -24,3 +24,10 @@ mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId="computercraft"
+mandatory=false
+versionRange="${cct_version_range}"
+ordering="AFTER"
+side="BOTH"
