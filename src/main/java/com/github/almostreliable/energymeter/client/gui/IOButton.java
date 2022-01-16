@@ -93,7 +93,7 @@ final class IOButton extends GenericButton {
             .stream(sides)
             .filter(side -> side != BLOCK_SIDE.FRONT)
             .map(side -> new IOButton(screen, side))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
