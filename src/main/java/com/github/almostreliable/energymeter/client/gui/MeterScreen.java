@@ -25,7 +25,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     private static final int TEXTURE_WIDTH = 199;
     private static final int TEXTURE_HEIGHT = 129;
     private static final Tooltip TOOLTIP = setupTooltip();
-    private final Collection<AbstractWidget> renderables = new ArrayList<>();
+    private final Collection<AbstractWidget> toRender = new ArrayList<>();
     private IntervalBox intervalBox;
     private ThresholdBox thresholdBox;
 
@@ -81,7 +81,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
 
     private void addRenderable(AbstractWidget widget) {
         addRenderableWidget(widget);
-        renderables.add(widget);
+        toRender.add(widget);
     }
 
     /**
@@ -110,7 +110,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
             return;
         }
         // widget tooltips
-        for (var widget : renderables) {
+        for (var widget : toRender) {
             if (widget.isHoveredOrFocused() && widget.visible) {
                 widget.renderToolTip(stack, mX, mY);
             }
