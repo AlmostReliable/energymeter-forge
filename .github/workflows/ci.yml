@@ -12,7 +12,7 @@ on:
       - '1.18'
 
 env:
-  JAVA_DIST: 'temurin'
+  JAVA_DIST: 'zulu'
   JAVA_VERSION: 17
   JAR_NAME: 'energymeter'
   FILE_NAME: 'EnergyMeter'
