@@ -33,39 +33,9 @@ It has a screen always displaying the current rate in order to keep you up-to-da
 3. Drop the **jar file** into your mods folder.
 
 
-## **✋ Usage**
-The usage of the Energy Meter is pretty straightforward.<br>
-Just connect wires, generators, machines or other electrical objects to the Meter and take a look at the energy transfer rate.
-
-The block itself has a GUI where you can look at extended number information, change its mode or adjust the side configuration of the Meter.
-
-
-## **⚙ Functionality**
-The Energy Meter can only have one input but a maximum of 4 outputs.<br>
-All sides can be configured except for the front because that's the reserved face for the screen.
-
-If you have multiple outputs, the Meter will always try to equally split the energy between all of them.<br>
-Additionally, the Meter has two modes:
-
-**Transfer Mode**
-- the default mode
-- will transfer the incoming energy to the defined outputs just like a cable with the benefit of it measuring the rate
-
-**Consumer Mode**
-- will take priority over all outputs
-- dumps all incoming energy (acts like a trashcan)
-- useful if you want to measure all incoming energy without the need to transfer it somewhere
-
-The Energy Meter recalculates the average transfer rate every 5 ticks (0,25 seconds) by default.<br>
-This update interval can be changed by typing the custom amount of ticks in the GUI.
-The change can be applied by pressing `Enter` or by unfocusing the text box.<br>
-A higher interval will result in energy spikes evening out but also fewer updates to the value.
-
-It has an unlimited transfer rate. Therefore, the limitation only comes from the attached objects.<br>
-To prevent having an unlimited cable very early, it is not possible to attach a Meter to another Meter.
-
-There are some mods with pretty unique implementations of cables like Pipez.<br>
-The mod currently has a workaround for that but in case you find other mods which don't work properly with the Meter, please report them!
+## **⚙ More Information**
+For more information about the usage, the functionality and the provided integrations of the mod, please
+visit our [wiki].
 
 
 ## **📕 History**
@@ -102,6 +72,7 @@ This project is licensed under the [MIT license][license].
 [curseforge]: https://www.curseforge.com/minecraft/mc-mods/energymeter
 [forge]: http://files.minecraftforge.net/
 [releases]: https://github.com/AlmostReliable/energymeter-forge/releases
+[wiki]: https://github.com/AlmostReliable/energymeter-forge/wiki
 [Energy Meters]: https://www.curseforge.com/minecraft/mc-mods/energy-meters
 [@vladmarica]: https://github.com/vladmarica
 [changelog]: CHANGELOG.md
