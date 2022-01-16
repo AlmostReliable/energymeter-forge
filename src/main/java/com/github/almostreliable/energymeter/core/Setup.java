@@ -23,10 +23,11 @@ import java.util.function.Supplier;
 import static com.github.almostreliable.energymeter.core.Constants.METER_ID;
 import static com.github.almostreliable.energymeter.core.Constants.MOD_ID;
 
-public enum Setup {
-    ;
+public final class Setup {
 
     private static final Tab TAB = new Tab(MOD_ID);
+
+    private Setup() {}
 
     private static <E extends IForgeRegistryEntry<E>> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
         return DeferredRegister.create(registry, MOD_ID);
@@ -39,11 +40,12 @@ public enum Setup {
         Containers.REGISTRY.register(modEventBus);
     }
 
-    public enum Entities {
-        ;
+    public static final class Entities {
 
         private static final DeferredRegister<BlockEntityType<?>> REGISTRY
             = createRegistry(ForgeRegistries.BLOCK_ENTITIES);
+
+        private Entities() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <E extends MeterEntity, B extends MeterBlock> RegistryObject<BlockEntityType<E>> register(
@@ -59,10 +61,11 @@ public enum Setup {
         );
     }
 
-    public enum Containers {
-        ;
+    public static final class Containers {
 
         private static final DeferredRegister<MenuType<?>> REGISTRY = createRegistry(ForgeRegistries.CONTAINERS);
+
+        private Containers() {}
 
         @SuppressWarnings("SameParameterValue")
         private static <C extends MeterContainer> RegistryObject<MenuType<C>> register(

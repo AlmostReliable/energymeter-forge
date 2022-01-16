@@ -13,12 +13,13 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public enum TextUtils {
-    ;
+public final class TextUtils {
 
     private static final Locale LOCALE = Locale.getDefault();
     private static final DecimalFormat DF = (DecimalFormat) NumberFormat.getInstance(LOCALE).clone();
     private static final String[] UNITS = {"", "k", "M", "G", "T", "P"};
+
+    private TextUtils() {}
 
     /**
      * Gets a {@link ResourceLocation} with the given key
