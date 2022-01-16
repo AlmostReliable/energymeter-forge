@@ -2,7 +2,7 @@ package com.github.almostreliable.energymeter.meter;
 
 import com.github.almostreliable.energymeter.compat.CapabilityAdapterFactory;
 import com.github.almostreliable.energymeter.compat.ICapabilityAdapter;
-import com.github.almostreliable.energymeter.compat.IMeterTileObserver;
+import com.github.almostreliable.energymeter.compat.IMeterEntityObserver;
 import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
@@ -23,7 +23,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -44,7 +43,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
     private final List<Double> energyRates = Collections.synchronizedList(new ArrayList<>());
-    private final Set<IMeterTileObserver> observers = Collections.synchronizedSet(new HashSet<>());
+    private final Set<IMeterEntityObserver> observers = Collections.synchronizedSet(new HashSet<>());
     @Nullable
     private final ICapabilityAdapter<MeterPeripheral> meterPeripheral;
     private boolean hasValidInput;
@@ -150,9 +149,9 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * Syncs data to clients that track the current {@link LevelChunk} with a {@link ClientSyncPacket}.
+     * Syncs data to clients tracking the current with a {@link ClientSyncPacket}.
      * <p>
-     * Different flags from the {@link SYNC_FLAGS} can be passed to define what should be included
+     * Different flags from the sync flags can be passed to define what should be included
      * in the packet to avoid unnecessary data being sent.
      *
      * @param flags the flags of the data to sync
@@ -353,7 +352,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * Updates the neighbor blocks of the {@link BlockEntity}.
+     * Updates the neighbor blocks of the entity.
      * Can be useful to connect cables.
      */
     public void updateNeighbors() {
@@ -362,10 +361,10 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * Flips the IO {@link BlockState} value and returns the new {@link BlockState}.
+     * Flips the IO block state value and returns the new block state.
      * This is a utility method to make neighbor updates possible.
      *
-     * @return the {@link BlockState} with the flipped IO value
+     * @return the block state with the flipped IO value
      */
     private BlockState flipBlockState() {
         var state = getBlockState();
@@ -412,11 +411,25 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
         super.setRemoved();
     }
 
-    public void subscribe(IMeterTileObserver observer) {
+    /**
+     * Adds a new observer to the list of observers.
+     * <p>
+     * Observers are CCT components that are notified about specific events.
+     *
+     * @param observer the observer to add
+     */
+    public void subscribe(IMeterEntityObserver observer) {
         observers.add(observer);
     }
 
-    public void unsubscribe(IMeterTileObserver observer) {
+    /**
+     * Removes an observer from the list of observers.
+     * <p>
+     * Observers are CCT components that are notified about specific events.
+     *
+     * @param observer the observer to remove
+     */
+    public void unsubscribe(IMeterEntityObserver observer) {
         observers.remove(observer);
     }
 
@@ -427,9 +440,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * Called each tick.
-     * <p>
-     * In this case, it is only done server side from {@link MeterBlock}.
+     * Called each tick server-side.
      */
     void tick() {
         if (level == null || level.isClientSide) return;
@@ -488,10 +499,10 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * Updates the cached input and output values depending on the {@link Direction}.
+     * Updates the cached input and output values depending on the direction.
      * This ensures that the current status is always up-to-date.
      *
-     * @param direction the {@link Direction} to update the cache for
+     * @param direction the direction to update the cache for
      */
     public void updateCache(Direction direction) {
         if (level == null || level.isClientSide) return;

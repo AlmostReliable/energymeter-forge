@@ -5,19 +5,11 @@ import com.github.almostreliable.energymeter.util.TextUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public abstract class GenericButton extends Button {
 
-    /**
-     * Holds the parent {@link AbstractContainerMenu} of the parent {@link AbstractContainerScreen}.
-     */
     final MeterContainer container;
-    /**
-     * Holds the parent {@link AbstractContainerScreen} the {@link Button} is rendered in.
-     */
     final MeterScreen screen;
 
     GenericButton(MeterScreen screen, int pX, int pY, int width, int height) {

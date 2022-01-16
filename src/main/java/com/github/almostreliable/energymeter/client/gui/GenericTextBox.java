@@ -13,18 +13,13 @@ import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.StringUtils;
 
 abstract class GenericTextBox extends EditBox {
 
-    /**
-     * Holds the parent {@link ContainerScreen} the {@link Button} is rendered in.
-     */
     protected final MeterScreen screen;
     private final Font font;
     private final TEXT_BOX identifier;

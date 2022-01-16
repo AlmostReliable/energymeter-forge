@@ -16,14 +16,11 @@ class ThresholdBox extends GenericTextBox {
 
     private static Tooltip setupTooltip() {
         return Tooltip.builder()
-            // header
             .addHeader("threshold")
             .addBlankLine()
-            // description
             .addDescription("threshold_desc_1")
             .addDescription("threshold_desc_2")
             .addBlankLine()
-            // action
             .addClickAction("action_5")
             .addShiftClickAction("action_2")
             .addCustomAction("key.keyboard.enter", "action_6");

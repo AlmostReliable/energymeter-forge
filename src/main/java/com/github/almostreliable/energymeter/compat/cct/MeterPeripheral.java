@@ -1,6 +1,6 @@
 package com.github.almostreliable.energymeter.compat.cct;
 
-import com.github.almostreliable.energymeter.compat.IMeterTileObserver;
+import com.github.almostreliable.energymeter.compat.IMeterEntityObserver;
 import com.github.almostreliable.energymeter.meter.MeterEntity;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
@@ -16,7 +16,7 @@ import java.util.Map;
 import static com.github.almostreliable.energymeter.core.Constants.*;
 
 @SuppressWarnings({"unused", "FinalMethod"})
-public class MeterPeripheral implements IPeripheral, IMeterTileObserver {
+public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
 
     private final MeterEntity entity;
     private IComputerAccess computer;

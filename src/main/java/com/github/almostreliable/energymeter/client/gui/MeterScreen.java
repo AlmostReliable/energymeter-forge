@@ -38,10 +38,8 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
 
     private static Tooltip setupTooltip() {
         return Tooltip.builder()
-            // header
             .addHeader(SIDE_CONFIG_ID)
             .addBlankLine()
-            // screen info
             .addComponent(TextUtils
                 .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
@@ -66,13 +64,13 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     @Override
     protected void init() {
         super.init();
-        // interval box
+
         intervalBox = new IntervalBox(this, font, leftPos + 18, topPos + imageHeight + 5, 42, 8);
         addRenderable(intervalBox);
-        // threshold box
+
         thresholdBox = new ThresholdBox(this, font, leftPos + 81, topPos + imageHeight + 5, 42, 8);
         addRenderable(thresholdBox);
-        // clickable buttons
+
         addRenderables(IOButton.create(this, BLOCK_SIDE.values()));
         addRenderable(new SettingButton(this, 136, 64, SETTING.NUMBER));
         addRenderable(new SettingButton(this, 136, 86, SETTING.MODE));

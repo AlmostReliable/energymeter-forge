@@ -34,7 +34,7 @@ public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
     public void render(
         MeterEntity entity, float partial, PoseStack stack, MultiBufferSource buffer, int light, int overlay
     ) {
-        // don't display something if the player is too far away
+        // turn off display if player is too far away
         if (entity.getBlockPos().distSqr(mc.player.blockPosition()) > Math.pow(MAX_DISTANCE, 2)) return;
 
         // resolve the facing side and resolve the vector used for positioning
@@ -43,8 +43,7 @@ public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
         var vector = getFacingVector(facing);
 
         stack.pushPose();
-        // move and rotate the position according to the facing
-        stack.translate(vector.x(), vector.y(), vector.z());
+
         /*
            The rotation of the stack depends on the facing direction of the block and
            where the screen is located.
@@ -58,6 +57,9 @@ public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
            When we rotate 90 degrees around z (blue axis), the red axis (x) becomes
            the green axis (y).
          */
+
+        // move and rotate the position according to the facing
+        stack.translate(vector.x(), vector.y(), vector.z());
         if (facing == bottom) {
             stack.mulPose(new Quaternion(0, ANGLE[facing.ordinal()], 180, true));
         } else {
@@ -66,8 +68,10 @@ public class MeterRenderer implements BlockEntityRenderer<MeterEntity> {
             stack.mulPose(Vector3f.ZN.rotationDegrees(
                 facing == Direction.DOWN ? (180 - ANGLE[bottom.ordinal()]) : ANGLE[bottom.ordinal()]));
         }
+
         // scale the stack so the text fits on the screen
         stack.scale(PIXEL_SIZE, PIXEL_SIZE, 0);
+
         // format the current flow rate and draw it according to its size, so it's centered
         var text = TextUtils.formatEnergy(entity.getTransferRate(), false);
         var flowRate = text.getA();

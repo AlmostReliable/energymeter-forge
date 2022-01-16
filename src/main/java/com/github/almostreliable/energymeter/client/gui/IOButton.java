@@ -14,7 +14,6 @@ import net.minecraft.util.Tuple;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.github.almostreliable.energymeter.core.Constants.IO_MODE_ID;
 import static com.github.almostreliable.energymeter.core.Constants.IO_SIDE_ID;
@@ -42,9 +41,9 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Returns the x and y positions for the texture depending on the {@link BLOCK_SIDE}.
+     * Returns the x and y positions for the texture depending on the block side.
      *
-     * @param side the BLOCK_SIDE to resolve the positions for
+     * @param side the block side to get the positions for
      * @return the x and y position for the BLOCK_SIDE
      */
     private static Tuple<Integer, Integer> getButtonPos(BLOCK_SIDE side) {
@@ -83,8 +82,9 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Creates an io button for each passed in {@link BLOCK_SIDE}.
+     * Creates an io button for each passed in block side.
      *
+     * @param screen the screen to create the buttons for
      * @param sides the sides for which the buttons should be created
      * @return a list of all buttons created
      */
@@ -105,7 +105,6 @@ final class IOButton extends GenericButton {
     @Override
     public void renderButton(PoseStack stack, int mX, int mY, float partial) {
         super.renderButton(stack, mX, mY, partial);
-        // io overlay
         renderIOOverlay(stack);
     }
 
@@ -125,7 +124,7 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Renders the I/O overlay for the button depending on its {@link IO_SETTING}.
+     * Renders the I/O overlay for the button depending on its io setting.
      *
      * @param stack the pose stack for the render call
      */
@@ -148,7 +147,7 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Changes the mode of a {@link BLOCK_SIDE} depending on its current {@link IO_SETTING}.
+     * Changes the mode of a block side depending on its current io setting.
      *
      * @param reset whether the field should be reset to OFF
      */
