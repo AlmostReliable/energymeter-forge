@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [1.6.1] - 2022-01-17
+
+### Fixed
+- CC: Tweaked integration spamming the log with warnings when connection the Energy Meter to a computer ([#17])
+
+<!-- Links -->
+[#17]: https://github.com/AlmostReliable/energymeter-forge/pull/17
+
+
 ## [1.6.0] - 2022-01-14
 
 ### Added
@@ -198,7 +207,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.6.0...HEAD
+[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.6.1...HEAD
+[1.6.1]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.6.0..v1.16-1.6.1
 [1.6.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.5.0..v1.16-1.6.0
 [1.5.0]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.1..v1.16-1.5.0
 [1.4.1]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.16-1.4.0..v1.16-1.4.1

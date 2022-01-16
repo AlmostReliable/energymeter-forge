@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static com.github.almostreliable.energymeter.core.Constants.*;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FinalMethod"})
 public class MeterPeripheral implements IPeripheral, IMeterTileObserver {
 
     private final MeterTile tile;
@@ -26,22 +26,22 @@ public class MeterPeripheral implements IPeripheral, IMeterTileObserver {
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getSideConfig(Direction direction) {
+    public final MethodResult getSideConfig(Direction direction) {
         return MethodResult.of(tile.getSideConfig().get(direction).name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult hasInput() {
+    public final MethodResult hasInput() {
         return MethodResult.of(tile.getSideConfig().hasInput());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult hasOutput() {
+    public final MethodResult hasOutput() {
         return MethodResult.of(tile.getSideConfig().hasOutput());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult hasMaxOutputs() {
+    public final MethodResult hasMaxOutputs() {
         return MethodResult.of(tile.getSideConfig().hasMaxOutputs());
     }
 
@@ -90,42 +90,42 @@ public class MeterPeripheral implements IPeripheral, IMeterTileObserver {
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getInterval() {
+    public final MethodResult getInterval() {
         return MethodResult.of(tile.getInterval());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getTransferRate() {
+    public final MethodResult getTransferRate() {
         return MethodResult.of(tile.getTransferRate());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getThreshold() {
+    public final MethodResult getThreshold() {
         return MethodResult.of(tile.getThreshold());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getNumberMode() {
+    public final MethodResult getNumberMode() {
         return MethodResult.of(tile.getNumberMode().name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getMode() {
+    public final MethodResult getMode() {
         return MethodResult.of(tile.getMode().name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getAccuracy() {
+    public final MethodResult getAccuracy() {
         return MethodResult.of(tile.getAccuracy().name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getStatus() {
+    public final MethodResult getStatus() {
         return MethodResult.of(tile.getStatus().name());
     }
 
     @LuaFunction(mainThread = true)
-    public MethodResult getFullSideConfig() {
+    public final MethodResult getFullSideConfig() {
         return MethodResult.of(tile.getSideConfig().asStringMap());
     }
 }
