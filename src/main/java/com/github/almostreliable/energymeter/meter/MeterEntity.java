@@ -4,7 +4,6 @@ import com.github.almostreliable.energymeter.compat.CapabilityAdapterFactory;
 import com.github.almostreliable.energymeter.compat.ICapabilityAdapter;
 import com.github.almostreliable.energymeter.compat.IMeterTileObserver;
 import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
-import com.github.almostreliable.energymeter.component.IMeter;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
 import com.github.almostreliable.energymeter.core.Setup.Entities;
@@ -38,7 +37,7 @@ import java.util.*;
 
 import static com.github.almostreliable.energymeter.core.Constants.*;
 
-public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
+public class MeterEntity extends BlockEntity implements MenuProvider {
 
     public static final int REFRESH_RATE = 5;
     private final EnumMap<Direction, LazyOptional<IEnergyStorage>> outputCache = new EnumMap<>(Direction.class);
@@ -228,7 +227,6 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         threshold = tag.getInt(THRESHOLD_ID);
     }
 
-    @Override
     public int receiveEnergy(int energy, boolean simulate) {
         if (level == null || !setupDone) return 0;
 
@@ -267,12 +265,10 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         return acceptedEnergy;
     }
 
-    @Override
     public SideConfiguration getSideConfig() {
         return sideConfig;
     }
 
-    @Override
     public MODE getMode() {
         return mode;
     }

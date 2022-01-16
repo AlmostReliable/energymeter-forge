@@ -1,31 +1,30 @@
 package com.github.almostreliable.energymeter.component;
 
+import com.github.almostreliable.energymeter.meter.MeterEntity;
 import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public record SidedEnergyStorage(IMeter parent, Direction side) implements IEnergyStorage {
+public record SidedEnergyStorage(MeterEntity parent, Direction side) implements IEnergyStorage {
 
     /**
-     * Creates a new instance for each {@link Direction}.
+     * Creates a new instance for each direction.
      * Each of them will have the passed in parent and the direction linked to it.
      *
-     * @param parent the parent {@link BlockEntity} which implements {@link IMeter}
-     * @return a {@link List} of all created instances
+     * @param parent the parent entity
+     * @return a list of all created instances
      */
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
-    public static List<LazyOptional<SidedEnergyStorage>> create(IMeter parent) {
+    public static List<LazyOptional<SidedEnergyStorage>> create(MeterEntity parent) {
         return Arrays
             .stream(Direction.values())
             .map(direction -> LazyOptional.of(() -> new SidedEnergyStorage(parent, direction)))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
