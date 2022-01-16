@@ -12,14 +12,14 @@ on:
       - '1.18'
 
 env:
-  JAVA_DIST: 'temurin'
+  JAVA_DIST: 'zulu'
   JAVA_VERSION: 17
   JAR_NAME: 'energymeter'
   FILE_NAME: 'EnergyMeter'
 
 jobs:
-  check:
-    name: Lint & Build
+  build:
+    name: Build & Analyze
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repository
@@ -58,10 +58,10 @@ jobs:
           chmod +x ./gradlew
           ./gradlew build sonarqube --stacktrace --no-daemon
 
-  publish:
-    name: Publish
+  release:
+    name: Release
     runs-on: ubuntu-latest
-    needs: check
+    needs: build
     if: startsWith(github.ref, 'refs/tags/v1.18-')
     steps:
       - name: Clone Repository
@@ -90,11 +90,10 @@ jobs:
           chmod +x ./gradlew
           ./gradlew jar --no-daemon
 
-      - name: Find the jar
-        run: echo "JAR_FILE=$(find build/libs/${{ env.JAR_NAME }}-*-*.jar)" >> $GITHUB_ENV
-
-      - name: Extract Minecraft and Mod Version
-        run: echo ${JAR_FILE%.*} | awk -F- '{ print "MINECRAFT_VERSION=" $2; print "MOD_VERSION=" $3; }' >> $GITHUB_ENV
+      - name: JAR manipulation
+        run: |
+          echo "JAR_FILE=$(find build/libs/${{ env.JAR_NAME }}-*-*.jar)" >> $GITHUB_ENV
+          echo ${JAR_FILE%.*} | awk -F- '{ print "MINECRAFT_VERSION=" $2; print "MOD_VERSION=" $3; }' >> $GITHUB_ENV
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
