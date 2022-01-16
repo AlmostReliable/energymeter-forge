@@ -7,8 +7,7 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-public enum PacketHandler {
-    ;
+public final class PacketHandler {
 
     private static final ResourceLocation ID = TextUtils.getRL(Constants.NETWORK_ID);
     private static final String PROTOCOL = "1";
@@ -17,6 +16,8 @@ public enum PacketHandler {
         PROTOCOL::equals,
         PROTOCOL::equals
     );
+
+    private PacketHandler() {}
 
     @SuppressWarnings("ValueOfIncrementOrDecrementUsed")
     public static void init() {

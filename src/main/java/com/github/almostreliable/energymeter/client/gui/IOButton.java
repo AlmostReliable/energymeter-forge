@@ -14,7 +14,6 @@ import net.minecraft.util.Tuple;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.github.almostreliable.energymeter.core.Constants.IO_MODE_ID;
 import static com.github.almostreliable.energymeter.core.Constants.IO_SIDE_ID;
@@ -42,9 +41,24 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Returns the x and y positions for the texture depending on the {@link BLOCK_SIDE}.
+     * Creates an io button for each passed in block side.
      *
-     * @param side the BLOCK_SIDE to resolve the positions for
+     * @param screen the screen to create the buttons for
+     * @param sides  the sides for which the buttons should be created
+     * @return a list of all buttons created
+     */
+    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
+        return Arrays
+            .stream(sides)
+            .filter(side -> side != BLOCK_SIDE.FRONT)
+            .map(side -> new IOButton(screen, side))
+            .toList();
+    }
+
+    /**
+     * Returns the x and y positions for the texture depending on the block side.
+     *
+     * @param side the block side to get the positions for
      * @return the x and y position for the BLOCK_SIDE
      */
     private static Tuple<Integer, Integer> getButtonPos(BLOCK_SIDE side) {
@@ -56,6 +70,44 @@ final class IOButton extends GenericButton {
             case BACK -> new Tuple<>(ZONE_SIZE * 2, ZONE_SIZE * 2);
             case FRONT -> new Tuple<>(0, 0);
         };
+    }
+
+    @Override
+    public void renderToolTip(PoseStack stack, int mX, int mY) {
+        screen.renderComponentTooltip(stack, tooltip.resolve(), mX, mY);
+    }
+
+    @Override
+    public void onClick(double mX, double mY) {
+        if (isHovered) changeMode(Screen.hasShiftDown());
+        super.onClick(mX, mY);
+    }
+
+    @Override
+    protected void clickHandler() {
+        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
+        tooltip = setupTooltip();
+    }
+
+    @Override
+    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
+        super.renderButton(stack, mX, mY, partial);
+        renderIOOverlay(stack);
+    }
+
+    @Override
+    protected String getTexture() {
+        return TEXTURE;
+    }
+
+    @Override
+    protected int getTextureWidth() {
+        return TEXTURE_WIDTH;
+    }
+
+    @Override
+    protected int getTextureHeight() {
+        return TEXTURE_HEIGHT;
     }
 
     private Tooltip setupTooltip() {
@@ -83,49 +135,7 @@ final class IOButton extends GenericButton {
     }
 
     /**
-     * Creates an io button for each passed in {@link BLOCK_SIDE}.
-     *
-     * @param sides the sides for which the buttons should be created
-     * @return a list of all buttons created
-     */
-    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
-        return Arrays
-            .stream(sides)
-            .filter(side -> side != BLOCK_SIDE.FRONT)
-            .map(side -> new IOButton(screen, side))
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    protected void clickHandler() {
-        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
-        tooltip = setupTooltip();
-    }
-
-    @Override
-    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
-        super.renderButton(stack, mX, mY, partial);
-        // io overlay
-        renderIOOverlay(stack);
-    }
-
-    @Override
-    protected String getTexture() {
-        return TEXTURE;
-    }
-
-    @Override
-    protected int getTextureWidth() {
-        return TEXTURE_WIDTH;
-    }
-
-    @Override
-    protected int getTextureHeight() {
-        return TEXTURE_HEIGHT;
-    }
-
-    /**
-     * Renders the I/O overlay for the button depending on its {@link IO_SETTING}.
+     * Renders the I/O overlay for the button depending on its io setting.
      *
      * @param stack the pose stack for the render call
      */
@@ -136,19 +146,8 @@ final class IOButton extends GenericButton {
         }
     }
 
-    @Override
-    public void renderToolTip(PoseStack stack, int mX, int mY) {
-        screen.renderComponentTooltip(stack, tooltip.resolve(), mX, mY);
-    }
-
-    @Override
-    public void onClick(double mX, double mY) {
-        if (isHovered) changeMode(Screen.hasShiftDown());
-        super.onClick(mX, mY);
-    }
-
     /**
-     * Changes the mode of a {@link BLOCK_SIDE} depending on its current {@link IO_SETTING}.
+     * Changes the mode of a block side depending on its current io setting.
      *
      * @param reset whether the field should be reset to OFF
      */

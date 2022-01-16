@@ -5,8 +5,9 @@ import com.github.almostreliable.energymeter.meter.MeterEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 
-enum ClientHandler {
-    ;
+final class ClientHandler {
+
+    private ClientHandler() {}
 
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     static void handleClientSyncPacket(ClientSyncPacket packet) {

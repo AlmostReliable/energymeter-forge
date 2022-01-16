@@ -25,7 +25,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     private static final int TEXTURE_WIDTH = 199;
     private static final int TEXTURE_HEIGHT = 129;
     private static final Tooltip TOOLTIP = setupTooltip();
-    private final Collection<AbstractWidget> renderables = new ArrayList<>();
+    private final Collection<AbstractWidget> toRender = new ArrayList<>();
     private IntervalBox intervalBox;
     private ThresholdBox thresholdBox;
 
@@ -37,11 +37,10 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     }
 
     private static Tooltip setupTooltip() {
-        return Tooltip.builder()
-            // header
+        return Tooltip
+            .builder()
             .addHeader(SIDE_CONFIG_ID)
             .addBlankLine()
-            // screen info
             .addComponent(TextUtils
                 .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
@@ -55,44 +54,20 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
                 .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, ChatFormatting.WHITE)));
     }
 
-    IntervalBox getIntervalBox() {
-        return intervalBox;
-    }
-
-    ThresholdBox getThresholdBox() {
-        return thresholdBox;
-    }
-
     @Override
     protected void init() {
         super.init();
-        // interval box
+
         intervalBox = new IntervalBox(this, font, leftPos + 18, topPos + imageHeight + 5, 42, 8);
         addRenderable(intervalBox);
-        // threshold box
+
         thresholdBox = new ThresholdBox(this, font, leftPos + 81, topPos + imageHeight + 5, 42, 8);
         addRenderable(thresholdBox);
-        // clickable buttons
+
         addRenderables(IOButton.create(this, BLOCK_SIDE.values()));
         addRenderable(new SettingButton(this, 136, 64, SETTING.NUMBER));
         addRenderable(new SettingButton(this, 136, 86, SETTING.MODE));
         addRenderable(new SettingButton(this, 136, 108, SETTING.ACCURACY));
-    }
-
-    private void addRenderable(AbstractWidget widget) {
-        addRenderableWidget(widget);
-        renderables.add(widget);
-    }
-
-    /**
-     * Convenience method to add multiple widgets at once.
-     *
-     * @param widgets the list of widgets to add
-     */
-    private void addRenderables(Iterable<? extends AbstractWidget> widgets) {
-        for (var widget : widgets) {
-            addRenderableWidget(widget);
-        }
     }
 
     @Override
@@ -110,7 +85,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
             return;
         }
         // widget tooltips
-        for (var widget : renderables) {
+        for (var widget : toRender) {
             if (widget.isHoveredOrFocused() && widget.visible) {
                 widget.renderToolTip(stack, mX, mY);
             }
@@ -206,6 +181,46 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
     }
 
+    private void addRenderable(AbstractWidget widget) {
+        addRenderableWidget(widget);
+        toRender.add(widget);
+    }
+
+    /**
+     * Convenience method to add multiple widgets at once.
+     *
+     * @param widgets the list of widgets to add
+     */
+    private void addRenderables(Iterable<? extends AbstractWidget> widgets) {
+        for (var widget : widgets) {
+            addRenderableWidget(widget);
+        }
+    }
+
+    /**
+     * Checks if the mouse cursor is within a specified region.
+     *
+     * @param mX     mouse position on the x-axis
+     * @param mY     mouse position on the y-axis
+     * @param pX     left position on the x-axis
+     * @param width  width to calculate the boundary on the x-axis
+     * @param pY     top position on the y-axis
+     * @param height height to calculate the boundary on the y-axis
+     * @return true if the cursor is within the region, false otherwise
+     */
+    @SuppressWarnings("SameParameterValue")
+    private boolean isWithinRegion(int mX, int mY, int pX, int width, int pY, int height) {
+        return mX >= leftPos + pX && mX <= leftPos + pX + width && mY >= topPos + pY && mY <= topPos + pY + height;
+    }
+
+    IntervalBox getIntervalBox() {
+        return intervalBox;
+    }
+
+    ThresholdBox getThresholdBox() {
+        return thresholdBox;
+    }
+
     /**
      * Gets a color representing the current status.
      *
@@ -237,21 +252,5 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
      */
     private int getAccuracyColor() {
         return menu.getEntity().getAccuracy() == ACCURACY.EXACT ? UI_COLORS.ORANGE : UI_COLORS.PINK;
-    }
-
-    /**
-     * Checks if the mouse cursor is within a specified region.
-     *
-     * @param mX     mouse position on the x-axis
-     * @param mY     mouse position on the y-axis
-     * @param pX     left position on the x-axis
-     * @param width  width to calculate the boundary on the x-axis
-     * @param pY     top position on the y-axis
-     * @param height height to calculate the boundary on the y-axis
-     * @return true if the cursor is within the region, false otherwise
-     */
-    @SuppressWarnings("SameParameterValue")
-    private boolean isWithinRegion(int mX, int mY, int pX, int width, int pY, int height) {
-        return mX >= leftPos + pX && mX <= leftPos + pX + width && mY >= topPos + pY && mY <= topPos + pY + height;
     }
 }

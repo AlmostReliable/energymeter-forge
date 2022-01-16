@@ -11,8 +11,9 @@ import net.minecraft.network.chat.TextComponent;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum GuiUtils {
-    ;
+public final class GuiUtils {
+
+    private GuiUtils() {}
 
     /**
      * Draws a given text at the given position with the given color.

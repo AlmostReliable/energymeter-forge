@@ -5,19 +5,11 @@ import com.github.almostreliable.energymeter.util.TextUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public abstract class GenericButton extends Button {
 
-    /**
-     * Holds the parent {@link AbstractContainerMenu} of the parent {@link AbstractContainerScreen}.
-     */
     final MeterContainer container;
-    /**
-     * Holds the parent {@link AbstractContainerScreen} the {@link Button} is rendered in.
-     */
     final MeterScreen screen;
 
     GenericButton(MeterScreen screen, int pX, int pY, int width, int height) {
@@ -33,13 +25,6 @@ public abstract class GenericButton extends Button {
         this.screen = screen;
     }
 
-    /**
-     * Handles the functionality which is triggered when clicking the button.
-     * <p>
-     * Can be overwritten by buttons to resolve individual functionality.
-     */
-    protected abstract void clickHandler();
-
     @Override
     public void renderButton(PoseStack stack, int mX, int mY, float partial) {
         // background texture
@@ -47,6 +32,13 @@ public abstract class GenericButton extends Button {
         // button texture
         blit(stack, x, y, 0, 0, width, height, getTextureWidth(), getTextureHeight());
     }
+
+    /**
+     * Handles the functionality which is triggered when clicking the button.
+     * <p>
+     * Can be overwritten by buttons to resolve individual functionality.
+     */
+    protected abstract void clickHandler();
 
     /**
      * Gets the texture file name for the button as {@link String}.

@@ -2,9 +2,8 @@ package com.github.almostreliable.energymeter.meter;
 
 import com.github.almostreliable.energymeter.compat.CapabilityAdapterFactory;
 import com.github.almostreliable.energymeter.compat.ICapabilityAdapter;
-import com.github.almostreliable.energymeter.compat.IMeterTileObserver;
+import com.github.almostreliable.energymeter.compat.IMeterEntityObserver;
 import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
-import com.github.almostreliable.energymeter.component.IMeter;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
 import com.github.almostreliable.energymeter.core.Setup.Entities;
@@ -24,7 +23,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -38,14 +36,14 @@ import java.util.*;
 
 import static com.github.almostreliable.energymeter.core.Constants.*;
 
-public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
+public class MeterEntity extends BlockEntity implements MenuProvider {
 
     public static final int REFRESH_RATE = 5;
     private final EnumMap<Direction, LazyOptional<IEnergyStorage>> outputCache = new EnumMap<>(Direction.class);
     private final List<LazyOptional<SidedEnergyStorage>> energyStorage;
     private final SideConfiguration sideConfig;
     private final List<Double> energyRates = Collections.synchronizedList(new ArrayList<>());
-    private final Set<IMeterTileObserver> observers = Collections.synchronizedSet(new HashSet<>());
+    private final Set<IMeterEntityObserver> observers = Collections.synchronizedSet(new HashSet<>());
     @Nullable
     private final ICapabilityAdapter<MeterPeripheral> meterPeripheral;
     private boolean hasValidInput;
@@ -69,55 +67,38 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         meterPeripheral = CapabilityAdapterFactory.createMeterPeripheral(this);
     }
 
-    public int getThreshold() {
-        return threshold;
-    }
+    /**
+     * Handles the equal energy transfer process.
+     * <p>
+     * This will try to distribute the energy equally to all possible outputs by rerouting excess
+     * energy in case a limit of an output is exceeded.
+     *
+     * @param energy  the energy to transfer
+     * @param outputs the possible outputs
+     * @return the accepted amount of energy
+     */
+    private static int transferEnergy(int energy, Map<? extends IEnergyStorage, Integer> outputs) {
+        var acceptedEnergy = 0;
+        var energyToTransfer = energy;
+        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
+            var equalSplit = energyToTransfer / outputs.size();
+            Collection<IEnergyStorage> outputsToRemove = new ArrayList<>();
 
-    public void setThreshold(int threshold) {
-        this.threshold = threshold;
-    }
+            for (var output : outputs.entrySet()) {
+                var actualSplit = equalSplit;
+                if (output.getValue() < equalSplit) {
+                    actualSplit = output.getValue();
+                    outputsToRemove.add(output.getKey());
+                }
+                output.getKey().receiveEnergy(actualSplit, false);
+                energyToTransfer -= actualSplit;
+                acceptedEnergy += actualSplit;
+            }
 
-    public int getInterval() {
-        return interval;
-    }
-
-    public void setInterval(int interval) {
-        this.interval = interval;
-    }
-
-    public double getTransferRate() {
-        return Math.round(transferRate * 1_000.0) / 1_000.0;
-    }
-
-    public void setTransferRate(double transferRate) {
-        this.transferRate = transferRate;
-    }
-
-    public STATUS getStatus() {
-        if (status == STATUS.TRANSFERRING) {
-            return mode == MODE.CONSUMER ? STATUS.CONSUMING : STATUS.TRANSFERRING;
+            outputsToRemove.forEach(outputs::remove);
         }
-        return status;
-    }
 
-    public void setStatus(STATUS status) {
-        this.status = status;
-    }
-
-    public NUMBER_MODE getNumberMode() {
-        return numberMode;
-    }
-
-    public void setNumberMode(NUMBER_MODE numberMode) {
-        this.numberMode = numberMode;
-    }
-
-    public ACCURACY getAccuracy() {
-        return accuracy;
-    }
-
-    public void setAccuracy(ACCURACY accuracy) {
-        this.accuracy = accuracy;
+        return acceptedEnergy;
     }
 
     /**
@@ -151,9 +132,9 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     }
 
     /**
-     * Syncs data to clients that track the current {@link LevelChunk} with a {@link ClientSyncPacket}.
+     * Syncs data to clients tracking the current with a {@link ClientSyncPacket}.
      * <p>
-     * Different flags from the {@link SYNC_FLAGS} can be passed to define what should be included
+     * Different flags from the sync flags can be passed to define what should be included
      * in the packet to avoid unnecessary data being sent.
      *
      * @param flags the flags of the data to sync
@@ -217,6 +198,14 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     }
 
     @Override
+    public void setRemoved() {
+        for (var observer : observers) {
+            observer.onMeterTileRemoved(this);
+        }
+        super.setRemoved();
+    }
+
+    @Override
     public void handleUpdateTag(CompoundTag tag) {
         sideConfig.deserializeNBT(tag.getCompound(SIDE_CONFIG_ID));
         transferRate = tag.getDouble(TRANSFER_RATE_ID);
@@ -228,7 +217,6 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         threshold = tag.getInt(THRESHOLD_ID);
     }
 
-    @Override
     public int receiveEnergy(int energy, boolean simulate) {
         if (level == null || !setupDone) return 0;
 
@@ -267,113 +255,13 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         return acceptedEnergy;
     }
 
-    @Override
-    public SideConfiguration getSideConfig() {
-        return sideConfig;
-    }
-
-    @Override
-    public MODE getMode() {
-        return mode;
-    }
-
-    public void setMode(MODE mode) {
-        this.mode = mode;
-    }
-
     /**
-     * Checks each output direction whether there is a valid energy capability.
-     * It will simulate an energy transfer to this capability to make sure it can
-     * accept energy and to retrieve the energy limit.
-     *
-     * @return a map of all possible outputs with their corresponding energy limit
-     */
-    private Map<IEnergyStorage, Integer> getPossibleOutputs(int energy) {
-        Map<IEnergyStorage, Integer> outputs = new HashMap<>();
-        for (var direction : Direction.values()) {
-            // only consider sides where output mode is enabled
-            if (sideConfig.get(direction) != IO_SETTING.OUT) continue;
-
-            // try to get the energy capability from the cache, otherwise store it
-            var target = getOutputFromCache(direction);
-            if (target == null) continue;
-
-            // store the maximum amount of energy each possible output can receive
-            target.ifPresent(cap -> {
-                var accepted = cap.receiveEnergy(energy, true);
-                if (accepted > 0) outputs.put(cap, accepted);
-            });
-        }
-        return outputs;
-    }
-
-    /**
-     * Handles the equal energy transfer process.
-     * <p>
-     * This will try to distribute the energy equally to all possible outputs by rerouting excess
-     * energy in case a limit of an output is exceeded.
-     *
-     * @param energy  the energy to transfer
-     * @param outputs the possible outputs
-     * @return the accepted amount of energy
-     */
-    private static int transferEnergy(int energy, Map<? extends IEnergyStorage, Integer> outputs) {
-        var acceptedEnergy = 0;
-        var energyToTransfer = energy;
-        while (!outputs.isEmpty() && energyToTransfer >= outputs.size()) {
-            var equalSplit = energyToTransfer / outputs.size();
-            Collection<IEnergyStorage> outputsToRemove = new ArrayList<>();
-
-            for (var output : outputs.entrySet()) {
-                var actualSplit = equalSplit;
-                if (output.getValue() < equalSplit) {
-                    actualSplit = output.getValue();
-                    outputsToRemove.add(output.getKey());
-                }
-                output.getKey().receiveEnergy(actualSplit, false);
-                energyToTransfer -= actualSplit;
-                acceptedEnergy += actualSplit;
-            }
-
-            outputsToRemove.forEach(outputs::remove);
-        }
-
-        return acceptedEnergy;
-    }
-
-    @Nullable
-    private LazyOptional<IEnergyStorage> getOutputFromCache(Direction direction) {
-        assert level != null && !level.isClientSide;
-
-        var target = outputCache.get(direction);
-        if (target == null) {
-            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
-            if (provider == null || provider instanceof MeterEntity) return null;
-            target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
-            outputCache.put(direction, target);
-            target.addListener(self -> outputCache.put(direction, null));
-        }
-        return target;
-    }
-
-    /**
-     * Updates the neighbor blocks of the {@link BlockEntity}.
+     * Updates the neighbor blocks of the entity.
      * Can be useful to connect cables.
      */
     public void updateNeighbors() {
         if (level == null || level.isClientSide) return;
         level.setBlock(worldPosition, flipBlockState(), Block.UPDATE_NEIGHBORS | Block.UPDATE_IMMEDIATE);
-    }
-
-    /**
-     * Flips the IO {@link BlockState} value and returns the new {@link BlockState}.
-     * This is a utility method to make neighbor updates possible.
-     *
-     * @return the {@link BlockState} with the flipped IO value
-     */
-    private BlockState flipBlockState() {
-        var state = getBlockState();
-        return state.setValue(MeterBlock.IO, !state.getValue(MeterBlock.IO));
     }
 
     @Override
@@ -393,7 +281,8 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
         if (!remove) {
-            if (cap.equals(CapabilityEnergy.ENERGY) && direction != null && sideConfig.get(direction) != IO_SETTING.OFF) {
+            if (cap.equals(CapabilityEnergy.ENERGY) && direction != null &&
+                sideConfig.get(direction) != IO_SETTING.OFF) {
                 return energyStorage.get(direction.ordinal()).cast();
             }
             if (meterPeripheral != null && meterPeripheral.isCapability(cap)) {
@@ -403,24 +292,25 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         return super.getCapability(cap, direction);
     }
 
-    @Override
-    public Component getDisplayName() {
-        return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
-    }
-
-    @Override
-    public void setRemoved() {
-        for (var observer : observers) {
-            observer.onMeterTileRemoved(this);
-        }
-        super.setRemoved();
-    }
-
-    public void subscribe(IMeterTileObserver observer) {
+    /**
+     * Adds a new observer to the list of observers.
+     * <p>
+     * Observers are CCT components that are notified about specific events.
+     *
+     * @param observer the observer to add
+     */
+    public void subscribe(IMeterEntityObserver observer) {
         observers.add(observer);
     }
 
-    public void unsubscribe(IMeterTileObserver observer) {
+    /**
+     * Removes an observer from the list of observers.
+     * <p>
+     * Observers are CCT components that are notified about specific events.
+     *
+     * @param observer the observer to remove
+     */
+    public void unsubscribe(IMeterEntityObserver observer) {
         observers.remove(observer);
     }
 
@@ -431,9 +321,28 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
     }
 
     /**
-     * Called each tick.
-     * <p>
-     * In this case, it is only done server side from {@link MeterBlock}.
+     * Updates the cached input and output values depending on the direction.
+     * This ensures that the current status is always up-to-date.
+     *
+     * @param direction the direction to update the cache for
+     */
+    public void updateCache(Direction direction) {
+        if (level == null || level.isClientSide) return;
+
+        var setting = sideConfig.get(direction);
+        if (setting == IO_SETTING.IN) {
+            hasValidInput = getInputFromCache(direction);
+        } else if (setting == IO_SETTING.OUT) {
+            getOutputFromCache(direction);
+        }
+        if (!sideConfig.hasInput()) {
+            hasValidInput = false;
+            inputCache = null;
+        }
+    }
+
+    /**
+     * Called each tick server-side.
      */
     void tick() {
         if (level == null || level.isClientSide) return;
@@ -466,6 +375,58 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         }
     }
 
+    /**
+     * Checks each output direction whether there is a valid energy capability.
+     * It will simulate an energy transfer to this capability to make sure it can
+     * accept energy and to retrieve the energy limit.
+     *
+     * @return a map of all possible outputs with their corresponding energy limit
+     */
+    private Map<IEnergyStorage, Integer> getPossibleOutputs(int energy) {
+        Map<IEnergyStorage, Integer> outputs = new HashMap<>();
+        for (var direction : Direction.values()) {
+            // only consider sides where output mode is enabled
+            if (sideConfig.get(direction) != IO_SETTING.OUT) continue;
+
+            // try to get the energy capability from the cache, otherwise store it
+            var target = getOutputFromCache(direction);
+            if (target == null) continue;
+
+            // store the maximum amount of energy each possible output can receive
+            target.ifPresent(cap -> {
+                var accepted = cap.receiveEnergy(energy, true);
+                if (accepted > 0) outputs.put(cap, accepted);
+            });
+        }
+        return outputs;
+    }
+
+    @Nullable
+    private LazyOptional<IEnergyStorage> getOutputFromCache(Direction direction) {
+        assert level != null && !level.isClientSide;
+
+        var target = outputCache.get(direction);
+        if (target == null) {
+            ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
+            if (provider == null || provider instanceof MeterEntity) return null;
+            target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
+            outputCache.put(direction, target);
+            target.addListener(self -> outputCache.put(direction, null));
+        }
+        return target;
+    }
+
+    /**
+     * Flips the IO block state value and returns the new block state.
+     * This is a utility method to make neighbor updates possible.
+     *
+     * @return the block state with the flipped IO value
+     */
+    private BlockState flipBlockState() {
+        var state = getBlockState();
+        return state.setValue(MeterBlock.IO, !state.getValue(MeterBlock.IO));
+    }
+
     private boolean thresholdReached() {
         return energyRates.size() * REFRESH_RATE >= threshold && zeroThreshold == 0;
     }
@@ -489,27 +450,6 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
 
         energyRates.clear();
         if (accuracy == ACCURACY.INTERVAL) energyRates.add(average);
-    }
-
-    /**
-     * Updates the cached input and output values depending on the {@link Direction}.
-     * This ensures that the current status is always up-to-date.
-     *
-     * @param direction the {@link Direction} to update the cache for
-     */
-    public void updateCache(Direction direction) {
-        if (level == null || level.isClientSide) return;
-
-        var setting = sideConfig.get(direction);
-        if (setting == IO_SETTING.IN) {
-            hasValidInput = getInputFromCache(direction);
-        } else if (setting == IO_SETTING.OUT) {
-            getOutputFromCache(direction);
-        }
-        if (!sideConfig.hasInput()) {
-            hasValidInput = false;
-            inputCache = null;
-        }
     }
 
     /**
@@ -572,5 +512,73 @@ public class MeterEntity extends BlockEntity implements MenuProvider, IMeter {
         }
 
         return true;
+    }
+
+    public int getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(int threshold) {
+        this.threshold = threshold;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
+    }
+
+    public double getTransferRate() {
+        return Math.round(transferRate * 1_000.0) / 1_000.0;
+    }
+
+    public void setTransferRate(double transferRate) {
+        this.transferRate = transferRate;
+    }
+
+    public STATUS getStatus() {
+        if (status == STATUS.TRANSFERRING) {
+            return mode == MODE.CONSUMER ? STATUS.CONSUMING : STATUS.TRANSFERRING;
+        }
+        return status;
+    }
+
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
+
+    public NUMBER_MODE getNumberMode() {
+        return numberMode;
+    }
+
+    public void setNumberMode(NUMBER_MODE numberMode) {
+        this.numberMode = numberMode;
+    }
+
+    public ACCURACY getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(ACCURACY accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public SideConfiguration getSideConfig() {
+        return sideConfig;
+    }
+
+    public MODE getMode() {
+        return mode;
+    }
+
+    public void setMode(MODE mode) {
+        this.mode = mode;
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
     }
 }
