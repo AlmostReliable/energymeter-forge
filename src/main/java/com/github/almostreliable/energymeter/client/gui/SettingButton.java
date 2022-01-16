@@ -37,6 +37,47 @@ public class SettingButton extends GenericButton {
         tooltipLong = setupTooltip(true);
     }
 
+    @Override
+    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
+        super.renderButton(stack, mX, mY, partial);
+        // label
+        var pX = (width - font.width(label)) / 2 + x + 1;
+        var pY = (height - font.lineHeight) / 2 + y + 1;
+        GuiUtils.renderText(stack, pX, pY, 1.0f, label, UI_COLORS.WHITE);
+    }
+
+    @Override
+    protected void clickHandler() {
+        PacketHandler.CHANNEL.sendToServer(new SettingUpdatePacket(setting));
+        container.getEntity().updateSetting(setting);
+        if (setting == SETTING.ACCURACY) {
+            screen.getIntervalBox().reset();
+            screen.getThresholdBox().reset();
+        }
+        tooltip = setupTooltip(false);
+        tooltipLong = setupTooltip(true);
+    }
+
+    @Override
+    protected String getTexture() {
+        return TEXTURE;
+    }
+
+    @Override
+    protected int getTextureWidth() {
+        return TEXTURE_WIDTH;
+    }
+
+    @Override
+    protected int getTextureHeight() {
+        return TEXTURE_HEIGHT;
+    }
+
+    @Override
+    public void renderToolTip(PoseStack stack, int mX, int mY) {
+        screen.renderComponentTooltip(stack, (Screen.hasShiftDown() ? tooltipLong : tooltip).resolve(), mX, mY);
+    }
+
     private Tooltip setupTooltip(boolean longTooltip) {
         var settingKey = setting.toString().toLowerCase();
         var t = Tooltip.builder().addHeader(settingKey).addBlankLine();
@@ -101,46 +142,5 @@ public class SettingButton extends GenericButton {
         t.addComponent(currentSetting).addBlankLine();
         if (!longTooltip) t.addHoldAction("key.keyboard.left.shift", "action_4");
         return t.addClickAction("action_3");
-    }
-
-    @Override
-    protected void clickHandler() {
-        PacketHandler.CHANNEL.sendToServer(new SettingUpdatePacket(setting));
-        container.getEntity().updateSetting(setting);
-        if (setting == SETTING.ACCURACY) {
-            screen.getIntervalBox().reset();
-            screen.getThresholdBox().reset();
-        }
-        tooltip = setupTooltip(false);
-        tooltipLong = setupTooltip(true);
-    }
-
-    @Override
-    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
-        super.renderButton(stack, mX, mY, partial);
-        // label
-        var pX = (width - font.width(label)) / 2 + x + 1;
-        var pY = (height - font.lineHeight) / 2 + y + 1;
-        GuiUtils.renderText(stack, pX, pY, 1.0f, label, UI_COLORS.WHITE);
-    }
-
-    @Override
-    protected String getTexture() {
-        return TEXTURE;
-    }
-
-    @Override
-    protected int getTextureWidth() {
-        return TEXTURE_WIDTH;
-    }
-
-    @Override
-    protected int getTextureHeight() {
-        return TEXTURE_HEIGHT;
-    }
-
-    @Override
-    public void renderToolTip(PoseStack stack, int mX, int mY) {
-        screen.renderComponentTooltip(stack, (Screen.hasShiftDown() ? tooltipLong : tooltip).resolve(), mX, mY);
     }
 }

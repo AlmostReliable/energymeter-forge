@@ -58,17 +58,6 @@ public final class TextUtils {
     }
 
     /**
-     * Gets the translation key from the provided type and key.
-     *
-     * @param type the type of the translation
-     * @param key  the unique key of the translation
-     * @return the translation key
-     */
-    private static String getTranslationKey(TRANSLATE_TYPE type, String key) {
-        return String.format("%s.%s.%s", type.toString().toLowerCase(), Constants.MOD_ID, key);
-    }
-
-    /**
      * Colors a given String with the given color.
      *
      * @param input the string to color
@@ -98,6 +87,17 @@ public final class TextUtils {
         }
         // normal energy format
         return new Tuple<>(formatNumber(number, 3), "FE");
+    }
+
+    /**
+     * Gets the translation key from the provided type and key.
+     *
+     * @param type the type of the translation
+     * @param key  the unique key of the translation
+     * @return the translation key
+     */
+    private static String getTranslationKey(TRANSLATE_TYPE type, String key) {
+        return String.format("%s.%s.%s", type.toString().toLowerCase(), Constants.MOD_ID, key);
     }
 
     /**

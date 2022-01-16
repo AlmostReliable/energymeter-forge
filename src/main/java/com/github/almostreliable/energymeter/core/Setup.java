@@ -29,15 +29,15 @@ public final class Setup {
 
     private Setup() {}
 
-    private static <E extends IForgeRegistryEntry<E>> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
-        return DeferredRegister.create(registry, MOD_ID);
-    }
-
     public static void init(IEventBus modEventBus) {
         Blocks.REGISTRY.register(modEventBus);
         Blocks.ITEMS.register(modEventBus);
         Entities.REGISTRY.register(modEventBus);
         Containers.REGISTRY.register(modEventBus);
+    }
+
+    private static <E extends IForgeRegistryEntry<E>> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
+        return DeferredRegister.create(registry, MOD_ID);
     }
 
     public static final class Entities {

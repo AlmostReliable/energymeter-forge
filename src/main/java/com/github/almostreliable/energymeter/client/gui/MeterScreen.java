@@ -37,7 +37,8 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     }
 
     private static Tooltip setupTooltip() {
-        return Tooltip.builder()
+        return Tooltip
+            .builder()
             .addHeader(SIDE_CONFIG_ID)
             .addBlankLine()
             .addComponent(TextUtils
@@ -51,14 +52,6 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
                 .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, ChatFormatting.WHITE)));
-    }
-
-    IntervalBox getIntervalBox() {
-        return intervalBox;
-    }
-
-    ThresholdBox getThresholdBox() {
-        return thresholdBox;
     }
 
     @Override
@@ -75,22 +68,6 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         addRenderable(new SettingButton(this, 136, 64, SETTING.NUMBER));
         addRenderable(new SettingButton(this, 136, 86, SETTING.MODE));
         addRenderable(new SettingButton(this, 136, 108, SETTING.ACCURACY));
-    }
-
-    private void addRenderable(AbstractWidget widget) {
-        addRenderableWidget(widget);
-        toRender.add(widget);
-    }
-
-    /**
-     * Convenience method to add multiple widgets at once.
-     *
-     * @param widgets the list of widgets to add
-     */
-    private void addRenderables(Iterable<? extends AbstractWidget> widgets) {
-        for (var widget : widgets) {
-            addRenderableWidget(widget);
-        }
     }
 
     @Override
@@ -204,6 +181,46 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
     }
 
+    private void addRenderable(AbstractWidget widget) {
+        addRenderableWidget(widget);
+        toRender.add(widget);
+    }
+
+    /**
+     * Convenience method to add multiple widgets at once.
+     *
+     * @param widgets the list of widgets to add
+     */
+    private void addRenderables(Iterable<? extends AbstractWidget> widgets) {
+        for (var widget : widgets) {
+            addRenderableWidget(widget);
+        }
+    }
+
+    /**
+     * Checks if the mouse cursor is within a specified region.
+     *
+     * @param mX     mouse position on the x-axis
+     * @param mY     mouse position on the y-axis
+     * @param pX     left position on the x-axis
+     * @param width  width to calculate the boundary on the x-axis
+     * @param pY     top position on the y-axis
+     * @param height height to calculate the boundary on the y-axis
+     * @return true if the cursor is within the region, false otherwise
+     */
+    @SuppressWarnings("SameParameterValue")
+    private boolean isWithinRegion(int mX, int mY, int pX, int width, int pY, int height) {
+        return mX >= leftPos + pX && mX <= leftPos + pX + width && mY >= topPos + pY && mY <= topPos + pY + height;
+    }
+
+    IntervalBox getIntervalBox() {
+        return intervalBox;
+    }
+
+    ThresholdBox getThresholdBox() {
+        return thresholdBox;
+    }
+
     /**
      * Gets a color representing the current status.
      *
@@ -235,21 +252,5 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
      */
     private int getAccuracyColor() {
         return menu.getEntity().getAccuracy() == ACCURACY.EXACT ? UI_COLORS.ORANGE : UI_COLORS.PINK;
-    }
-
-    /**
-     * Checks if the mouse cursor is within a specified region.
-     *
-     * @param mX     mouse position on the x-axis
-     * @param mY     mouse position on the y-axis
-     * @param pX     left position on the x-axis
-     * @param width  width to calculate the boundary on the x-axis
-     * @param pY     top position on the y-axis
-     * @param height height to calculate the boundary on the y-axis
-     * @return true if the cursor is within the region, false otherwise
-     */
-    @SuppressWarnings("SameParameterValue")
-    private boolean isWithinRegion(int mX, int mY, int pX, int width, int pY, int height) {
-        return mX >= leftPos + pX && mX <= leftPos + pX + width && mY >= topPos + pY && mY <= topPos + pY + height;
     }
 }

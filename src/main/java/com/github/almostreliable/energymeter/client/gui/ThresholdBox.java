@@ -15,7 +15,8 @@ class ThresholdBox extends GenericTextBox {
     }
 
     private static Tooltip setupTooltip() {
-        return Tooltip.builder()
+        return Tooltip
+            .builder()
             .addHeader("threshold")
             .addBlankLine()
             .addDescription("threshold_desc_1")

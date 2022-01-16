@@ -69,6 +69,19 @@ public class ClientSyncPacket {
         ClientHandler.handleClientSyncPacket(packet);
     }
 
+    void encode(FriendlyByteBuf buffer) {
+        buffer.writeBlockPos(pos);
+        buffer.writeInt(flags);
+        if ((flags & SYNC_FLAGS.SIDE_CONFIG) != 0) buffer.writeNbt(sideConfig);
+        if ((flags & SYNC_FLAGS.TRANSFER_RATE) != 0) buffer.writeDouble(transferRate);
+        if ((flags & SYNC_FLAGS.NUMBER_MODE) != 0) buffer.writeInt(numberMode.ordinal());
+        if ((flags & SYNC_FLAGS.STATUS) != 0) buffer.writeInt(status.ordinal());
+        if ((flags & SYNC_FLAGS.MODE) != 0) buffer.writeInt(mode.ordinal());
+        if ((flags & SYNC_FLAGS.ACCURACY) != 0) buffer.writeInt(accuracy.ordinal());
+        if ((flags & SYNC_FLAGS.INTERVAL) != 0) buffer.writeInt(interval);
+        if ((flags & SYNC_FLAGS.THRESHOLD) != 0) buffer.writeInt(threshold);
+    }
+
     BlockPos getPos() {
         return pos;
     }
@@ -107,18 +120,5 @@ public class ClientSyncPacket {
 
     int getThreshold() {
         return threshold;
-    }
-
-    void encode(FriendlyByteBuf buffer) {
-        buffer.writeBlockPos(pos);
-        buffer.writeInt(flags);
-        if ((flags & SYNC_FLAGS.SIDE_CONFIG) != 0) buffer.writeNbt(sideConfig);
-        if ((flags & SYNC_FLAGS.TRANSFER_RATE) != 0) buffer.writeDouble(transferRate);
-        if ((flags & SYNC_FLAGS.NUMBER_MODE) != 0) buffer.writeInt(numberMode.ordinal());
-        if ((flags & SYNC_FLAGS.STATUS) != 0) buffer.writeInt(status.ordinal());
-        if ((flags & SYNC_FLAGS.MODE) != 0) buffer.writeInt(mode.ordinal());
-        if ((flags & SYNC_FLAGS.ACCURACY) != 0) buffer.writeInt(accuracy.ordinal());
-        if ((flags & SYNC_FLAGS.INTERVAL) != 0) buffer.writeInt(interval);
-        if ((flags & SYNC_FLAGS.THRESHOLD) != 0) buffer.writeInt(threshold);
     }
 }

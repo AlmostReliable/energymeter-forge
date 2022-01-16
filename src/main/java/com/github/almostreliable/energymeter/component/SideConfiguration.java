@@ -58,42 +58,6 @@ public class SideConfiguration implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Converts the given block side to a direction if the facing direction
-     * is any of the 4 compass directions.
-     *
-     * @param side the block side to convert
-     * @return the direction
-     */
-    private Direction horizontalConversion(BLOCK_SIDE side) {
-        return switch (side) {
-            case TOP -> Direction.UP;
-            case BOTTOM -> Direction.DOWN;
-            case LEFT -> facing.getClockWise();
-            case RIGHT -> facing.getCounterClockWise();
-            case BACK -> facing.getOpposite();
-            default -> facing;
-        };
-    }
-
-    /**
-     * Converts the given block side to a direction if the facing direction
-     * is up or down.
-     *
-     * @param side the block side to convert
-     * @return the direction
-     */
-    private Direction verticalConversion(BLOCK_SIDE side) {
-        return switch (side) {
-            case TOP -> bottom.getOpposite();
-            case BOTTOM -> bottom;
-            case LEFT -> facing == Direction.UP ? bottom.getClockWise() : bottom.getCounterClockWise();
-            case RIGHT -> facing == Direction.UP ? bottom.getCounterClockWise() : bottom.getClockWise();
-            case BACK -> facing.getOpposite();
-            default -> facing;
-        };
-    }
-
-    /**
      * Sets the given block side to the passed IO setting.
      *
      * @param side    the side on which the setting should be changed
@@ -146,7 +110,6 @@ public class SideConfiguration implements INBTSerializable<CompoundTag> {
         }
     }
 
-
     /**
      * Converts the current side configuration as string map and returns it.
      *
@@ -158,5 +121,41 @@ public class SideConfiguration implements INBTSerializable<CompoundTag> {
             stringMap.put(entry.getKey().getName(), entry.getValue().name());
         }
         return stringMap;
+    }
+
+    /**
+     * Converts the given block side to a direction if the facing direction
+     * is any of the 4 compass directions.
+     *
+     * @param side the block side to convert
+     * @return the direction
+     */
+    private Direction horizontalConversion(BLOCK_SIDE side) {
+        return switch (side) {
+            case TOP -> Direction.UP;
+            case BOTTOM -> Direction.DOWN;
+            case LEFT -> facing.getClockWise();
+            case RIGHT -> facing.getCounterClockWise();
+            case BACK -> facing.getOpposite();
+            default -> facing;
+        };
+    }
+
+    /**
+     * Converts the given block side to a direction if the facing direction
+     * is up or down.
+     *
+     * @param side the block side to convert
+     * @return the direction
+     */
+    private Direction verticalConversion(BLOCK_SIDE side) {
+        return switch (side) {
+            case TOP -> bottom.getOpposite();
+            case BOTTOM -> bottom;
+            case LEFT -> facing == Direction.UP ? bottom.getClockWise() : bottom.getCounterClockWise();
+            case RIGHT -> facing == Direction.UP ? bottom.getCounterClockWise() : bottom.getClockWise();
+            case BACK -> facing.getOpposite();
+            default -> facing;
+        };
     }
 }

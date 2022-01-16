@@ -14,7 +14,8 @@ class IntervalBox extends GenericTextBox {
     }
 
     private static Tooltip setupTooltip() {
-        return Tooltip.builder()
+        return Tooltip
+            .builder()
             .addHeader("interval")
             .addBlankLine()
             .addDescription("interval_desc_1")

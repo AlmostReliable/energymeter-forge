@@ -7,8 +7,8 @@ public interface IMeterEntityObserver {
     /**
      * Called whenever data on the Energy Meter changes in order to invoke a CCT event.
      *
-     * @param entity  the Energy Meter tile
-     * @param flags the data flags to identify the data that changed
+     * @param entity the Energy Meter tile
+     * @param flags  the data flags to identify the data that changed
      */
     void onMeterTileChanged(MeterEntity entity, int flags);
 

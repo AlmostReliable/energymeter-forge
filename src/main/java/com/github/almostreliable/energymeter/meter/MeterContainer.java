@@ -16,10 +16,6 @@ public class MeterContainer extends AbstractContainerMenu {
         this.entity = entity;
     }
 
-    public MeterEntity getEntity() {
-        return entity;
-    }
-
     @Override
     public boolean stillValid(Player player) {
         return AbstractContainerMenu.stillValid(
@@ -27,5 +23,9 @@ public class MeterContainer extends AbstractContainerMenu {
             player,
             entity.getBlockState().getBlock()
         );
+    }
+
+    public MeterEntity getEntity() {
+        return entity;
     }
 }

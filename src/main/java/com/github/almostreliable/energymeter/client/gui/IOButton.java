@@ -41,6 +41,21 @@ final class IOButton extends GenericButton {
     }
 
     /**
+     * Creates an io button for each passed in block side.
+     *
+     * @param screen the screen to create the buttons for
+     * @param sides  the sides for which the buttons should be created
+     * @return a list of all buttons created
+     */
+    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
+        return Arrays
+            .stream(sides)
+            .filter(side -> side != BLOCK_SIDE.FRONT)
+            .map(side -> new IOButton(screen, side))
+            .toList();
+    }
+
+    /**
      * Returns the x and y positions for the texture depending on the block side.
      *
      * @param side the block side to get the positions for
@@ -57,43 +72,15 @@ final class IOButton extends GenericButton {
         };
     }
 
-    private Tooltip setupTooltip() {
-        return Tooltip.builder()
-            // header
-            .addHeader(SIDE_CONFIG_ID).addBlankLine()
-            // block side
-            .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
-                .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
-                .append(TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE,
-                    side.toString().toLowerCase(),
-                    ChatFormatting.WHITE
-                )))
-            // current mode
-            .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
-                .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
-                .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING,
-                    setting.toString().toLowerCase(),
-                    ChatFormatting.WHITE
-                ))).addBlankLine()
-            // action
-            .addClickAction("action_1").addShiftClickAction("action_2");
+    @Override
+    public void renderToolTip(PoseStack stack, int mX, int mY) {
+        screen.renderComponentTooltip(stack, tooltip.resolve(), mX, mY);
     }
 
-    /**
-     * Creates an io button for each passed in block side.
-     *
-     * @param screen the screen to create the buttons for
-     * @param sides the sides for which the buttons should be created
-     * @return a list of all buttons created
-     */
-    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
-        return Arrays
-            .stream(sides)
-            .filter(side -> side != BLOCK_SIDE.FRONT)
-            .map(side -> new IOButton(screen, side))
-            .toList();
+    @Override
+    public void onClick(double mX, double mY) {
+        if (isHovered) changeMode(Screen.hasShiftDown());
+        super.onClick(mX, mY);
     }
 
     @Override
@@ -123,6 +110,30 @@ final class IOButton extends GenericButton {
         return TEXTURE_HEIGHT;
     }
 
+    private Tooltip setupTooltip() {
+        return Tooltip.builder()
+            // header
+            .addHeader(SIDE_CONFIG_ID).addBlankLine()
+            // block side
+            .addComponent(TextUtils
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
+                .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
+                .append(TextUtils.translate(TRANSLATE_TYPE.BLOCK_SIDE,
+                    side.toString().toLowerCase(),
+                    ChatFormatting.WHITE
+                )))
+            // current mode
+            .addComponent(TextUtils
+                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
+                .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
+                .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING,
+                    setting.toString().toLowerCase(),
+                    ChatFormatting.WHITE
+                ))).addBlankLine()
+            // action
+            .addClickAction("action_1").addShiftClickAction("action_2");
+    }
+
     /**
      * Renders the I/O overlay for the button depending on its io setting.
      *
@@ -133,17 +144,6 @@ final class IOButton extends GenericButton {
         if (textureOffset >= 0) {
             blit(stack, x, y, BUTTON_SIZE, textureOffset, OVERLAY_SIZE, OVERLAY_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
-    }
-
-    @Override
-    public void renderToolTip(PoseStack stack, int mX, int mY) {
-        screen.renderComponentTooltip(stack, tooltip.resolve(), mX, mY);
-    }
-
-    @Override
-    public void onClick(double mX, double mY) {
-        if (isHovered) changeMode(Screen.hasShiftDown());
-        super.onClick(mX, mY);
     }
 
     /**
