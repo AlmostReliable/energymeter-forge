@@ -78,7 +78,9 @@ public class MeterBlock extends Block implements EntityBlock {
             var neighborState = level.getBlockState(neighbor);
             var registryName = neighborState.getBlock().getRegistryName();
             if (!neighborState.isAir() && !neighborState.hasBlockEntity() && registryName != null &&
-                !registryName.getNamespace().equals(PIPEZ_ID)) {return;}
+                !registryName.getNamespace().equals(PIPEZ_ID)) {
+                return;
+            }
 
             // resolve direction from neighbor block position
             var vector = neighbor.subtract(pos);

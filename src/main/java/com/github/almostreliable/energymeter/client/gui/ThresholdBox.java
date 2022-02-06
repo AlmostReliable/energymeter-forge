@@ -28,16 +28,6 @@ class ThresholdBox extends GenericTextBox {
     }
 
     @Override
-    protected Tooltip getTooltip() {
-        return TOOLTIP;
-    }
-
-    @Override
-    protected int getOldValue() {
-        return screen.getMenu().getEntity().getThreshold();
-    }
-
-    @Override
     protected void changeTextBoxValue(int value, boolean sync) {
         int newValue;
         try {
@@ -46,5 +36,15 @@ class ThresholdBox extends GenericTextBox {
             newValue = MeterEntity.REFRESH_RATE;
         }
         super.changeTextBoxValue(newValue, sync);
+    }
+
+    @Override
+    protected Tooltip getTooltip() {
+        return TOOLTIP;
+    }
+
+    @Override
+    protected int getOldValue() {
+        return screen.getMenu().getEntity().getThreshold();
     }
 }

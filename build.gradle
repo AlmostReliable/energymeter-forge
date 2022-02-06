@@ -89,16 +89,16 @@ sourceSets.main.resources {srcDir 'src/generated/resources'}
 repositories {
     maven {
         name 'CurseMaven'
-        url "https://cursemaven.com"
+        url 'https://cursemaven.com'
         content {
-            includeGroup "curse.maven"
+            includeGroup 'curse.maven'
         }
-        maven {
-            name 'CC Tweaked'
-            url 'https://squiddev.cc/maven/'
-            content {
-                includeGroup 'org.squiddev'
-            }
+    }
+    maven {
+        name 'CC Tweaked'
+        url 'https://squiddev.cc/maven/'
+        content {
+            includeGroup 'org.squiddev'
         }
     }
 }
@@ -110,11 +110,12 @@ dependencies {
     implementation fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
 
     // runtime dependencies
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3606055") // JEI - 9.2.2.74
-    runtimeOnly fg.deobf("curse.maven:top-245211:3586969") // TOP - 5.0.2
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3599262") // JEI - 9.2.1.69
+    runtimeOnly fg.deobf("curse.maven:top-245211:3606616") // TOP - 5.0.3
+    runtimeOnly fg.deobf("curse.maven:ding-231275:3548400") // Ding - 1.3.0
     runtimeOnly fg.deobf("curse.maven:pipez-443900:3569514") // Pipez - 1.0.1
     runtimeOnly fg.deobf("curse.maven:solare-381462:3569095") // Solar Energy - 0.4.0.3
-    runtimeOnly fg.deobf("curse.maven:smartijnlib-454372:3596492") // SuperMartijn642's Core Lib - 1.0.16 - Trash Cans Lib
+    runtimeOnly fg.deobf("curse.maven:smartijnlib-454372:3614895") // SuperMartijn642's Core Lib - 1.0.16a - Trash Cans Lib
     runtimeOnly fg.deobf("curse.maven:trash-394535:3597654") // Trash Cans - 1.0.12
 }
 
@@ -127,6 +128,7 @@ def replaceProperties = [mod_id                 : mod_id,
                          mod_version            : mod_version,
                          mod_authors            : mod_authors,
                          mod_description        : mod_description,
+                         mod_credits            : mod_credits,
                          minecraft_version_range: minecraft_version_range,
                          forge_version_range    : forge_version_range,
                          loader_version_range   : loader_version_range,
@@ -174,15 +176,25 @@ curseforge {
         // error prevention
         apiKey = "none"
     }
+    def RELEASE_TYPE
+    if (System.getenv('RELEASE_TYPE') == null || System.getenv('RELEASE_TYPE') == '') {
+        RELEASE_TYPE = "release"
+    } else {
+        RELEASE_TYPE = System.getenv('RELEASE_TYPE')
+    }
     project {
         id = project_id
         changelogType = 'markdown'
         changelog = "The whole changelog can be found [here](https://github.com/${github_user}/${github_repo}/blob/${github_branch}/CHANGELOG.md)."
-        releaseType = 'release'
+        releaseType = RELEASE_TYPE
         addGameVersion minecraft_version
 
         mainArtifact(jar) {
-            displayName = "${System.getenv('FILE_NAME')}-${minecraft_version}-${mod_version}"
+            if (RELEASE_TYPE == 'release') {
+                displayName = "${mod_name}-${minecraft_version}-${mod_version}"
+            } else {
+                displayName = "${mod_name}-${minecraft_version}-${mod_version}-${RELEASE_TYPE}"
+            }
         }
     }
 }

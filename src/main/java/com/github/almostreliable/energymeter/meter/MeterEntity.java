@@ -173,14 +173,14 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.put(SIDE_CONFIG_ID, sideConfig.serializeNBT());
         tag.putInt(NUMBER_MODE_ID, numberMode.ordinal());
         tag.putInt(MODE_ID, mode.ordinal());
         tag.putInt(ACCURACY_ID, accuracy.ordinal());
         tag.putInt(INTERVAL_ID, interval);
         tag.putInt(THRESHOLD_ID, threshold);
-        return super.save(tag);
     }
 
     @Override
