@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [3.1.1] - 2022-02-06
+
+### Changed
+- updated Forge
+- switched to ParchmentMC mappings
+
+### Fixed
+- fixed Energy Meter configuration and data not saving ([#18], [MinecraftForge#8235])
+
+<!-- Links -->
+[#18]: https://github.com/AlmostReliable/energymeter-forge/issues/18
+[MinecraftForge#8235]: https://github.com/MinecraftForge/MinecraftForge/pull/8235
+
+
 ## [3.1.0] - 2022-01-16
 
 ### Added
@@ -34,6 +48,7 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.18-3.1.0...HEAD
+[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.18-3.1.1...HEAD
+[3.1.1]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.18-3.1.0..v1.18-3.1.1
 [3.1.0]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.18-3.0.0..v1.18-3.1.0
 [3.0.0]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.18-3.0.0
