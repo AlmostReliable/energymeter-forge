@@ -15,9 +15,7 @@ import net.minecraft.util.Tuple;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.almostreliable.energymeter.core.Constants.IO_MODE_ID;
-import static com.github.almostreliable.energymeter.core.Constants.IO_SIDE_ID;
-import static com.github.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
+import static com.github.almostreliable.energymeter.core.Constants.*;
 
 final class IOButton extends GenericButton {
 
@@ -84,15 +82,15 @@ final class IOButton extends GenericButton {
     }
 
     @Override
-    protected void clickHandler() {
-        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
-        tooltip = setupTooltip();
-    }
-
-    @Override
     public void renderButton(PoseStack stack, int mX, int mY, float partial) {
         super.renderButton(stack, mX, mY, partial);
         renderIOOverlay(stack);
+    }
+
+    @Override
+    protected void clickHandler() {
+        PacketHandler.CHANNEL.sendToServer(new IOUpdatePacket(side, setting));
+        tooltip = setupTooltip();
     }
 
     @Override
