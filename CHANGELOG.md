@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning].
 - /
 
 
+## [3.2.0] - 2022-04-04
+- 1.18.2 port
+
+
 ## [3.1.1] - 2022-02-06
 
 ### Changed
@@ -48,7 +52,8 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.18-3.1.1...HEAD
+[unreleased]: https://github.com/AlmostReliable/energymeter-forge/compare/v1.18-3.2.0...HEAD
+[3.2.0]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.18-3.1.1..v1.18-3.2.0
 [3.1.1]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.18-3.1.0..v1.18-3.1.1
 [3.1.0]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.18-3.0.0..v1.18-3.1.0
 [3.0.0]: https://github.com/AlmostReliable/energymeter-forge/releases/tag/v1.18-3.0.0
