@@ -51,7 +51,7 @@ public final class Setup {
         private static <E extends MeterEntity, B extends MeterBlock> RegistryObject<BlockEntityType<E>> register(
             String id, RegistryObject<B> block, BlockEntitySupplier<E> entity
         ) {
-            //noinspection ConstantConditions
+            // noinspection ConstantConditions
             return REGISTRY.register(id, () -> Builder.of(entity, block.get()).build(null));
         }
 
