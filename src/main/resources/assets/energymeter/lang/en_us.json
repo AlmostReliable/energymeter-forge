@@ -20,7 +20,7 @@
 
   "tooltip.energymeter.number": "Number Setting",
   "tooltip.energymeter.number_desc_1": "Defines if the formatting of the transfer rate should be short or long.",
-  "tooltip.energymeter.number_desc_2": "Only affects the number if it's more than 1.000 FE/t.",
+  "tooltip.energymeter.number_desc_2": "Only affects the number if it's more than 1,000 FE/t.",
 
   "tooltip.energymeter.mode": "Mode Setting",
   "tooltip.energymeter.mode_desc_1": "Defines the mode of the Energy Meter.",
