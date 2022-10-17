@@ -1,5 +1,6 @@
 package com.github.almostreliable.energymeter.client.gui;
 
+import com.almostreliable.energymeter.BuildConfig;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
@@ -21,7 +22,7 @@ import static com.github.almostreliable.energymeter.core.Constants.*;
 
 public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation(MOD_ID, "textures/gui/meter.png");
+    private static final ResourceLocation TEXTURE = TextUtils.getRL("textures/gui/meter.png");
     private static final int TEXTURE_WIDTH = 199;
     private static final int TEXTURE_HEIGHT = 129;
     private static final Tooltip TOOLTIP = setupTooltip();

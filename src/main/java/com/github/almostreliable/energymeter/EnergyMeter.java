@@ -1,8 +1,8 @@
 package com.github.almostreliable.energymeter;
 
+import com.almostreliable.energymeter.BuildConfig;
 import com.github.almostreliable.energymeter.client.MeterRenderer;
 import com.github.almostreliable.energymeter.client.gui.MeterScreen;
-import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.core.Setup;
 import com.github.almostreliable.energymeter.core.Setup.Containers;
 import com.github.almostreliable.energymeter.core.Setup.Entities;
@@ -14,10 +14,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod(Constants.MOD_ID)
+@Mod(BuildConfig.MOD_ID)
 public class EnergyMeter {
 
-    @SuppressWarnings("java:S1118")
     public EnergyMeter() {
         var modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         // register common setup listener

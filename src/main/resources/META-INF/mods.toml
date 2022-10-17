@@ -1,33 +1,34 @@
 modLoader = "javafml"
-loaderVersion = "${loader_version_range}"
-issueTrackerURL = "https://github.com/${github_user}/${github_repo}/issues"
-license = "MIT"
+loaderVersion = "${forgeVersionRange}"
+issueTrackerURL = "https://github.com/${githubUser}/${githubRepo}/issues"
+license = "${license}"
+logoFile = "logo.png"
 
 [[mods]]
-modId = "${mod_id}"
-version = "${mod_version}"
-displayName = "${mod_name}"
-credits = "${mod_credits}"
-authors = "${mod_authors}"
-description = '''${mod_description}'''
+modId = "${modId}"
+version = "${version}"
+displayName = "${modName}"
+authors = "${modAuthor}"
+description = '''${modDescription}'''
+credits = "${modCredits}"
 
-[[dependencies.${ mod_id }]]
+[[dependencies.${modId}]]
 modId = "forge"
 mandatory = true
-versionRange = "${forge_version_range}"
+versionRange = "${forgeVersionRange}"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ mod_id }]]
+[[dependencies.${modId}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "${minecraft_version_range}"
+versionRange = "${mcVersionRange}"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ mod_id }]]
+[[dependencies.${modId}]]
 modId = "computercraft"
 mandatory = false
-versionRange = "${cct_version_range}"
+versionRange = "${cctVersionRange}"
 ordering = "AFTER"
 side = "BOTH"

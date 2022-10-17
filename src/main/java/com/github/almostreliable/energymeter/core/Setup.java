@@ -1,5 +1,6 @@
 package com.github.almostreliable.energymeter.core;
 
+import com.almostreliable.energymeter.BuildConfig;
 import com.github.almostreliable.energymeter.meter.MeterBlock;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.meter.MeterEntity;
@@ -21,11 +22,10 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import static com.github.almostreliable.energymeter.core.Constants.METER_ID;
-import static com.github.almostreliable.energymeter.core.Constants.MOD_ID;
 
 public final class Setup {
 
-    private static final Tab TAB = new Tab(MOD_ID);
+    private static final Tab TAB = new Tab(BuildConfig.MOD_ID);
 
     private Setup() {}
 
@@ -37,7 +37,7 @@ public final class Setup {
     }
 
     private static <E extends IForgeRegistryEntry<E>> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
-        return DeferredRegister.create(registry, MOD_ID);
+        return DeferredRegister.create(registry, BuildConfig.MOD_ID);
     }
 
     public static final class Entities {

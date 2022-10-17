@@ -1,6 +1,6 @@
 package com.github.almostreliable.energymeter.util;
 
-import com.github.almostreliable.energymeter.core.Constants;
+import com.almostreliable.energymeter.BuildConfig;
 import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextComponent;
@@ -29,7 +29,7 @@ public final class TextUtils {
      * @return the generated {@link ResourceLocation}
      */
     public static ResourceLocation getRL(String key) {
-        return new ResourceLocation(Constants.MOD_ID, key);
+        return new ResourceLocation(BuildConfig.MOD_ID, key);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class TextUtils {
      * @return the translation key
      */
     private static String getTranslationKey(TRANSLATE_TYPE type, String key) {
-        return String.format("%s.%s.%s", type.toString().toLowerCase(), Constants.MOD_ID, key);
+        return String.format("%s.%s.%s", type.toString().toLowerCase(), BuildConfig.MOD_ID, key);
     }
 
     /**

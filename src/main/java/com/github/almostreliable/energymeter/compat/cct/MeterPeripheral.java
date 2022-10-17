@@ -1,5 +1,6 @@
 package com.github.almostreliable.energymeter.compat.cct;
 
+import com.almostreliable.energymeter.BuildConfig;
 import com.github.almostreliable.energymeter.compat.IMeterEntityObserver;
 import com.github.almostreliable.energymeter.meter.MeterEntity;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -69,7 +70,7 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
     @Nonnull
     @Override
     public String getType() {
-        return MOD_ID;
+        return BuildConfig.MOD_ID;
     }
 
     @Override
