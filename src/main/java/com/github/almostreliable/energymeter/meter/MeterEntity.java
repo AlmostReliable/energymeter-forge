@@ -7,13 +7,14 @@ import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
 import com.github.almostreliable.energymeter.core.Setup.Entities;
-import com.github.almostreliable.energymeter.network.ClientSyncPacket;
+import com.github.almostreliable.energymeter.network.packets.ClientSyncPacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
-import com.github.almostreliable.energymeter.network.SettingUpdatePacket;
+import com.github.almostreliable.energymeter.network.packets.SettingUpdatePacket;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.github.almostreliable.energymeter.util.TypeEnums.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
@@ -24,9 +25,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -281,7 +282,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction direction) {
         if (!remove) {
-            if (cap.equals(CapabilityEnergy.ENERGY) && direction != null &&
+            if (cap.equals(ForgeCapabilities.ENERGY) && direction != null &&
                 sideConfig.get(direction) != IO_SETTING.OFF) {
                 return energyStorage.get(direction.ordinal()).cast();
             }
@@ -409,7 +410,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
         if (target == null) {
             ICapabilityProvider provider = level.getBlockEntity(worldPosition.relative(direction));
             if (provider == null || provider instanceof MeterEntity) return null;
-            target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
+            target = provider.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite());
             outputCache.put(direction, target);
             target.addListener(self -> outputCache.put(direction, null));
         }
@@ -503,10 +504,10 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
             if (provider instanceof MeterEntity) return false;
             if (provider == null) {
                 var state = level.getBlockState(worldPosition.relative(direction));
-                return !state.isAir() && state.getBlock().getRegistryName() != null &&
-                    state.getBlock().getRegistryName().getNamespace().equals(PIPEZ_ID);
+                //noinspection deprecation
+                return !state.isAir() && Registry.BLOCK.getKey(state.getBlock()).getNamespace().equals(PIPEZ_ID);
             }
-            target = provider.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite());
+            target = provider.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite());
             inputCache = target;
             target.addListener(self -> inputCache = null);
         }

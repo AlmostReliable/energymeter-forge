@@ -83,7 +83,7 @@ dependencies {
 
     when (recipeViewer) {
         "rei" -> modLocalRuntime("me.shedaniel:RoughlyEnoughItems-forge:$reiVersion")
-        "jei" -> modLocalRuntime("mezz.jei:jei-$mcVersion:$jeiVersion") { isTransitive = false }
+        "jei" -> modLocalRuntime("mezz.jei:jei-$mcVersion-forge:$jeiVersion") { isTransitive = false }
         else -> throw GradleException("Invalid recipeViewer value: $recipeViewer")
     }
 

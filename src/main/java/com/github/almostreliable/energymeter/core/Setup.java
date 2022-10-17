@@ -36,14 +36,14 @@ public final class Setup {
         Containers.REGISTRY.register(modEventBus);
     }
 
-    private static <E extends IForgeRegistryEntry<E>> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
+    private static <E> DeferredRegister<E> createRegistry(IForgeRegistry<E> registry) {
         return DeferredRegister.create(registry, BuildConfig.MOD_ID);
     }
 
     public static final class Entities {
 
         private static final DeferredRegister<BlockEntityType<?>> REGISTRY
-            = createRegistry(ForgeRegistries.BLOCK_ENTITIES);
+            = createRegistry(ForgeRegistries.BLOCK_ENTITY_TYPES);
 
         private Entities() {}
 
@@ -63,7 +63,7 @@ public final class Setup {
 
     public static final class Containers {
 
-        private static final DeferredRegister<MenuType<?>> REGISTRY = createRegistry(ForgeRegistries.CONTAINERS);
+        private static final DeferredRegister<MenuType<?>> REGISTRY = createRegistry(ForgeRegistries.MENU_TYPES);
 
         private Containers() {}
 

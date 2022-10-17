@@ -1,16 +1,15 @@
-package com.github.almostreliable.energymeter.network;
+package com.github.almostreliable.energymeter.network.packets;
 
 import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
+import com.github.almostreliable.energymeter.network.ClientToServerPacket;
 import com.github.almostreliable.energymeter.util.TypeEnums.TEXT_BOX;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
 
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
 
-public class AccuracyUpdatePacket {
+public class AccuracyUpdatePacket extends ClientToServerPacket<AccuracyUpdatePacket> {
 
     private TEXT_BOX identifier;
     private int value;
@@ -20,22 +19,21 @@ public class AccuracyUpdatePacket {
         this.value = value;
     }
 
-    private AccuracyUpdatePacket() {}
+    public AccuracyUpdatePacket() {}
 
-    static AccuracyUpdatePacket decode(FriendlyByteBuf buffer) {
-        var packet = new AccuracyUpdatePacket();
-        packet.identifier = TEXT_BOX.values()[buffer.readInt()];
-        packet.value = buffer.readInt();
-        return packet;
+    @Override
+    public void encode(AccuracyUpdatePacket packet, FriendlyByteBuf buffer) {
+        buffer.writeInt(packet.identifier.ordinal());
+        buffer.writeInt(packet.value);
     }
 
-    static void handle(AccuracyUpdatePacket packet, Supplier<? extends Context> context) {
-        var player = context.get().getSender();
-        context.get().enqueueWork(() -> handlePacket(packet, player));
-        context.get().setPacketHandled(true);
+    @Override
+    public AccuracyUpdatePacket decode(FriendlyByteBuf buffer) {
+        return new AccuracyUpdatePacket(TEXT_BOX.values()[buffer.readInt()], buffer.readInt());
     }
 
-    private static void handlePacket(AccuracyUpdatePacket packet, @Nullable ServerPlayer player) {
+    @Override
+    public void handlePacket(AccuracyUpdatePacket packet, @Nullable ServerPlayer player) {
         if (player != null && player.containerMenu instanceof MeterContainer) {
             var entity = ((MeterContainer) player.containerMenu).getEntity();
             var level = entity.getLevel();
@@ -49,10 +47,5 @@ public class AccuracyUpdatePacket {
             }
             entity.setChanged();
         }
-    }
-
-    void encode(FriendlyByteBuf buffer) {
-        buffer.writeInt(identifier.ordinal());
-        buffer.writeInt(value);
     }
 }

@@ -2,7 +2,7 @@ package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
 import com.github.almostreliable.energymeter.meter.MeterEntity;
-import com.github.almostreliable.energymeter.network.AccuracyUpdatePacket;
+import com.github.almostreliable.energymeter.network.packets.AccuracyUpdatePacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
@@ -15,7 +15,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 
 abstract class GenericTextBox extends EditBox {
@@ -27,7 +27,7 @@ abstract class GenericTextBox extends EditBox {
     GenericTextBox(
         MeterScreen screen, Font font, int pX, int pY, int width, int height, TEXT_BOX identifier
     ) {
-        super(font, pX, pY, width, height, TextComponent.EMPTY);
+        super(font, pX, pY, width, height, Component.empty());
         this.screen = screen;
         this.font = font;
         this.identifier = identifier;

@@ -5,7 +5,7 @@ import com.github.almostreliable.energymeter.util.TextUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public abstract class GenericButton extends Button {
 
@@ -18,7 +18,7 @@ public abstract class GenericButton extends Button {
             screen.getGuiTop() + pY,
             width,
             height,
-            TextComponent.EMPTY,
+            Component.empty(),
             button -> ((GenericButton) button).clickHandler()
         );
         container = screen.getMenu();

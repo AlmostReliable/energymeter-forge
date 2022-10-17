@@ -2,7 +2,7 @@ package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
 import com.github.almostreliable.energymeter.network.PacketHandler;
-import com.github.almostreliable.energymeter.network.SettingUpdatePacket;
+import com.github.almostreliable.energymeter.network.packets.SettingUpdatePacket;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
 import com.github.almostreliable.energymeter.util.TextUtils;

@@ -1,6 +1,6 @@
 package com.github.almostreliable.energymeter.client.gui;
 
-import com.github.almostreliable.energymeter.network.IOUpdatePacket;
+import com.github.almostreliable.energymeter.network.packets.IOUpdatePacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
 import com.github.almostreliable.energymeter.util.TextUtils;

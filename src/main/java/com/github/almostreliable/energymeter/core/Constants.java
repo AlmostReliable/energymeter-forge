@@ -1,6 +1,6 @@
 package com.github.almostreliable.energymeter.core;
 
-import com.github.almostreliable.energymeter.network.ClientSyncPacket;
+import com.github.almostreliable.energymeter.network.packets.ClientSyncPacket;
 
 @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
 public enum Constants {

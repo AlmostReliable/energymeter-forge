@@ -3,8 +3,8 @@ package com.github.almostreliable.energymeter.util;
 import com.almostreliable.energymeter.BuildConfig;
 import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 
@@ -44,7 +44,7 @@ public final class TextUtils {
     }
 
     /**
-     * Generates a {@link TranslatableComponent} within the mod's namespace
+     * Generates a {@link MutableComponent} within the mod's namespace
      * with a custom type, key and optional color.
      *
      * @param type  the type of the translation
@@ -52,9 +52,9 @@ public final class TextUtils {
      * @param color an optional color
      * @return the translated phrase
      */
-    public static TranslatableComponent translate(TRANSLATE_TYPE type, String key, ChatFormatting... color) {
-        var output = new TranslatableComponent(getTranslationKey(type, key));
-        return color.length == 0 ? output : (TranslatableComponent) output.withStyle(color[0]);
+    public static MutableComponent translate(TRANSLATE_TYPE type, String key, ChatFormatting... color) {
+        var output = Component.translatable(getTranslationKey(type, key));
+        return color.length == 0 ? output : output.withStyle(color[0]);
     }
 
     /**
@@ -64,8 +64,8 @@ public final class TextUtils {
      * @param color an optional color
      * @return the colorized string
      */
-    public static TextComponent colorize(String input, ChatFormatting color) {
-        return (TextComponent) new TextComponent(input).withStyle(color);
+    public static MutableComponent colorize(String input, ChatFormatting color) {
+        return Component.literal(input).withStyle(color);
     }
 
     /**

@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +56,7 @@ public final class GuiUtils {
          * @return the instance of the tooltip
          */
         public Tooltip addBlankLine() {
-            return addComponent(new TextComponent(" "));
+            return addComponent(Component.literal(" "));
         }
 
         /**

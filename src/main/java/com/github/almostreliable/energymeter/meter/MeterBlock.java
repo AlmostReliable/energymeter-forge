@@ -3,6 +3,7 @@ package com.github.almostreliable.energymeter.meter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Plane;
+import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -76,8 +77,9 @@ public class MeterBlock extends Block implements EntityBlock {
         if (level.getBlockEntity(pos) instanceof MeterEntity entity) {
             // ensure valid neighbor
             var neighborState = level.getBlockState(neighbor);
-            var registryName = neighborState.getBlock().getRegistryName();
-            if (!neighborState.isAir() && !neighborState.hasBlockEntity() && registryName != null &&
+            //noinspection deprecation
+            var registryName = Registry.BLOCK.getKey(neighborState.getBlock());
+            if (!neighborState.isAir() && !neighborState.hasBlockEntity() &&
                 !registryName.getNamespace().equals(PIPEZ_ID)) {
                 return;
             }
@@ -103,7 +105,7 @@ public class MeterBlock extends Block implements EntityBlock {
         // open the gui for the player who right-clicked the block
         var tile = level.getBlockEntity(pos);
         if (tile instanceof MenuProvider entity && player instanceof ServerPlayer serverPlayer) {
-            NetworkHooks.openGui(serverPlayer, entity, pos);
+            NetworkHooks.openScreen(serverPlayer, entity, pos);
         }
         return InteractionResult.CONSUME;
     }

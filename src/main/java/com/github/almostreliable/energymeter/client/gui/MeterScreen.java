@@ -1,6 +1,5 @@
 package com.github.almostreliable.energymeter.client.gui;
 
-import com.almostreliable.energymeter.BuildConfig;
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
@@ -195,6 +194,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     private void addRenderables(Iterable<? extends AbstractWidget> widgets) {
         for (var widget : widgets) {
             addRenderableWidget(widget);
+            toRender.add(widget);
         }
     }
 
