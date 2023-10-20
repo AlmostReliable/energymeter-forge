@@ -3,7 +3,7 @@ package com.github.almostreliable.energymeter.meter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Plane;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 
@@ -43,7 +43,7 @@ public class MeterBlock extends Block implements EntityBlock {
     static final BooleanProperty IO = BooleanProperty.create(IO_STATE_ID);
 
     public MeterBlock() {
-        super(Properties.of(Material.METAL).strength(2f).sound(SoundType.METAL));
+        super(Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL));
     }
 
     @Nullable
@@ -77,8 +77,8 @@ public class MeterBlock extends Block implements EntityBlock {
         if (level.getBlockEntity(pos) instanceof MeterEntity entity) {
             // ensure valid neighbor
             var neighborState = level.getBlockState(neighbor);
-            //noinspection deprecation
-            var registryName = Registry.BLOCK.getKey(neighborState.getBlock());
+            // noinspection deprecation
+            var registryName = BuiltInRegistries.BLOCK.getKey(neighborState.getBlock());
             if (!neighborState.isAir() && !neighborState.hasBlockEntity() &&
                 !registryName.getNamespace().equals(PIPEZ_ID)) {
                 return;
@@ -86,7 +86,7 @@ public class MeterBlock extends Block implements EntityBlock {
 
             // resolve direction from neighbor block position
             var vector = neighbor.subtract(pos);
-            var direction = Direction.fromNormal(vector.getX(), vector.getY(), vector.getZ());
+            var direction = Direction.fromDelta(vector.getX(), vector.getY(), vector.getZ());
             if (direction == null) return;
 
             // update the cache from the direction

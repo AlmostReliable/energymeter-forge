@@ -2,12 +2,12 @@ package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.meter.MeterContainer;
 import com.github.almostreliable.energymeter.util.GuiUtils;
-import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
+import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.github.almostreliable.energymeter.util.TypeEnums.*;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     private static final ResourceLocation TEXTURE = TextUtils.getRL("textures/gui/meter.png");
     private static final int TEXTURE_WIDTH = 199;
     private static final int TEXTURE_HEIGHT = 129;
-    private static final Tooltip TOOLTIP = setupTooltip();
+    private static final TooltipBuilder TOOLTIP = setupTooltip();
     private final Collection<AbstractWidget> toRender = new ArrayList<>();
     private IntervalBox intervalBox;
     private ThresholdBox thresholdBox;
@@ -36,8 +36,8 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         imageHeight = TEXTURE_HEIGHT;
     }
 
-    private static Tooltip setupTooltip() {
-        return Tooltip
+    private static TooltipBuilder setupTooltip() {
+        return TooltipBuilder
             .builder()
             .addHeader(SIDE_CONFIG_ID)
             .addBlankLine()
@@ -71,32 +71,26 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     }
 
     @Override
-    public void render(PoseStack stack, int mX, int mY, float partial) {
-        renderBackground(stack);
-        super.render(stack, mX, mY, partial);
-        renderTooltip(stack, mX, mY);
+    public void render(GuiGraphics guiGraphics, int mX, int mY, float partial) {
+        renderBackground(guiGraphics);
+        super.render(guiGraphics, mX, mY, partial);
+        renderTooltip(guiGraphics, mX, mY);
     }
 
     @Override
-    protected void renderTooltip(PoseStack stack, int mX, int mY) {
+    protected void renderTooltip(GuiGraphics guiGraphics, int mX, int mY) {
         // front screen tooltip
         if (isWithinRegion(mX, mY, 159, 16, 23, 16)) {
-            renderComponentTooltip(stack, TOOLTIP.resolve(), mX, mY);
+            guiGraphics.renderComponentTooltip(Minecraft.getInstance().font, TOOLTIP.resolveList(), mX, mY);
             return;
         }
-        // widget tooltips
-        for (var widget : toRender) {
-            if (widget.isHoveredOrFocused() && widget.visible) {
-                widget.renderToolTip(stack, mX, mY);
-            }
-        }
-        super.renderTooltip(stack, mX, mY);
+        super.renderTooltip(guiGraphics, mX, mY);
     }
 
     @Override
-    protected void renderLabels(PoseStack stack, int pX, int pY) {
+    protected void renderLabels(GuiGraphics guiGraphics, int pX, int pY) {
         // header
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             11,
             9,
             1.3f,
@@ -105,7 +99,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         );
 
         // transfer rate
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             11,
             26,
             1.1f,
@@ -115,7 +109,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         var formattedFlow = TextUtils.formatEnergy(menu.getEntity().getTransferRate(),
             menu.getEntity().getNumberMode() == NUMBER_MODE.LONG
         );
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             16,
             37,
             1.0f,
@@ -124,14 +118,14 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         );
 
         // status
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             11,
             50,
             1.1f,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, STATUS_ID) + ':',
             UI_COLORS.GRAY
         );
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             16,
             61,
             1.0f,
@@ -140,14 +134,14 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         );
 
         // mode
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             11,
             74,
             1.1f,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, MODE_ID) + ':',
             UI_COLORS.GRAY
         );
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             16,
             85,
             1.0f,
@@ -156,14 +150,14 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
         );
 
         // accuracy
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             11,
             98,
             1.1f,
             TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, ACCURACY_ID) + ':',
             UI_COLORS.GRAY
         );
-        GuiUtils.renderText(stack,
+        GuiUtils.renderText(guiGraphics,
             16,
             109,
             1.0f,
@@ -175,10 +169,9 @@ public class MeterScreen extends AbstractContainerScreen<MeterContainer> {
     }
 
     @Override
-    protected void renderBg(PoseStack stack, float partial, int mX, int mY) {
+    protected void renderBg(GuiGraphics guiGraphics, float partial, int mX, int mY) {
         // background texture
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+        guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
     }
 
     private void addRenderable(AbstractWidget widget) {

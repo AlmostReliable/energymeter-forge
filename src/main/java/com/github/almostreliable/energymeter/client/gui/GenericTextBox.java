@@ -2,18 +2,19 @@ package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
 import com.github.almostreliable.energymeter.meter.MeterEntity;
-import com.github.almostreliable.energymeter.network.packets.AccuracyUpdatePacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
+import com.github.almostreliable.energymeter.network.packets.AccuracyUpdatePacket;
 import com.github.almostreliable.energymeter.util.GuiUtils;
-import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
+import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.github.almostreliable.energymeter.util.TypeEnums.ACCURACY;
 import com.github.almostreliable.energymeter.util.TypeEnums.TEXT_BOX;
 import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +42,7 @@ abstract class GenericTextBox extends EditBox {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // submit when pressing enter
         if (keyCode == InputConstants.getKey("key.keyboard.enter").getValue()) {
-            setFocus(false);
+            setFocused(false);
             return true;
         }
         // otherwise, just run the original functionality
@@ -63,28 +64,22 @@ abstract class GenericTextBox extends EditBox {
     }
 
     @Override
-    public void setFocus(boolean focused) {
-        if (isFocused() && !focused) {
-            // validate input on focus lose for both text boxes in case the user didn't submit
-            screen.getIntervalBox().validateTextBox();
-            screen.getThresholdBox().validateTextBox();
-        }
-        super.setFocus(focused);
-    }
-
-    @Override
-    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
+    public void renderWidget(GuiGraphics guiGraphics, int mX, int mY, float partial) {
         if (screen.getMenu().getEntity().getAccuracy() == ACCURACY.EXACT) return;
+        int x = getX();
+        int y = getY();
         var label = TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, identifier.toString().toLowerCase()) + ":";
         var labelWidth = font.width(label);
         // expand the tooltip range to the text box
         isHovered = mX >= x - 4 - labelWidth && mY >= y - 3 && mX < x + width + 3 && mY < y + height + 3;
         // render small identifier label in front of the box
-        GuiUtils.renderText(stack, x - 4 - labelWidth, y, 1, label, UI_COLORS.WHITE);
+        GuiUtils.renderText(guiGraphics, x - 4 - labelWidth, y, 1, label, UI_COLORS.WHITE);
         // render the text box with a small gap to the border
-        fill(stack, x - 3, y - 3, x + width + 3, y + height + 3, -65_434);
-        fill(stack, x - 2, y - 2, x + width + 2, y + height + 2, -15_263_977);
-        super.renderButton(stack, mX, mY, partial);
+        guiGraphics.fill(x - 3, y - 3, x + width + 3, y + height + 3, -65_434);
+        guiGraphics.fill(x - 2, y - 2, x + width + 2, y + height + 2, -15_263_977);
+        // tooltip
+        setTooltip(Tooltip.create(getTooltipBuilder().resolve()));
+        super.renderWidget(guiGraphics, mX, mY, partial);
     }
 
     /**
@@ -138,25 +133,16 @@ abstract class GenericTextBox extends EditBox {
     }
 
     @Override
-    public void renderToolTip(PoseStack stack, int mX, int mY) {
-        if (screen.getMenu().getEntity().getAccuracy() == ACCURACY.EXACT) return;
-        screen.renderComponentTooltip(stack, getTooltip().resolve(), mX, mY);
-    }
-
-    /**
-     * Overwrite this method to make it public.
-     * <p>
-     * This is called from the setFocus() method to actually change the focus.
-     * It should be called directly to avoid validating the text box when changing focus.
-     *
-     * @param focused the value to set the focus to
-     */
-    @Override
     public void setFocused(boolean focused) {
+        if (isFocused() && !focused) {
+            // validate input on focus lose for both text boxes in case the user didn't submit
+            screen.getIntervalBox().validateTextBox();
+            screen.getThresholdBox().validateTextBox();
+        }
         super.setFocused(focused);
     }
 
-    protected abstract Tooltip getTooltip();
+    protected abstract TooltipBuilder getTooltipBuilder();
 
     protected abstract int getOldValue();
 }

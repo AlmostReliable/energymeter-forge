@@ -5,7 +5,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,26 +29,35 @@ public final class GuiUtils {
      * @param text  the text to draw
      * @param color the color of the text as decimal
      */
-    public static void renderText(PoseStack stack, int x, int y, float scale, String text, int color) {
+    public static void renderText(GuiGraphics guiGraphics, int x, int y, float scale, String text, int color) {
+        PoseStack stack = guiGraphics.pose();
         stack.pushPose();
         stack.translate(x, y, 0);
         stack.scale(scale, scale, 1);
-        Minecraft.getInstance().font.draw(stack, text, 0, 0, color);
+        guiGraphics.drawString(Minecraft.getInstance().font, text, 0, 0, color);
         stack.popPose();
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public static final class Tooltip {
+    public static final class TooltipBuilder {
 
         private final List<Component> value = new ArrayList<>();
 
-        private Tooltip() {}
+        private TooltipBuilder() {}
 
-        public static Tooltip builder() {
-            return new Tooltip();
+        public static TooltipBuilder builder() {
+            return new TooltipBuilder();
         }
 
-        public List<Component> resolve() {
+        public Component resolve() {
+            MutableComponent component = Component.empty();
+            for (Component e : value) {
+                component = component.append(e).append("\n");
+            }
+            return component;
+        }
+
+        public List<Component> resolveList() {
             return value;
         }
 
@@ -55,7 +66,7 @@ public final class GuiUtils {
          *
          * @return the instance of the tooltip
          */
-        public Tooltip addBlankLine() {
+        public TooltipBuilder addBlankLine() {
             return addComponent(Component.literal(" "));
         }
 
@@ -65,7 +76,7 @@ public final class GuiUtils {
          * @param component the component to addComponent
          * @return the instance of the tooltip
          */
-        public Tooltip addComponent(Component component) {
+        public TooltipBuilder addComponent(Component component) {
             value.add(component);
             return this;
         }
@@ -76,7 +87,7 @@ public final class GuiUtils {
          * @param key the key of the translation
          * @return the instance of the tooltip
          */
-        public Tooltip addHeader(String key) {
+        public TooltipBuilder addHeader(String key) {
             return addComponent(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, key, ChatFormatting.GOLD));
         }
 
@@ -86,7 +97,7 @@ public final class GuiUtils {
          * @param key the key of the translation
          * @return the instance of the tooltip
          */
-        public Tooltip addDescription(String key) {
+        public TooltipBuilder addDescription(String key) {
             return addComponent(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, key, ChatFormatting.WHITE));
         }
 
@@ -97,7 +108,7 @@ public final class GuiUtils {
          * @param key   the key of the translation
          * @return the instance of the tooltip
          */
-        public Tooltip addCustomAction(String input, String key) {
+        public TooltipBuilder addCustomAction(String input, String key) {
             return addComponent(TextUtils
                 .colorize("> ", ChatFormatting.GRAY)
                 .append(TextUtils.colorize(InputConstants.getKey(input).getDisplayName().getString(),
@@ -113,7 +124,7 @@ public final class GuiUtils {
          * @param key the key of the translation
          * @return the instance of the tooltip
          */
-        public Tooltip addClickAction(String key) {
+        public TooltipBuilder addClickAction(String key) {
             return addComponent(TextUtils
                 .colorize("> ", ChatFormatting.GRAY)
                 .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "action_click", ChatFormatting.AQUA))
@@ -128,7 +139,7 @@ public final class GuiUtils {
          * @param key   the key of the translation
          * @return the instance of the tooltip
          */
-        public Tooltip addHoldAction(String input, String key) {
+        public TooltipBuilder addHoldAction(String input, String key) {
             return addComponent(TextUtils
                 .colorize("> ", ChatFormatting.GRAY)
                 .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "action_hold", ChatFormatting.GRAY))
@@ -146,7 +157,7 @@ public final class GuiUtils {
          * @param key the key of the translation
          * @return the instance of the tooltip
          */
-        public Tooltip addShiftClickAction(String key) {
+        public TooltipBuilder addShiftClickAction(String key) {
             return addComponent(TextUtils
                 .colorize("> ", ChatFormatting.GRAY)
                 .append(TextUtils.colorize(String.format("%s + %s",

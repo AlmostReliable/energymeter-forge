@@ -7,14 +7,14 @@ import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
 import com.github.almostreliable.energymeter.core.Setup.Entities;
-import com.github.almostreliable.energymeter.network.packets.ClientSyncPacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
+import com.github.almostreliable.energymeter.network.packets.ClientSyncPacket;
 import com.github.almostreliable.energymeter.network.packets.SettingUpdatePacket;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.github.almostreliable.energymeter.util.TypeEnums.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
@@ -504,8 +504,9 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
             if (provider instanceof MeterEntity) return false;
             if (provider == null) {
                 var state = level.getBlockState(worldPosition.relative(direction));
-                //noinspection deprecation
-                return !state.isAir() && Registry.BLOCK.getKey(state.getBlock()).getNamespace().equals(PIPEZ_ID);
+                // noinspection deprecation
+                return !state.isAir() &&
+                    BuiltInRegistries.BLOCK.getKey(state.getBlock()).getNamespace().equals(PIPEZ_ID);
             }
             target = provider.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite());
             inputCache = target;

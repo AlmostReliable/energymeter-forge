@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "${forgeVersionRange}"
+loaderVersion = "[${forgeFMLVersion},)"
 issueTrackerURL = "https://github.com/${githubUser}/${githubRepo}/issues"
 license = "${license}"
 logoFile = "logo.png"
@@ -13,22 +13,22 @@ description = '''${modDescription}'''
 credits = "${modCredits}"
 
 [[dependencies.${modId}]]
-modId = "forge"
+modId = "minecraft"
 mandatory = true
-versionRange = "${forgeVersionRange}"
+versionRange = "[${minecraftVersion},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.${modId}]]
-modId = "minecraft"
+modId = "forge"
 mandatory = true
-versionRange = "${mcVersionRange}"
+versionRange = "[${forgeVersion},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.${modId}]]
 modId = "computercraft"
 mandatory = false
-versionRange = "${cctVersionRange}"
+versionRange = "[${cctVersion},)"
 ordering = "AFTER"
 side = "BOTH"

@@ -1,14 +1,14 @@
 package com.github.almostreliable.energymeter.client.gui;
 
-import com.github.almostreliable.energymeter.network.packets.IOUpdatePacket;
 import com.github.almostreliable.energymeter.network.PacketHandler;
-import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
+import com.github.almostreliable.energymeter.network.packets.IOUpdatePacket;
+import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
 import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.Tuple;
 
@@ -28,7 +28,7 @@ final class IOButton extends GenericButton {
     private static final int ZONE_SIZE = 18;
     private static final int OVERLAY_SIZE = 17;
     private final BLOCK_SIDE side;
-    private Tooltip tooltip;
+    private TooltipBuilder tooltip;
     private IO_SETTING setting;
 
     private IOButton(MeterScreen screen, BLOCK_SIDE side) {
@@ -71,20 +71,15 @@ final class IOButton extends GenericButton {
     }
 
     @Override
-    public void renderToolTip(PoseStack stack, int mX, int mY) {
-        screen.renderComponentTooltip(stack, tooltip.resolve(), mX, mY);
-    }
-
-    @Override
     public void onClick(double mX, double mY) {
         if (isHovered) changeMode(Screen.hasShiftDown());
         super.onClick(mX, mY);
     }
 
     @Override
-    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
-        super.renderButton(stack, mX, mY, partial);
-        renderIOOverlay(stack);
+    public void renderWidget(GuiGraphics guiGraphics, int mX, int mY, float partial) {
+        super.renderWidget(guiGraphics, mX, mY, partial);
+        renderIOOverlay(guiGraphics);
     }
 
     @Override
@@ -108,8 +103,13 @@ final class IOButton extends GenericButton {
         return TEXTURE_HEIGHT;
     }
 
-    private Tooltip setupTooltip() {
-        return Tooltip.builder()
+    @Override
+    protected TooltipBuilder getTooltipBuilder() {
+        return tooltip;
+    }
+
+    private TooltipBuilder setupTooltip() {
+        return TooltipBuilder.builder()
             // header
             .addHeader(SIDE_CONFIG_ID).addBlankLine()
             // block side
@@ -137,10 +137,19 @@ final class IOButton extends GenericButton {
      *
      * @param stack the pose stack for the render call
      */
-    private void renderIOOverlay(PoseStack stack) {
+    private void renderIOOverlay(GuiGraphics guiGraphics) {
         var textureOffset = (setting.ordinal() - 1) * OVERLAY_SIZE;
         if (textureOffset >= 0) {
-            blit(stack, x, y, BUTTON_SIZE, textureOffset, OVERLAY_SIZE, OVERLAY_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            guiGraphics.blit(TextUtils.getRL("textures/gui/buttons/" + getTexture() + ".png"),
+                getX(),
+                getY(),
+                BUTTON_SIZE,
+                textureOffset,
+                OVERLAY_SIZE,
+                OVERLAY_SIZE,
+                TEXTURE_WIDTH,
+                TEXTURE_HEIGHT
+            );
         }
     }
 

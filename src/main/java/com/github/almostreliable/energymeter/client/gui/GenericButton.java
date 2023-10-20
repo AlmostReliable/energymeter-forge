@@ -1,10 +1,11 @@
 package com.github.almostreliable.energymeter.client.gui;
 
 import com.github.almostreliable.energymeter.meter.MeterContainer;
+import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.TextUtils;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 
 public abstract class GenericButton extends Button {
@@ -19,18 +20,27 @@ public abstract class GenericButton extends Button {
             width,
             height,
             Component.empty(),
-            button -> ((GenericButton) button).clickHandler()
+            button -> ((GenericButton) button).clickHandler(),
+            DEFAULT_NARRATION
         );
         container = screen.getMenu();
         this.screen = screen;
     }
 
     @Override
-    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
-        // background texture
-        RenderSystem.setShaderTexture(0, TextUtils.getRL("textures/gui/buttons/" + getTexture() + ".png"));
-        // button texture
-        blit(stack, x, y, 0, 0, width, height, getTextureWidth(), getTextureHeight());
+    public void renderWidget(GuiGraphics guiGraphics, int mX, int mY, float partial) {
+        guiGraphics.blit(
+            TextUtils.getRL("textures/gui/buttons/" + getTexture() + ".png"),
+            getX(),
+            getY(),
+            0,
+            0,
+            width,
+            height,
+            getTextureWidth(),
+            getTextureHeight()
+        );
+        setTooltip(Tooltip.create(getTooltipBuilder().resolve()));
     }
 
     /**
@@ -61,4 +71,6 @@ public abstract class GenericButton extends Button {
      * @return the texture atlas height
      */
     protected abstract int getTextureHeight();
+
+    protected abstract GuiUtils.TooltipBuilder getTooltipBuilder();
 }

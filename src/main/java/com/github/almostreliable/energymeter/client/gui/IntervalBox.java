@@ -1,20 +1,20 @@
 package com.github.almostreliable.energymeter.client.gui;
 
-import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
+import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TypeEnums.TEXT_BOX;
 import net.minecraft.client.gui.Font;
 
 class IntervalBox extends GenericTextBox {
 
-    private static final Tooltip TOOLTIP = setupTooltip();
+    private static final TooltipBuilder TOOLTIP = setupTooltip();
 
     IntervalBox(MeterScreen screen, Font font, int pX, int pY, int width, int height) {
         super(screen, font, pX, pY, width, height, TEXT_BOX.INTERVAL);
         setValue(String.valueOf(screen.getMenu().getEntity().getInterval()));
     }
 
-    private static Tooltip setupTooltip() {
-        return Tooltip
+    private static TooltipBuilder setupTooltip() {
+        return TooltipBuilder
             .builder()
             .addHeader("interval")
             .addBlankLine()
@@ -27,7 +27,7 @@ class IntervalBox extends GenericTextBox {
     }
 
     @Override
-    protected Tooltip getTooltip() {
+    protected TooltipBuilder getTooltipBuilder() {
         return TOOLTIP;
     }
 

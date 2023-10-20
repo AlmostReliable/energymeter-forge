@@ -4,16 +4,16 @@ import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
 import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.network.packets.SettingUpdatePacket;
 import com.github.almostreliable.energymeter.util.GuiUtils;
-import com.github.almostreliable.energymeter.util.GuiUtils.Tooltip;
+import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.github.almostreliable.energymeter.util.TypeEnums.ACCURACY;
 import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
 import com.github.almostreliable.energymeter.util.TypeEnums.SETTING;
 import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextColor;
 
@@ -25,8 +25,8 @@ public class SettingButton extends GenericButton {
     private final String label;
     private final Font font;
     private final SETTING setting;
-    private Tooltip tooltip;
-    private Tooltip tooltipLong;
+    private TooltipBuilder tooltip;
+    private TooltipBuilder tooltipLong;
 
     SettingButton(MeterScreen screen, int pX, int pY, SETTING setting) {
         super(screen, pX, pY, TEXTURE_WIDTH, TEXTURE_HEIGHT);
@@ -38,12 +38,12 @@ public class SettingButton extends GenericButton {
     }
 
     @Override
-    public void renderButton(PoseStack stack, int mX, int mY, float partial) {
-        super.renderButton(stack, mX, mY, partial);
+    public void renderWidget(GuiGraphics guiGraphics, int mX, int mY, float partial) {
+        super.renderWidget(guiGraphics, mX, mY, partial);
         // label
-        var pX = (width - font.width(label)) / 2 + x + 1;
-        var pY = (height - font.lineHeight) / 2 + y + 1;
-        GuiUtils.renderText(stack, pX, pY, 1.0f, label, UI_COLORS.WHITE);
+        var pX = (width - font.width(label)) / 2 + getX() + 1;
+        var pY = (height - font.lineHeight) / 2 + getY() + 1;
+        GuiUtils.renderText(guiGraphics, pX, pY, 1.0f, label, UI_COLORS.WHITE);
     }
 
     @Override
@@ -74,13 +74,13 @@ public class SettingButton extends GenericButton {
     }
 
     @Override
-    public void renderToolTip(PoseStack stack, int mX, int mY) {
-        screen.renderComponentTooltip(stack, (Screen.hasShiftDown() ? tooltipLong : tooltip).resolve(), mX, mY);
+    protected TooltipBuilder getTooltipBuilder() {
+        return Screen.hasShiftDown() ? tooltipLong : tooltip;
     }
 
-    private Tooltip setupTooltip(boolean longTooltip) {
+    private TooltipBuilder setupTooltip(boolean longTooltip) {
         var settingKey = setting.toString().toLowerCase();
-        var t = Tooltip.builder().addHeader(settingKey).addBlankLine();
+        var t = TooltipBuilder.builder().addHeader(settingKey).addBlankLine();
         if (longTooltip) {
             t.addDescription(settingKey + "_desc_1");
             var description2 = "_desc_2";
