@@ -73,6 +73,7 @@ public class ClientSyncPacket extends ServerToClientPacket<ClientSyncPacket> {
         if ((packet.flags & SYNC_FLAGS.MODE) != 0) packet.mode = MODE.values()[buffer.readInt()];
         if ((packet.flags & SYNC_FLAGS.ACCURACY) != 0) packet.accuracy = ACCURACY.values()[buffer.readInt()];
         if ((packet.flags & SYNC_FLAGS.INTERVAL) != 0) packet.interval = buffer.readInt();
+        if ((packet.flags & SYNC_FLAGS.THRESHOLD) != 0) packet.threshold = buffer.readInt();
         return packet;
     }
 
