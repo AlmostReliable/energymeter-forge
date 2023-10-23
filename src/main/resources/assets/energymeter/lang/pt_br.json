@@ -1,78 +1,77 @@
 {
-    "itemGroup.energymeter": "Medidor de Energia",
-  
-    "block.energymeter.meter": "Medidor de Energia",
-    "container.energymeter.meter": "Medidor de Energia",
-  
-    "label.energymeter.meter": "Medidor de Energia",
-    "label.energymeter.transfer_rate": "Taxa de transferência",
-    "label.energymeter.number": "Número",
-    "label.energymeter.status": "Status",
-    "label.energymeter.mode": "Modo",
-    "label.energymeter.accuracy": "Precisão",
-    "label.energymeter.interval": "I",
-    "label.energymeter.threshold": "T",
-  
-    "tooltip.energymeter.side_config": "Configuração de E/S",
-    "tooltip.energymeter.io_side": "Lado",
-    "tooltip.energymeter.io_mode": "Modo",
-    "tooltip.energymeter.current": "Atual",
-  
-    "tooltip.energymeter.number": "Configuração de número",
-    "tooltip.energymeter.number_desc_1": "Define se a formatação da taxa de transferência deve ser curta ou longa.",
-    "tooltip.energymeter.number_desc_2": "Só afeta o número se for mais de 1,000 FE/t.",
-  
-    "tooltip.energymeter.mode": "Configuração do modo",
-    "tooltip.energymeter.mode_desc_1": "Define o modo do Medidor de Energia.",
-    "tooltip.energymeter.mode_desc_2": "Funciona como um cabo normal. A energia será distribuída igualmente e é limitada apenas pela entrada/saída.",
-    "tooltip.energymeter.mode_desc_3": "Funciona como uma lata de lixo. A energia recebida será anulada. Isso pode ser usado para medir a energia máxima de entrada.",
-  
-    "tooltip.energymeter.accuracy": "Configuração de precisão",
-    "tooltip.energymeter.accuracy_desc_1": "Define a precisão do medidor de energia.",
-    "tooltip.energymeter.accuracy_desc_2": "Exibe a taxa média nos últimos 5 ticks. A cada período, ele descartará os valores anteriores e mostrará apenas o período atual, levando a picos se a energia estiver fluindo de forma inconsistente.",
-    "tooltip.energymeter.accuracy_desc_3": "Aceita um intervalo de escala personalizado e calcula a média nesse período. Além disso, levará em consideração a taxa do período anterior, suavizando os picos e melhorando a precisão em vários ciclos.",
-  
-    "tooltip.energymeter.interval": "Intervalo de atualização",
-    "tooltip.energymeter.interval_desc_1": "Define o número de ticks (1s = 20 ticks) entre cada cálculo da taxa de transferência.",
-    "tooltip.energymeter.interval_desc_2": "Valores mais altos igualam os picos, mas resultam em atualizações mais lentas na tela.",
-  
-    "tooltip.energymeter.threshold": "Limite Zero",
-    "tooltip.energymeter.threshold_desc_1": "Define o limite de reset em ticks (1s = 20 ticks). Se nenhuma energia for recebida durante este período, a medição é redefinida para zero.",
-    "tooltip.energymeter.threshold_desc_2": "Valores mais baixos detectarão a perda de energia mais rapidamente. O valor não pode ser maior que o intervalo, pois isso não serviria para nada.",
-  
-    "tooltip.energymeter.action_click": "Clique",
-    "tooltip.energymeter.action_hold": "Segure",
-    "tooltip.energymeter.action_1": "mudar",
-    "tooltip.energymeter.action_2": "reiniciar",
-    "tooltip.energymeter.action_3": "alternar",
-    "tooltip.energymeter.action_4": "para mostrar informações estendidas",
-    "tooltip.energymeter.action_5": "mudar o intervalo",
-    "tooltip.energymeter.action_6": "aplicar intervalo",
-  
-    "block_side.energymeter.bottom": "Fundo",
-    "block_side.energymeter.top": "Superior",
-    "block_side.energymeter.front": "Frente",
-    "block_side.energymeter.back": "Atrás",
-    "block_side.energymeter.left": "Esquerda",
-    "block_side.energymeter.right": "Direita",
-  
-    "io_setting.energymeter.off": "Off",
-    "io_setting.energymeter.in": "Entrada",
-    "io_setting.energymeter.out": "Saída",
-    "io_setting.energymeter.screen": "Tela",
-  
-    "number.energymeter.long": "Grande",
-    "number.energymeter.short": "Curto",
-  
-    "status.energymeter.disconnected": "Desconectado",
-    "status.energymeter.connected": "Conectado",
-    "status.energymeter.transferring": "Transferindo",
-    "status.energymeter.consuming": "Consumindo",
-  
-    "mode.energymeter.transfer": "Transferir",
-    "mode.energymeter.consumer": "Consumidor",
-  
-    "accuracy.energymeter.exact": "Exato",
-    "accuracy.energymeter.interval": "Intervalo"
-  }
-  
+  "label.energymeter.itemGroup": "Medidor de Energia",
+
+  "block.energymeter.meter": "Medidor de Energia",
+  "container.energymeter.meter": "Medidor de Energia",
+
+  "label.energymeter.meter": "Medidor de Energia",
+  "label.energymeter.transfer_rate": "Taxa de transferência",
+  "label.energymeter.number": "Número",
+  "label.energymeter.status": "Status",
+  "label.energymeter.mode": "Modo",
+  "label.energymeter.accuracy": "Precisão",
+  "label.energymeter.interval": "I",
+  "label.energymeter.threshold": "T",
+
+  "tooltip.energymeter.side_config": "Configuração de E/S",
+  "tooltip.energymeter.io_side": "Lado",
+  "tooltip.energymeter.io_mode": "Modo",
+  "tooltip.energymeter.current": "Atual",
+
+  "tooltip.energymeter.number": "Configuração de número",
+  "tooltip.energymeter.number_desc_1": "Define se a formatação da taxa de transferência deve ser curta ou longa.",
+  "tooltip.energymeter.number_desc_2": "Só afeta o número se for mais de 1,000 FE/t.",
+
+  "tooltip.energymeter.mode": "Configuração do modo",
+  "tooltip.energymeter.mode_desc_1": "Define o modo do Medidor de Energia.",
+  "tooltip.energymeter.mode_desc_2": "Funciona como um cabo normal. A energia será distribuída igualmente e é limitada apenas pela entrada/saída.",
+  "tooltip.energymeter.mode_desc_3": "Funciona como uma lata de lixo. A energia recebida será anulada. Isso pode ser usado para medir a energia máxima de entrada.",
+
+  "tooltip.energymeter.accuracy": "Configuração de precisão",
+  "tooltip.energymeter.accuracy_desc_1": "Define a precisão do medidor de energia.",
+  "tooltip.energymeter.accuracy_desc_2": "Exibe a taxa média nos últimos 5 ticks. A cada período, ele descartará os valores anteriores e mostrará apenas o período atual, levando a picos se a energia estiver fluindo de forma inconsistente.",
+  "tooltip.energymeter.accuracy_desc_3": "Aceita um intervalo de escala personalizado e calcula a média nesse período. Além disso, levará em consideração a taxa do período anterior, suavizando os picos e melhorando a precisão em vários ciclos.",
+
+  "tooltip.energymeter.interval": "Intervalo de atualização",
+  "tooltip.energymeter.interval_desc_1": "Define o número de ticks (1s = 20 ticks) entre cada cálculo da taxa de transferência.",
+  "tooltip.energymeter.interval_desc_2": "Valores mais altos igualam os picos, mas resultam em atualizações mais lentas na tela.",
+
+  "tooltip.energymeter.threshold": "Limite Zero",
+  "tooltip.energymeter.threshold_desc_1": "Define o limite de reset em ticks (1s = 20 ticks). Se nenhuma energia for recebida durante este período, a medição é redefinida para zero.",
+  "tooltip.energymeter.threshold_desc_2": "Valores mais baixos detectarão a perda de energia mais rapidamente. O valor não pode ser maior que o intervalo, pois isso não serviria para nada.",
+
+  "tooltip.energymeter.action_click": "Clique",
+  "tooltip.energymeter.action_hold": "Segure",
+  "tooltip.energymeter.action_1": "mudar",
+  "tooltip.energymeter.action_2": "reiniciar",
+  "tooltip.energymeter.action_3": "alternar",
+  "tooltip.energymeter.action_4": "para mostrar informações estendidas",
+  "tooltip.energymeter.action_5": "mudar o intervalo",
+  "tooltip.energymeter.action_6": "aplicar intervalo",
+
+  "block_side.energymeter.bottom": "Fundo",
+  "block_side.energymeter.top": "Superior",
+  "block_side.energymeter.front": "Frente",
+  "block_side.energymeter.back": "Atrás",
+  "block_side.energymeter.left": "Esquerda",
+  "block_side.energymeter.right": "Direita",
+
+  "io_setting.energymeter.off": "Off",
+  "io_setting.energymeter.in": "Entrada",
+  "io_setting.energymeter.out": "Saída",
+  "io_setting.energymeter.screen": "Tela",
+
+  "number.energymeter.long": "Grande",
+  "number.energymeter.short": "Curto",
+
+  "status.energymeter.disconnected": "Desconectado",
+  "status.energymeter.connected": "Conectado",
+  "status.energymeter.transferring": "Transferindo",
+  "status.energymeter.consuming": "Consumindo",
+
+  "mode.energymeter.transfer": "Transferir",
+  "mode.energymeter.consumer": "Consumidor",
+
+  "accuracy.energymeter.exact": "Exato",
+  "accuracy.energymeter.interval": "Intervalo"
+}

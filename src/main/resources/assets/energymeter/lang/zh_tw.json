@@ -1,5 +1,5 @@
 {
-  "itemGroup.energymeter": "Energy Meter",
+  "label.energymeter.itemGroup": "Energy Meter",
 
   "block.energymeter.meter": "能量儀表板",
   "container.energymeter.meter": "能量儀表板",

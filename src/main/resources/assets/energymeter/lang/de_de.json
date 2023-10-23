@@ -1,5 +1,5 @@
 {
-  "itemGroup.energymeter": "Energiemesser",
+  "label.energymeter.itemGroup": "Energiemesser",
 
   "block.energymeter.meter": "Energiemesser",
   "container.energymeter.meter": "Energiemesser",
