@@ -1,0 +1,78 @@
+{
+    "itemGroup.energymeter": "电能表",
+  
+    "block.energymeter.meter": "电能表",
+    "container.energymeter.meter": "电能表",
+  
+    "label.energymeter.meter": "电能表",
+    "label.energymeter.transfer_rate": "传输速率",
+    "label.energymeter.number": "数字",
+    "label.energymeter.status": "状态",
+    "label.energymeter.mode": "模式",
+    "label.energymeter.accuracy": "取样模式",
+    "label.energymeter.interval": "间隔",
+    "label.energymeter.threshold": "阈值",
+  
+    "tooltip.energymeter.side_config": "I/O 配置",
+    "tooltip.energymeter.io_side": "方位",
+    "tooltip.energymeter.io_mode": "模式",
+    "tooltip.energymeter.current": "目前",
+  
+    "tooltip.energymeter.number": "数字显示模式设置",
+    "tooltip.energymeter.number_desc_1": "设置传输速率显示格式。",
+    "tooltip.energymeter.number_desc_2": "仅在数值超过 1,000 FE/t 时生效。",
+  
+    "tooltip.energymeter.mode": "模式设置",
+    "tooltip.energymeter.mode_desc_1": "设置电能表使用的模式。",
+    "tooltip.energymeter.mode_desc_2": "像是能量线缆一样。能量将被平均分配，仅受到输入／输出限制。",
+    "tooltip.energymeter.mode_desc_3": "像是能量垃圾桶一样。输入的能量将会销毁。这可以用于测量最大发电量。",
+  
+    "tooltip.energymeter.accuracy": "更新模式设置",
+    "tooltip.energymeter.accuracy_desc_1": "设置电能表的更新时间。",
+    "tooltip.energymeter.accuracy_desc_2": "显示过去 5 Ticks 中的平均值。每個週期將會拋棄舊的數值並顯示目前週期的數值。如果能量不稳定，将会显示所产生的峰值。",
+    "tooltip.energymeter.accuracy_desc_3": "自定间隔 Tick 并取该周期的平均值。此外，它将计算上个周期的数值，抑制峰值并提高多个周期下的准确度。",
+  
+    "tooltip.energymeter.interval": "更新间隔",
+    "tooltip.energymeter.interval_desc_1": "设置每次计算传输速率之间间隔的 Tick（1 秒 = 20 Ticks）。",
+    "tooltip.energymeter.interval_desc_2": "较高数值会抑制峰值，但会让数值的更新更慢。",
+  
+    "tooltip.energymeter.threshold": "归零阈值",
+    "tooltip.energymeter.threshold_desc_1": "设置重置阈值的 Tick（1 秒 = 20 Ticks）。如果在此期间没有收到能量，将会将电能表归零。",
+    "tooltip.energymeter.threshold_desc_2": "较低数值可以更快检查到能量損失。该数值高于更新间隔将会失效。",
+  
+    "tooltip.energymeter.action_click": "点击",
+    "tooltip.energymeter.action_hold": "按住",
+    "tooltip.energymeter.action_1": "来切换",
+    "tooltip.energymeter.action_2": "来重置",
+    "tooltip.energymeter.action_3": "来切换",
+    "tooltip.energymeter.action_4": "来展开更多信息",
+    "tooltip.energymeter.action_5": "来更改间隔",
+    "tooltip.energymeter.action_6": "来应用间隔",
+  
+    "block_side.energymeter.bottom": "底部",
+    "block_side.energymeter.top": "顶部",
+    "block_side.energymeter.front": "前方",
+    "block_side.energymeter.back": "后方",
+    "block_side.energymeter.left": "左侧",
+    "block_side.energymeter.right": "右侧",
+  
+    "io_setting.energymeter.off": "关闭",
+    "io_setting.energymeter.in": "输入",
+    "io_setting.energymeter.out": "输出",
+    "io_setting.energymeter.screen": "屏幕",
+  
+    "number.energymeter.long": "长",
+    "number.energymeter.short": "短",
+  
+    "status.energymeter.disconnected": "连接中断",
+    "status.energymeter.connected": "已连接",
+    "status.energymeter.transferring": "正在传输",
+    "status.energymeter.consuming": "正在销毁",
+  
+    "mode.energymeter.transfer": "传输",
+    "mode.energymeter.consumer": "消耗",
+  
+    "accuracy.energymeter.exact": "精确",
+    "accuracy.energymeter.interval": "区间"
+  }
+  
