@@ -60,6 +60,8 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     private int threshold = REFRESH_RATE;
     private double zeroThreshold;
 
+    private boolean isRedstoneDisabled = false;
+
     @SuppressWarnings("ThisEscapedInObjectConstruction")
     public MeterEntity(BlockPos pos, BlockState state) {
         super(Entities.METER.get(), pos, state);
@@ -171,6 +173,8 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
         if (tag.contains(ACCURACY_ID)) accuracy = ACCURACY.values()[tag.getInt(ACCURACY_ID)];
         if (tag.contains(INTERVAL_ID)) interval = tag.getInt(INTERVAL_ID);
         if (tag.contains(THRESHOLD_ID)) threshold = tag.getInt(THRESHOLD_ID);
+        if (tag.contains(REDSTONE_DISABLED_ID)) isRedstoneDisabled = tag.getBoolean(REDSTONE_DISABLED_ID);
+
     }
 
     @Override
@@ -182,6 +186,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
         tag.putInt(ACCURACY_ID, accuracy.ordinal());
         tag.putInt(INTERVAL_ID, interval);
         tag.putInt(THRESHOLD_ID, threshold);
+        tag.putBoolean(REDSTONE_DISABLED_ID, isRedstoneDisabled);
     }
 
     @Override
@@ -195,6 +200,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
         tag.putInt(ACCURACY_ID, accuracy.ordinal());
         tag.putInt(INTERVAL_ID, interval);
         tag.putInt(THRESHOLD_ID, threshold);
+        tag.putBoolean(REDSTONE_DISABLED_ID, isRedstoneDisabled);
         return tag;
     }
 
@@ -216,6 +222,7 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
         accuracy = ACCURACY.values()[tag.getInt(ACCURACY_ID)];
         interval = tag.getInt(INTERVAL_ID);
         threshold = tag.getInt(THRESHOLD_ID);
+        isRedstoneDisabled = tag.getBoolean(REDSTONE_DISABLED_ID);
     }
 
     public int receiveEnergy(int energy, boolean simulate) {
@@ -582,5 +589,13 @@ public class MeterEntity extends BlockEntity implements MenuProvider {
     @Override
     public Component getDisplayName() {
         return TextUtils.translate(TRANSLATE_TYPE.CONTAINER, METER_ID);
+    }
+
+    public void setIsRedstoneDisabled(boolean isDisabled) {
+        isRedstoneDisabled = isDisabled;
+    }
+
+    public boolean getIsRedstoneDisabled() {
+        return isRedstoneDisabled;
     }
 }

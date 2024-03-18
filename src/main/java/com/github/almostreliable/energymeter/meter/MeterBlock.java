@@ -26,6 +26,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 
+
 import javax.annotation.Nullable;
 
 import static com.github.almostreliable.energymeter.core.Constants.IO_STATE_ID;
@@ -75,6 +76,10 @@ public class MeterBlock extends Block implements EntityBlock {
         // resolve tile entity from block position
         if (!state.hasBlockEntity()) return;
         if (level.getBlockEntity(pos) instanceof MeterEntity entity) {
+            //Check neighbor redstone level
+            var isDisabled = level.hasNeighborSignal(pos);
+            entity.setIsRedstoneDisabled(isDisabled);
+
             // ensure valid neighbor
             var neighborState = level.getBlockState(neighbor);
             // noinspection deprecation

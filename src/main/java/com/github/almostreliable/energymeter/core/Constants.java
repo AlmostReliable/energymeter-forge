@@ -26,7 +26,7 @@ public enum Constants {
     public static final String IO_SCREEN_ID = "screen";
     public static final String INTERVAL_ID = "interval";
     public static final String THRESHOLD_ID = "threshold";
-
+    public static final String REDSTONE_DISABLED_ID = "redstone_disabled";
     /**
      * Decimal color values to ensure consistent color values.
      */

@@ -55,6 +55,11 @@ public record SidedEnergyStorage(MeterEntity parent, Direction side) implements 
 
     @Override
     public boolean canReceive() {
+
+        //Abort if redstone enabled
+        if(parent.getIsRedstoneDisabled())
+            return false;
+
         if (parent.getMode() == MODE.CONSUMER) {
             return parent.getSideConfig().get(side) == IO_SETTING.IN;
         }
