@@ -2,7 +2,7 @@ package com.github.almostreliable.energymeter.client.gui;
 
 import net.minecraft.client.gui.Font;
 
-import com.github.almostreliable.energymeter.meter.MeterBlockEntity;
+import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TypeEnums.TEXT_BOX;
 

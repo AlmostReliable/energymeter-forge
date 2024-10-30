@@ -5,7 +5,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 
-import com.github.almostreliable.energymeter.meter.MeterMenu;
+import com.github.almostreliable.energymeter.menu.MeterMenu;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.TextUtils;
 

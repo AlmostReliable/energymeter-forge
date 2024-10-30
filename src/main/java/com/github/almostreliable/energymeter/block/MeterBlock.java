@@ -1,4 +1,4 @@
-package com.github.almostreliable.energymeter.meter;
+package com.github.almostreliable.energymeter.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+
+import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 
 import javax.annotation.Nullable;
 

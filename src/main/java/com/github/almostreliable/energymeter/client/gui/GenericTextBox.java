@@ -8,9 +8,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
-import com.github.almostreliable.energymeter.meter.MeterBlockEntity;
+import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.github.almostreliable.energymeter.network.AccuracyUpdatePacket;
-import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;

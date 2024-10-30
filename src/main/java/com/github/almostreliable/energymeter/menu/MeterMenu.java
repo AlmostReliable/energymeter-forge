@@ -1,10 +1,11 @@
-package com.github.almostreliable.energymeter.meter;
+package com.github.almostreliable.energymeter.menu;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 
+import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.github.almostreliable.energymeter.core.Registration;
 
 import java.util.Objects;

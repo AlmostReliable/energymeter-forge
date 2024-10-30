@@ -1,6 +1,6 @@
 package com.github.almostreliable.energymeter.compat;
 
-import com.github.almostreliable.energymeter.meter.MeterBlockEntity;
+import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 
 public interface IMeterEntityObserver {
 

@@ -1,25 +1,30 @@
 package com.github.almostreliable.energymeter.core;
 
-import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 import com.almostreliable.energymeter.ModConstants;
 
-import com.github.almostreliable.energymeter.meter.MeterBlock;
-import com.github.almostreliable.energymeter.meter.MeterBlockEntity;
-import com.github.almostreliable.energymeter.meter.MeterMenu;
+import com.github.almostreliable.energymeter.block.ScreenBlock;
+import com.github.almostreliable.energymeter.block.entity.ScreenBlockEntity;
+import com.github.almostreliable.energymeter.block.MeterBlock;
+import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.github.almostreliable.energymeter.menu.MeterMenu;
 import com.github.almostreliable.energymeter.util.Utils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Function;
 
 public final class Registration {
 

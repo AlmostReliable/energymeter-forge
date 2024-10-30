@@ -4,7 +4,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-import com.github.almostreliable.energymeter.meter.MeterMenu;
+import com.github.almostreliable.energymeter.menu.MeterMenu;
 import com.github.almostreliable.energymeter.util.TypeEnums.SETTING;
 import com.github.almostreliable.energymeter.util.Utils;
 import io.netty.buffer.ByteBuf;

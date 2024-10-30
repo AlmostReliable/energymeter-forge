@@ -1,12 +1,14 @@
 package com.github.almostreliable.energymeter.compat.cct;
 
 import com.almostreliable.energymeter.ModConstants;
+
 import com.github.almostreliable.energymeter.compat.IMeterEntityObserver;
-import com.github.almostreliable.energymeter.meter.MeterBlockEntity;
+import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+
 import net.minecraft.core.Direction;
 
 import javax.annotation.Nonnull;

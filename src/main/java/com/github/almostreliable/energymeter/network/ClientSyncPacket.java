@@ -2,27 +2,31 @@ package com.github.almostreliable.energymeter.network;
 
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
-import com.github.almostreliable.energymeter.meter.MeterBlockEntity;
+import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.github.almostreliable.energymeter.util.TypeEnums.ACCURACY;
 import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
 import com.github.almostreliable.energymeter.util.TypeEnums.NUMBER_MODE;
 import com.github.almostreliable.energymeter.util.TypeEnums.STATUS;
 import com.github.almostreliable.energymeter.util.Utils;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
+
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Objects;
 
 public class ClientSyncPacket implements CustomPacketPayload {
+
     static final Type<ClientSyncPacket> TYPE = new Type<>(Utils.getRL("client_sync"));
     static final StreamCodec<FriendlyByteBuf, ClientSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(
-            ClientSyncPacket::encode,
-            ClientSyncPacket::decode);
+        ClientSyncPacket::encode,
+        ClientSyncPacket::decode
+    );
 
     private BlockPos pos;
     private int flags;
@@ -42,7 +46,7 @@ public class ClientSyncPacket implements CustomPacketPayload {
     ) {
         this.pos = pos;
         this.flags = flags;
-        this.sideConfig = sideConfig.serializeNBT(null); //TODO: Check if this is valid
+        this.sideConfig = sideConfig.serializeNBT(null); // TODO: Check if this is valid
         this.transferRate = transferRate;
         this.numberMode = numberMode;
         this.status = status;
@@ -92,7 +96,9 @@ public class ClientSyncPacket implements CustomPacketPayload {
         if (player != null) {
             var entity = player.level().getBlockEntity(payload.pos);
             if (entity instanceof MeterBlockEntity tile) {
-                if ((payload.flags & SYNC_FLAGS.SIDE_CONFIG) != 0) tile.getSideConfig().deserializeNBT(player.registryAccess(), payload.sideConfig);
+                if ((payload.flags & SYNC_FLAGS.SIDE_CONFIG) != 0) {
+                    tile.getSideConfig().deserializeNBT(player.registryAccess(), payload.sideConfig);
+                }
                 if ((payload.flags & SYNC_FLAGS.TRANSFER_RATE) != 0) tile.setTransferRate(payload.transferRate);
                 if ((payload.flags & SYNC_FLAGS.NUMBER_MODE) != 0) tile.setNumberMode(payload.numberMode);
                 if ((payload.flags & SYNC_FLAGS.STATUS) != 0) tile.setStatus(payload.status);

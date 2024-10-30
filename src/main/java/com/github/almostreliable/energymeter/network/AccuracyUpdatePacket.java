@@ -1,20 +1,24 @@
 package com.github.almostreliable.energymeter.network;
 
 import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
-import com.github.almostreliable.energymeter.meter.MeterMenu;
+import com.github.almostreliable.energymeter.menu.MeterMenu;
 import com.github.almostreliable.energymeter.util.TypeEnums.TEXT_BOX;
 import com.github.almostreliable.energymeter.util.Utils;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record AccuracyUpdatePacket(TEXT_BOX identifier, int value) implements CustomPacketPayload {
+
     static final Type<AccuracyUpdatePacket> TYPE = new Type<>(Utils.getRL("accuracy_update"));
     static final StreamCodec<FriendlyByteBuf, AccuracyUpdatePacket> STREAM_CODEC = CustomPacketPayload.codec(
-            AccuracyUpdatePacket::encode,
-            AccuracyUpdatePacket::new);
+        AccuracyUpdatePacket::encode,
+        AccuracyUpdatePacket::new
+    );
 
     public AccuracyUpdatePacket(FriendlyByteBuf buffer) {
         this(TEXT_BOX.values()[buffer.readInt()], buffer.readInt());
