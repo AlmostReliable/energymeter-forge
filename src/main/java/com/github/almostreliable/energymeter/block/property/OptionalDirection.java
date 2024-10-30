@@ -1,5 +1,6 @@
 package com.github.almostreliable.energymeter.block.property;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 
@@ -31,6 +32,15 @@ public enum OptionalDirection implements StringRepresentable {
             }
         }
         return NONE;
+    }
+
+    public void relative(BlockPos.MutableBlockPos pos) {
+        if (direction == null) return;
+        pos.move(direction);
+    }
+
+    public boolean isNone() {
+        return direction == null;
     }
 
     @Override

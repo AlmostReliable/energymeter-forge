@@ -11,6 +11,7 @@ public enum Constants {
     public static final String CCT_ID = "computercraft";
     // ids
     public static final String METER_ID = "meter";
+    public static final String SCREEN_ID = "screen";
     // utility keys
     public static final String IO_STATE_ID = "io";
     public static final String NETWORK_ID = "network";

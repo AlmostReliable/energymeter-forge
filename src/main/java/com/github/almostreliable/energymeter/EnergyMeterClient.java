@@ -4,6 +4,7 @@ import com.almostreliable.energymeter.ModConstants;
 
 import com.github.almostreliable.energymeter.client.MeterRenderer;
 import com.github.almostreliable.energymeter.client.gui.MeterScreen;
+import com.github.almostreliable.energymeter.client.screen.ScreenScreen;
 import com.github.almostreliable.energymeter.core.Registration;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -21,6 +22,7 @@ public final class EnergyMeterClient {
 
     private void registerScreens(RegisterMenuScreensEvent event) {
         event.register(Registration.METER_MENU.get(), MeterScreen::new);
+        event.register(Registration.SCREEN_MENU.get(), ScreenScreen::new);
     }
 
     private void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

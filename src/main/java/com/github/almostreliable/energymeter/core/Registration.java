@@ -1,6 +1,8 @@
 package com.github.almostreliable.energymeter.core;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
@@ -12,11 +14,12 @@ import net.minecraft.world.level.material.MapColor;
 
 import com.almostreliable.energymeter.ModConstants;
 
-import com.github.almostreliable.energymeter.block.ScreenBlock;
-import com.github.almostreliable.energymeter.block.entity.ScreenBlockEntity;
 import com.github.almostreliable.energymeter.block.MeterBlock;
+import com.github.almostreliable.energymeter.block.ScreenBlock;
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.github.almostreliable.energymeter.block.entity.ScreenBlockEntity;
 import com.github.almostreliable.energymeter.menu.MeterMenu;
+import com.github.almostreliable.energymeter.menu.ScreenMenu;
 import com.github.almostreliable.energymeter.util.Utils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -24,6 +27,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.List;
 import java.util.function.Function;
 
 public final class Registration {
@@ -43,34 +47,32 @@ public final class Registration {
         ModConstants.MOD_ID
     );
 
-    public static final DeferredBlock<MeterBlock> METER_BLOCK = Util.make(() -> {
-        var block = BLOCKS.registerBlock(
-            Constants.METER_ID,
-            MeterBlock::new,
-            BlockBehaviour.Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL)
-        );
-        ITEMS.registerSimpleBlockItem(block);
-        return block;
-    });
+    public static final DeferredBlock<MeterBlock> METER_BLOCK = registerBlock(Constants.METER_ID, MeterBlock::new);
+    public static final DeferredBlock<ScreenBlock> SCREEN_BLOCK = registerBlock(Constants.SCREEN_ID, ScreenBlock::new);
 
-    @SuppressWarnings("DataFlowIssue")
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MeterBlockEntity>> METER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
-        Constants.METER_ID, () -> BlockEntityType.Builder.of(MeterBlockEntity::new, METER_BLOCK.get()).build(null)
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MeterBlockEntity>> METER_BLOCK_ENTITY = registerBlockEntity(
+        METER_BLOCK,
+        MeterBlockEntity::new
+    );
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ScreenBlockEntity>> SCREEN_BLOCK_ENTITY = registerBlockEntity(
+        SCREEN_BLOCK,
+        ScreenBlockEntity::new
     );
 
-    public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = MENUS.register("meter", () ->
+    public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = MENUS.register(Constants.METER_ID, () ->
         IMenuTypeExtension.create((wid, inventory, data) -> {
             var entity = (MeterBlockEntity) inventory.player.level().getBlockEntity(data.readBlockPos());
             return new MeterMenu(entity, wid);
         })
     );
+    public static final DeferredHolder<MenuType<?>, MenuType<ScreenMenu>> SCREEN_MENU = registerMenu(SCREEN_BLOCK, ScreenMenu::new);
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
             .title(Utils.translate("itemGroup", "tab"))
             .icon(METER_BLOCK::toStack)
             .noScrollBar()
-            .displayItems((features, output) -> output.accept(METER_BLOCK))
+            .displayItems((features, output) -> output.acceptAll(List.of(METER_BLOCK.toStack(), SCREEN_BLOCK.toStack())))
             .build()
     );
 
@@ -82,5 +84,28 @@ public final class Registration {
         ITEMS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);
         MENUS.register(modEventBus);
+    }
+
+    private static <B extends Block> DeferredBlock<B> registerBlock(String id, Function<BlockBehaviour.Properties, B> factory) {
+        var block = BLOCKS.registerBlock(
+            id,
+            factory,
+            BlockBehaviour.Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL)
+        );
+        ITEMS.registerSimpleBlockItem(block);
+        return block;
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private static <E extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<E>> registerBlockEntity(
+        DeferredBlock<?> block, BlockEntityType.BlockEntitySupplier<E> factory
+    ) {
+        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> BlockEntityType.Builder.of(factory, block.get()).build(null));
+    }
+
+    private static <M extends AbstractContainerMenu> DeferredHolder<MenuType<?>, MenuType<M>> registerMenu(
+        DeferredBlock<?> block, MenuType.MenuSupplier<M> factory
+    ) {
+        return MENUS.register(block.getId().getPath(), () -> new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS));
     }
 }
