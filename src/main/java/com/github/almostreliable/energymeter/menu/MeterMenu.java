@@ -14,19 +14,19 @@ public class MeterMenu extends AbstractContainerMenu {
 
     private final MeterBlockEntity entity;
 
-    public MeterMenu(MeterBlockEntity entity, int windowID) {
-        super(Registration.METER_MENU.get(), windowID);
+    public MeterMenu(MeterBlockEntity entity, int wid) {
+        super(Registration.METER_MENU.get(), wid);
         this.entity = entity;
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return AbstractContainerMenu.stillValid(
+        return stillValid(
             ContainerLevelAccess.create(Objects.requireNonNull(entity.getLevel()), entity.getBlockPos()),
             player,
             entity.getBlockState().getBlock()
