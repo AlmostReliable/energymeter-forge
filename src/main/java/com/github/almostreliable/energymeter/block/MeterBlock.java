@@ -2,23 +2,16 @@ package com.github.almostreliable.energymeter.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Plane;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition.Builder;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
@@ -27,30 +20,10 @@ import javax.annotation.Nullable;
 
 import static com.github.almostreliable.energymeter.core.Constants.PIPEZ_ID;
 
-public class MeterBlock extends Block implements EntityBlock {
-
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    public static final DirectionProperty BOTTOM = DirectionProperty.create("bottom", Plane.HORIZONTAL);
+public class MeterBlock extends FacingEntityBlock {
 
     public MeterBlock(Properties properties) {
         super(properties);
-    }
-
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        var facing = context.getNearestLookingDirection().getOpposite();
-        var bottom = context.getHorizontalDirection();
-        return defaultBlockState()
-            .setValue(FACING, facing)
-            .setValue(BOTTOM, facing == Direction.DOWN ? bottom : bottom.getOpposite());
-    }
-
-    @Override
-    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(FACING);
-        builder.add(BOTTOM);
     }
 
     @Override
@@ -84,10 +57,10 @@ public class MeterBlock extends Block implements EntityBlock {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.isClientSide() || player.isShiftKeyDown()) return InteractionResult.SUCCESS;
 
-        var blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof MenuProvider entity && player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.openMenu(entity, pos);
+        if (level.getBlockEntity(pos) instanceof MenuProvider menuProvider) {
+            player.openMenu(menuProvider, pos);
         }
+
         return InteractionResult.CONSUME;
     }
 
