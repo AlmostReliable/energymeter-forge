@@ -15,19 +15,19 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-import com.github.almostreliable.energymeter.block.entity.ScreenBlockEntity;
+import com.github.almostreliable.energymeter.block.entity.MonitorBlockEntity;
 import com.github.almostreliable.energymeter.block.property.OptionalDirection;
 import com.github.almostreliable.energymeter.block.property.OptionalDirectionProperty;
 
 import org.jetbrains.annotations.Nullable;
 
-public class ScreenBlock extends FacingEntityBlock {
+public class MonitorBlock extends FacingEntityBlock {
 
     public static final BooleanProperty CONTROLLER = BooleanProperty.create("controller");
     public static final OptionalDirectionProperty HORIZONTAL = OptionalDirectionProperty.HORIZONTAL;
     public static final OptionalDirectionProperty VERTICAL = OptionalDirectionProperty.VERTICAL;
 
-    public ScreenBlock(Properties properties) {
+    public MonitorBlock(Properties properties) {
         super(properties);
         registerDefaultState(
             defaultBlockState()
@@ -47,7 +47,7 @@ public class ScreenBlock extends FacingEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         if (Boolean.TRUE.equals(state.getValue(CONTROLLER))) {
-            return new ScreenBlockEntity(pos, state);
+            return new MonitorBlockEntity(pos, state);
         }
         return null;
     }
@@ -70,7 +70,7 @@ public class ScreenBlock extends FacingEntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide && !player.isShiftKeyDown()) {
-            if (isUnbound(state) && !formScreen(state, level, pos, player)) {
+            if (isUnbound(state) && !formMonitor(state, level, pos, player)) {
                 return InteractionResult.FAIL;
             }
 
@@ -85,19 +85,19 @@ public class ScreenBlock extends FacingEntityBlock {
             state.getValue(VERTICAL).isNone();
     }
 
-    private static boolean isBindableScreenBlock(BlockState state, Direction facingDir, Direction bottomDir) {
-        return state.getBlock() instanceof ScreenBlock &&
+    private static boolean isBindableMonitorBlock(BlockState state, Direction facingDir, Direction bottomDir) {
+        return state.getBlock() instanceof MonitorBlock &&
             isUnbound(state) &&
             state.getValue(FACING) == facingDir &&
             state.getValue(BOTTOM) == bottomDir;
     }
 
-    private static int countScreenBlocksInDir(Level level, BlockPos pos, Direction direction, Direction facingDir, Direction bottomDir) {
+    private static int countMonitorsInDir(Level level, BlockPos pos, Direction direction, Direction facingDir, Direction bottomDir) {
         int count = 0;
         BlockPos nextPos = pos.relative(direction);
         BlockState nextState = level.getBlockState(nextPos);
 
-        while (isBindableScreenBlock(nextState, facingDir, bottomDir)) {
+        while (isBindableMonitorBlock(nextState, facingDir, bottomDir)) {
             count++;
             nextPos = nextPos.relative(direction);
             nextState = level.getBlockState(nextPos);
@@ -106,15 +106,15 @@ public class ScreenBlock extends FacingEntityBlock {
         return count;
     }
 
-    private static boolean formScreen(BlockState state, Level level, BlockPos pos, Player player) {
+    private static boolean formMonitor(BlockState state, Level level, BlockPos pos, Player player) {
         Direction facingDir = getFacingDir(state);
         Direction bottomDir = getBottomDir(state);
         Direction leftDir = getLeftDir(state);
 
-        int top = countScreenBlocksInDir(level, pos, bottomDir.getOpposite(), facingDir, bottomDir);
-        int bottom = countScreenBlocksInDir(level, pos, bottomDir, facingDir, bottomDir);
-        int left = countScreenBlocksInDir(level, pos, leftDir, facingDir, bottomDir);
-        int right = countScreenBlocksInDir(level, pos, leftDir.getOpposite(), facingDir, bottomDir);
+        int top = countMonitorsInDir(level, pos, bottomDir.getOpposite(), facingDir, bottomDir);
+        int bottom = countMonitorsInDir(level, pos, bottomDir, facingDir, bottomDir);
+        int left = countMonitorsInDir(level, pos, leftDir, facingDir, bottomDir);
+        int right = countMonitorsInDir(level, pos, leftDir.getOpposite(), facingDir, bottomDir);
 
         if (top == 0 && bottom == 0 && left == 0 && right == 0) {
             level.setBlock(pos, state.setValue(CONTROLLER, true), 3);
@@ -124,15 +124,15 @@ public class ScreenBlock extends FacingEntityBlock {
         BlockPos bottomLeftPos = pos.relative(bottomDir, bottom).relative(leftDir, left);
         BlockPos topRightPos = pos.relative(bottomDir.getOpposite(), top).relative(leftDir.getOpposite(), right);
 
-        for (BlockPos screenPos : BlockPos.betweenClosed(bottomLeftPos, topRightPos)) {
-            BlockState screenState = level.getBlockState(screenPos);
-            if (!isBindableScreenBlock(screenState, facingDir, bottomDir)) {
+        for (BlockPos monitorPos : BlockPos.betweenClosed(bottomLeftPos, topRightPos)) {
+            BlockState monitorState = level.getBlockState(monitorPos);
+            if (!isBindableMonitorBlock(monitorState, facingDir, bottomDir)) {
                 player.displayClientMessage(Component.literal("invalid multiblock").withStyle(ChatFormatting.DARK_RED), true);
                 return false;
             }
 
-            BlockState newScreenState = setOffsetState(screenState, screenPos, bottomLeftPos);
-            level.setBlock(screenPos, newScreenState, 3);
+            BlockState newMonitorState = setOffsetState(monitorState, monitorPos, bottomLeftPos);
+            level.setBlock(monitorPos, newMonitorState, 3);
         }
 
         BlockState bottomLeft = level.getBlockState(bottomLeftPos);
@@ -144,7 +144,7 @@ public class ScreenBlock extends FacingEntityBlock {
 
     @Nullable
     private static BlockPos findControllerPos(Level level, BlockPos pos, BlockState state) {
-        if (!(state.getBlock() instanceof ScreenBlock)) {
+        if (!(state.getBlock() instanceof MonitorBlock)) {
             return null;
         }
 

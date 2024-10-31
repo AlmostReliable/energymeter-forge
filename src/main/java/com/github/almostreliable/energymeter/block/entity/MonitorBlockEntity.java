@@ -12,27 +12,27 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.core.Registration;
-import com.github.almostreliable.energymeter.menu.ScreenMenu;
+import com.github.almostreliable.energymeter.menu.MonitorMenu;
 import com.github.almostreliable.energymeter.util.TextUtils;
 import com.github.almostreliable.energymeter.util.TypeEnums;
 
 import org.jetbrains.annotations.Nullable;
 
-public class ScreenBlockEntity extends BlockEntity implements MenuProvider {
+public class MonitorBlockEntity extends BlockEntity implements MenuProvider {
 
-    public ScreenBlockEntity(BlockPos pos, BlockState blockState) {
-        super(Registration.SCREEN_BLOCK_ENTITY.get(), pos, blockState);
+    public MonitorBlockEntity(BlockPos pos, BlockState blockState) {
+        super(Registration.MONITOR_BLOCK_ENTITY.get(), pos, blockState);
     }
 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int wid, Inventory playerInventory, Player player) {
         if (level == null) return null;
-        return new ScreenMenu(wid, playerInventory, ContainerLevelAccess.create(level, worldPosition));
+        return new MonitorMenu(wid, playerInventory, ContainerLevelAccess.create(level, worldPosition));
     }
 
     @Override
     public Component getDisplayName() {
-        return TextUtils.translate(TypeEnums.TRANSLATE_TYPE.CONTAINER, Constants.SCREEN_ID);
+        return TextUtils.translate(TypeEnums.TRANSLATE_TYPE.CONTAINER, Constants.MONITOR_ID);
     }
 }

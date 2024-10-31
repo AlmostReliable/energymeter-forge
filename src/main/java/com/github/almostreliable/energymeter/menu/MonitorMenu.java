@@ -8,16 +8,16 @@ import net.minecraft.world.item.ItemStack;
 
 import com.github.almostreliable.energymeter.core.Registration;
 
-public class ScreenMenu extends AbstractContainerMenu {
+public class MonitorMenu extends AbstractContainerMenu {
 
     private final ContainerLevelAccess access;
 
-    public ScreenMenu(int wid, Inventory ignoredPlayerInventory, ContainerLevelAccess access) {
-        super(Registration.SCREEN_MENU.get(), wid);
+    public MonitorMenu(int wid, Inventory ignoredPlayerInventory, ContainerLevelAccess access) {
+        super(Registration.MONITOR_MENU.get(), wid);
         this.access = access;
     }
 
-    public ScreenMenu(int wid, Inventory playerInventory) {
+    public MonitorMenu(int wid, Inventory playerInventory) {
         this(wid, playerInventory, ContainerLevelAccess.NULL);
     }
 
@@ -28,6 +28,6 @@ public class ScreenMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(access, player, Registration.SCREEN_BLOCK.get());
+        return stillValid(access, player, Registration.MONITOR_BLOCK.get());
     }
 }

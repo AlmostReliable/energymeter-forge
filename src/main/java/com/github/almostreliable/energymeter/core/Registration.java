@@ -15,11 +15,11 @@ import net.minecraft.world.level.material.MapColor;
 import com.almostreliable.energymeter.ModConstants;
 
 import com.github.almostreliable.energymeter.block.MeterBlock;
-import com.github.almostreliable.energymeter.block.ScreenBlock;
+import com.github.almostreliable.energymeter.block.MonitorBlock;
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
-import com.github.almostreliable.energymeter.block.entity.ScreenBlockEntity;
+import com.github.almostreliable.energymeter.block.entity.MonitorBlockEntity;
 import com.github.almostreliable.energymeter.menu.MeterMenu;
-import com.github.almostreliable.energymeter.menu.ScreenMenu;
+import com.github.almostreliable.energymeter.menu.MonitorMenu;
 import com.github.almostreliable.energymeter.util.Utils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -48,15 +48,15 @@ public final class Registration {
     );
 
     public static final DeferredBlock<MeterBlock> METER_BLOCK = registerBlock(Constants.METER_ID, MeterBlock::new);
-    public static final DeferredBlock<ScreenBlock> SCREEN_BLOCK = registerBlock(Constants.SCREEN_ID, ScreenBlock::new);
+    public static final DeferredBlock<MonitorBlock> MONITOR_BLOCK = registerBlock(Constants.MONITOR_ID, MonitorBlock::new);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MeterBlockEntity>> METER_BLOCK_ENTITY = registerBlockEntity(
         METER_BLOCK,
         MeterBlockEntity::new
     );
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ScreenBlockEntity>> SCREEN_BLOCK_ENTITY = registerBlockEntity(
-        SCREEN_BLOCK,
-        ScreenBlockEntity::new
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MonitorBlockEntity>> MONITOR_BLOCK_ENTITY = registerBlockEntity(
+        MONITOR_BLOCK,
+        MonitorBlockEntity::new
     );
 
     public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = MENUS.register(Constants.METER_ID, () ->
@@ -65,14 +65,14 @@ public final class Registration {
             return new MeterMenu(entity, wid);
         })
     );
-    public static final DeferredHolder<MenuType<?>, MenuType<ScreenMenu>> SCREEN_MENU = registerMenu(SCREEN_BLOCK, ScreenMenu::new);
+    public static final DeferredHolder<MenuType<?>, MenuType<MonitorMenu>> MONITOR_MENU = registerMenu(MONITOR_BLOCK, MonitorMenu::new);
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
             .title(Utils.translate("itemGroup", "tab"))
             .icon(METER_BLOCK::toStack)
             .noScrollBar()
-            .displayItems((features, output) -> output.acceptAll(List.of(METER_BLOCK.toStack(), SCREEN_BLOCK.toStack())))
+            .displayItems((features, output) -> output.acceptAll(List.of(METER_BLOCK.toStack(), MONITOR_BLOCK.toStack())))
             .build()
     );
 

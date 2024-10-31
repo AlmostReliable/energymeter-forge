@@ -5,11 +5,11 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import com.github.almostreliable.energymeter.menu.ScreenMenu;
+import com.github.almostreliable.energymeter.menu.MonitorMenu;
 
-public class ScreenScreen extends AbstractContainerScreen<ScreenMenu> {
+public class MonitorScreen extends AbstractContainerScreen<MonitorMenu> {
 
-    public ScreenScreen(ScreenMenu menu, Inventory playerInventory, Component title) {
+    public MonitorScreen(MonitorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
