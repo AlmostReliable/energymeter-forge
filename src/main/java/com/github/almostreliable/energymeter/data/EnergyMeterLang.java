@@ -15,8 +15,6 @@ import java.util.function.Supplier;
 @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
 public final class EnergyMeterLang extends LanguageProvider {
 
-    public static final LangEntry TAB_NAME = LangEntry.of("tab", "main", ModConstants.MOD_NAME);
-
     EnergyMeterLang(PackOutput output) {
         super(output, ModConstants.MOD_ID, "en_us");
     }

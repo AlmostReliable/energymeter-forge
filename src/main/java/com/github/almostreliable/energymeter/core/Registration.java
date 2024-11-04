@@ -47,8 +47,12 @@ public final class Registration {
         ModConstants.MOD_ID
     );
 
-    public static final DeferredBlock<MeterBlock> METER_BLOCK = registerBlock(Constants.METER_ID, MeterBlock::new);
-    public static final DeferredBlock<MonitorBlock> MONITOR_BLOCK = registerBlock(Constants.MONITOR_ID, MonitorBlock::new);
+    public static final DeferredBlock<MeterBlock> METER_BLOCK = registerBlock(Constants.METER_ID, "Energy Meter", MeterBlock::new);
+    public static final DeferredBlock<MonitorBlock> MONITOR_BLOCK = registerBlock(
+        Constants.MONITOR_ID,
+        "External Monitor",
+        MonitorBlock::new
+    );
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MeterBlockEntity>> METER_BLOCK_ENTITY = registerBlockEntity(
         METER_BLOCK,
@@ -69,7 +73,7 @@ public final class Registration {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
-            .title(EnergyMeterLang.TAB_NAME.get())
+            .title(EnergyMeterLang.LangEntry.of("tab", "main", ModConstants.MOD_NAME).get())
             .icon(METER_BLOCK::toStack)
             .noScrollBar()
             .displayItems((features, output) -> output.acceptAll(List.of(METER_BLOCK.toStack(), MONITOR_BLOCK.toStack())))
@@ -86,13 +90,17 @@ public final class Registration {
         MENUS.register(modEventBus);
     }
 
-    private static <B extends Block> DeferredBlock<B> registerBlock(String id, Function<BlockBehaviour.Properties, B> factory) {
+    private static <B extends Block> DeferredBlock<B> registerBlock(
+        String id, String name, Function<BlockBehaviour.Properties, B> factory
+    ) {
         var block = BLOCKS.registerBlock(
             id,
             factory,
             BlockBehaviour.Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL)
         );
         ITEMS.registerSimpleBlockItem(block);
+        // EnergyMeterLang.LangEntry.of("block", id, getNameOrFormatId(id, name));
+        EnergyMeterLang.LangEntry.of("item", id, name);
         return block;
     }
 
