@@ -17,5 +17,7 @@ public final class DataGeneration {
 
         generator.addProvider(event.includeClient(), new EnergyMeterLang(output));
         generator.addProvider(event.includeClient(), new EnergyMeterModels(output, existingFileHelper));
+
+        generator.addProvider(event.includeServer(), new EnergyMeterRecipes(output, event.getLookupProvider()));
     }
 }
