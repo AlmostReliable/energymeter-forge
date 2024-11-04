@@ -18,9 +18,9 @@ import com.github.almostreliable.energymeter.block.MeterBlock;
 import com.github.almostreliable.energymeter.block.MonitorBlock;
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.github.almostreliable.energymeter.block.entity.MonitorBlockEntity;
+import com.github.almostreliable.energymeter.data.EnergyMeterLang;
 import com.github.almostreliable.energymeter.menu.MeterMenu;
 import com.github.almostreliable.energymeter.menu.MonitorMenu;
-import com.github.almostreliable.energymeter.util.Utils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -69,7 +69,7 @@ public final class Registration {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
-            .title(Utils.translate("itemGroup", "tab"))
+            .title(EnergyMeterLang.TAB_NAME.get())
             .icon(METER_BLOCK::toStack)
             .noScrollBar()
             .displayItems((features, output) -> output.acceptAll(List.of(METER_BLOCK.toStack(), MONITOR_BLOCK.toStack())))

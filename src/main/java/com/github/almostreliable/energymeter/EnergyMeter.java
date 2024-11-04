@@ -3,6 +3,7 @@ package com.github.almostreliable.energymeter;
 import com.almostreliable.energymeter.ModConstants;
 
 import com.github.almostreliable.energymeter.core.Registration;
+import com.github.almostreliable.energymeter.data.DataGeneration;
 import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
@@ -17,5 +18,6 @@ public final class EnergyMeter {
     public EnergyMeter(IEventBus modEventBus) {
         Registration.init(modEventBus);
         PacketHandler.init(modEventBus);
+        modEventBus.addListener(DataGeneration::init);
     }
 }
