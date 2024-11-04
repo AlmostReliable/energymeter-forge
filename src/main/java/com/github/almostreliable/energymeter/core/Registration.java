@@ -116,4 +116,8 @@ public final class Registration {
     ) {
         return MENUS.register(block.getId().getPath(), () -> new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS));
     }
+
+    public static Iterable<Block> getKnownBlocks() {
+        return BLOCKS.getEntries().stream().map(e -> (Block) e.value()).toList();
+    }
 }

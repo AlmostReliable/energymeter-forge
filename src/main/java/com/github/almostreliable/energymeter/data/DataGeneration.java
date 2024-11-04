@@ -14,10 +14,12 @@ public final class DataGeneration {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+        var registryAccess = event.getLookupProvider();
 
         generator.addProvider(event.includeClient(), new EnergyMeterLang(output));
         generator.addProvider(event.includeClient(), new EnergyMeterModels(output, existingFileHelper));
 
-        generator.addProvider(event.includeServer(), new EnergyMeterRecipes(output, event.getLookupProvider()));
+        generator.addProvider(event.includeServer(), new EnergyMeterRecipes(output, registryAccess));
+        generator.addProvider(event.includeServer(), new EnergyMeterLoot(output, registryAccess));
     }
 }
