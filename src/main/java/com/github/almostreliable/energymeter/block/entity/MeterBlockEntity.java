@@ -22,6 +22,7 @@ import com.github.almostreliable.energymeter.compat.IMeterEntityObserver;
 import com.github.almostreliable.energymeter.compat.cct.MeterPeripheral;
 import com.github.almostreliable.energymeter.component.SideConfiguration;
 import com.github.almostreliable.energymeter.component.SidedEnergyStorage;
+import com.github.almostreliable.energymeter.core.Config;
 import com.github.almostreliable.energymeter.core.Registration;
 import com.github.almostreliable.energymeter.menu.MeterMenu;
 import com.github.almostreliable.energymeter.network.ClientSyncPacket;
@@ -64,7 +65,7 @@ import static com.github.almostreliable.energymeter.core.Constants.TRANSFER_RATE
 
 public class MeterBlockEntity extends BlockEntity implements MenuProvider {
 
-    public static final int REFRESH_RATE = 5;
+    public static final int REFRESH_RATE = Config.COMMON.defaultInterval.getAsInt();
     private final EnumMap<Direction, IEnergyStorage> outputCache = new EnumMap<>(Direction.class);
     private final List<SidedEnergyStorage> energyStorage;
     private final SideConfiguration sideConfig;

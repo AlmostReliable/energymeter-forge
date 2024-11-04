@@ -21,6 +21,7 @@ import com.github.almostreliable.energymeter.block.multiblock.MultiblockType;
 import com.github.almostreliable.energymeter.block.multiblock.MultiblockTypeProperty;
 import com.github.almostreliable.energymeter.block.multiblock.OptionalDirection;
 import com.github.almostreliable.energymeter.block.multiblock.OptionalDirectionProperty;
+import com.github.almostreliable.energymeter.core.Config;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -118,9 +119,11 @@ public class MonitorBlock extends FacingEntityBlock {
         Direction facingDir = getFacingDir(state);
         Direction bottomDir = getBottomDir(state);
         Direction leftDir = getLeftDir(state);
+        int maxWidth = Config.COMMON.maxWidth.getAsInt();
+        int maxHeight = Config.COMMON.maxHeight.getAsInt();
 
-        BlockPos controllerPos = findFurthestMonitorPosInDir(level, pos, leftDir, facingDir, bottomDir).pos;
-        controllerPos = findFurthestMonitorPosInDir(level, controllerPos, bottomDir, facingDir, bottomDir).pos;
+        BlockPos controllerPos = findFurthestMonitorPosInDir(level, pos, leftDir, facingDir, bottomDir, maxWidth).pos;
+        controllerPos = findFurthestMonitorPosInDir(level, controllerPos, bottomDir, facingDir, bottomDir, maxHeight).pos;
 
         BlockState controllerState = level.getBlockState(controllerPos);
         level.setBlock(controllerPos, controllerState.setValue(CONTROLLER, true), 1 | 2);
@@ -129,13 +132,13 @@ public class MonitorBlock extends FacingEntityBlock {
     }
 
     private static MonitorSearchResult findFurthestMonitorPosInDir(
-        Level level, BlockPos startPos, Direction direction, Direction facing, Direction bottom
+        Level level, BlockPos startPos, Direction direction, Direction facing, Direction bottom, int max
     ) {
         int distance = 0;
         BlockPos resultPos = startPos;
         BlockPos travelPos = startPos.relative(direction);
 
-        while (isBindableMonitorBlock(level.getBlockState(travelPos), facing, bottom)) {
+        while (distance < max && isBindableMonitorBlock(level.getBlockState(travelPos), facing, bottom)) {
             distance++;
             resultPos = travelPos;
             travelPos = travelPos.relative(direction);
@@ -150,9 +153,11 @@ public class MonitorBlock extends FacingEntityBlock {
         Direction bottomDir = getBottomDir(controllerState);
         Direction topDir = bottomDir.getOpposite();
         Direction rightDir = getLeftDir(controllerState).getOpposite();
+        int maxWidth = Config.COMMON.maxWidth.getAsInt();
+        int maxHeight = Config.COMMON.maxHeight.getAsInt();
 
-        int top = findFurthestMonitorPosInDir(level, controllerPos, topDir, facingDir, bottomDir).distance;
-        int right = findFurthestMonitorPosInDir(level, controllerPos, rightDir, facingDir, bottomDir).distance;
+        int top = findFurthestMonitorPosInDir(level, controllerPos, topDir, facingDir, bottomDir, maxHeight).distance;
+        int right = findFurthestMonitorPosInDir(level, controllerPos, rightDir, facingDir, bottomDir, maxWidth).distance;
 
         if (top == 0 && right == 0) {
             player.displayClientMessage(Component.literal("single monitor formed").withStyle(ChatFormatting.DARK_GREEN), true);
