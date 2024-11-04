@@ -1,14 +1,13 @@
 package com.github.almostreliable.energymeter.component;
 
-import com.github.almostreliable.energymeter.block.MeterBlock;
-import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
-import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
-
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 
+import com.github.almostreliable.energymeter.block.MeterBlock;
+import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
+import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.EnumMap;

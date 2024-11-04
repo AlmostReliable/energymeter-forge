@@ -1,4 +1,4 @@
-package com.github.almostreliable.energymeter.block.property;
+package com.github.almostreliable.energymeter.block.multiblock;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.EnumProperty;

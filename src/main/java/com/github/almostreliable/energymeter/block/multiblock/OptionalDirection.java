@@ -1,4 +1,4 @@
-package com.github.almostreliable.energymeter.block.property;
+package com.github.almostreliable.energymeter.block.multiblock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

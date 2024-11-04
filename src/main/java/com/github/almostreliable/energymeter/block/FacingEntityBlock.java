@@ -39,15 +39,15 @@ public abstract class FacingEntityBlock extends Block implements EntityBlock {
         builder.add(FACING, BOTTOM);
     }
 
-    static Direction getFacingDir(BlockState state) {
+    public static Direction getFacingDir(BlockState state) {
         return state.getValue(FACING);
     }
 
-    static Direction getBottomDir(BlockState state) {
+    public static Direction getBottomDir(BlockState state) {
         return state.getValue(BOTTOM);
     }
 
-    static Direction getLeftDir(BlockState state) {
+    public static Direction getLeftDir(BlockState state) {
         Direction facing = getFacingDir(state);
         Direction bottom = getBottomDir(state);
         return switch (facing) {
