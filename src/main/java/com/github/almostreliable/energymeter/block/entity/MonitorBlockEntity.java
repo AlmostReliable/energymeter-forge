@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.MenuProvider;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -21,7 +21,7 @@ import com.github.almostreliable.energymeter.util.TypeEnums;
 
 import org.jetbrains.annotations.Nullable;
 
-public class MonitorBlockEntity extends BlockEntity implements MenuProvider {
+public class MonitorBlockEntity extends BlockEntity implements TickableMenuProvider {
 
     @Nullable
     private MultiblockData data;
@@ -52,6 +52,11 @@ public class MonitorBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public Component getDisplayName() {
         return TextUtils.translate(TypeEnums.TRANSLATE_TYPE.CONTAINER, Constants.MONITOR_ID);
+    }
+
+    @Override
+    public void tick(ServerLevel level) {
+
     }
 
     public void setMultiblockData(MultiblockData data) {

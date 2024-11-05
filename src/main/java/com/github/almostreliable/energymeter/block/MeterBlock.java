@@ -1,10 +1,7 @@
 package com.github.almostreliable.energymeter.block;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
@@ -48,20 +45,5 @@ public class MeterBlock extends FacingEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new MeterBlockEntity(pos, state);
-    }
-
-    @Nullable
-    @Override
-    public <E extends BlockEntity> BlockEntityTicker<E> getTicker(
-        Level level, BlockState state, BlockEntityType<E> entity
-    ) {
-        if (level.isClientSide) {
-            return null;
-        }
-        return (pLevel, pPos, pState, pEntity) -> {
-            if (pEntity instanceof MeterBlockEntity meter) {
-                meter.tick();
-            }
-        };
     }
 }

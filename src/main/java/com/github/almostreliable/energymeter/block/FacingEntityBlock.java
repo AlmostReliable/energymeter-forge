@@ -9,11 +9,16 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+
+import com.github.almostreliable.energymeter.block.entity.TickableMenuProvider;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -62,6 +67,12 @@ public abstract class FacingEntityBlock extends Block implements EntityBlock {
         }
 
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return TickableMenuProvider::tick;
     }
 
     public static Direction getFacingDir(BlockState state) {

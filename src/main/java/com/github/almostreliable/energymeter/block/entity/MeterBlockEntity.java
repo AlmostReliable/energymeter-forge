@@ -7,7 +7,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -63,7 +62,7 @@ import static com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
 import static com.github.almostreliable.energymeter.core.Constants.THRESHOLD_ID;
 import static com.github.almostreliable.energymeter.core.Constants.TRANSFER_RATE_ID;
 
-public class MeterBlockEntity extends BlockEntity implements MenuProvider {
+public class MeterBlockEntity extends BlockEntity implements TickableMenuProvider {
 
     public static final int REFRESH_RATE = Config.COMMON.defaultInterval.getAsInt();
     private final EnumMap<Direction, IEnergyStorage> outputCache = new EnumMap<>(Direction.class);
@@ -370,8 +369,8 @@ public class MeterBlockEntity extends BlockEntity implements MenuProvider {
     /**
      * Called each tick server-side.
      */
-    public void tick() {
-        if (level == null || level.isClientSide) return;
+    @Override
+    public void tick(ServerLevel level) {
         if ((thresholdReached() || intervalReached()) && !energyRates.isEmpty()) calculateTransferRate();
         if (level.getGameTime() % REFRESH_RATE != 0) return;
 
