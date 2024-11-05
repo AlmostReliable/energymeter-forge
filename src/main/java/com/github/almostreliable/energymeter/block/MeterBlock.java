@@ -1,15 +1,11 @@
 package com.github.almostreliable.energymeter.block;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 
@@ -52,17 +48,6 @@ public class MeterBlock extends FacingEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new MeterBlockEntity(pos, state);
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (level.isClientSide() || player.isShiftKeyDown()) return InteractionResult.SUCCESS;
-
-        if (level.getBlockEntity(pos) instanceof MenuProvider menuProvider) {
-            player.openMenu(menuProvider, pos);
-        }
-
-        return InteractionResult.CONSUME;
     }
 
     @Nullable

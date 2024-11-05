@@ -2,7 +2,9 @@ package com.github.almostreliable.energymeter.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -11,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -50,6 +53,15 @@ public abstract class FacingEntityBlock extends Block implements EntityBlock {
         }
 
         return super.getMenuProvider(state, level, pos);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!level.isClientSide && !player.isShiftKeyDown()) {
+            player.openMenu(getMenuProvider(state, level, pos));
+        }
+
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     public static Direction getFacingDir(BlockState state) {

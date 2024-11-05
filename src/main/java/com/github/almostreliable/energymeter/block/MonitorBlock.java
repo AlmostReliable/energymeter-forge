@@ -78,11 +78,9 @@ public class MonitorBlock extends FacingEntityBlock {
                 formMonitor(level, controllerPos, player);
                 return InteractionResult.SUCCESS_NO_ITEM_USED;
             }
-
-            player.openMenu(getMenuProvider(state, level, pos));
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
     @Override
