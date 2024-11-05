@@ -32,6 +32,8 @@ public enum Constants {
     public static final String MULTIBLOCK_DATA_ID = "multiblock_data";
     public static final String BOTTOM_LEFT_ID = "bottom_left";
     public static final String TOP_RIGHT_ID = "top_right";
+    public static final String WIDTH_ID = "width";
+    public static final String HEIGHT_ID = "height";
 
     /**
      * Decimal color values to ensure consistent color values.

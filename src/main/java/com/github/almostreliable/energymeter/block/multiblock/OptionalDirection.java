@@ -25,7 +25,7 @@ public enum OptionalDirection implements StringRepresentable {
         this.name = direction == null ? "none" : direction.toString().toLowerCase();
     }
 
-    static OptionalDirection fromDirection(Direction direction) {
+    public static OptionalDirection fromDirection(@Nullable Direction direction) {
         for (var value : values()) {
             if (value.direction == direction) {
                 return value;

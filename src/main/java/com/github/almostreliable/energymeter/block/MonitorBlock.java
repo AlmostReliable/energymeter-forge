@@ -14,9 +14,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 import com.github.almostreliable.energymeter.block.entity.MonitorBlockEntity;
-import com.github.almostreliable.energymeter.block.multiblock.MultiblockData;
 import com.github.almostreliable.energymeter.block.multiblock.MultiblockType;
 import com.github.almostreliable.energymeter.block.multiblock.MultiblockTypeProperty;
 import com.github.almostreliable.energymeter.block.multiblock.OptionalDirection;
@@ -88,7 +88,7 @@ public class MonitorBlock extends FacingEntityBlock {
         if (!level.isClientSide && !isUnbound(state)) {
             BlockPos controllerPos = findControllerPos(level, pos, state);
             if (controllerPos != null && level.getBlockEntity(controllerPos) instanceof MonitorBlockEntity controllerBlockEntity) {
-                destroyMonitor(level, controllerBlockEntity, player);
+                destroyMonitor(level, controllerPos, controllerBlockEntity, player);
             }
         }
 
@@ -142,6 +142,13 @@ public class MonitorBlock extends FacingEntityBlock {
 
     private static void formMonitor(Level level, BlockPos controllerPos, Player player) {
         BlockState controllerState = level.getBlockState(controllerPos);
+
+        if (!(level.getBlockEntity(controllerPos) instanceof MonitorBlockEntity monitorBlockEntity)) {
+            player.displayClientMessage(Component.literal("controller not found").withStyle(ChatFormatting.DARK_RED), true);
+            level.setBlock(controllerPos, controllerState.setValue(CONTROLLER, false), 1 | 2);
+            return;
+        }
+
         Direction facingDir = getFacingDir(controllerState);
         Direction bottomDir = getBottomDir(controllerState);
         Direction topDir = bottomDir.getOpposite();
@@ -166,44 +173,40 @@ public class MonitorBlock extends FacingEntityBlock {
                 BlockState monitorState = level.getBlockState(cursor);
                 if (!cursor.equals(controllerPos) && !isBindableMonitorBlock(monitorState, facingDir, bottomDir)) {
                     player.displayClientMessage(Component.literal("invalid multiblock").withStyle(ChatFormatting.DARK_RED), true);
+                    level.setBlock(controllerPos, controllerState.setValue(CONTROLLER, false), 1 | 2);
+                    monitorBlockEntity.setRemoved();
                     return;
                 }
 
                 monitorState = setControllerOffsetProps(monitorState, cursor, controllerPos);
                 monitorState = setMultiblockTypeProps(monitorState, x, y, right, top);
-                monitorStates.put(cursor.immutable(), monitorState);
+                monitorStates.put(cursor, monitorState);
             }
         }
 
-        if (level.getBlockEntity(controllerPos) instanceof MonitorBlockEntity monitorBlockEntity) {
-            monitorBlockEntity.setMultiblockData(
-                new MultiblockData(controllerPos, controllerPos.relative(topDir, top).relative(rightDir, right))
-            );
-
-            for (var entry : monitorStates.entrySet()) {
-                level.setBlock(entry.getKey(), entry.getValue(), 1 | 2);
-            }
-
-            player.displayClientMessage(Component.literal("multiblock formed").withStyle(ChatFormatting.DARK_GREEN), true);
-            return;
+        for (var entry : monitorStates.entrySet()) {
+            level.setBlock(entry.getKey(), entry.getValue(), 1 | 2);
         }
-
-        player.displayClientMessage(Component.literal("data writing failed").withStyle(ChatFormatting.DARK_RED), true);
+        monitorBlockEntity.setSize(right, top);
+        player.displayClientMessage(Component.literal("multiblock formed").withStyle(ChatFormatting.DARK_GREEN), true);
     }
 
-    private void destroyMonitor(Level level, MonitorBlockEntity controller, Player player) {
-        MultiblockData data = controller.getMultiblockData();
-        if (data == null) return;
+    private void destroyMonitor(Level level, BlockPos controllerPos, MonitorBlockEntity controller, Player player) {
+        int width = controller.getWidth();
+        int height = controller.getHeight();
+        if (width == 0 && height == 0) return;
 
-        BlockPos bottomLeft = data.bottomLeft();
-        BlockPos topRight = data.topRight();
-        Direction facing = controller.getBlockState().getValue(FACING);
-        Direction bottom = controller.getBlockState().getValue(BOTTOM);
+        BlockState controllerState = controller.getBlockState();
+        Direction facingDir = getFacingDir(controllerState);
+        Direction bottomDir = getBottomDir(controllerState);
+        Direction topDir = bottomDir.getOpposite();
+        Direction rightDir = getLeftDir(controllerState).getOpposite();
+        BlockPos topRight = controllerPos.relative(topDir, height).relative(rightDir, width);
 
-        for (var pos : BlockPos.betweenClosed(bottomLeft, topRight)) {
+        for (var pos : BlockPos.betweenClosed(controllerPos, topRight)) {
             BlockState state = level.getBlockState(pos);
             if (state.getBlock() instanceof MonitorBlock) {
-                level.setBlock(pos, defaultBlockState().setValue(FACING, facing).setValue(BOTTOM, bottom), 1 | 2);
+                level.setBlock(pos, defaultBlockState().setValue(FACING, facingDir).setValue(BOTTOM, bottomDir), 1 | 2);
             }
         }
 
@@ -231,72 +234,20 @@ public class MonitorBlock extends FacingEntityBlock {
     }
 
     private static BlockState setMultiblockTypeProps(BlockState state, int x, int y, int right, int top) {
-        if (x == 0 && y == 0) {
-            if (right == 0) return state.setValue(TYPE, MultiblockType.CORNER_D);
-            if (top == 0) return state.setValue(TYPE, MultiblockType.CORNER_L);
-            return state.setValue(TYPE, MultiblockType.CORNER_DL);
-        }
-        if (x == right && y == 0) {
-            if (top == 0) return state.setValue(TYPE, MultiblockType.CORNER_R);
-            return state.setValue(TYPE, MultiblockType.CORNER_DR);
-        }
-        if (x == 0 && y == top) {
-            if (right == 0) return state.setValue(TYPE, MultiblockType.CORNER_U);
-            return state.setValue(TYPE, MultiblockType.CORNER_UL);
-        }
-        if (x == right && y == top) {
-            return state.setValue(TYPE, MultiblockType.CORNER_UR);
-        }
-        if (x > 0 && x < right && y > 0 && y < top) {
-            return state.setValue(TYPE, MultiblockType.MIDDLE);
-        }
-        if (x == 0 && y > 0 && y < top) {
-            if (right == 0) return state.setValue(TYPE, MultiblockType.VERTICAL);
-            return state.setValue(TYPE, MultiblockType.SIDE_L);
-        }
-        if (x == right && y > 0 && y < top) {
-            return state.setValue(TYPE, MultiblockType.SIDE_R);
-        }
-        if (x > 0 && x < right && y == 0) {
-            if (top == 0) return state.setValue(TYPE, MultiblockType.HORIZONTAL);
-            return state.setValue(TYPE, MultiblockType.SIDE_D);
-        }
-        if (x > 0 && x < right && y == top) {
-            return state.setValue(TYPE, MultiblockType.SIDE_U);
-        }
-        return state.setValue(TYPE, MultiblockType.NORMAL);
+        String posInMultiblock = "";
+        if (x == 0) posInMultiblock += "L";
+        if (x == right) posInMultiblock += "R";
+        if (y == top) posInMultiblock += "U";
+        if (y == 0) posInMultiblock += "D";
+        return state.setValue(TYPE, MultiblockType.fromPosInMultiblock(posInMultiblock));
     }
 
     private static BlockState setControllerOffsetProps(BlockState state, BlockPos pos, BlockPos controllerPos) {
+        BlockPos horizontalVec = controllerPos.subtract(pos).atY(0);
+        Direction nearestDirection = horizontalVec.equals(BlockPos.ZERO) ? null : Direction.getNearest(Vec3.atLowerCornerOf(horizontalVec));
         return state
-            .setValue(HORIZONTAL, getHorizontalOffset(pos, controllerPos))
-            .setValue(VERTICAL, getVerticalOffset(pos, controllerPos));
-    }
-
-    private static OptionalDirection getHorizontalOffset(BlockPos pos, BlockPos controllerPos) {
-        if (controllerPos.getX() == pos.getX() && controllerPos.getZ() == pos.getZ()) {
-            return OptionalDirection.NONE;
-        }
-        if (controllerPos.getZ() < pos.getZ()) {
-            return OptionalDirection.NORTH;
-        }
-        if (controllerPos.getZ() > pos.getZ()) {
-            return OptionalDirection.SOUTH;
-        }
-        if (controllerPos.getX() < pos.getX()) {
-            return OptionalDirection.WEST;
-        }
-        if (controllerPos.getX() > pos.getX()) {
-            return OptionalDirection.EAST;
-        }
-        return OptionalDirection.NONE;
-    }
-
-    private static OptionalDirection getVerticalOffset(BlockPos hullPos, BlockPos controllerPos) {
-        if (controllerPos.getY() == hullPos.getY()) {
-            return OptionalDirection.NONE;
-        }
-        return controllerPos.getY() < hullPos.getY() ? OptionalDirection.DOWN : OptionalDirection.UP;
+            .setValue(HORIZONTAL, OptionalDirection.fromDirection(nearestDirection))
+            .setValue(VERTICAL, controllerPos.getY() < pos.getY() ? OptionalDirection.DOWN : OptionalDirection.NONE);
     }
 
     private record MonitorSearchResult(int distance, BlockPos pos) {}

@@ -12,7 +12,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import com.github.almostreliable.energymeter.block.multiblock.MultiblockData;
 import com.github.almostreliable.energymeter.core.Constants;
 import com.github.almostreliable.energymeter.core.Registration;
 import com.github.almostreliable.energymeter.menu.MonitorMenu;
@@ -23,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class MonitorBlockEntity extends BlockEntity implements TickableMenuProvider {
 
-    @Nullable
-    private MultiblockData data;
+    private int width;
+    private int height;
 
     public MonitorBlockEntity(BlockPos pos, BlockState blockState) {
         super(Registration.MONITOR_BLOCK_ENTITY.get(), pos, blockState);
@@ -33,13 +32,15 @@ public class MonitorBlockEntity extends BlockEntity implements TickableMenuProvi
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        if (data != null) tag.put(Constants.MULTIBLOCK_DATA_ID, data.serialize());
+        if (width != 0) tag.putInt(Constants.WIDTH_ID, width);
+        if (height != 0) tag.putInt(Constants.HEIGHT_ID, height);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains(Constants.MULTIBLOCK_DATA_ID)) data = MultiblockData.deserialize(tag.getCompound(Constants.MULTIBLOCK_DATA_ID));
+        if (tag.contains(Constants.WIDTH_ID)) width = tag.getInt(Constants.WIDTH_ID);
+        if (tag.contains(Constants.HEIGHT_ID)) height = tag.getInt(Constants.HEIGHT_ID);
     }
 
     @Nullable
@@ -59,12 +60,16 @@ public class MonitorBlockEntity extends BlockEntity implements TickableMenuProvi
 
     }
 
-    public void setMultiblockData(MultiblockData data) {
-        this.data = data;
+    public void setSize(int width, int height) {
+        this.width = width;
+        this.height = height;
     }
 
-    @Nullable
-    public MultiblockData getMultiblockData() {
-        return data;
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }
