@@ -1,7 +1,10 @@
 package com.github.almostreliable.energymeter.block;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,6 +40,16 @@ public abstract class FacingEntityBlock extends Block implements EntityBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(FACING, BOTTOM);
+    }
+
+    @Nullable
+    @Override
+    protected MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof MenuProvider menuProvider) {
+            return menuProvider;
+        }
+
+        return super.getMenuProvider(state, level, pos);
     }
 
     public static Direction getFacingDir(BlockState state) {

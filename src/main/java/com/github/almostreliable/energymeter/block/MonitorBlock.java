@@ -66,13 +66,8 @@ public class MonitorBlock extends FacingEntityBlock {
     @Override
     protected MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         if (isUnbound(state)) return null;
-
         BlockPos controllerPos = findControllerPos(level, pos, state);
-        if (controllerPos != null && level.getBlockEntity(controllerPos) instanceof MenuProvider menuProvider) {
-            return menuProvider;
-        }
-
-        return null;
+        return super.getMenuProvider(state, level, controllerPos == null ? pos : controllerPos);
     }
 
     @Override
