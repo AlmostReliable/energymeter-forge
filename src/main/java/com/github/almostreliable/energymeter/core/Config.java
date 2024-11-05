@@ -34,7 +34,7 @@ public final class Config {
 
             builder.push(Constants.MONITOR_ID);
             maxWidth = builder.comment("Max width of monitor.").defineInRange("max_width", 32, 1, 128);
-            maxHeight = builder.comment("Max height of monitor.").defineInRange("max_height", 24, 1, 128);
+            maxHeight = builder.comment("Max height of monitor.").defineInRange("max_height", 18, 1, 128);
             builder.pop();
         }
     }
