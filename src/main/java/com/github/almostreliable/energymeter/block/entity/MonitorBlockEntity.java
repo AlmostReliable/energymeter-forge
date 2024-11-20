@@ -52,7 +52,8 @@ public class MonitorBlockEntity extends BlockEntity implements TickableMenuProvi
 
     @Override
     public Component getDisplayName() {
-        return TextUtils.translate(TypeEnums.TRANSLATE_TYPE.CONTAINER, Constants.MONITOR_ID);
+        // TODO: replace with datagen or leave empty
+        return TextUtils.translate(TypeEnums.TranslateType.CONTAINER, Constants.MONITOR_ID);
     }
 
     @Override

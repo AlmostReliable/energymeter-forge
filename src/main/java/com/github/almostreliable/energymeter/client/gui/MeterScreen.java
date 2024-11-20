@@ -13,26 +13,25 @@ import com.github.almostreliable.energymeter.menu.MeterMenu;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;
-import com.github.almostreliable.energymeter.util.TypeEnums.ACCURACY;
-import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
-import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
-import com.github.almostreliable.energymeter.util.TypeEnums.NUMBER_MODE;
-import com.github.almostreliable.energymeter.util.TypeEnums.SETTING;
-import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
+import com.github.almostreliable.energymeter.util.TypeEnums.BlockSide;
+import com.github.almostreliable.energymeter.util.TypeEnums.DisplayMode;
+import com.github.almostreliable.energymeter.util.TypeEnums.MeasureMode;
+import com.github.almostreliable.energymeter.util.TypeEnums.Setting;
+import com.github.almostreliable.energymeter.util.TypeEnums.TranslateType;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.github.almostreliable.energymeter.core.Constants.ACCURACY_ID;
 import static com.github.almostreliable.energymeter.core.Constants.IO_MODE_ID;
 import static com.github.almostreliable.energymeter.core.Constants.IO_SCREEN_ID;
 import static com.github.almostreliable.energymeter.core.Constants.IO_SIDE_ID;
+import static com.github.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
 import static com.github.almostreliable.energymeter.core.Constants.METER_ID;
-import static com.github.almostreliable.energymeter.core.Constants.MODE_ID;
 import static com.github.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
 import static com.github.almostreliable.energymeter.core.Constants.STATUS_ID;
+import static com.github.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
 import static com.github.almostreliable.energymeter.core.Constants.TRANSFER_RATE_ID;
-import static com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
+import static com.github.almostreliable.energymeter.core.Constants.UiColors;
 
 public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
 
@@ -57,17 +56,17 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
             .addHeader(SIDE_CONFIG_ID)
             .addBlankLine()
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
+                .translate(TranslateType.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(TextUtils.translate(
-                    TRANSLATE_TYPE.BLOCK_SIDE,
-                    BLOCK_SIDE.FRONT.toString().toLowerCase(),
+                    TranslateType.BLOCK_SIDE,
+                    BlockSide.FRONT.toString().toLowerCase(),
                     ChatFormatting.WHITE
                 )))
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
+                .translate(TranslateType.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
-                .append(TextUtils.translate(TRANSLATE_TYPE.IO_SETTING, IO_SCREEN_ID, ChatFormatting.WHITE)));
+                .append(TextUtils.translate(TranslateType.IO_SETTING, IO_SCREEN_ID, ChatFormatting.WHITE)));
     }
 
     @Override
@@ -80,10 +79,10 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
         thresholdBox = new ThresholdBox(this, font, leftPos + 81, topPos + imageHeight + 5, 42, 8);
         addRenderable(thresholdBox);
 
-        addRenderables(IOButton.create(this, BLOCK_SIDE.values()));
-        addRenderable(new SettingButton(this, 136, 64, SETTING.NUMBER));
-        addRenderable(new SettingButton(this, 136, 86, SETTING.MODE));
-        addRenderable(new SettingButton(this, 136, 108, SETTING.ACCURACY));
+        addRenderables(IOButton.create(this, BlockSide.values()));
+        addRenderable(new SettingButton(this, 136, 64, Setting.NUMBER));
+        addRenderable(new SettingButton(this, 136, 86, Setting.MODE));
+        addRenderable(new SettingButton(this, 136, 108, Setting.ACCURACY));
     }
 
     @Override
@@ -110,8 +109,8 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
             11,
             9,
             1.3f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, METER_ID),
-            UI_COLORS.WHITE
+            TextUtils.translateAsString(TranslateType.LABEL, METER_ID),
+            UiColors.WHITE
         );
 
         // transfer rate
@@ -120,12 +119,12 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
             11,
             26,
             1.1f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, TRANSFER_RATE_ID) + ':',
-            UI_COLORS.GRAY
+            TextUtils.translateAsString(TranslateType.LABEL, TRANSFER_RATE_ID) + ':',
+            UiColors.GRAY
         );
         var formattedFlow = TextUtils.formatEnergy(
             menu.getEntity().getTransferRate(),
-            menu.getEntity().getNumberMode() == NUMBER_MODE.LONG
+            menu.getEntity().getNumberMode() == DisplayMode.LONG
         );
         GuiUtils.renderText(
             guiGraphics,
@@ -133,7 +132,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
             37,
             1.0f,
             String.format("%s %s/t", formattedFlow.getA(), formattedFlow.getB()),
-            UI_COLORS.MINT
+            UiColors.MINT
         );
 
         // status
@@ -142,15 +141,15 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
             11,
             50,
             1.1f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, STATUS_ID) + ':',
-            UI_COLORS.GRAY
+            TextUtils.translateAsString(TranslateType.LABEL, STATUS_ID) + ':',
+            UiColors.GRAY
         );
         GuiUtils.renderText(
             guiGraphics,
             16,
             61,
             1.0f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.STATUS, menu.getEntity().getStatus().toString().toLowerCase()),
+            TextUtils.translateAsString(TranslateType.STATUS, menu.getEntity().getStatus().toString().toLowerCase()),
             getStatusColor()
         );
 
@@ -160,15 +159,15 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
             11,
             74,
             1.1f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, MODE_ID) + ':',
-            UI_COLORS.GRAY
+            TextUtils.translateAsString(TranslateType.LABEL, TRANSFER_MODE_ID) + ':',
+            UiColors.GRAY
         );
         GuiUtils.renderText(
             guiGraphics,
             16,
             85,
             1.0f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.MODE, menu.getEntity().getMode().toString().toLowerCase()),
+            TextUtils.translateAsString(TranslateType.MODE, menu.getEntity().getMode().toString().toLowerCase()),
             getModeColor()
         );
 
@@ -178,8 +177,8 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
             11,
             98,
             1.1f,
-            TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, ACCURACY_ID) + ':',
-            UI_COLORS.GRAY
+            TextUtils.translateAsString(TranslateType.LABEL, MEASURE_MODE_ID) + ':',
+            UiColors.GRAY
         );
         GuiUtils.renderText(
             guiGraphics,
@@ -187,7 +186,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
             109,
             1.0f,
             TextUtils.translateAsString(
-                TRANSLATE_TYPE.ACCURACY,
+                TranslateType.ACCURACY,
                 menu.getEntity().getAccuracy().toString().toLowerCase()
             ),
             getAccuracyColor()
@@ -249,10 +248,10 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
     private int getStatusColor() {
         var status = menu.getEntity().getStatus();
         return switch (status) {
-            case DISCONNECTED -> UI_COLORS.RED;
-            case CONNECTED -> UI_COLORS.YELLOW;
-            case TRANSFERRING -> UI_COLORS.GREEN;
-            case CONSUMING -> UI_COLORS.ROSE;
+            case DISCONNECTED -> UiColors.RED;
+            case CONNECTED -> UiColors.YELLOW;
+            case TRANSFERRING -> UiColors.GREEN;
+            case CONSUMING -> UiColors.ROSE;
         };
     }
 
@@ -262,7 +261,7 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
      * @return the color of the current mode
      */
     private int getModeColor() {
-        return menu.getEntity().getMode() == MODE.CONSUMER ? UI_COLORS.PURPLE : UI_COLORS.BLUE;
+        return menu.getEntity().getMode() == TRANSFER_MODE_ID.CONSUME ? UiColors.PURPLE : UiColors.BLUE;
     }
 
     /**
@@ -271,6 +270,6 @@ public class MeterScreen extends AbstractContainerScreen<MeterMenu> {
      * @return the color of the current accuracy mode
      */
     private int getAccuracyColor() {
-        return menu.getEntity().getAccuracy() == ACCURACY.EXACT ? UI_COLORS.ORANGE : UI_COLORS.PINK;
+        return menu.getEntity().getAccuracy() == MeasureMode.EXACT ? UiColors.ORANGE : UiColors.PINK;
     }
 }

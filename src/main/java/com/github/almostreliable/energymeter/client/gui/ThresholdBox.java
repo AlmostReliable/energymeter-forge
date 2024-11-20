@@ -4,14 +4,14 @@ import net.minecraft.client.gui.Font;
 
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
-import com.github.almostreliable.energymeter.util.TypeEnums.TEXT_BOX;
+import com.github.almostreliable.energymeter.util.TypeEnums.TextBox;
 
 class ThresholdBox extends GenericTextBox {
 
     private static final TooltipBuilder TOOLTIP = setupTooltip();
 
     ThresholdBox(MeterScreen screen, Font font, int pX, int pY, int width, int height) {
-        super(screen, font, pX, pY, width, height, TEXT_BOX.THRESHOLD);
+        super(screen, font, pX, pY, width, height, TextBox.THRESHOLD);
         setValue(String.valueOf(screen.getMenu().getEntity().getThreshold()));
     }
 

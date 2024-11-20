@@ -1,30 +1,30 @@
 package com.github.almostreliable.energymeter.compat.cct;
 
+import net.minecraft.core.Direction;
+
 import com.almostreliable.energymeter.ModConstants;
 
-import com.github.almostreliable.energymeter.compat.IMeterEntityObserver;
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.github.almostreliable.energymeter.compat.IMeterEntityObserver;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-
-import net.minecraft.core.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.almostreliable.energymeter.core.Constants.ACCURACY_ID;
-import static com.github.almostreliable.energymeter.core.Constants.INTERVAL_ID;
-import static com.github.almostreliable.energymeter.core.Constants.MODE_ID;
-import static com.github.almostreliable.energymeter.core.Constants.NUMBER_MODE_ID;
+import static com.github.almostreliable.energymeter.core.Constants.DISPLAY_MODE_ID;
+import static com.github.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
+import static com.github.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
 import static com.github.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
 import static com.github.almostreliable.energymeter.core.Constants.STATUS_ID;
-import static com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
-import static com.github.almostreliable.energymeter.core.Constants.THRESHOLD_ID;
+import static com.github.almostreliable.energymeter.core.Constants.SyncFlags;
+import static com.github.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
 import static com.github.almostreliable.energymeter.core.Constants.TRANSFER_RATE_ID;
+import static com.github.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
 @SuppressWarnings({"unused", "FinalMethod"})
 public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
@@ -61,14 +61,14 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
         if (!this.entity.equals(entity)) return;
 
         Map<String, Object> data = new HashMap<>();
-        if ((flags & SYNC_FLAGS.SIDE_CONFIG) != 0) data.put(SIDE_CONFIG_ID, entity.getSideConfig().asStringMap());
-        if ((flags & SYNC_FLAGS.TRANSFER_RATE) != 0) data.put(TRANSFER_RATE_ID, entity.getTransferRate());
-        if ((flags & SYNC_FLAGS.NUMBER_MODE) != 0) data.put(NUMBER_MODE_ID, entity.getNumberMode().name());
-        if ((flags & SYNC_FLAGS.STATUS) != 0) data.put(STATUS_ID, entity.getStatus().name());
-        if ((flags & SYNC_FLAGS.MODE) != 0) data.put(MODE_ID, entity.getMode().name());
-        if ((flags & SYNC_FLAGS.ACCURACY) != 0) data.put(ACCURACY_ID, entity.getAccuracy().name());
-        if ((flags & SYNC_FLAGS.INTERVAL) != 0) data.put(INTERVAL_ID, entity.getInterval());
-        if ((flags & SYNC_FLAGS.THRESHOLD) != 0) data.put(THRESHOLD_ID, entity.getThreshold());
+        if ((flags & SyncFlags.SIDE_CONFIG) != 0) data.put(SIDE_CONFIG_ID, entity.getSideConfig().asStringMap());
+        if ((flags & SyncFlags.TRANSFER_RATE) != 0) data.put(TRANSFER_RATE_ID, entity.getEnergyRate());
+        if ((flags & SyncFlags.NUMBER_MODE) != 0) data.put(DISPLAY_MODE_ID, entity.getNumberMode().name());
+        if ((flags & SyncFlags.STATUS) != 0) data.put(STATUS_ID, entity.getStatus().name());
+        if ((flags & SyncFlags.MODE) != 0) data.put(TRANSFER_MODE_ID, entity.getMode().name());
+        if ((flags & SyncFlags.ACCURACY) != 0) data.put(MEASURE_MODE_ID, entity.getAccuracy().name());
+        if ((flags & SyncFlags.INTERVAL) != 0) data.put(MEASURE_INTERVAL_ID, entity.getInterval());
+        if ((flags & SyncFlags.THRESHOLD) != 0) data.put(ZERO_TOLERANCE_ID, entity.getThreshold());
         computer.queueEvent("em_data_changed", data);
     }
 

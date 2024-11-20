@@ -1,19 +1,18 @@
 package com.github.almostreliable.energymeter.network;
 
-import com.github.almostreliable.energymeter.core.Constants.SYNC_FLAGS;
-import com.github.almostreliable.energymeter.menu.MeterMenu;
-import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
-import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
-import com.github.almostreliable.energymeter.util.Utils;
-import io.netty.buffer.ByteBuf;
-
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
+import com.github.almostreliable.energymeter.core.Constants.SyncFlags;
+import com.github.almostreliable.energymeter.menu.MeterMenu;
+import com.github.almostreliable.energymeter.util.TypeEnums.BlockSide;
+import com.github.almostreliable.energymeter.util.TypeEnums.IoSetting;
+import com.github.almostreliable.energymeter.util.Utils;
+import io.netty.buffer.ByteBuf;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record IOUpdatePacket(BLOCK_SIDE side, IO_SETTING setting) implements CustomPacketPayload {
+public record IOUpdatePacket(BlockSide side, IoSetting setting) implements CustomPacketPayload {
 
     static final Type<IOUpdatePacket> TYPE = new Type<>(Utils.getRL("io_update"));
     static final StreamCodec<ByteBuf, IOUpdatePacket> STREAM_CODEC = StreamCodec.composite(
@@ -23,7 +22,7 @@ public record IOUpdatePacket(BLOCK_SIDE side, IO_SETTING setting) implements Cus
     );
 
     public IOUpdatePacket(Integer sideIndex, Integer settingsIndex) {
-        this(BLOCK_SIDE.values()[sideIndex], IO_SETTING.values()[settingsIndex]);
+        this(BlockSide.values()[sideIndex], IoSetting.values()[settingsIndex]);
     }
 
     @Override
@@ -39,7 +38,7 @@ public record IOUpdatePacket(BLOCK_SIDE side, IO_SETTING setting) implements Cus
             entity.getSideConfig().set(payload.side, payload.setting);
             entity.updateNeighbors();
             entity.updateCache(entity.getSideConfig().getDirectionFromSide(payload.side));
-            entity.syncData(SYNC_FLAGS.SIDE_CONFIG);
+            entity.syncData(SyncFlags.SIDE_CONFIG);
             entity.setChanged();
         }
     }

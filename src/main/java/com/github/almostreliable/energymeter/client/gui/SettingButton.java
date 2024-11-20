@@ -7,15 +7,15 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextColor;
 
-import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
+import com.github.almostreliable.energymeter.core.Constants.UiColors;
 import com.github.almostreliable.energymeter.network.SettingUpdatePacket;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;
-import com.github.almostreliable.energymeter.util.TypeEnums.ACCURACY;
-import com.github.almostreliable.energymeter.util.TypeEnums.MODE;
-import com.github.almostreliable.energymeter.util.TypeEnums.SETTING;
-import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
+import com.github.almostreliable.energymeter.util.TypeEnums.MeasureMode;
+import com.github.almostreliable.energymeter.util.TypeEnums.Setting;
+import com.github.almostreliable.energymeter.util.TypeEnums.TransferMode;
+import com.github.almostreliable.energymeter.util.TypeEnums.TranslateType;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SettingButton extends GenericButton {
@@ -25,14 +25,14 @@ public class SettingButton extends GenericButton {
     private static final int TEXTURE_HEIGHT = 21;
     private final String label;
     private final Font font;
-    private final SETTING setting;
+    private final Setting setting;
     private TooltipBuilder tooltip;
     private TooltipBuilder tooltipLong;
 
-    SettingButton(MeterScreen screen, int pX, int pY, SETTING setting) {
+    SettingButton(MeterScreen screen, int pX, int pY, Setting setting) {
         super(screen, pX, pY, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         this.setting = setting;
-        label = TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, setting.toString().toLowerCase()).toUpperCase();
+        label = TextUtils.translateAsString(TranslateType.LABEL, setting.toString().toLowerCase()).toUpperCase();
         font = Minecraft.getInstance().font;
         tooltip = setupTooltip(false);
         tooltipLong = setupTooltip(true);
@@ -44,14 +44,14 @@ public class SettingButton extends GenericButton {
         // label
         var pX = (width - font.width(label)) / 2 + getX() + 1;
         var pY = (height - font.lineHeight) / 2 + getY() + 1;
-        GuiUtils.renderText(guiGraphics, pX, pY, 1.0f, label, UI_COLORS.WHITE);
+        GuiUtils.renderText(guiGraphics, pX, pY, 1.0f, label, UiColors.WHITE);
     }
 
     @Override
     protected void clickHandler() {
         PacketDistributor.sendToServer(new SettingUpdatePacket(setting));
         container.getEntity().updateSetting(setting);
-        if (setting == SETTING.ACCURACY) {
+        if (setting == Setting.ACCURACY) {
             screen.getIntervalBox().reset();
             screen.getThresholdBox().reset();
         }
@@ -85,16 +85,16 @@ public class SettingButton extends GenericButton {
         if (longTooltip) {
             t.addDescription(settingKey + "_desc_1");
             var description2 = "_desc_2";
-            if (setting == SETTING.NUMBER) t.addDescription(settingKey + description2);
-            if (setting == SETTING.MODE) {
+            if (setting == Setting.NUMBER) t.addDescription(settingKey + description2);
+            if (setting == Setting.MODE) {
                 var transfer = TextUtils
-                    .translate(TRANSLATE_TYPE.MODE, MODE.TRANSFER.toString().toLowerCase())
+                    .translate(TranslateType.MODE, TransferMode.TRANSFER.toString().toLowerCase())
                     .append(":");
-                var style1 = transfer.getStyle().withColor(TextColor.fromRgb(UI_COLORS.BLUE));
+                var style1 = transfer.getStyle().withColor(TextColor.fromRgb(UiColors.BLUE));
                 var consumer = TextUtils
-                    .translate(TRANSLATE_TYPE.MODE, MODE.CONSUMER.toString().toLowerCase())
+                    .translate(TranslateType.MODE, TransferMode.CONSUME.toString().toLowerCase())
                     .append(":");
-                var style2 = consumer.getStyle().withColor(TextColor.fromRgb(UI_COLORS.PURPLE));
+                var style2 = consumer.getStyle().withColor(TextColor.fromRgb(UiColors.PURPLE));
                 t
                     .addBlankLine()
                     .addComponent(transfer.withStyle(style1))
@@ -103,15 +103,15 @@ public class SettingButton extends GenericButton {
                     .addComponent(consumer.withStyle(style2))
                     .addDescription(settingKey + "_desc_3");
             }
-            if (setting == SETTING.ACCURACY) {
+            if (setting == Setting.ACCURACY) {
                 var exact = TextUtils
-                    .translate(TRANSLATE_TYPE.ACCURACY, ACCURACY.EXACT.toString().toLowerCase())
+                    .translate(TranslateType.ACCURACY, MeasureMode.EXACT.toString().toLowerCase())
                     .append(":");
-                var style3 = exact.getStyle().withColor(TextColor.fromRgb(UI_COLORS.ORANGE));
+                var style3 = exact.getStyle().withColor(TextColor.fromRgb(UiColors.ORANGE));
                 var interval = TextUtils
-                    .translate(TRANSLATE_TYPE.ACCURACY, ACCURACY.INTERVAL.toString().toLowerCase())
+                    .translate(TranslateType.ACCURACY, MeasureMode.INTERVAL.toString().toLowerCase())
                     .append(":");
-                var style4 = interval.getStyle().withColor(TextColor.fromRgb(UI_COLORS.PINK));
+                var style4 = interval.getStyle().withColor(TextColor.fromRgb(UiColors.PINK));
                 t
                     .addBlankLine()
                     .addComponent(exact.withStyle(style3))
@@ -124,21 +124,21 @@ public class SettingButton extends GenericButton {
         }
 
         var currentSetting = TextUtils
-            .translate(TRANSLATE_TYPE.TOOLTIP, "current", ChatFormatting.GREEN)
+            .translate(TranslateType.TOOLTIP, "current", ChatFormatting.GREEN)
             .append(TextUtils.colorize(": ", ChatFormatting.GREEN));
         switch (setting) {
             case NUMBER -> currentSetting.append(TextUtils.translate(
-                TRANSLATE_TYPE.NUMBER,
+                TranslateType.NUMBER,
                 container.getEntity().getNumberMode().toString().toLowerCase(),
                 ChatFormatting.WHITE
             ));
             case MODE -> currentSetting.append(TextUtils.translate(
-                TRANSLATE_TYPE.MODE,
+                TranslateType.MODE,
                 container.getEntity().getMode().toString().toLowerCase(),
                 ChatFormatting.WHITE
             ));
             case ACCURACY -> currentSetting.append(TextUtils.translate(
-                TRANSLATE_TYPE.ACCURACY,
+                TranslateType.ACCURACY,
                 container.getEntity().getAccuracy().toString().toLowerCase(),
                 ChatFormatting.WHITE
             ));

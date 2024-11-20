@@ -3,70 +3,62 @@ package com.github.almostreliable.energymeter.core;
 import com.github.almostreliable.energymeter.network.ClientSyncPacket;
 
 @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
-public enum Constants {
-    ;
+public interface Constants {
 
-    // mod info
-    public static final String PIPEZ_ID = "pipez";
-    public static final String CCT_ID = "computercraft";
     // ids
-    public static final String METER_ID = "meter";
-    public static final String MONITOR_ID = "monitor";
-    // utility keys
-    public static final String IO_STATE_ID = "io";
-    public static final String NETWORK_ID = "network";
-    // translation & nbt keys
-    public static final String SIDE_CONFIG_ID = "side_config";
-    public static final String TRANSFER_RATE_ID = "transfer_rate";
-    public static final String STATUS_ID = "status";
-    public static final String NUMBER_MODE_ID = "number_mode";
-    public static final String MODE_ID = "mode";
-    public static final String ACCURACY_ID = "accuracy";
-    public static final String IO_SIDE_ID = "io_side";
-    public static final String IO_MODE_ID = "io_mode";
-    public static final String IO_SCREEN_ID = "screen";
-    public static final String INTERVAL_ID = "interval";
-    public static final String THRESHOLD_ID = "threshold";
+    String METER_ID = "meter";
+    String MONITOR_ID = "monitor";
 
     // serialization
-    public static final String MULTIBLOCK_DATA_ID = "multiblock_data";
-    public static final String BOTTOM_LEFT_ID = "bottom_left";
-    public static final String TOP_RIGHT_ID = "top_right";
+    String SIDE_CONFIG_ID = "side_config";
+    String TRANSFER_RATE_ID = "transfer_rate";
+    String DISPLAY_MODE_ID = "display_mode";
+    String TRANSFER_MODE_ID = "transfer_mode";
+    String MEASURE_MODE_ID = "measure_mode";
+    String MEASURE_INTERVAL_ID = "measure_interval";
+    String ZERO_TOLERANCE_ID = "zero_tolerance";
     public static final String WIDTH_ID = "width";
     public static final String HEIGHT_ID = "height";
+
+    // mod info
+    String PIPEZ_ID = "pipez";
+    String CCT_ID = "computercraft";
+    // translation & nbt keys
+    String STATUS_ID = "status";
+    String IO_SIDE_ID = "io_side";
+    String IO_MODE_ID = "io_mode";
+    String IO_SCREEN_ID = "screen";
 
     /**
      * Decimal color values to ensure consistent color values.
      */
-    public enum UI_COLORS {
-        ;
+    interface UiColors {
 
-        public static final int WHITE = 15_790_320;
-        public static final int MINT = 65_442;
-        public static final int GRAY = 11_447_982;
-        public static final int GREEN = 65_328;
-        public static final int BLUE = 40_929;
-        public static final int YELLOW = 16_768_512;
-        public static final int ORANGE = 16_737_792;
-        public static final int PURPLE = 12_976_383;
-        public static final int PINK = 16_711_782;
-        public static final int ROSE = 16_711_920;
-        public static final int RED = 14_286_889;
+        int WHITE = 15_790_320;
+        int MINT = 65_442;
+        int GRAY = 11_447_982;
+        int GREEN = 65_328;
+        int BLUE = 40_929;
+        int YELLOW = 16_768_512;
+        int ORANGE = 16_737_792;
+        int PURPLE = 12_976_383;
+        int PINK = 16_711_782;
+        int ROSE = 16_711_920;
+        int RED = 14_286_889;
     }
 
     /**
      * Flags to ensure only required data is synced in a {@link ClientSyncPacket}.
      */
-    public enum SYNC_FLAGS {
-        ;
+    interface SyncFlags {
 
-        public static final int SIDE_CONFIG = 1;
-        public static final int TRANSFER_RATE = 1 << 1;
-        public static final int NUMBER_MODE = 1 << 2;
-        public static final int STATUS = 1 << 3;
-        public static final int MODE = 1 << 4;
-        public static final int ACCURACY = 1 << 5;
-        public static final int INTERVAL = 1 << 6;
-        public static final int THRESHOLD = 1 << 7;
+        int SIDE_CONFIG = 1;
+        int TRANSFER_RATE = 1 << 1;
+        int NUMBER_MODE = 1 << 2;
+        int STATUS = 1 << 3;
+        int MODE = 1 << 4;
+        int ACCURACY = 1 << 5;
+        int INTERVAL = 1 << 6;
+        int THRESHOLD = 1 << 7;
     }
 }

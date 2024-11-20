@@ -1,13 +1,14 @@
 package com.github.almostreliable.energymeter.util;
 
-import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+
+import com.github.almostreliable.energymeter.util.TypeEnums.TranslateType;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,7 @@ public final class GuiUtils {
          * @return the instance of the tooltip
          */
         public TooltipBuilder addHeader(String key) {
-            return addComponent(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, key, ChatFormatting.GOLD));
+            return addComponent(TextUtils.translate(TranslateType.TOOLTIP, key, ChatFormatting.GOLD));
         }
 
         /**
@@ -98,7 +99,7 @@ public final class GuiUtils {
          * @return the instance of the tooltip
          */
         public TooltipBuilder addDescription(String key) {
-            return addComponent(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, key, ChatFormatting.WHITE));
+            return addComponent(TextUtils.translate(TranslateType.TOOLTIP, key, ChatFormatting.WHITE));
         }
 
         /**
@@ -111,11 +112,12 @@ public final class GuiUtils {
         public TooltipBuilder addCustomAction(String input, String key) {
             return addComponent(TextUtils
                 .colorize("> ", ChatFormatting.GRAY)
-                .append(TextUtils.colorize(InputConstants.getKey(input).getDisplayName().getString(),
+                .append(TextUtils.colorize(
+                    InputConstants.getKey(input).getDisplayName().getString(),
                     ChatFormatting.AQUA
                 ))
                 .append(" ")
-                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, key, ChatFormatting.GRAY)));
+                .append(TextUtils.translate(TranslateType.TOOLTIP, key, ChatFormatting.GRAY)));
         }
 
         /**
@@ -127,9 +129,9 @@ public final class GuiUtils {
         public TooltipBuilder addClickAction(String key) {
             return addComponent(TextUtils
                 .colorize("> ", ChatFormatting.GRAY)
-                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "action_click", ChatFormatting.AQUA))
+                .append(TextUtils.translate(TranslateType.TOOLTIP, "action_click", ChatFormatting.AQUA))
                 .append(" ")
-                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, key, ChatFormatting.GRAY)));
+                .append(TextUtils.translate(TranslateType.TOOLTIP, key, ChatFormatting.GRAY)));
         }
 
         /**
@@ -142,13 +144,14 @@ public final class GuiUtils {
         public TooltipBuilder addHoldAction(String input, String key) {
             return addComponent(TextUtils
                 .colorize("> ", ChatFormatting.GRAY)
-                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, "action_hold", ChatFormatting.GRAY))
+                .append(TextUtils.translate(TranslateType.TOOLTIP, "action_hold", ChatFormatting.GRAY))
                 .append(" ")
-                .append(TextUtils.colorize(InputConstants.getKey(input).getDisplayName().getString(),
+                .append(TextUtils.colorize(
+                    InputConstants.getKey(input).getDisplayName().getString(),
                     ChatFormatting.AQUA
                 ))
                 .append(" ")
-                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, key, ChatFormatting.GRAY)));
+                .append(TextUtils.translate(TranslateType.TOOLTIP, key, ChatFormatting.GRAY)));
         }
 
         /**
@@ -160,12 +163,13 @@ public final class GuiUtils {
         public TooltipBuilder addShiftClickAction(String key) {
             return addComponent(TextUtils
                 .colorize("> ", ChatFormatting.GRAY)
-                .append(TextUtils.colorize(String.format("%s + %s",
+                .append(TextUtils.colorize(String.format(
+                    "%s + %s",
                     InputConstants.getKey("key.keyboard.left.shift").getDisplayName().getString(),
-                    TextUtils.translateAsString(TRANSLATE_TYPE.TOOLTIP, "action_click")
+                    TextUtils.translateAsString(TranslateType.TOOLTIP, "action_click")
                 ), ChatFormatting.AQUA))
                 .append(" ")
-                .append(TextUtils.translate(TRANSLATE_TYPE.TOOLTIP, key, ChatFormatting.GRAY)));
+                .append(TextUtils.translate(TranslateType.TOOLTIP, key, ChatFormatting.GRAY)));
         }
     }
 }

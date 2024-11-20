@@ -6,12 +6,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.Tuple;
 
 import com.github.almostreliable.energymeter.network.IOUpdatePacket;
-import com.github.almostreliable.energymeter.network.PacketHandler;
 import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;
-import com.github.almostreliable.energymeter.util.TypeEnums.BLOCK_SIDE;
-import com.github.almostreliable.energymeter.util.TypeEnums.IO_SETTING;
-import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
+import com.github.almostreliable.energymeter.util.TypeEnums.BlockSide;
+import com.github.almostreliable.energymeter.util.TypeEnums.IoSetting;
+import com.github.almostreliable.energymeter.util.TypeEnums.TranslateType;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Arrays;
@@ -31,11 +30,11 @@ final class IOButton extends GenericButton {
     private static final int BUTTON_SIZE = 17;
     private static final int ZONE_SIZE = 18;
     private static final int OVERLAY_SIZE = 17;
-    private final BLOCK_SIDE side;
+    private final BlockSide side;
     private TooltipBuilder tooltip;
-    private IO_SETTING setting;
+    private IoSetting setting;
 
-    private IOButton(MeterScreen screen, BLOCK_SIDE side) {
+    private IOButton(MeterScreen screen, BlockSide side) {
         super(screen, POS_X + getButtonPos(side).getA(), POS_Y + getButtonPos(side).getB(), BUTTON_SIZE, BUTTON_SIZE);
         this.side = side;
         setting = container.getEntity().getSideConfig().get(side);
@@ -49,10 +48,10 @@ final class IOButton extends GenericButton {
      * @param sides  the sides for which the buttons should be created
      * @return a list of all buttons created
      */
-    static List<IOButton> create(MeterScreen screen, BLOCK_SIDE... sides) {
+    static List<IOButton> create(MeterScreen screen, BlockSide... sides) {
         return Arrays
             .stream(sides)
-            .filter(side -> side != BLOCK_SIDE.FRONT)
+            .filter(side -> side != BlockSide.FRONT)
             .map(side -> new IOButton(screen, side))
             .toList();
     }
@@ -63,7 +62,7 @@ final class IOButton extends GenericButton {
      * @param side the block side to get the positions for
      * @return the x and y position for the BLOCK_SIDE
      */
-    private static Tuple<Integer, Integer> getButtonPos(BLOCK_SIDE side) {
+    private static Tuple<Integer, Integer> getButtonPos(BlockSide side) {
         return switch (side) {
             case TOP -> new Tuple<>(ZONE_SIZE, 0);
             case LEFT -> new Tuple<>(0, ZONE_SIZE);
@@ -118,19 +117,19 @@ final class IOButton extends GenericButton {
             .addHeader(SIDE_CONFIG_ID).addBlankLine()
             // block side
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
+                .translate(TranslateType.TOOLTIP, IO_SIDE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(TextUtils.translate(
-                    TRANSLATE_TYPE.BLOCK_SIDE,
+                    TranslateType.BLOCK_SIDE,
                     side.toString().toLowerCase(),
                     ChatFormatting.WHITE
                 )))
             // current mode
             .addComponent(TextUtils
-                .translate(TRANSLATE_TYPE.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
+                .translate(TranslateType.TOOLTIP, IO_MODE_ID, ChatFormatting.GREEN)
                 .append(TextUtils.colorize(": ", ChatFormatting.GREEN))
                 .append(TextUtils.translate(
-                    TRANSLATE_TYPE.IO_SETTING,
+                    TranslateType.IO_SETTING,
                     setting.toString().toLowerCase(),
                     ChatFormatting.WHITE
                 ))).addBlankLine()
@@ -167,16 +166,16 @@ final class IOButton extends GenericButton {
      */
     private void changeMode(boolean reset) {
         if (reset) {
-            setting = IO_SETTING.OFF;
+            setting = IoSetting.OFF;
             return;
         }
 
         var sideConfig = container.getEntity().getSideConfig();
 
         setting = switch (setting) {
-            case OFF -> sideConfig.hasInput() ? IO_SETTING.OUT : IO_SETTING.IN;
-            case IN -> sideConfig.hasMaxOutputs() ? IO_SETTING.OFF : IO_SETTING.OUT;
-            case OUT -> IO_SETTING.OFF;
+            case OFF -> sideConfig.hasInput() ? IoSetting.OUT : IoSetting.IN;
+            case IN -> sideConfig.hasMaxOutputs() ? IoSetting.OFF : IoSetting.OUT;
+            case OUT -> IoSetting.OFF;
         };
     }
 }

@@ -7,15 +7,15 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import com.github.almostreliable.energymeter.core.Constants.UI_COLORS;
 import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.github.almostreliable.energymeter.core.Constants.UiColors;
 import com.github.almostreliable.energymeter.network.AccuracyUpdatePacket;
 import com.github.almostreliable.energymeter.util.GuiUtils;
 import com.github.almostreliable.energymeter.util.GuiUtils.TooltipBuilder;
 import com.github.almostreliable.energymeter.util.TextUtils;
-import com.github.almostreliable.energymeter.util.TypeEnums.ACCURACY;
-import com.github.almostreliable.energymeter.util.TypeEnums.TEXT_BOX;
-import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
+import com.github.almostreliable.energymeter.util.TypeEnums.MeasureMode;
+import com.github.almostreliable.energymeter.util.TypeEnums.TextBox;
+import com.github.almostreliable.energymeter.util.TypeEnums.TranslateType;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.StringUtils;
@@ -24,17 +24,17 @@ abstract class GenericTextBox extends EditBox {
 
     protected final MeterScreen screen;
     private final Font font;
-    private final TEXT_BOX identifier;
+    private final TextBox identifier;
 
     GenericTextBox(
-        MeterScreen screen, Font font, int pX, int pY, int width, int height, TEXT_BOX identifier
+        MeterScreen screen, Font font, int pX, int pY, int width, int height, TextBox identifier
     ) {
         super(font, pX, pY, width, height, Component.empty());
         this.screen = screen;
         this.font = font;
         this.identifier = identifier;
         setBordered(false);
-        setTextColor(UI_COLORS.WHITE);
+        setTextColor(UiColors.WHITE);
         setFilter(text -> StringUtils.isNumeric(text) || text.isEmpty());
         setMaxLength(7);
     }
@@ -57,7 +57,7 @@ abstract class GenericTextBox extends EditBox {
         if (clicked && Screen.hasShiftDown()) {
             reset();
             // reset the threshold box as well if the interval is reset
-            if (identifier == TEXT_BOX.INTERVAL) {
+            if (identifier == TextBox.INTERVAL) {
                 screen.getThresholdBox().reset();
             }
         }
@@ -66,15 +66,15 @@ abstract class GenericTextBox extends EditBox {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mX, int mY, float partial) {
-        if (screen.getMenu().getEntity().getAccuracy() == ACCURACY.EXACT) return;
+        if (screen.getMenu().getEntity().getAccuracy() == MeasureMode.EXACT) return;
         int x = getX();
         int y = getY();
-        var label = TextUtils.translateAsString(TRANSLATE_TYPE.LABEL, identifier.toString().toLowerCase()) + ":";
+        var label = TextUtils.translateAsString(TranslateType.LABEL, identifier.toString().toLowerCase()) + ":";
         var labelWidth = font.width(label);
         // expand the tooltip range to the text box
         isHovered = mX >= x - 4 - labelWidth && mY >= y - 3 && mX < x + width + 3 && mY < y + height + 3;
         // render small identifier label in front of the box
-        GuiUtils.renderText(guiGraphics, x - 4 - labelWidth, y, 1, label, UI_COLORS.WHITE);
+        GuiUtils.renderText(guiGraphics, x - 4 - labelWidth, y, 1, label, UiColors.WHITE);
         // render the text box with a small gap to the border
         guiGraphics.fill(x - 3, y - 3, x + width + 3, y + height + 3, -65_434);
         guiGraphics.fill(x - 2, y - 2, x + width + 2, y + height + 2, -15_263_977);

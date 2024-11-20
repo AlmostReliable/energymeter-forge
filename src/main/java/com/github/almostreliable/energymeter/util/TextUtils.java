@@ -8,7 +8,7 @@ import net.minecraft.util.Tuple;
 
 import com.almostreliable.energymeter.ModConstants;
 
-import com.github.almostreliable.energymeter.util.TypeEnums.TRANSLATE_TYPE;
+import com.github.almostreliable.energymeter.util.TypeEnums.TranslateType;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -41,7 +41,7 @@ public final class TextUtils {
      * @param key  the translation key
      * @return the translated phrase
      */
-    public static String translateAsString(TRANSLATE_TYPE type, String key) {
+    public static String translateAsString(TranslateType type, String key) {
         return translate(type, key).getString();
     }
 
@@ -54,7 +54,7 @@ public final class TextUtils {
      * @param color an optional color
      * @return the translated phrase
      */
-    public static MutableComponent translate(TRANSLATE_TYPE type, String key, ChatFormatting... color) {
+    public static MutableComponent translate(TranslateType type, String key, ChatFormatting... color) {
         var output = Component.translatable(getTranslationKey(type, key));
         return color.length == 0 ? output : output.withStyle(color[0]);
     }
@@ -98,7 +98,7 @@ public final class TextUtils {
      * @param key  the unique key of the translation
      * @return the translation key
      */
-    private static String getTranslationKey(TRANSLATE_TYPE type, String key) {
+    private static String getTranslationKey(TranslateType type, String key) {
         return String.format("%s.%s.%s", type.toString().toLowerCase(), ModConstants.MOD_ID, key);
     }
 
