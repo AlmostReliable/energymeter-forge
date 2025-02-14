@@ -1,22 +1,24 @@
 package com.github.almostreliable.energymeter.menu;
 
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 
-import com.github.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.github.almostreliable.energymeter.core.Registration;
-
-import java.util.Objects;
 
 public class MeterMenu extends AbstractContainerMenu {
 
-    private final MeterBlockEntity entity;
+    private final ContainerLevelAccess access;
 
-    public MeterMenu(MeterBlockEntity entity, int wid) {
+    public MeterMenu(int wid, Inventory ignoredPlayerInventory, ContainerLevelAccess access) {
         super(Registration.METER_MENU.get(), wid);
-        this.entity = entity;
+        this.access = access;
+    }
+
+    public MeterMenu(int wid, Inventory playerInventory) {
+        this(wid, playerInventory, ContainerLevelAccess.NULL);
     }
 
     @Override
@@ -26,14 +28,6 @@ public class MeterMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(
-            ContainerLevelAccess.create(Objects.requireNonNull(entity.getLevel()), entity.getBlockPos()),
-            player,
-            entity.getBlockState().getBlock()
-        );
-    }
-
-    public MeterBlockEntity getEntity() {
-        return entity;
+        return stillValid(access, player, Registration.METER_BLOCK.get());
     }
 }

@@ -22,7 +22,8 @@ import com.github.almostreliable.energymeter.data.EnergyMeterLang;
 import com.github.almostreliable.energymeter.menu.MeterMenu;
 import com.github.almostreliable.energymeter.menu.MonitorMenu;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -32,45 +33,28 @@ import java.util.function.Function;
 
 public final class Registration {
 
-    private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(
-        Registries.CREATIVE_MODE_TAB,
-        ModConstants.MOD_ID
-    );
+    // @formatter:off
+
+    // registries
+    private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ModConstants.MOD_ID);
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ModConstants.MOD_ID);
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ModConstants.MOD_ID);
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(
-        Registries.BLOCK_ENTITY_TYPE,
-        ModConstants.MOD_ID
-    );
-    private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(
-        Registries.MENU,
-        ModConstants.MOD_ID
-    );
+    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ModConstants.MOD_ID);
+    private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, ModConstants.MOD_ID);
 
+    // blocks
     public static final DeferredBlock<MeterBlock> METER_BLOCK = registerBlock(Constants.METER_ID, "Energy Meter", MeterBlock::new);
-    public static final DeferredBlock<MonitorBlock> MONITOR_BLOCK = registerBlock(
-        Constants.MONITOR_ID,
-        "External Monitor",
-        MonitorBlock::new
-    );
+    public static final DeferredBlock<MonitorBlock> MONITOR_BLOCK = registerBlock(Constants.MONITOR_ID, "External Monitor", MonitorBlock::new);
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MeterBlockEntity>> METER_BLOCK_ENTITY = registerBlockEntity(
-        METER_BLOCK,
-        MeterBlockEntity::new
-    );
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MonitorBlockEntity>> MONITOR_BLOCK_ENTITY = registerBlockEntity(
-        MONITOR_BLOCK,
-        MonitorBlockEntity::new
-    );
+    // block entities
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MeterBlockEntity>> METER_BLOCK_ENTITY = registerBlockEntity(METER_BLOCK, MeterBlockEntity::new);
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MonitorBlockEntity>> MONITOR_BLOCK_ENTITY = registerBlockEntity(MONITOR_BLOCK, MonitorBlockEntity::new);
 
-    public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = MENUS.register(Constants.METER_ID, () ->
-        IMenuTypeExtension.create((wid, inventory, data) -> {
-            var entity = (MeterBlockEntity) inventory.player.level().getBlockEntity(data.readBlockPos());
-            return new MeterMenu(entity, wid);
-        })
-    );
+    // menus
+    public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = registerMenu(METER_BLOCK, MeterMenu::new);
     public static final DeferredHolder<MenuType<?>, MenuType<MonitorMenu>> MONITOR_MENU = registerMenu(MONITOR_BLOCK, MonitorMenu::new);
 
+    // creative tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
             .title(EnergyMeterLang.LangEntry.of("tab", "main", ModConstants.MOD_NAME).get())
@@ -80,6 +64,8 @@ public final class Registration {
             .build()
     );
 
+    // @formatter:on
+
     private Registration() {}
 
     public static void init(IEventBus modEventBus) {
@@ -88,6 +74,16 @@ public final class Registration {
         ITEMS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);
         MENUS.register(modEventBus);
+
+        modEventBus.addListener(Registration::registerCapabilities);
+    }
+
+    public static Iterable<Block> getKnownBlocks() {
+        return BLOCKS.getEntries().stream().map(e -> (Block) e.value()).toList();
+    }
+
+    private static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, METER_BLOCK_ENTITY.get(), MeterBlockEntity::getEnergyStorage);
     }
 
     private static <B extends Block> DeferredBlock<B> registerBlock(
@@ -115,9 +111,5 @@ public final class Registration {
         DeferredBlock<?> block, MenuType.MenuSupplier<M> factory
     ) {
         return MENUS.register(block.getId().getPath(), () -> new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS));
-    }
-
-    public static Iterable<Block> getKnownBlocks() {
-        return BLOCKS.getEntries().stream().map(e -> (Block) e.value()).toList();
     }
 }
