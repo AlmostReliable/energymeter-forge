@@ -6,6 +6,8 @@ import net.minecraft.util.StringRepresentable;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public enum OptionalDirection implements StringRepresentable {
 
     NONE(null),
@@ -22,7 +24,7 @@ public enum OptionalDirection implements StringRepresentable {
 
     OptionalDirection(@Nullable Direction direction) {
         this.direction = direction;
-        this.name = direction == null ? "none" : direction.toString().toLowerCase();
+        this.name = direction == null ? "none" : direction.toString().toLowerCase(Locale.ROOT);
     }
 
     public static OptionalDirection fromDirection(@Nullable Direction direction) {
