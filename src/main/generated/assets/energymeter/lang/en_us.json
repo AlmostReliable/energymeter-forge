@@ -1,0 +1,7 @@
+{
+  "block.energymeter.meter": "Energy Meter",
+  "block.energymeter.monitor": "External Monitor",
+  "item.energymeter.meter": "Energy Meter",
+  "item.energymeter.monitor": "External Monitor",
+  "tab.energymeter.main": "Energy Meter"
+}

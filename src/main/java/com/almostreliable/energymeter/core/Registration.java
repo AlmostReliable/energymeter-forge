@@ -96,7 +96,7 @@ public final class Registration {
             BlockBehaviour.Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL)
         );
         ITEMS.registerSimpleBlockItem(block);
-        // EnergyMeterLang.LangEntry.of("block", id, getNameOrFormatId(id, name));
+        EnergyMeterLang.LangEntry.of("block", id, name);
         EnergyMeterLang.LangEntry.of("item", id, name);
         return block;
     }
