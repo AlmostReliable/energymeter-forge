@@ -68,7 +68,7 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
         if ((flags & SyncFlags.MODE) != 0) data.put(TRANSFER_MODE_ID, entity.getTransferMode().name());
         if ((flags & SyncFlags.ACCURACY) != 0) data.put(MEASURE_MODE_ID, entity.getMeasureMode().name());
         if ((flags & SyncFlags.INTERVAL) != 0) data.put(MEASURE_INTERVAL_ID, entity.getMeasureInterval());
-        if ((flags & SyncFlags.THRESHOLD) != 0) data.put(ZERO_TOLERANCE_ID, entity.getThreshold());
+        if ((flags & SyncFlags.THRESHOLD) != 0) data.put(ZERO_TOLERANCE_ID, entity.getZeroTolerance());
         computer.queueEvent("em_data_changed", data);
     }
 
@@ -112,7 +112,7 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
 
     @LuaFunction(mainThread = true)
     public final MethodResult getThreshold() {
-        return MethodResult.of(entity.getThreshold());
+        return MethodResult.of(entity.getZeroTolerance());
     }
 
     @LuaFunction(mainThread = true)

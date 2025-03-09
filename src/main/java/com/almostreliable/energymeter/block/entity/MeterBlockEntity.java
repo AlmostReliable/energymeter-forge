@@ -6,14 +6,11 @@ import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MeterMenu;
-import com.almostreliable.energymeter.network.ClientSyncPacket;
-import com.almostreliable.energymeter.network.SettingUpdatePacket;
 import com.almostreliable.energymeter.util.TextUtils;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
-import com.almostreliable.energymeter.util.TypeEnums.Setting;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 import com.almostreliable.energymeter.util.TypeEnums.TranslateType;
 
@@ -27,11 +24,9 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +35,6 @@ import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.METER_ID;
 import static com.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
-import static com.almostreliable.energymeter.core.Constants.SyncFlags;
 import static com.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
@@ -119,7 +113,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
             double oldEnergyRate = energyRate;
             energyRate = average / measureInterval;
             if (oldEnergyRate != energyRate) {
-                syncData(SyncFlags.TRANSFER_RATE);
+                // TODO: send block update to sync new transfer rate to all nearby clients (or maybe packet)
 
                 if (energyRate > 0) {
                     updateStatus(ConnectionStatus.TRANSFERRING);
@@ -144,104 +138,92 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
         return energyHandler.getEnergyStorage(direction);
     }
 
-    /**
-     * Convenience method used by the {@link SettingUpdatePacket} in order
-     * to flip a specific setting after a button click on the client.
-     *
-     * @param setting the setting to update
-     */
-    public void updateSetting(Setting setting) {
-        switch (setting) {
-            case NUMBER -> {
-                displayMode = displayMode == DisplayMode.SHORT ? DisplayMode.LONG : DisplayMode.SHORT;
-                syncData(SyncFlags.NUMBER_MODE);
-            }
-            case MODE -> {
-                transferMode = transferMode == TransferMode.TRANSFER ? TransferMode.CONSUME : TransferMode.TRANSFER;
-                syncData(SyncFlags.MODE);
-            }
-            case ACCURACY -> {
-                var flags = SyncFlags.ACCURACY;
-                if (measureMode == MeasureMode.EXACT) {
-                    measureMode = MeasureMode.INTERVAL;
-                } else {
-                    measureMode = MeasureMode.EXACT;
-                    measureInterval = Config.COMMON.defaultInterval.getAsInt();
-                    flags |= SyncFlags.INTERVAL;
-                }
-                syncData(flags);
-            }
-        }
+    // /**
+    //  * Convenience method used by the {@link SettingUpdatePacket} in order
+    //  * to flip a specific setting after a button click on the client.
+    //  *
+    //  * @param setting the setting to update
+    //  */
+    // public void updateSetting(Setting setting) {
+    //     switch (setting) {
+    //         case NUMBER -> {
+    //             displayMode = displayMode == DisplayMode.SHORT ? DisplayMode.LONG : DisplayMode.SHORT;
+    //             syncData(SyncFlags.NUMBER_MODE);
+    //         }
+    //         case MODE -> {
+    //             transferMode = transferMode == TransferMode.TRANSFER ? TransferMode.CONSUME : TransferMode.TRANSFER;
+    //             syncData(SyncFlags.MODE);
+    //         }
+    //         case ACCURACY -> {
+    //             var flags = SyncFlags.ACCURACY;
+    //             if (measureMode == MeasureMode.EXACT) {
+    //                 measureMode = MeasureMode.INTERVAL;
+    //             } else {
+    //                 measureMode = MeasureMode.EXACT;
+    //                 measureInterval = Config.COMMON.defaultInterval.getAsInt();
+    //                 flags |= SyncFlags.INTERVAL;
+    //             }
+    //             syncData(flags);
+    //         }
+    //     }
+    // }
+
+    // /**
+    //  * Syncs data to clients tracking the current with a {@link ClientSyncPacket}.
+    //  * <p>
+    //  * Different flags from the sync flags can be passed to define what should be included
+    //  * in the packet to avoid unnecessary data being sent.
+    //  *
+    //  * @param flags the flags of the data to sync
+    //  */
+    // public void syncData(int flags) {
+    //     if (level == null || level.isClientSide) return;
+    //     var packet = new ClientSyncPacket(
+    //         worldPosition,
+    //         flags,
+    //         sideConfig,
+    //         energyRate,
+    //         displayMode,
+    //         connectionStatus,
+    //         transferMode,
+    //         measureMode,
+    //         measureInterval,
+    //         zeroTolerance
+    //     );
+    //     PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), packet);
+    // }
+
+    private void updateStatus(ConnectionStatus newConnectionStatus) {
+        if (connectionStatus == newConnectionStatus) return;
+        connectionStatus = newConnectionStatus;
     }
 
-    /**
-     * Syncs data to clients tracking the current with a {@link ClientSyncPacket}.
-     * <p>
-     * Different flags from the sync flags can be passed to define what should be included
-     * in the packet to avoid unnecessary data being sent.
-     *
-     * @param flags the flags of the data to sync
-     */
-    public void syncData(int flags) {
-        if (level == null || level.isClientSide) return;
-        var packet = new ClientSyncPacket(
-            worldPosition,
-            flags,
-            sideConfig,
-            energyRate,
-            displayMode,
-            connectionStatus,
-            transferMode,
-            measureMode,
-            measureInterval,
-            zeroTolerance
-        );
-        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), packet);
+    public IoConfig getIoConfig() {
+        return ioConfig;
     }
 
-    /**
-     * Updates the status to the specified value.
-     * If it was different from the previous value, it will trigger a client sync.
-     *
-     * @param newStatus the new setting to set
-     */
-    private void updateStatus(ConnectionStatus newStatus) {
-        var oldStatus = connectionStatus;
-        connectionStatus = newStatus;
-        energyPerInterval = 0;
-        if (oldStatus != newStatus) {
-            var flags = SyncFlags.STATUS;
-            if (newStatus != ConnectionStatus.TRANSFERRING) {
-                energyPerIntervalHistory.clear();
-                energyRate = 0;
-                flags |= SyncFlags.TRANSFER_RATE;
-            }
-            syncData(flags);
-        }
+    public DisplayMode getDisplayMode() {
+        return displayMode;
     }
 
-    public int getThreshold() {
-        return zeroTolerance;
+    public TransferMode getTransferMode() {
+        return transferMode;
     }
 
-    public void setThreshold(int threshold) {
-        this.zeroTolerance = threshold;
+    public MeasureMode getMeasureMode() {
+        return measureMode;
     }
 
     public int getMeasureInterval() {
         return measureInterval;
     }
 
-    public void setInterval(int interval) {
-        this.measureInterval = interval;
+    public int getZeroTolerance() {
+        return zeroTolerance;
     }
 
     public double getEnergyRate() {
         return Math.round(energyRate * 1_000.0) / 1_000.0;
-    }
-
-    public void setEnergyRate(double transferRate) {
-        this.energyRate = transferRate;
     }
 
     public ConnectionStatus getConnectionStatus() {
@@ -249,37 +231,5 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
             return transferMode == TransferMode.CONSUME ? ConnectionStatus.CONSUMING : ConnectionStatus.TRANSFERRING;
         }
         return connectionStatus;
-    }
-
-    public void setConnectionStatus(ConnectionStatus connectionStatus) {
-        this.connectionStatus = connectionStatus;
-    }
-
-    public DisplayMode getDisplayMode() {
-        return displayMode;
-    }
-
-    public void setNumberMode(DisplayMode numberMode) {
-        this.displayMode = numberMode;
-    }
-
-    public MeasureMode getMeasureMode() {
-        return measureMode;
-    }
-
-    public void setAccuracy(MeasureMode accuracy) {
-        this.measureMode = accuracy;
-    }
-
-    public TransferMode getTransferMode() {
-        return transferMode;
-    }
-
-    public void setMode(TransferMode mode) {
-        this.transferMode = mode;
-    }
-
-    public IoConfig getIoConfig() {
-        return ioConfig;
     }
 }
