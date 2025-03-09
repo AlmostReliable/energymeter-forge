@@ -5,6 +5,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -20,7 +21,7 @@ import com.github.almostreliable.energymeter.util.TypeEnums;
 
 import org.jetbrains.annotations.Nullable;
 
-public class MonitorBlockEntity extends BlockEntity implements TickableMenuProvider {
+public class MonitorBlockEntity extends BlockEntity implements TickableBlockEntity, MenuProvider {
 
     private int width;
     private int height;

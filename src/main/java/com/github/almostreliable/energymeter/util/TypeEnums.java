@@ -43,14 +43,32 @@ public final class TypeEnums {
      * Enum to represent the status of the meter.
      */
     public enum Status {
-        DISCONNECTED, CONNECTED, SPLITTING, TRANSFERRING, CONSUMING
+        DISCONNECTED, IDLE, SPLITTING, TRANSFERRING, CONSUMING
     }
 
     /**
      * Enum to represent the mode of the meter.
      */
     public enum TransferMode {
-        SPLIT, TRANSFER, CONSUME
+        SPLIT(true, true),
+        TRANSFER(true, true),
+        CONSUME(true, false);
+
+        private final boolean requiresInput;
+        private final boolean requiresOutput;
+
+        TransferMode(boolean requiresInput, boolean requiresOutput) {
+            this.requiresInput = requiresInput;
+            this.requiresOutput = requiresOutput;
+        }
+
+        public boolean requiresInput() {
+            return requiresInput;
+        }
+
+        public boolean requiresOutput() {
+            return requiresOutput;
+        }
     }
 
     /**

@@ -83,7 +83,7 @@ public final class Registration {
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, METER_BLOCK_ENTITY.get(), MeterBlockEntity::getEnergyStorage);
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, METER_BLOCK_ENTITY.get(), MeterBlockEntity::getEnergyCapability);
     }
 
     private static <B extends Block> DeferredBlock<B> registerBlock(

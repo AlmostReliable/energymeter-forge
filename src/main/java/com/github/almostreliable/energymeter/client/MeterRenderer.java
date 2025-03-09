@@ -80,7 +80,7 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity> {
         stack.scale(PIXEL_SIZE, PIXEL_SIZE, 0);
 
         // format the current flow rate and draw it according to its size, so it's centered
-        var text = TextUtils.formatEnergy(entity.getTransferRate(), false);
+        var text = TextUtils.formatEnergy(entity.getEnergyRate(), false);
         var flowRate = text.getA();
         var unit = text.getB() + "/t";
         // flow rate

@@ -107,7 +107,7 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
 
     @LuaFunction(mainThread = true)
     public final MethodResult getTransferRate() {
-        return MethodResult.of(entity.getTransferRate());
+        return MethodResult.of(entity.getEnergyRate());
     }
 
     @LuaFunction(mainThread = true)
