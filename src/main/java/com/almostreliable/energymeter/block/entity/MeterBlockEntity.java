@@ -9,11 +9,11 @@ import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.ClientSyncPacket;
 import com.almostreliable.energymeter.network.SettingUpdatePacket;
 import com.almostreliable.energymeter.util.TextUtils;
+import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.Setting;
-import com.almostreliable.energymeter.util.TypeEnums.Status;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 import com.almostreliable.energymeter.util.TypeEnums.TranslateType;
 
@@ -60,13 +60,13 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
     // tracking & display
     private double energyRate;
     private double zeroThreshold;
-    private Status status = Status.DISCONNECTED;
+    private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
 
         this.ioConfig = new IoConfig();
-        this.energyHandler = new EnergyHandler(FacingEntityBlock.getFacingDir(state), ioConfig::getSetting, this::getMode);
+        this.energyHandler = new EnergyHandler(FacingEntityBlock.getFacingDir(state), ioConfig::getSetting, this::getTransferMode);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
         }
 
         if ((transferMode.requiresInput() && !ioConfig.hasInput()) || (transferMode.requiresOutput() && !ioConfig.hasOutput())) {
-            updateStatus(Status.DISCONNECTED);
+            updateStatus(ConnectionStatus.DISCONNECTED);
             return;
         }
 
@@ -122,9 +122,9 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
                 syncData(SyncFlags.TRANSFER_RATE);
 
                 if (energyRate > 0) {
-                    updateStatus(Status.TRANSFERRING);
+                    updateStatus(ConnectionStatus.TRANSFERRING);
                 } else {
-                    updateStatus(Status.IDLE);
+                    updateStatus(ConnectionStatus.IDLE);
                 }
             }
 
@@ -190,7 +190,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
             sideConfig,
             energyRate,
             displayMode,
-            status,
+            connectionStatus,
             transferMode,
             measureMode,
             measureInterval,
@@ -205,13 +205,13 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
      *
      * @param newStatus the new setting to set
      */
-    private void updateStatus(Status newStatus) {
-        var oldStatus = status;
-        status = newStatus;
+    private void updateStatus(ConnectionStatus newStatus) {
+        var oldStatus = connectionStatus;
+        connectionStatus = newStatus;
         energyPerInterval = 0;
         if (oldStatus != newStatus) {
             var flags = SyncFlags.STATUS;
-            if (newStatus != Status.TRANSFERRING) {
+            if (newStatus != ConnectionStatus.TRANSFERRING) {
                 energyPerIntervalHistory.clear();
                 energyRate = 0;
                 flags |= SyncFlags.TRANSFER_RATE;
@@ -228,7 +228,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
         this.zeroTolerance = threshold;
     }
 
-    public int getInterval() {
+    public int getMeasureInterval() {
         return measureInterval;
     }
 
@@ -244,18 +244,18 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
         this.energyRate = transferRate;
     }
 
-    public Status getStatus() {
-        if (status == Status.TRANSFERRING) {
-            return transferMode == TransferMode.CONSUME ? Status.CONSUMING : Status.TRANSFERRING;
+    public ConnectionStatus getConnectionStatus() {
+        if (connectionStatus == ConnectionStatus.TRANSFERRING) {
+            return transferMode == TransferMode.CONSUME ? ConnectionStatus.CONSUMING : ConnectionStatus.TRANSFERRING;
         }
-        return status;
+        return connectionStatus;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setConnectionStatus(ConnectionStatus connectionStatus) {
+        this.connectionStatus = connectionStatus;
     }
 
-    public DisplayMode getNumberMode() {
+    public DisplayMode getDisplayMode() {
         return displayMode;
     }
 
@@ -263,7 +263,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
         this.displayMode = numberMode;
     }
 
-    public MeasureMode getAccuracy() {
+    public MeasureMode getMeasureMode() {
         return measureMode;
     }
 
@@ -271,7 +271,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
         this.measureMode = accuracy;
     }
 
-    public TransferMode getMode() {
+    public TransferMode getTransferMode() {
         return transferMode;
     }
 

@@ -42,7 +42,7 @@ public final class TypeEnums {
     /**
      * Enum to represent the status of the meter.
      */
-    public enum Status {
+    public enum ConnectionStatus {
         DISCONNECTED, IDLE, SPLITTING, TRANSFERRING, CONSUMING
     }
 

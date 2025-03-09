@@ -2,9 +2,9 @@ package com.almostreliable.energymeter.network;
 
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.core.Constants.SyncFlags;
+import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
-import com.almostreliable.energymeter.util.TypeEnums.Status;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 import com.almostreliable.energymeter.util.Utils;
 
@@ -33,7 +33,7 @@ public class ClientSyncPacket implements CustomPacketPayload {
     private CompoundTag sideConfig;
     private double transferRate;
     private DisplayMode numberMode;
-    private Status status;
+    private ConnectionStatus status;
     private TransferMode mode;
     private MeasureMode accuracy;
     private int interval;
@@ -42,7 +42,7 @@ public class ClientSyncPacket implements CustomPacketPayload {
     @SuppressWarnings("java:S107")
     public ClientSyncPacket(
         BlockPos pos, int flags, SideConfigurationOld sideConfig, double transferRate, DisplayMode numberMode,
-        Status status, TransferMode mode, MeasureMode accuracy, int interval, int threshold
+        ConnectionStatus status, TransferMode mode, MeasureMode accuracy, int interval, int threshold
     ) {
         this.pos = pos;
         this.flags = flags;
@@ -78,7 +78,7 @@ public class ClientSyncPacket implements CustomPacketPayload {
         if ((packet.flags & SyncFlags.SIDE_CONFIG) != 0) packet.sideConfig = Objects.requireNonNull(buffer.readNbt());
         if ((packet.flags & SyncFlags.TRANSFER_RATE) != 0) packet.transferRate = buffer.readDouble();
         if ((packet.flags & SyncFlags.NUMBER_MODE) != 0) packet.numberMode = DisplayMode.values()[buffer.readInt()];
-        if ((packet.flags & SyncFlags.STATUS) != 0) packet.status = Status.values()[buffer.readInt()];
+        if ((packet.flags & SyncFlags.STATUS) != 0) packet.status = ConnectionStatus.values()[buffer.readInt()];
         if ((packet.flags & SyncFlags.MODE) != 0) packet.mode = TransferMode.values()[buffer.readInt()];
         if ((packet.flags & SyncFlags.ACCURACY) != 0) packet.accuracy = MeasureMode.values()[buffer.readInt()];
         if ((packet.flags & SyncFlags.INTERVAL) != 0) packet.interval = buffer.readInt();
@@ -101,7 +101,7 @@ public class ClientSyncPacket implements CustomPacketPayload {
                 }
                 if ((payload.flags & SyncFlags.TRANSFER_RATE) != 0) tile.setEnergyRate(payload.transferRate);
                 if ((payload.flags & SyncFlags.NUMBER_MODE) != 0) tile.setNumberMode(payload.numberMode);
-                if ((payload.flags & SyncFlags.STATUS) != 0) tile.setStatus(payload.status);
+                if ((payload.flags & SyncFlags.STATUS) != 0) tile.setConnectionStatus(payload.status);
                 if ((payload.flags & SyncFlags.MODE) != 0) tile.setMode(payload.mode);
                 if ((payload.flags & SyncFlags.ACCURACY) != 0) tile.setAccuracy(payload.accuracy);
                 if ((payload.flags & SyncFlags.INTERVAL) != 0) tile.setInterval(payload.interval);

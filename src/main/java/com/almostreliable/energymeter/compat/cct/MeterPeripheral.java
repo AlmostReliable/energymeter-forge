@@ -63,11 +63,11 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
         Map<String, Object> data = new HashMap<>();
         if ((flags & SyncFlags.SIDE_CONFIG) != 0) data.put(SIDE_CONFIG_ID, entity.getSideConfig().asStringMap());
         if ((flags & SyncFlags.TRANSFER_RATE) != 0) data.put(TRANSFER_RATE_ID, entity.getEnergyRate());
-        if ((flags & SyncFlags.NUMBER_MODE) != 0) data.put(DISPLAY_MODE_ID, entity.getNumberMode().name());
-        if ((flags & SyncFlags.STATUS) != 0) data.put(STATUS_ID, entity.getStatus().name());
-        if ((flags & SyncFlags.MODE) != 0) data.put(TRANSFER_MODE_ID, entity.getMode().name());
-        if ((flags & SyncFlags.ACCURACY) != 0) data.put(MEASURE_MODE_ID, entity.getAccuracy().name());
-        if ((flags & SyncFlags.INTERVAL) != 0) data.put(MEASURE_INTERVAL_ID, entity.getInterval());
+        if ((flags & SyncFlags.NUMBER_MODE) != 0) data.put(DISPLAY_MODE_ID, entity.getDisplayMode().name());
+        if ((flags & SyncFlags.STATUS) != 0) data.put(STATUS_ID, entity.getConnectionStatus().name());
+        if ((flags & SyncFlags.MODE) != 0) data.put(TRANSFER_MODE_ID, entity.getTransferMode().name());
+        if ((flags & SyncFlags.ACCURACY) != 0) data.put(MEASURE_MODE_ID, entity.getMeasureMode().name());
+        if ((flags & SyncFlags.INTERVAL) != 0) data.put(MEASURE_INTERVAL_ID, entity.getMeasureInterval());
         if ((flags & SyncFlags.THRESHOLD) != 0) data.put(ZERO_TOLERANCE_ID, entity.getThreshold());
         computer.queueEvent("em_data_changed", data);
     }
@@ -102,7 +102,7 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
 
     @LuaFunction(mainThread = true)
     public final MethodResult getInterval() {
-        return MethodResult.of(entity.getInterval());
+        return MethodResult.of(entity.getMeasureInterval());
     }
 
     @LuaFunction(mainThread = true)
@@ -117,22 +117,22 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
 
     @LuaFunction(mainThread = true)
     public final MethodResult getNumberMode() {
-        return MethodResult.of(entity.getNumberMode().name());
+        return MethodResult.of(entity.getDisplayMode().name());
     }
 
     @LuaFunction(mainThread = true)
     public final MethodResult getMode() {
-        return MethodResult.of(entity.getMode().name());
+        return MethodResult.of(entity.getTransferMode().name());
     }
 
     @LuaFunction(mainThread = true)
     public final MethodResult getAccuracy() {
-        return MethodResult.of(entity.getAccuracy().name());
+        return MethodResult.of(entity.getMeasureMode().name());
     }
 
     @LuaFunction(mainThread = true)
     public final MethodResult getStatus() {
-        return MethodResult.of(entity.getStatus().name());
+        return MethodResult.of(entity.getConnectionStatus().name());
     }
 
     @LuaFunction(mainThread = true)
