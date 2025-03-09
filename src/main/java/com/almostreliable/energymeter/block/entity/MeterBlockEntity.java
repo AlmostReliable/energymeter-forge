@@ -278,4 +278,8 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
     public void setMode(TransferMode mode) {
         this.transferMode = mode;
     }
+
+    public IoConfig getIoConfig() {
+        return ioConfig;
+    }
 }
