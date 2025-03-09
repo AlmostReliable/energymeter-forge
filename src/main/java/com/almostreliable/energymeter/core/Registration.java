@@ -9,8 +9,9 @@ import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.menu.MonitorMenu;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -50,8 +52,8 @@ public final class Registration {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MonitorBlockEntity>> MONITOR_BLOCK_ENTITY = registerBlockEntity(MONITOR_BLOCK, MonitorBlockEntity::new);
 
     // menus
-    public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = registerMenu(METER_BLOCK, MeterMenu::new);
-    public static final DeferredHolder<MenuType<?>, MenuType<MonitorMenu>> MONITOR_MENU = registerMenu(MONITOR_BLOCK, MonitorMenu::new);
+    public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = registerMenu(METER_BLOCK, MeterBlockEntity.class, MeterMenu::new);
+    public static final DeferredHolder<MenuType<?>, MenuType<MonitorMenu>> MONITOR_MENU = registerMenu(MONITOR_BLOCK, MonitorBlockEntity.class, MonitorMenu::new);
 
     // creative tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
@@ -106,9 +108,25 @@ public final class Registration {
         return BLOCK_ENTITIES.register(block.getId().getPath(), () -> BlockEntityType.Builder.of(factory, block.get()).build(null));
     }
 
-    private static <M extends AbstractContainerMenu> DeferredHolder<MenuType<?>, MenuType<M>> registerMenu(
-        DeferredBlock<?> block, MenuType.MenuSupplier<M> factory
+    private static <M extends AbstractContainerMenu, E extends BlockEntity> DeferredHolder<MenuType<?>, MenuType<M>> registerMenu(
+        DeferredBlock<?> block, Class<E> blockEntityClass, MenuSupplier<M, E> factory
     ) {
-        return MENUS.register(block.getId().getPath(), () -> new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS));
+        return MENUS.register(
+            block.getId().getPath(),
+            () -> IMenuTypeExtension.create((wid, playerInventory, data) -> {
+                BlockPos pos = data.readBlockPos();
+                BlockEntity blockEntity = playerInventory.player.level().getBlockEntity(pos);
+                if (!blockEntityClass.isInstance(blockEntity)) {
+                    throw new IllegalStateException("Block entity is not of the expected type");
+                }
+                return factory.create(wid, playerInventory, blockEntityClass.cast(blockEntity));
+            })
+        );
+    }
+
+    @FunctionalInterface
+    public interface MenuSupplier<M extends AbstractContainerMenu, E extends BlockEntity> {
+
+        M create(int wid, Inventory playerInventory, E blockEntity);
     }
 }

@@ -27,7 +27,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -95,8 +94,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int wid, Inventory playerInventory, Player player) {
-        if (level == null) return null;
-        return new MeterMenu(wid, playerInventory, ContainerLevelAccess.create(level, worldPosition));
+        return new MeterMenu(wid, playerInventory, this);
     }
 
     @Override
