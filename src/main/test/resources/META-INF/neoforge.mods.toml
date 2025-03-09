@@ -1,0 +1,8 @@
+modLoader = "javafml"
+loaderVersion = "[2,)"
+license = "ARR"
+
+[[mods]]
+modId = "testmod"
+version = "0.0.0"
+displayName = "Test Mod"

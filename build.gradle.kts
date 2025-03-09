@@ -5,6 +5,7 @@ plugins {
 
 almostgradle.setup {
     withSourcesJar = false
+    testMod = true
     dataGen = "src/main/generated"
 }
 
