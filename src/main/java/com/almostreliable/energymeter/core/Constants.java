@@ -1,7 +1,5 @@
 package com.almostreliable.energymeter.core;
 
-import com.almostreliable.energymeter.network.ClientSyncPacket;
-
 @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
 public interface Constants {
 
@@ -45,20 +43,5 @@ public interface Constants {
         int PINK = 16_711_782;
         int ROSE = 16_711_920;
         int RED = 14_286_889;
-    }
-
-    /**
-     * Flags to ensure only required data is synced in a {@link ClientSyncPacket}.
-     */
-    interface SyncFlags {
-
-        int SIDE_CONFIG = 1;
-        int TRANSFER_RATE = 1 << 1;
-        int NUMBER_MODE = 1 << 2;
-        int STATUS = 1 << 3;
-        int MODE = 1 << 4;
-        int ACCURACY = 1 << 5;
-        int INTERVAL = 1 << 6;
-        int THRESHOLD = 1 << 7;
     }
 }
