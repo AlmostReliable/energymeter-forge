@@ -1,10 +1,10 @@
 package java.testmod;
 
+import com.almostreliable.energymeter.block.entity.TickableBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
-import com.github.almostreliable.energymeter.block.entity.TickableBlock;
 
 import org.jetbrains.annotations.Nullable;
 
