@@ -1,4 +1,4 @@
-package java.testmod;
+package testmod;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -34,12 +34,17 @@ public final class Registration {
     public static void init(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
+        BLOCK_ENTITIES.register(modEventBus);
 
         modEventBus.addListener(Registration::registerCapabilities);
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ENERGY_BLOCK_ENTITY.get(), EnergyBlockEntity::getEnergyCapability);
+        event.registerBlockEntity(
+            Capabilities.EnergyStorage.BLOCK,
+            ENERGY_BLOCK_ENTITY.get(),
+            EnergyBlockEntity::getEnergyCapability
+        );
     }
 
     private static <B extends Block> DeferredBlock<B> registerBlock(

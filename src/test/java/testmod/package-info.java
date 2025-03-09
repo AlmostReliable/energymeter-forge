@@ -1,4 +1,4 @@
 @NonnullDefault
-package com.almostreliable.energymeter.client.gui;
+package testmod;
 
 import org.lwjgl.system.NonnullDefault;

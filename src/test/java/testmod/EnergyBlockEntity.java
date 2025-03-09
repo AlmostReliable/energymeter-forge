@@ -1,4 +1,4 @@
-package java.testmod;
+package testmod;
 
 import com.almostreliable.energymeter.block.entity.TickableBlockEntity;
 

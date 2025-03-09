@@ -1,4 +1,4 @@
-package java.testmod;
+package testmod;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
