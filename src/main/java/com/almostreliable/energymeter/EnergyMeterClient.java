@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter;
 
 import com.almostreliable.energymeter.client.MeterRenderer;
-import com.almostreliable.energymeter.client.gui.MeterScreen;
+import com.almostreliable.energymeter.client.screen.MeterScreen;
 import com.almostreliable.energymeter.client.screen.MonitorScreen;
 import com.almostreliable.energymeter.core.Registration;
 

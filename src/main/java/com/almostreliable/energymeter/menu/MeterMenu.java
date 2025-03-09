@@ -11,6 +11,8 @@ import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -27,10 +29,10 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     public MeterMenu(int wid, Inventory playerInventory, MeterBlockEntity blockEntity) {
         super(Registration.METER_MENU.get(), wid, playerInventory, blockEntity);
         this.ioConfig = new IoConfig();
-        setupSyncing();
     }
 
-    private void setupSyncing() {
+    @Override
+    public void setupDataHandlers() {
         menuSynchronizer.addDataHandler(new DelegateDataHandler(blockEntity.getIoConfig(), ioConfig));
         menuSynchronizer.addDataHandler(new EnumDataHandler<>(
             blockEntity::getDisplayMode,
@@ -53,6 +55,11 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
             ConnectionStatus.values()
         ));
         menuSynchronizer.addDataHandler(new IntegerDataHandler(blockEntity::getMeasureInterval, v -> this.measureInterval = v));
+    }
+
+    @Override
+    public void receiveClientData(ServerPlayer player, CompoundTag data) {
+
     }
 
     // region syncing client getters

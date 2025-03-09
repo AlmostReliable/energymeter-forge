@@ -3,6 +3,7 @@ package com.almostreliable.energymeter.menu;
 import com.almostreliable.energymeter.network.menu.MenuSynchronizer;
 import com.almostreliable.energymeter.network.packet.MenuSyncPacket;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,6 +28,8 @@ public abstract class SynchronizedContainerMenu<E extends BlockEntity> extends A
         this.blockEntity = blockEntity;
         this.menuSynchronizer = new MenuSynchronizer();
         this.access = ContainerLevelAccess.create(playerInventory.player.level(), blockEntity.getBlockPos());
+        // noinspection AbstractMethodCallInConstructor
+        setupDataHandlers();
     }
 
     @Override
@@ -57,11 +60,11 @@ public abstract class SynchronizedContainerMenu<E extends BlockEntity> extends A
 
     public void receiveServerData(FriendlyByteBuf data) {
         menuSynchronizer.decode(data);
-        onServerDataChanged();
     }
 
-    @SuppressWarnings("NoopMethodInAbstractClass")
-    public void onServerDataChanged() {}
+    public abstract void setupDataHandlers();
+
+    public abstract void receiveClientData(ServerPlayer player, CompoundTag data);
 
     @SuppressWarnings("resource")
     public boolean isClient() {

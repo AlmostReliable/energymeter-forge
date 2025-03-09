@@ -1,5 +1,6 @@
 package com.almostreliable.energymeter.network;
 
+import com.almostreliable.energymeter.network.packet.ClientActionPacket;
 import com.almostreliable.energymeter.network.packet.MenuSyncPacket;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -23,11 +24,6 @@ public final class PacketHandler {
 
         // server to client
         registrar.playToClient(
-            ClientSyncPacket.TYPE,
-            ClientSyncPacket.STREAM_CODEC,
-            wrapHandler(ClientSyncPacket::handle)
-        );
-        registrar.playToClient(
             MenuSyncPacket.TYPE,
             MenuSyncPacket.STREAM_CODEC,
             wrapHandler(MenuSyncPacket::handle)
@@ -35,19 +31,9 @@ public final class PacketHandler {
 
         // client to server
         registrar.playToServer(
-            AccuracyUpdatePacket.TYPE,
-            AccuracyUpdatePacket.STREAM_CODEC,
-            wrapHandler(AccuracyUpdatePacket::handle)
-        );
-        registrar.playToServer(
-            IOUpdatePacket.TYPE,
-            IOUpdatePacket.STREAM_CODEC,
-            wrapHandler(IOUpdatePacket::handle)
-        );
-        registrar.playToServer(
-            SettingUpdatePacket.TYPE,
-            SettingUpdatePacket.STREAM_CODEC,
-            wrapHandler(SettingUpdatePacket::handle)
+            ClientActionPacket.TYPE,
+            ClientActionPacket.STREAM_CODEC,
+            wrapHandler(ClientActionPacket::handle)
         );
     }
 
