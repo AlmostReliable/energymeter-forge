@@ -4,6 +4,7 @@ import com.almostreliable.energymeter.block.entity.TickableBlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -58,8 +59,11 @@ public abstract class FacingEntityBlock extends TickableBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide && !player.isShiftKeyDown()) {
-            player.openMenu(getMenuProvider(state, level, pos));
+        if (player instanceof ServerPlayer serverPlayer && !serverPlayer.isShiftKeyDown()) {
+            MenuProvider menuProvider = getMenuProvider(state, level, pos);
+            if (menuProvider != null) {
+                serverPlayer.openMenu(menuProvider, pos);
+            }
         }
 
         return InteractionResult.sidedSuccess(level.isClientSide);
