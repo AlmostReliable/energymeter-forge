@@ -115,9 +115,10 @@ public final class Registration {
             block.getId().getPath(),
             () -> IMenuTypeExtension.create((wid, playerInventory, data) -> {
                 BlockPos pos = data.readBlockPos();
+                // noinspection resource
                 BlockEntity blockEntity = playerInventory.player.level().getBlockEntity(pos);
                 if (!blockEntityClass.isInstance(blockEntity)) {
-                    throw new IllegalStateException("Block entity is not of the expected type");
+                    throw new IllegalStateException("block entity is not of the expected type");
                 }
                 return factory.create(wid, playerInventory, blockEntityClass.cast(blockEntity));
             })
