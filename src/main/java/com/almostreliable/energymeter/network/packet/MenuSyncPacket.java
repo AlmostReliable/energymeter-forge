@@ -37,13 +37,12 @@ public final class MenuSyncPacket implements CustomPacketPayload {
 
     private static void encode(MenuSyncPacket packet, FriendlyByteBuf buffer) {
         buffer.writeInt(packet.wid);
-        buffer.writeInt(packet.data.readableBytes());
-        buffer.writeBytes(packet.data, packet.data.readableBytes());
+        buffer.writeBytes(packet.data.copy());
     }
 
     private static MenuSyncPacket decode(FriendlyByteBuf buffer) {
         int wid = buffer.readInt();
-        int size = buffer.readInt();
+        int size = buffer.readableBytes();
         FriendlyByteBuf data = new FriendlyByteBuf(buffer.readBytes(size));
         return new MenuSyncPacket(wid, data);
     }
