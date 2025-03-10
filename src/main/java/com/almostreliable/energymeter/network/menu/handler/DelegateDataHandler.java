@@ -4,12 +4,14 @@ import com.almostreliable.energymeter.network.menu.DataHandler;
 
 import net.minecraft.network.FriendlyByteBuf;
 
+import java.util.function.Supplier;
+
 public class DelegateDataHandler implements DataHandler {
 
     private final DataHandler serverDelegate;
-    private final DataHandler clientDelegate;
+    private final Supplier<DataHandler> clientDelegate;
 
-    public DelegateDataHandler(DataHandler serverDelegate, DataHandler clientDelegate) {
+    public DelegateDataHandler(DataHandler serverDelegate, Supplier<DataHandler> clientDelegate) {
         this.serverDelegate = serverDelegate;
         this.clientDelegate = clientDelegate;
     }
@@ -21,7 +23,7 @@ public class DelegateDataHandler implements DataHandler {
 
     @Override
     public void decode(FriendlyByteBuf buffer) {
-        clientDelegate.decode(buffer);
+        clientDelegate.get().decode(buffer);
     }
 
     @Override

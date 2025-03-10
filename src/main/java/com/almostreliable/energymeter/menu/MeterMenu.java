@@ -19,7 +19,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
-    private final IoConfig ioConfig;
+    private final IoConfig ioConfig = new IoConfig();
     private DisplayMode displayMode = DisplayMode.SHORT;
     private TransferMode transferMode = TransferMode.SPLIT;
     private MeasureMode measureMode = MeasureMode.EXACT;
@@ -28,12 +28,11 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     public MeterMenu(int wid, Inventory playerInventory, MeterBlockEntity blockEntity) {
         super(Registration.METER_MENU.get(), wid, playerInventory, blockEntity);
-        this.ioConfig = new IoConfig();
     }
 
     @Override
     public void setupDataHandlers() {
-        menuSynchronizer.addDataHandler(new DelegateDataHandler(blockEntity.getIoConfig(), ioConfig));
+        menuSynchronizer.addDataHandler(new DelegateDataHandler(blockEntity.getIoConfig(), this::getIoConfig));
         menuSynchronizer.addDataHandler(new EnumDataHandler<>(
             blockEntity::getDisplayMode,
             v -> this.displayMode = v,
