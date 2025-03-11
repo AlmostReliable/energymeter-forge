@@ -25,7 +25,7 @@ import testmod.TestUtils;
 @PrefixGameTestTemplate(false)
 public class MeterTests {
 
-    private static final BlockPos DEFAULT_POS = new BlockPos(0, 1, 0);
+    private static final BlockPos DEFAULT_POS = new BlockPos(1, 2, 1);
 
     private static MeterBlockEntity setupMeter(GameTestHelper helper) {
         helper.setBlock(DEFAULT_POS, Registration.METER_BLOCK.get());
