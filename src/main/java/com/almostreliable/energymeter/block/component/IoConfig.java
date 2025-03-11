@@ -29,6 +29,11 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         return directionToSetting.get(direction);
     }
 
+    public void setSetting(Direction direction, TypeEnums.IoSetting setting) {
+        directionToSetting.put(direction, setting);
+        changed = true;
+    }
+
     public boolean hasInput() {
         return directionToSetting.containsValue(TypeEnums.IoSetting.IN);
     }
