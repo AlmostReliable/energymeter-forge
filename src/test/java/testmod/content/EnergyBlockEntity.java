@@ -15,40 +15,45 @@ import testmod.TestRegistration;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 public class EnergyBlockEntity extends BlockEntity implements TickableBlockEntity {
 
     private final EnergyStorage energyStorage = new EnergyStorage(100_000);
-    private int energyToSendPerTick;
+    private final Map<Direction, Integer> energyToSendPerTick = new EnumMap<>(Direction.class);
 
     public EnergyBlockEntity(BlockPos pos, BlockState blockState) {
         super(TestRegistration.ENERGY_BLOCK_ENTITY.get(), pos, blockState);
+        for (Direction direction : Direction.values()) {
+            energyToSendPerTick.put(direction, 0);
+        }
     }
 
     @Nullable
-    public IEnergyStorage getEnergyCapability(@Nullable Direction direction) {
+    public IEnergyStorage getEnergyCapability(@Nullable Direction ignoredDirection) {
         return energyStorage;
     }
 
     @Override
     public void tick(ServerLevel level) {
-        if (energyToSendPerTick <= 0) {
-            return;
-        }
+        for (var entry : energyToSendPerTick.entrySet()) {
+            Direction direction = entry.getKey();
+            int energy = entry.getValue();
+            if (energy == 0) continue;
 
-        for (Direction direction : Direction.values()) {
             IEnergyStorage targetEnergyStorage = level.getCapability(
                 Capabilities.EnergyStorage.BLOCK,
                 worldPosition.relative(direction),
                 direction.getOpposite()
             );
-
             if (targetEnergyStorage == null) continue;
 
-            energyStorage.receiveEnergy(energyToSendPerTick, false);
+            targetEnergyStorage.receiveEnergy(energy, false);
         }
     }
 
-    public void sendEnergyPerTick(int amountPerTick) {
-        energyToSendPerTick = amountPerTick;
+    public void sendEnergyPerTick(Direction direction, int energy) {
+        energyToSendPerTick.put(direction, energy);
     }
 }
