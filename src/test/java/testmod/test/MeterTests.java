@@ -6,6 +6,10 @@ import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.util.TypeEnums;
+import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
+import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
+import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
+import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,6 +41,12 @@ public class MeterTests {
         helper.assertFalse(ioConfig.hasInput(), "energy meter should not have input by default");
         helper.assertFalse(ioConfig.hasOutput(), "energy meter should not have output by default");
         helper.assertFalse(ioConfig.hasChanged(), "energy meter io config should not be marked as changed by default");
+
+        // test enum defaults
+        helper.assertValueEqual(blockEntity.getDisplayMode(), DisplayMode.SHORT, "display mode");
+        helper.assertValueEqual(blockEntity.getTransferMode(), TransferMode.SPLIT, "transfer mode");
+        helper.assertValueEqual(blockEntity.getMeasureMode(), MeasureMode.EXACT, "measure mode");
+        helper.assertValueEqual(blockEntity.getConnectionStatus(), ConnectionStatus.DISCONNECTED, "connection status");
 
         helper.succeed();
     }
