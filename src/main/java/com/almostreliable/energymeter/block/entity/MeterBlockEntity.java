@@ -104,7 +104,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
         }
 
         if ((transferMode.requiresInput() && !ioConfig.hasInput()) || (transferMode.requiresOutput() && !ioConfig.hasOutput())) {
-            updateStatus(ConnectionStatus.DISCONNECTED);
+            connectionStatus = ConnectionStatus.DISCONNECTED;
             return;
         }
 
@@ -116,9 +116,9 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
                 // TODO: send block update to sync new transfer rate to all nearby clients (or maybe packet)
 
                 if (energyRate > 0) {
-                    updateStatus(ConnectionStatus.TRANSFERRING);
+                    connectionStatus = ConnectionStatus.TRANSFERRING;
                 } else {
-                    updateStatus(ConnectionStatus.IDLE);
+                    connectionStatus = ConnectionStatus.IDLE;
                 }
             }
 
@@ -192,11 +192,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
     //     );
     //     PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), packet);
     // }
-
-    private void updateStatus(ConnectionStatus newConnectionStatus) {
-        if (connectionStatus == newConnectionStatus) return;
-        connectionStatus = newConnectionStatus;
-    }
 
     public IoConfig getIoConfig() {
         return ioConfig;
