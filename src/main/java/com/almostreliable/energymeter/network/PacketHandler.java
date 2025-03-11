@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.network;
 
 import com.almostreliable.energymeter.network.packet.ClientActionPacket;
+import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
 import com.almostreliable.energymeter.network.packet.MenuSyncPacket;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -27,6 +28,11 @@ public final class PacketHandler {
             MenuSyncPacket.TYPE,
             MenuSyncPacket.STREAM_CODEC,
             wrapHandler(MenuSyncPacket::handle)
+        );
+        registrar.playToClient(
+            EnergyRateUpdatePacket.TYPE,
+            EnergyRateUpdatePacket.STREAM_CODEC,
+            wrapHandler(EnergyRateUpdatePacket::handle)
         );
 
         // client to server

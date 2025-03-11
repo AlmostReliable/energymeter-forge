@@ -6,6 +6,7 @@ import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MeterMenu;
+import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
 import com.almostreliable.energymeter.util.TextUtils;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
@@ -26,7 +27,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -113,7 +117,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
             double oldEnergyRate = energyRate;
             energyRate = average / measureInterval;
             if (oldEnergyRate != energyRate) {
-                // TODO: send block update to sync new transfer rate to all nearby clients (or maybe packet)
+                PacketDistributor.sendToPlayersTrackingChunk(
+                    level,
+                    level.getChunk(worldPosition).getPos(),
+                    new EnergyRateUpdatePacket(worldPosition, energyRate)
+                );
 
                 if (energyRate > 0) {
                     connectionStatus = ConnectionStatus.TRANSFERRING;
@@ -219,6 +227,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
 
     public double getEnergyRate() {
         return Math.round(energyRate * 1_000.0) / 1_000.0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void setEnergyRate(double energyRate) {
+        this.energyRate = energyRate;
     }
 
     public ConnectionStatus getConnectionStatus() {
