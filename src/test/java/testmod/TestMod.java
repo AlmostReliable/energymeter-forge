@@ -9,6 +9,6 @@ public final class TestMod {
     public static final String MOD_ID = "testmod";
 
     public TestMod(IEventBus modEventBus) {
-        Registration.init(modEventBus);
+        TestRegistration.init(modEventBus);
     }
 }

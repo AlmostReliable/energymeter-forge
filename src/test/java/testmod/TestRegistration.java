@@ -14,9 +14,12 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import testmod.content.EnergyBlock;
+import testmod.content.EnergyBlockEntity;
+
 import java.util.function.Function;
 
-public final class Registration {
+public final class TestRegistration {
 
     // @formatter:off
 
@@ -29,14 +32,14 @@ public final class Registration {
 
     // @formatter:on
 
-    private Registration() {}
+    private TestRegistration() {}
 
     public static void init(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);
 
-        modEventBus.addListener(Registration::registerCapabilities);
+        modEventBus.addListener(TestRegistration::registerCapabilities);
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {

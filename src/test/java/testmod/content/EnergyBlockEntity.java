@@ -1,4 +1,4 @@
-package testmod;
+package testmod.content;
 
 import com.almostreliable.energymeter.block.entity.TickableBlockEntity;
 
@@ -11,6 +11,8 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
+import testmod.TestRegistration;
+
 import org.jetbrains.annotations.Nullable;
 
 public class EnergyBlockEntity extends BlockEntity implements TickableBlockEntity {
@@ -19,7 +21,7 @@ public class EnergyBlockEntity extends BlockEntity implements TickableBlockEntit
     private int energyToSendPerTick;
 
     public EnergyBlockEntity(BlockPos pos, BlockState blockState) {
-        super(Registration.ENERGY_BLOCK_ENTITY.get(), pos, blockState);
+        super(TestRegistration.ENERGY_BLOCK_ENTITY.get(), pos, blockState);
     }
 
     @Nullable
