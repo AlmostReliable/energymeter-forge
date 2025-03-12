@@ -44,6 +44,8 @@ import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
 public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity, MenuProvider {
 
+    public static final int TICK_TIME = 5;
+
     // components
     private final IoConfig ioConfig;
     private final EnergyHandler energyHandler;
@@ -56,13 +58,13 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
     private int zeroTolerance = Config.COMMON.defaultInterval.getAsInt();
 
     // tracking & display
+    private int tickDelay;
     private double energyRate;
     private double zeroThreshold;
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
-
         this.ioConfig = new IoConfig();
         this.energyHandler = new EnergyHandler(FacingEntityBlock.getFacingDir(state), ioConfig::getSetting, this::getTransferMode);
     }
@@ -89,6 +91,14 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
         if (tag.contains(ZERO_TOLERANCE_ID)) zeroTolerance = tag.getInt(ZERO_TOLERANCE_ID);
     }
 
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide) {
+            tickDelay = (int) (TICK_TIME - (level.getGameTime() % TICK_TIME));
+        }
+    }
+
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int wid, Inventory playerInventory, Player player) {
@@ -103,41 +113,45 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
 
     @Override
     public void tick(ServerLevel level) {
-        if (level.getGameTime() % measureInterval != 0) {
-            return;
+        if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
+            energyHandler.intervalReached();
         }
 
+        if ((level.getGameTime() + tickDelay) % TICK_TIME == 0) {
+            onTickTimeReached(level);
+        }
+    }
+
+    private void onTickTimeReached(ServerLevel level) {
         if ((transferMode.requiresInput() && !ioConfig.hasInput()) || (transferMode.requiresOutput() && !ioConfig.hasOutput())) {
             connectionStatus = ConnectionStatus.DISCONNECTED;
             return;
         }
 
-        if (energyHandler.hasHistory()) {
-            double average = energyHandler.getAverage();
-            double oldEnergyRate = energyRate;
-            energyRate = average / measureInterval;
-            if (oldEnergyRate != energyRate) {
-                PacketDistributor.sendToPlayersTrackingChunk(
-                    level,
-                    level.getChunk(worldPosition).getPos(),
-                    new EnergyRateUpdatePacket(worldPosition, energyRate)
-                );
+        if (!energyHandler.hasHistory()) return;
 
-                if (energyRate > 0) {
-                    connectionStatus = ConnectionStatus.TRANSFERRING;
-                } else {
-                    connectionStatus = ConnectionStatus.IDLE;
-                }
-            }
+        double average = energyHandler.getAverage();
+        double oldEnergyRate = energyRate;
+        energyRate = average / measureInterval;
+        if (oldEnergyRate != energyRate) {
+            PacketDistributor.sendToPlayersTrackingChunk(
+                level,
+                level.getChunk(worldPosition).getPos(),
+                new EnergyRateUpdatePacket(worldPosition, energyRate)
+            );
 
-            if (measureMode == MeasureMode.INTERVAL) {
-                energyHandler.resetHistory(average);
+            if (energyRate > 0) {
+                connectionStatus = ConnectionStatus.TRANSFERRING;
             } else {
-                energyHandler.resetHistory();
+                connectionStatus = ConnectionStatus.IDLE;
             }
         }
 
-        energyHandler.intervalReached();
+        if (measureMode == MeasureMode.INTERVAL) {
+            energyHandler.resetHistory(average);
+        } else {
+            energyHandler.resetHistory();
+        }
     }
 
     @Nullable

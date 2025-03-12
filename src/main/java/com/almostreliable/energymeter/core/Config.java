@@ -1,5 +1,7 @@
 package com.almostreliable.energymeter.core;
 
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -29,7 +31,8 @@ public final class Config {
 
         private CommonConfig(ModConfigSpec.Builder builder) {
             builder.push(Constants.METER_ID);
-            defaultInterval = builder.comment("Default interval of ticks.").defineInRange("default_interval", 5, 1, 200);
+            defaultInterval = builder.comment("Default interval of ticks.")
+                .defineInRange("default_interval", MeterBlockEntity.TICK_TIME, 1, 200);
             builder.pop();
 
             builder.push(Constants.MONITOR_ID);
