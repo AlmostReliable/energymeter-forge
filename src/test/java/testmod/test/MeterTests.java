@@ -19,7 +19,9 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
+import testmod.TestRegistration;
 import testmod.TestUtils;
+import testmod.content.EnergyBlockEntity;
 
 @GameTestHolder(ModConstants.MOD_ID)
 @PrefixGameTestTemplate(false)
@@ -98,5 +100,52 @@ public class MeterTests {
         helper.assertFalse(outputEnergyCap.canReceive(), "energy meter output capability should not be able to receive energy");
 
         helper.succeed();
+    }
+
+    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = "empty_test_structure")
+    public void testMeterConsumerMode(GameTestHelper helper) {
+        MeterBlockEntity blockEntity = setupMeter(helper);
+
+        // set io configuration, west to input, east to output
+        blockEntity.getIoConfig().setSetting(Direction.WEST, TypeEnums.IoSetting.IN);
+        blockEntity.getIoConfig().setSetting(Direction.EAST, TypeEnums.IoSetting.OUT);
+
+        // set transfer mode to consume
+        blockEntity.setTransferMode(TransferMode.CONSUME);
+
+        // place test energy blocks on both configured sides
+        helper.setBlock(DEFAULT_POS.relative(Direction.WEST), TestRegistration.ENERGY_BLOCK.get());
+        helper.setBlock(DEFAULT_POS.relative(Direction.EAST), TestRegistration.ENERGY_BLOCK.get());
+        EnergyBlockEntity inputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(Direction.WEST));
+        EnergyBlockEntity outputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(Direction.EAST));
+
+        // test whether both energy blocks are empty
+        IEnergyStorage inputEnergyBlockCap = inputEnergyBlockEntity.getEnergyCapability(null);
+        helper.assertTrue(
+            inputEnergyBlockCap != null && inputEnergyBlockCap.getEnergyStored() == 0,
+            "input energy block should be empty"
+        );
+        IEnergyStorage outputEnergyBlockCap = outputEnergyBlockEntity.getEnergyCapability(null);
+        helper.assertTrue(
+            outputEnergyBlockCap != null && outputEnergyBlockCap.getEnergyStored() == 0,
+            "output energy block should be empty"
+        );
+
+        // let input energy block emit energy towards the meter
+        int energyPerTick = 1_000;
+        inputEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+
+        helper.runAtTickTime(
+            MeterBlockEntity.TICK_TIME + 1,
+            () -> {
+                helper.assertTrue(blockEntity.getEnergyRate() == energyPerTick, "energy rate should be equal to input energy rate");
+                helper.assertTrue(
+                    outputEnergyBlockCap != null && outputEnergyBlockCap.getEnergyStored() == 0,
+                    "output energy block should be empty"
+                );
+
+                helper.succeed();
+            }
+        );
     }
 }
