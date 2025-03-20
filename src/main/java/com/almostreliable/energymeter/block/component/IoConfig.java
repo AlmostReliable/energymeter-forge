@@ -13,16 +13,24 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     private final Map<Direction, TypeEnums.IoSetting> directionToSetting = new EnumMap<>(Direction.class);
+    private final BiConsumer<Direction, TypeEnums.IoSetting> settingChangedListener;
     private boolean changed;
 
-    public IoConfig() {
+    public IoConfig(BiConsumer<Direction, TypeEnums.IoSetting> settingChangedListener) {
+        this.settingChangedListener = settingChangedListener;
+
         for (Direction direction : Direction.values()) {
             directionToSetting.put(direction, TypeEnums.IoSetting.OFF);
         }
+    }
+
+    public IoConfig() {
+        this((direction, setting) -> {});
     }
 
     public TypeEnums.IoSetting getSetting(Direction direction) {
@@ -30,8 +38,11 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     }
 
     public void setSetting(Direction direction, TypeEnums.IoSetting setting) {
+        if (directionToSetting.get(direction) == setting) return;
+
         directionToSetting.put(direction, setting);
         changed = true;
+        settingChangedListener.accept(direction, setting);
     }
 
     public boolean hasInput() {
