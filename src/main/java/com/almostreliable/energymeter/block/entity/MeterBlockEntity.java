@@ -7,21 +7,17 @@ import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
-import com.almostreliable.energymeter.util.TextUtils;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
-import com.almostreliable.energymeter.util.TypeEnums.TranslateType;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -38,12 +34,11 @@ import org.jetbrains.annotations.TestOnly;
 import static com.almostreliable.energymeter.core.Constants.DISPLAY_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
-import static com.almostreliable.energymeter.core.Constants.METER_ID;
 import static com.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
 import static com.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
-public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity, MenuProvider {
+public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEntity, EnergyHandlerHost {
 
     public static final int TICK_TIME = 5;
 
@@ -104,12 +99,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableBlockEntity
     @Override
     public AbstractContainerMenu createMenu(int wid, Inventory playerInventory, Player player) {
         return new MeterMenu(wid, playerInventory, this);
-    }
-
-    @Override
-    public Component getDisplayName() {
-        // TODO: replace with datagen or leave empty
-        return TextUtils.translate(TranslateType.CONTAINER, METER_ID);
     }
 
     @Override

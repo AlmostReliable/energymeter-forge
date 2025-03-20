@@ -19,6 +19,6 @@ public abstract class TickableBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return TickableBlockEntity::tick;
+        return TickableMenuBlockEntity::tick;
     }
 }

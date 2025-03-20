@@ -1,6 +1,6 @@
 package testmod.content;
 
-import com.almostreliable.energymeter.block.entity.TickableBlockEntity;
+import com.almostreliable.energymeter.block.entity.TickableMenuBlockEntity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class EnergyBlockEntity extends BlockEntity implements TickableBlockEntity {
+public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockEntity {
 
     private final EnergyStorage energyStorage = new EnergyStorage(100_000);
     private final Map<Direction, Integer> energyToSendPerTick = new EnumMap<>(Direction.class);

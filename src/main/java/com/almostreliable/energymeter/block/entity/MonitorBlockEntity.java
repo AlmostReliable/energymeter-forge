@@ -3,13 +3,10 @@ package com.almostreliable.energymeter.block.entity;
 import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MonitorMenu;
-import com.almostreliable.energymeter.util.TextUtils;
-import com.almostreliable.energymeter.util.TypeEnums;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
-public class MonitorBlockEntity extends BlockEntity implements TickableBlockEntity, MenuProvider {
+public class MonitorBlockEntity extends BlockEntity implements TickableMenuBlockEntity, MenuProvider {
 
     private int width;
     private int height;
@@ -47,12 +44,6 @@ public class MonitorBlockEntity extends BlockEntity implements TickableBlockEnti
     @Override
     public AbstractContainerMenu createMenu(int wid, Inventory playerInventory, Player player) {
         return new MonitorMenu(wid, playerInventory, this);
-    }
-
-    @Override
-    public Component getDisplayName() {
-        // TODO: replace with datagen or leave empty
-        return TextUtils.translate(TypeEnums.TranslateType.CONTAINER, Constants.MONITOR_ID);
     }
 
     @Override
