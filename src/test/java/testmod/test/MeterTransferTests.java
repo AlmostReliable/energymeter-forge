@@ -29,7 +29,7 @@ public class MeterTransferTests {
         meterBlockEntity.setTransferMode(TypeEnums.TransferMode.CONSUME);
 
         // let input energy block emit energy towards the meter
-        int energyPerTick = 1_000;
+        int energyPerTick = TestUtils.getRandomEnergyRate();
         inputEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
 
         helper.runAtTickTime(

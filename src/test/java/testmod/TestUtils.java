@@ -80,6 +80,10 @@ public final class TestUtils {
         );
     }
 
+    public static int getRandomEnergyRate() {
+        return (int) (Math.random() * 10_000);
+    }
+
     public record MeterWithIoResult(
         MeterBlockEntity meterBlockEntity,
         EnergyBlockEntity inputEnergyBlockEntity,
