@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.block.entity;
 
 import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.component.EnergyHandler;
+import com.almostreliable.energymeter.block.component.EnergyHandlerHost;
 import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Registration;
@@ -62,7 +63,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
         this.ioConfig = new IoConfig();
-        this.energyHandler = new EnergyHandler(FacingEntityBlock.getFacingDir(state), ioConfig::getSetting, this::getTransferMode);
+        this.energyHandler = new EnergyHandler(this, FacingEntityBlock.getFacingDir(state));
     }
 
     @Override
@@ -205,6 +206,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     //     PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), packet);
     // }
 
+    @Override
     public IoConfig getIoConfig() {
         return ioConfig;
     }
@@ -213,6 +215,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         return displayMode;
     }
 
+    @Override
     public TransferMode getTransferMode() {
         return transferMode;
     }

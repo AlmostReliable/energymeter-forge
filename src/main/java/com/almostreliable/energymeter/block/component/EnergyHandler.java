@@ -3,7 +3,9 @@ package com.almostreliable.energymeter.block.component;
 import com.almostreliable.energymeter.util.TypeEnums;
 
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import com.google.common.primitives.Ints;
@@ -14,27 +16,22 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class EnergyHandler {
 
+    private final EnergyHandlerHost host;
     private final Map<Direction, ForwardingEnergyStorage> energyStorage = new EnumMap<>(Direction.class);
     private final List<Double> energyPerIntervalHistory = Collections.synchronizedList(new ArrayList<>());
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> outputCache = new EnumMap<>(Direction.class);
-    private final Supplier<TypeEnums.TransferMode> transferModeSupplier;
 
     private double energyPerInterval;
 
-    public EnergyHandler(
-        Direction facing, Function<Direction, TypeEnums.IoSetting> settingSupplier, Supplier<TypeEnums.TransferMode> transferModeSupplier
-    ) {
-        this.transferModeSupplier = transferModeSupplier;
+    public EnergyHandler(EnergyHandlerHost host, Direction facing) {
+        this.host = host;
 
         for (Direction direction : Direction.values()) {
             if (direction == facing) continue;
-            energyStorage.put(direction, new ForwardingEnergyStorage(this, () -> settingSupplier.apply(direction)));
+            energyStorage.put(direction, new ForwardingEnergyStorage(this, () -> host.getIoConfig().getSetting(direction)));
         }
     }
 
@@ -47,7 +44,10 @@ public class EnergyHandler {
     }
 
     private boolean hasValidOutput() {
-        return outputCache.values().stream().anyMatch(Objects::nonNull);
+        for (var cache : outputCache.values()) {
+            if (cache != null) return true;
+        }
+        return false;
     }
 
     public void resetHistory() {
@@ -73,7 +73,7 @@ public class EnergyHandler {
     }
 
     public int forwardEnergy(int amount, boolean simulate) {
-        if (transferModeSupplier.get() == TypeEnums.TransferMode.CONSUME) {
+        if (host.getTransferMode() == TypeEnums.TransferMode.CONSUME) {
             if (!simulate) energyPerInterval += amount;
             return amount;
         }
@@ -115,7 +115,7 @@ public class EnergyHandler {
         List<IEnergyStorage> result = new ArrayList<>();
 
         for (Direction direction : Direction.values()) {
-            var capabilityCache = outputCache.get(direction);
+            var capabilityCache = getOrSetupCache(direction);
             if (capabilityCache == null) continue;
             IEnergyStorage neighborEnergyStorage = capabilityCache.getCapability();
             if (neighborEnergyStorage == null) continue;
