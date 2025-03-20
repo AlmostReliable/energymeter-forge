@@ -62,7 +62,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
-        this.ioConfig = new IoConfig();
+        this.ioConfig = new IoConfig(this::onIoSettingChanged);
         this.energyHandler = new EnergyHandler(this, FacingEntityBlock.getFacingDir(state));
     }
 
@@ -114,11 +114,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     private void onTickTimeReached(ServerLevel level) {
-        if ((transferMode.requiresInput() && !ioConfig.hasInput()) || (transferMode.requiresOutput() && !ioConfig.hasOutput())) {
-            connectionStatus = ConnectionStatus.DISCONNECTED;
-            return;
-        }
-
         if (!energyHandler.hasHistory()) return;
 
         double average = energyHandler.getAverage();
@@ -142,6 +137,12 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             energyHandler.resetHistory(average);
         } else {
             energyHandler.resetHistory();
+        }
+    }
+
+    private void onIoSettingChanged(Direction direction, IoSetting setting) {
+        if ((transferMode.requiresInput() && !ioConfig.hasInput()) || (transferMode.requiresOutput() && !ioConfig.hasOutput())) {
+            connectionStatus = ConnectionStatus.DISCONNECTED;
         }
     }
 
