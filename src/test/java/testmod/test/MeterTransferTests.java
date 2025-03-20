@@ -1,0 +1,44 @@
+package testmod.test;
+
+import com.almostreliable.energymeter.ModConstants;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.almostreliable.energymeter.util.TypeEnums;
+
+import net.minecraft.core.Direction;
+import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.gametest.GameTestHolder;
+import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+
+import testmod.TestUtils;
+import testmod.content.EnergyBlockEntity;
+
+@GameTestHolder(ModConstants.MOD_ID)
+@PrefixGameTestTemplate(false)
+public class MeterTransferTests {
+
+    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = "empty_test_structure")
+    public void meterConsumerMode(GameTestHelper helper) {
+        TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
+        MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
+        EnergyBlockEntity inputEnergyBlockEntity = meterWithIoResult.inputEnergyBlockEntity();
+        IEnergyStorage outputEnergyBlockCap = meterWithIoResult.outputEnergyBlockCap();
+
+        // set transfer mode to consume
+        meterBlockEntity.setTransferMode(TypeEnums.TransferMode.CONSUME);
+
+        // let input energy block emit energy towards the meter
+        int energyPerTick = 1_000;
+        inputEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+
+        helper.runAtTickTime(
+            MeterBlockEntity.TICK_TIME + 1,
+            () -> {
+                helper.assertTrue(meterBlockEntity.getEnergyRate() == energyPerTick, "energy rate should be equal to input energy rate");
+                helper.assertTrue(outputEnergyBlockCap.getEnergyStored() == 0, "output energy block should be empty");
+                helper.succeed();
+            }
+        );
+    }
+}
