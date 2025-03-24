@@ -5,6 +5,9 @@ import com.almostreliable.energymeter.block.entity.TickableMenuBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -55,5 +58,11 @@ public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockE
 
     public void sendEnergyPerTick(Direction direction, int energy) {
         energyToSendPerTick.put(direction, energy);
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return null;
     }
 }
