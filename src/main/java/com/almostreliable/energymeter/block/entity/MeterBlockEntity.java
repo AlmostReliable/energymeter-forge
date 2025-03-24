@@ -105,7 +105,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @Override
     public void tick(ServerLevel level) {
         if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
-            energyHandler.intervalReached();
+            energyHandler.onIntervalReached();
         }
 
         if ((level.getGameTime() + tickDelay) % TICK_TIME == 0) {

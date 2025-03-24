@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.block.component;
 
-import com.almostreliable.energymeter.util.TypeEnums;
+import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
+import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -43,13 +44,6 @@ public class EnergyHandler {
         return !energyPerIntervalHistory.isEmpty();
     }
 
-    private boolean hasValidOutput() {
-        for (var cache : outputCache.values()) {
-            if (cache != null) return true;
-        }
-        return false;
-    }
-
     public void resetHistory() {
         energyPerIntervalHistory.clear();
     }
@@ -67,13 +61,13 @@ public class EnergyHandler {
         return sum / energyPerIntervalHistory.size();
     }
 
-    public void intervalReached() {
+    public void onIntervalReached() {
         energyPerIntervalHistory.add(energyPerInterval);
         energyPerInterval = 0;
     }
 
     public int forwardEnergy(int amount, boolean simulate) {
-        if (host.getTransferMode() == TypeEnums.TransferMode.CONSUME) {
+        if (host.getTransferMode() == TransferMode.CONSUME) {
             if (!simulate) energyPerInterval += amount;
             return amount;
         }
@@ -112,18 +106,18 @@ public class EnergyHandler {
     }
 
     public Iterable<IEnergyStorage> getValidOutputEnergyStorages() {
-        List<IEnergyStorage> result = new ArrayList<>();
+        List<IEnergyStorage> outputEnergyStorages = new ArrayList<>();
 
         for (Direction direction : Direction.values()) {
             var capabilityCache = getOrSetupCache(direction);
             if (capabilityCache == null) continue;
-            IEnergyStorage neighborEnergyStorage = capabilityCache.getCapability();
+            IEnergyStorage outputEnergyStorage = capabilityCache.getCapability();
             if (neighborEnergyStorage == null) continue;
 
-            result.add(neighborEnergyStorage);
+            outputEnergyStorages.add(outputEnergyStorage);
         }
 
-        return result;
+        return outputEnergyStorages;
     }
 
     private void fillOutputsWithMaxEnergy(Map<IEnergyStorage, Integer> maxEnergyPerOutput) {
