@@ -141,8 +141,12 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     private void onIoSettingChanged(Direction direction, IoSetting setting) {
+        energyHandler.onIoSettingChanged(direction, setting);
+
         if ((transferMode.requiresInput() && !ioConfig.hasInput()) || (transferMode.requiresOutput() && !ioConfig.hasOutput())) {
             connectionStatus = ConnectionStatus.DISCONNECTED;
+        } else {
+            connectionStatus = ConnectionStatus.IDLE;
         }
     }
 
@@ -180,31 +184,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     //             syncData(flags);
     //         }
     //     }
-    // }
-
-    // /**
-    //  * Syncs data to clients tracking the current with a {@link ClientSyncPacket}.
-    //  * <p>
-    //  * Different flags from the sync flags can be passed to define what should be included
-    //  * in the packet to avoid unnecessary data being sent.
-    //  *
-    //  * @param flags the flags of the data to sync
-    //  */
-    // public void syncData(int flags) {
-    //     if (level == null || level.isClientSide) return;
-    //     var packet = new ClientSyncPacket(
-    //         worldPosition,
-    //         flags,
-    //         sideConfig,
-    //         energyRate,
-    //         displayMode,
-    //         connectionStatus,
-    //         transferMode,
-    //         measureMode,
-    //         measureInterval,
-    //         zeroTolerance
-    //     );
-    //     PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), packet);
     // }
 
     @Override

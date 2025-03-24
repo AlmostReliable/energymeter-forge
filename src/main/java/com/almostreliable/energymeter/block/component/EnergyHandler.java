@@ -3,6 +3,7 @@ package com.almostreliable.energymeter.block.component;
 import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
@@ -10,6 +11,8 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import com.google.common.primitives.Ints;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,6 +69,11 @@ public class EnergyHandler {
         energyPerInterval = 0;
     }
 
+    public void onIoSettingChanged(Direction direction, IoSetting setting) {
+        if (setting == IoSetting.OUT) return;
+        outputCache.remove(direction);
+    }
+
     public int forwardEnergy(int amount, boolean simulate) {
         if (host.getTransferMode() == TransferMode.CONSUME) {
             if (!simulate) energyPerInterval += amount;
@@ -108,16 +116,45 @@ public class EnergyHandler {
     public Iterable<IEnergyStorage> getValidOutputEnergyStorages() {
         List<IEnergyStorage> outputEnergyStorages = new ArrayList<>();
 
-        for (Direction direction : Direction.values()) {
+        host.getIoConfig().forEachOutput(direction -> {
             var capabilityCache = getOrSetupCache(direction);
-            if (capabilityCache == null) continue;
+            if (capabilityCache == null) return;
             IEnergyStorage outputEnergyStorage = capabilityCache.getCapability();
-            if (neighborEnergyStorage == null) continue;
+            if (outputEnergyStorage == null) return;
 
             outputEnergyStorages.add(outputEnergyStorage);
-        }
+        });
 
         return outputEnergyStorages;
+    }
+
+    @Nullable
+    private BlockCapabilityCache<IEnergyStorage, Direction> getOrSetupCache(Direction direction) {
+        var cache = outputCache.get(direction);
+        if (cache != null) return cache;
+
+        if (!(host.getLevel() instanceof ServerLevel level)) {
+            throw new IllegalStateException("energy handler cache accessed too early or from client");
+        }
+
+        BlockPos targetPos = host.getBlockPos().relative(direction);
+        if (level.getBlockState(targetPos).isAir()) {
+            return null;
+        }
+
+        cache = BlockCapabilityCache.create(
+            Capabilities.EnergyStorage.BLOCK,
+            level,
+            targetPos,
+            direction.getOpposite(),
+            () -> !host.isRemoved(),
+            () -> outputCache.remove(direction)
+        );
+
+        if (cache.getCapability() == null) return null;
+
+        outputCache.put(direction, cache);
+        return cache;
     }
 
     private void fillOutputsWithMaxEnergy(Map<IEnergyStorage, Integer> maxEnergyPerOutput) {
@@ -156,21 +193,6 @@ public class EnergyHandler {
 
         return energyForwarded;
     }
-
-    // private BlockCapabilityCache<IEnergyStorage, Direction> getOrSetupCache() {
-    //     if (cache != null) {
-    //         return cache;
-    //     }
-    //
-    //     return BlockCapabilityCache.create(
-    //         Capabilities.EnergyStorage.BLOCK,
-    //         (ServerLevel) host.getLevel(),
-    //         host.getBlockPos().relative(direction),
-    //         direction.getOpposite(),
-    //         () -> !host.isRemoved(),
-    //         () -> cache = null
-    //     );
-    // }
 
     private record MaxEnergyPerOutputResult(Map<IEnergyStorage, Integer> maxEnergyPerOutput, int maxEnergyPerOutputSum) {}
 }
