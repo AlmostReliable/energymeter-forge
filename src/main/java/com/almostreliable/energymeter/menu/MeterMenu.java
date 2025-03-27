@@ -34,7 +34,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     @Override
     public void setupDataHandlers() {
-        menuSynchronizer.addDataHandler(new DelegateDataHandler(blockEntity.getIoConfig(), this::getIoConfig));
+        menuSynchronizer.addDataHandler(new DelegateDataHandler(blockEntity.getIoConfig(), () -> ioConfig));
         menuSynchronizer.addDataHandler(new EnumDataHandler<>(
             blockEntity::getDisplayMode,
             v -> this.displayMode = v,
