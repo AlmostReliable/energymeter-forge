@@ -7,6 +7,7 @@ import com.almostreliable.energymeter.util.TextUtils;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.core.Direction;
@@ -42,24 +43,18 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         layout.addChild(new StringWidget(Component.literal("Energy Rate:"), font));
         layout.addChild(new StringWidget(Component.literal(String.valueOf(menu.getEnergyRate())), font));
-
         layout.addChild(SpacerElement.height(2));
-
         layout.addChild(new StringWidget(Component.literal("Display Mode:"), font));
         layout.addChild(new StringWidget(Component.literal(menu.getDisplayMode().name()), font));
-
         layout.addChild(SpacerElement.height(2));
-
         layout.addChild(new StringWidget(Component.literal("Transfer Mode:"), font));
         layout.addChild(new StringWidget(Component.literal(menu.getTransferMode().name()), font));
-
         layout.addChild(SpacerElement.height(2));
-
         layout.addChild(new StringWidget(Component.literal("Measure Mode:"), font));
         layout.addChild(new StringWidget(Component.literal(menu.getMeasureMode().name()), font));
 
-        layout.setPosition(leftPos + 15, topPos + 15);
         layout.arrangeElements();
+        FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH - 64, TEXTURE_HEIGHT, 0.2f, 0.5f);
         layout.visitWidgets(this::addRenderableWidget);
     }
 
