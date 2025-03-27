@@ -55,7 +55,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         layout.arrangeElements();
         FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH - 64, TEXTURE_HEIGHT, 0.2f, 0.5f);
-        layout.visitWidgets(this::addRenderableWidget);
+        layout.visitWidgets(this::addRenderableOnly);
     }
 
     @Override
