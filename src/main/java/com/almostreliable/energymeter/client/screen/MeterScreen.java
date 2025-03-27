@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton;
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton.BlockSide;
+import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.TextUtils;
 
@@ -39,19 +40,19 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         addRenderableWidget(new DirectionButton(x + 30, y + 60, BlockSide.BOTTOM, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x + 60, y + 60, BlockSide.BACK, menu::getBlockState, this::onDirectionButtonPressed));
 
-        var layout = LinearLayout.vertical().spacing(2);
+        LinearLayout layout = LinearLayout.vertical().spacing(2);
 
         layout.addChild(new StringWidget(Component.literal("Energy Rate:"), font));
-        layout.addChild(new StringWidget(Component.literal(String.valueOf(menu.getEnergyRate())), font));
+        layout.addChild(new SupplyingStringWidget(() -> Component.literal(String.valueOf(menu.getEnergyRate())), font));
         layout.addChild(SpacerElement.height(2));
         layout.addChild(new StringWidget(Component.literal("Display Mode:"), font));
-        layout.addChild(new StringWidget(Component.literal(menu.getDisplayMode().name()), font));
+        layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getDisplayMode().name()), font));
         layout.addChild(SpacerElement.height(2));
         layout.addChild(new StringWidget(Component.literal("Transfer Mode:"), font));
-        layout.addChild(new StringWidget(Component.literal(menu.getTransferMode().name()), font));
+        layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getTransferMode().name()), font));
         layout.addChild(SpacerElement.height(2));
         layout.addChild(new StringWidget(Component.literal("Measure Mode:"), font));
-        layout.addChild(new StringWidget(Component.literal(menu.getMeasureMode().name()), font));
+        layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getMeasureMode().name()), font));
 
         layout.arrangeElements();
         FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH - 64, TEXTURE_HEIGHT, 0.2f, 0.5f);
