@@ -1,9 +1,13 @@
 package com.almostreliable.energymeter.client.screen;
 
+import com.almostreliable.energymeter.client.screen.widget.DirectionButton;
+import com.almostreliable.energymeter.client.screen.widget.DirectionButton.BlockSide;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.TextUtils;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,7 +23,43 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     @Override
+    protected void init() {
+        super.init();
+
+        int x = leftPos + 20;
+        int y = topPos + 20;
+
+        addRenderableWidget(new DirectionButton(x + 30, y, BlockSide.TOP, menu::getBlockState, this::onDirectionButtonPressed));
+        addRenderableWidget(new DirectionButton(x, y + 30, BlockSide.LEFT, menu::getBlockState, this::onDirectionButtonPressed));
+        addRenderableWidget(new DirectionButton(x + 60, y + 30, BlockSide.RIGHT, menu::getBlockState, this::onDirectionButtonPressed));
+        addRenderableWidget(new DirectionButton(x + 30, y + 60, BlockSide.BOTTOM, menu::getBlockState, this::onDirectionButtonPressed));
+        addRenderableWidget(new DirectionButton(x + 60, y + 60, BlockSide.BACK, menu::getBlockState, this::onDirectionButtonPressed));
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        super.renderLabels(guiGraphics, mouseX, mouseY);
+
+        int y = 10;
+
+        for (Direction direction : Direction.values()) {
+            String text = direction.getName() + ": " + menu.getIoConfig().getSetting(direction).name();
+            guiGraphics.drawString(font, text, -80, y, 15_658_734);
+            y += 20;
+        }
+    }
+
+    @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+    }
+
+    private void onDirectionButtonPressed(Direction direction, boolean reverse) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("type", "direction_button");
+        tag.putInt("direction", direction.ordinal());
+        tag.putBoolean("reverse", reverse);
+        tag.putBoolean("shift", hasShiftDown());
+        sendAction(tag);
     }
 }

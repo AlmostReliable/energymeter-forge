@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter.block.component;
 
 import com.almostreliable.energymeter.network.menu.DataHandler;
-import com.almostreliable.energymeter.util.TypeEnums;
+import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -18,15 +18,15 @@ import java.util.function.Consumer;
 
 public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
-    private final Map<Direction, TypeEnums.IoSetting> directionToSetting = new EnumMap<>(Direction.class);
-    private final BiConsumer<Direction, TypeEnums.IoSetting> settingChangedListener;
+    private final Map<Direction, IoSetting> directionToSetting = new EnumMap<>(Direction.class);
+    private final BiConsumer<Direction, IoSetting> settingChangedListener;
     private boolean changed;
 
-    public IoConfig(BiConsumer<Direction, TypeEnums.IoSetting> settingChangedListener) {
+    public IoConfig(BiConsumer<Direction, IoSetting> settingChangedListener) {
         this.settingChangedListener = settingChangedListener;
 
         for (Direction direction : Direction.values()) {
-            directionToSetting.put(direction, TypeEnums.IoSetting.OFF);
+            directionToSetting.put(direction, IoSetting.OFF);
         }
     }
 
@@ -34,11 +34,11 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         this((direction, setting) -> {});
     }
 
-    public TypeEnums.IoSetting getSetting(Direction direction) {
+    public IoSetting getSetting(Direction direction) {
         return directionToSetting.get(direction);
     }
 
-    public void setSetting(Direction direction, TypeEnums.IoSetting setting) {
+    public void setSetting(Direction direction, IoSetting setting) {
         if (directionToSetting.get(direction) == setting) return;
 
         directionToSetting.put(direction, setting);
@@ -46,20 +46,36 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         settingChangedListener.accept(direction, setting);
     }
 
+    public void cycleSetting(Direction direction, boolean reverse) {
+        IoSetting currentSetting = directionToSetting.get(direction);
+        var ioSettingValues = IoSetting.values();
+
+        int newSettingOrdinal = (currentSetting.ordinal() + (reverse ? -1 : 1)) % ioSettingValues.length;
+        if (newSettingOrdinal < 0) {
+            newSettingOrdinal = ioSettingValues.length - 1;
+        }
+
+        setSetting(direction, ioSettingValues[newSettingOrdinal]);
+    }
+
+    public void resetSetting(Direction direction) {
+        setSetting(direction, IoSetting.OFF);
+    }
+
     public void forEachOutput(Consumer<Direction> consumer) {
         for (var entry : directionToSetting.entrySet()) {
-            if (entry.getValue() == TypeEnums.IoSetting.OUT) {
+            if (entry.getValue() == IoSetting.OUT) {
                 consumer.accept(entry.getKey());
             }
         }
     }
 
     public boolean hasInput() {
-        return directionToSetting.containsValue(TypeEnums.IoSetting.IN);
+        return directionToSetting.containsValue(IoSetting.IN);
     }
 
     public boolean hasOutput() {
-        return directionToSetting.containsValue(TypeEnums.IoSetting.OUT);
+        return directionToSetting.containsValue(IoSetting.OUT);
     }
 
     @Override
@@ -76,7 +92,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag compoundTag) {
         for (Direction direction : Direction.values()) {
             String setting = compoundTag.getString(direction.name());
-            directionToSetting.put(direction, TypeEnums.IoSetting.valueOf(setting));
+            directionToSetting.put(direction, IoSetting.valueOf(setting));
         }
     }
 
@@ -91,7 +107,8 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     @Override
     public void decode(FriendlyByteBuf buffer) {
         for (Direction dir : Direction.values()) {
-            directionToSetting.put(dir, TypeEnums.IoSetting.values()[buffer.readByte()]);
+            // TODO: extract all occurrences of Enum#values() to a variable as it is a costly operation
+            directionToSetting.put(dir, IoSetting.values()[buffer.readByte()]);
         }
     }
 

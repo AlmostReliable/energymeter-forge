@@ -11,9 +11,11 @@ import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -58,7 +60,23 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     @Override
     public void receiveClientData(ServerPlayer player, CompoundTag data) {
+        String type = data.getString("type");
 
+        if (type.equals("direction_button")) {
+            Direction direction = Direction.values()[data.getInt("direction")];
+            boolean reverse = data.getBoolean("reverse");
+            boolean shift = data.getBoolean("shift");
+
+            if (shift) {
+                blockEntity.getIoConfig().resetSetting(direction);
+            } else {
+                blockEntity.getIoConfig().cycleSetting(direction, reverse);
+            }
+        }
+    }
+
+    public BlockState getBlockState() {
+        return blockEntity.getBlockState();
     }
 
     // region syncing client getters

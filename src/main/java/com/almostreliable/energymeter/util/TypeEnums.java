@@ -12,13 +12,6 @@ public final class TypeEnums {
     }
 
     /**
-     * Enum to represent the possible IO sides of a block.
-     */
-    public enum BlockSide {
-        BOTTOM, TOP, FRONT, BACK, LEFT, RIGHT
-    }
-
-    /**
      * Enum to represent the different IO settings for the side configuration.
      */
     public enum IoSetting {
