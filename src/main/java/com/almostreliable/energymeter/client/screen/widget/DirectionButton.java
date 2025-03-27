@@ -36,6 +36,11 @@ public class DirectionButton extends AbstractButton {
     }
 
     @Override
+    protected boolean isValidClickButton(int button) {
+        return button == GLFW.GLFW_MOUSE_BUTTON_LEFT || button == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+    }
+
+    @Override
     public void onClick(double mouseX, double mouseY, int button) {
         super.onClick(mouseX, mouseY, button);
         Direction directionFromBlockSide = blockSide.getDirection(blockStateSupplier.get());
