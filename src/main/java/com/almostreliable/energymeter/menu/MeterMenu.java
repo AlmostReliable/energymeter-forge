@@ -79,6 +79,10 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
         return blockEntity.getBlockState();
     }
 
+    public double getEnergyRate() {
+        return blockEntity.getEnergyRate();
+    }
+
     // region syncing client getters
     @OnlyIn(Dist.CLIENT)
     public IoConfig getIoConfig() {

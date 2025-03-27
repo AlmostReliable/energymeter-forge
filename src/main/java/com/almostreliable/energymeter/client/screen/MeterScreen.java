@@ -6,6 +6,9 @@ import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.TextUtils;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -26,14 +29,38 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     protected void init() {
         super.init();
 
-        int x = leftPos + 20;
-        int y = topPos + 20;
+        int x = leftPos + 140;
+        int y = topPos + 75;
 
         addRenderableWidget(new DirectionButton(x + 30, y, BlockSide.TOP, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x, y + 30, BlockSide.LEFT, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x + 60, y + 30, BlockSide.RIGHT, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x + 30, y + 60, BlockSide.BOTTOM, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x + 60, y + 60, BlockSide.BACK, menu::getBlockState, this::onDirectionButtonPressed));
+
+        var layout = LinearLayout.vertical().spacing(2);
+
+        layout.addChild(new StringWidget(Component.literal("Energy Rate:"), font));
+        layout.addChild(new StringWidget(Component.literal(String.valueOf(menu.getEnergyRate())), font));
+
+        layout.addChild(SpacerElement.height(2));
+
+        layout.addChild(new StringWidget(Component.literal("Display Mode:"), font));
+        layout.addChild(new StringWidget(Component.literal(menu.getDisplayMode().name()), font));
+
+        layout.addChild(SpacerElement.height(2));
+
+        layout.addChild(new StringWidget(Component.literal("Transfer Mode:"), font));
+        layout.addChild(new StringWidget(Component.literal(menu.getTransferMode().name()), font));
+
+        layout.addChild(SpacerElement.height(2));
+
+        layout.addChild(new StringWidget(Component.literal("Measure Mode:"), font));
+        layout.addChild(new StringWidget(Component.literal(menu.getMeasureMode().name()), font));
+
+        layout.setPosition(leftPos + 15, topPos + 15);
+        layout.arrangeElements();
+        layout.visitWidgets(this::addRenderableWidget);
     }
 
     @Override
