@@ -3,5 +3,9 @@
   "block.energymeter.monitor": "External Monitor",
   "item.energymeter.meter": "Energy Meter",
   "item.energymeter.monitor": "External Monitor",
+  "label.energymeter.display_mode": "Display Mode",
+  "label.energymeter.energy_rate": "Energy Rate",
+  "label.energymeter.measure_mode": "Measure Mode",
+  "label.energymeter.transfer_mode": "Transfer Mode",
   "tab.energymeter.main": "Energy Meter"
 }

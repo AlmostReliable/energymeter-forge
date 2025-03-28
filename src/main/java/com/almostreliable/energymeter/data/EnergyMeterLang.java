@@ -14,6 +14,11 @@ import java.util.function.Supplier;
 @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
 public final class EnergyMeterLang extends LanguageProvider {
 
+    public static final LangEntry ENERGY_RATE = LangEntry.label("energy_rate", "Energy Rate");
+    public static final LangEntry DISPLAY_MODE = LangEntry.label("display_mode", "Display Mode");
+    public static final LangEntry TRANSFER_MODE = LangEntry.label("transfer_mode", "Transfer Mode");
+    public static final LangEntry MEASURE_MODE = LangEntry.label("measure_mode", "Measure Mode");
+
     EnergyMeterLang(PackOutput output) {
         super(output, ModConstants.MOD_ID, "en_us");
     }
@@ -33,6 +38,10 @@ public final class EnergyMeterLang extends LanguageProvider {
             LangEntry entry = new LangEntry(String.format("%s.%s.%s", prefix, ModConstants.MOD_ID, id), value);
             ENTRIES.add(entry);
             return entry;
+        }
+
+        public static LangEntry label(String id, String value) {
+            return of("label", id, value);
         }
 
         @Override

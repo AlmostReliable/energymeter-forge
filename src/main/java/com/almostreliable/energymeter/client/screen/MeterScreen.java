@@ -3,6 +3,7 @@ package com.almostreliable.energymeter.client.screen;
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton;
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton.BlockSide;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
+import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.TextUtils;
 
@@ -42,16 +43,16 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         LinearLayout layout = LinearLayout.vertical().spacing(2);
 
-        layout.addChild(new StringWidget(Component.literal("Energy Rate:"), font));
+        layout.addChild(new StringWidget(EnergyMeterLang.ENERGY_RATE.get().append(":"), font));
         layout.addChild(new SupplyingStringWidget(() -> Component.literal(String.valueOf(menu.getEnergyRate())), font));
         layout.addChild(SpacerElement.height(2));
-        layout.addChild(new StringWidget(Component.literal("Display Mode:"), font));
+        layout.addChild(new StringWidget(EnergyMeterLang.DISPLAY_MODE.get().append(":"), font));
         layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getDisplayMode().name()), font));
         layout.addChild(SpacerElement.height(2));
-        layout.addChild(new StringWidget(Component.literal("Transfer Mode:"), font));
+        layout.addChild(new StringWidget(EnergyMeterLang.TRANSFER_MODE.get().append(":"), font));
         layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getTransferMode().name()), font));
         layout.addChild(SpacerElement.height(2));
-        layout.addChild(new StringWidget(Component.literal("Measure Mode:"), font));
+        layout.addChild(new StringWidget(EnergyMeterLang.MEASURE_MODE.get().append(":"), font));
         layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getMeasureMode().name()), font));
 
         layout.arrangeElements();
