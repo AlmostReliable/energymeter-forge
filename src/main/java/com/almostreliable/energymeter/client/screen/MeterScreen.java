@@ -3,6 +3,8 @@ package com.almostreliable.energymeter.client.screen;
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton;
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton.BlockSide;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
+import com.almostreliable.energymeter.client.screen.widget.TabButton;
+import com.almostreliable.energymeter.client.screen.widget.TabButton.TabType;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.TextUtils;
@@ -20,50 +22,80 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
-    private static final ResourceLocation TEXTURE = TextUtils.getRL("textures/gui/meter.png");
-    private static final int TEXTURE_WIDTH = 199;
-    private static final int TEXTURE_HEIGHT = 129;
+    private static final ResourceLocation TEXTURE = TextUtils.getRL("textures/gui/meter_screen.png");
+    private static final int TEXTURE_WIDTH = 133;
+    private static final int TEXTURE_HEIGHT = 127;
 
+    private TabType currentTab = TabType.STATS;
+
+    @SuppressWarnings("AssignmentToSuperclassField")
     public MeterScreen(MeterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        imageWidth = TEXTURE_WIDTH;
+        imageHeight = TEXTURE_HEIGHT;
     }
 
     @Override
     protected void init() {
         super.init();
 
-        int x = leftPos + 140;
-        int y = topPos + 75;
+        initTabs();
+        switch (currentTab) {
+            case STATS -> initStatsTab();
+            case CONFIG -> initConfigTab();
+            case REDSTONE -> initRedstoneTab();
+        }
+    }
+
+    private void initTabs() {
+        LinearLayout tabLayout = LinearLayout.horizontal().spacing(1);
+
+        tabLayout.addChild(new TabButton(TabType.STATS, currentTab, this::onTabButtonPressed));
+        tabLayout.addChild(new TabButton(TabType.CONFIG, currentTab, this::onTabButtonPressed));
+        tabLayout.addChild(new TabButton(TabType.REDSTONE, currentTab, this::onTabButtonPressed));
+
+        tabLayout.arrangeElements();
+        FrameLayout.alignInRectangle(tabLayout, leftPos, topPos - TabButton.TAB_HEIGHT + 1, TEXTURE_WIDTH, TabButton.TAB_HEIGHT, 0.1f, 0);
+        tabLayout.visitWidgets(this::addRenderableWidget);
+    }
+
+    private void initStatsTab() {
+        LinearLayout labelLayout = LinearLayout.vertical().spacing(2);
+
+        labelLayout.addChild(new StringWidget(EnergyMeterLang.ENERGY_RATE.get().append(":"), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(String.valueOf(menu.getEnergyRate())), font));
+        labelLayout.addChild(SpacerElement.height(2));
+        labelLayout.addChild(new StringWidget(EnergyMeterLang.DISPLAY_MODE.get().append(":"), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getDisplayMode().name()), font));
+        labelLayout.addChild(SpacerElement.height(2));
+        labelLayout.addChild(new StringWidget(EnergyMeterLang.TRANSFER_MODE.get().append(":"), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getTransferMode().name()), font));
+        labelLayout.addChild(SpacerElement.height(2));
+        labelLayout.addChild(new StringWidget(EnergyMeterLang.MEASURE_MODE.get().append(":"), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getMeasureMode().name()), font));
+
+        labelLayout.arrangeElements();
+        FrameLayout.alignInRectangle(labelLayout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.2f, 0.5f);
+        labelLayout.visitWidgets(this::addRenderableOnly);
+    }
+
+    private void initConfigTab() {
+        int x = leftPos + 20;
+        int y = topPos + 10;
 
         addRenderableWidget(new DirectionButton(x + 30, y, BlockSide.TOP, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x, y + 30, BlockSide.LEFT, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x + 60, y + 30, BlockSide.RIGHT, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x + 30, y + 60, BlockSide.BOTTOM, menu::getBlockState, this::onDirectionButtonPressed));
         addRenderableWidget(new DirectionButton(x + 60, y + 60, BlockSide.BACK, menu::getBlockState, this::onDirectionButtonPressed));
+    }
 
-        LinearLayout layout = LinearLayout.vertical().spacing(2);
+    private void initRedstoneTab() {
 
-        layout.addChild(new StringWidget(EnergyMeterLang.ENERGY_RATE.get().append(":"), font));
-        layout.addChild(new SupplyingStringWidget(() -> Component.literal(String.valueOf(menu.getEnergyRate())), font));
-        layout.addChild(SpacerElement.height(2));
-        layout.addChild(new StringWidget(EnergyMeterLang.DISPLAY_MODE.get().append(":"), font));
-        layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getDisplayMode().name()), font));
-        layout.addChild(SpacerElement.height(2));
-        layout.addChild(new StringWidget(EnergyMeterLang.TRANSFER_MODE.get().append(":"), font));
-        layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getTransferMode().name()), font));
-        layout.addChild(SpacerElement.height(2));
-        layout.addChild(new StringWidget(EnergyMeterLang.MEASURE_MODE.get().append(":"), font));
-        layout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getMeasureMode().name()), font));
-
-        layout.arrangeElements();
-        FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH - 64, TEXTURE_HEIGHT, 0.2f, 0.5f);
-        layout.visitWidgets(this::addRenderableOnly);
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderLabels(guiGraphics, mouseX, mouseY);
-
         int y = 10;
 
         for (Direction direction : Direction.values()) {
@@ -76,6 +108,11 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+    }
+
+    private void onTabButtonPressed(TabType tabType) {
+        currentTab = tabType;
+        rebuildWidgets();
     }
 
     private void onDirectionButtonPressed(Direction direction, boolean reverse) {
