@@ -5,6 +5,7 @@ import com.almostreliable.energymeter.util.TextUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -45,6 +46,12 @@ public class TabButton extends AbstractWidget {
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         defaultButtonNarrationText(narrationElementOutput);
+    }
+
+    @Override
+    public void playDownSound(SoundManager handler) {
+        if (isSelected) return;
+        super.playDownSound(handler);
     }
 
     @Override
