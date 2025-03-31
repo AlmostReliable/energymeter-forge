@@ -123,7 +123,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         double average = energyHandler.getAverage();
         double oldEnergyRate = energyRate;
         energyRate = average / measureInterval;
-        totalEnergy += energyRate;
+        totalEnergy += energyRate * measureInterval;
 
         if (oldEnergyRate != energyRate) {
             PacketDistributor.sendToPlayersTrackingChunk(
