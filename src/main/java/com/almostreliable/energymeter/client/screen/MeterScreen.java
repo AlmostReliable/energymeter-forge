@@ -47,9 +47,9 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     private void initTabs() {
         LinearLayout tabLayout = LinearLayout.horizontal().spacing(1);
 
-        tabLayout.addChild(new TabButton(TabType.STATS, currentTab, this::onTabButtonPressed));
-        tabLayout.addChild(new TabButton(TabType.CONFIG, currentTab, this::onTabButtonPressed));
-        tabLayout.addChild(new TabButton(TabType.REDSTONE, currentTab, this::onTabButtonPressed));
+        for (TabType tabType : TabType.values()) {
+            tabLayout.addChild(new TabButton(tabType, currentTab, this::onTabButtonPressed));
+        }
 
         tabLayout.arrangeElements();
         FrameLayout.alignInRectangle(tabLayout, leftPos, topPos - TabButton.TAB_HEIGHT + 1, TEXTURE_WIDTH, TabButton.TAB_HEIGHT, 0.1f, 0);

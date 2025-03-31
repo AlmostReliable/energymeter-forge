@@ -23,8 +23,8 @@ public class TabButton extends AbstractWidget {
     private static final int ICON_HEIGHT = 13;
 
     private final TabType tabType;
-    private final Consumer<TabType> onClick;
     private final boolean isSelected;
+    private final Consumer<TabType> onClick;
 
     public TabButton(TabType tabType, TabType selected, Consumer<TabType> onClick) {
         super(0, 0, TAB_WIDTH, TAB_HEIGHT, Component.empty());
