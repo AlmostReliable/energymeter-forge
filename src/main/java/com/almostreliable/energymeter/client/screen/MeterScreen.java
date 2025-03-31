@@ -7,6 +7,7 @@ import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
+import com.almostreliable.energymeter.util.NumberFormatter;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.StringWidget;
@@ -61,19 +62,19 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         LinearLayout labelLayout = LinearLayout.vertical().spacing(2);
 
         labelLayout.addChild(new StringWidget(EnergyMeterLang.ENERGY_RATE.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(String.valueOf(menu.getEnergyRate())), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatEnergyRate(menu.getEnergyRate()), font));
         labelLayout.addChild(SpacerElement.height(2));
         labelLayout.addChild(new StringWidget(EnergyMeterLang.TOTAL_ENERGY.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(String.valueOf(menu.getTotalEnergy())), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatTotalEnergy(menu.getTotalEnergy()), font));
         labelLayout.addChild(SpacerElement.height(2));
         labelLayout.addChild(new StringWidget(EnergyMeterLang.TRANSFER_MODE.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getTransferMode().name()), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> menu.getTransferMode().name(), font));
         labelLayout.addChild(SpacerElement.height(2));
         labelLayout.addChild(new StringWidget(EnergyMeterLang.CONNECTION_STATUS.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getConnectionStatus().name()), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> menu.getConnectionStatus().name(), font));
 
         labelLayout.arrangeElements();
-        FrameLayout.alignInRectangle(labelLayout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.2f, 0.5f);
+        FrameLayout.alignInRectangle(labelLayout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
         labelLayout.visitWidgets(this::addRenderableOnly);
     }
 

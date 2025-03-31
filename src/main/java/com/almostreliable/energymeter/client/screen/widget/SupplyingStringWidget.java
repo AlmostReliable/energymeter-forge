@@ -8,16 +8,17 @@ import java.util.function.Supplier;
 
 public class SupplyingStringWidget extends StringWidget {
 
-    private final Supplier<Component> component;
+    private static final String LONGEST_STRING = "################";
+    private final Supplier<String> stringSupplier;
 
-    public SupplyingStringWidget(Supplier<Component> component, Font font) {
-        super(component.get(), font);
-        this.component = component;
+    public SupplyingStringWidget(Supplier<String> stringSupplier, Font font) {
+        super(Component.literal(LONGEST_STRING), font);
+        this.stringSupplier = stringSupplier;
         alignLeft();
     }
 
     @Override
     public Component getMessage() {
-        return component.get();
+        return Component.literal(stringSupplier.get());
     }
 }
