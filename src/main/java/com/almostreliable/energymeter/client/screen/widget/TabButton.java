@@ -1,5 +1,6 @@
 package com.almostreliable.energymeter.client.screen.widget;
 
+import com.almostreliable.energymeter.client.screen.MeterScreen.TabType;
 import com.almostreliable.energymeter.util.TextUtils;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -58,11 +59,5 @@ public class TabButton extends AbstractWidget {
     public void onClick(double mouseX, double mouseY, int button) {
         if (isSelected) return;
         onClick.accept(tabType);
-    }
-
-    public enum TabType {
-        STATS,
-        CONFIG,
-        REDSTONE
     }
 }

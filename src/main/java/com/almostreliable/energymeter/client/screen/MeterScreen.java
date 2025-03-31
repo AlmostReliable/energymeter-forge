@@ -4,7 +4,6 @@ import com.almostreliable.energymeter.client.screen.widget.DirectionButton;
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton.BlockSide;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
-import com.almostreliable.energymeter.client.screen.widget.TabButton.TabType;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.TextUtils;
@@ -19,6 +18,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+
+import java.util.function.Consumer;
 
 public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
@@ -40,11 +41,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         super.init();
 
         initTabs();
-        switch (currentTab) {
-            case STATS -> initStatsTab();
-            case CONFIG -> initConfigTab();
-            case REDSTONE -> initRedstoneTab();
-        }
+        currentTab.init.accept(this);
     }
 
     private void initTabs() {
@@ -59,6 +56,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         tabLayout.visitWidgets(this::addRenderableWidget);
     }
 
+    @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initStatsTab() {
         LinearLayout labelLayout = LinearLayout.vertical().spacing(2);
 
@@ -79,6 +77,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         labelLayout.visitWidgets(this::addRenderableOnly);
     }
 
+    @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initConfigTab() {
         int x = leftPos + 20;
         int y = topPos + 10;
@@ -90,6 +89,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         addRenderableWidget(new DirectionButton(x + 60, y + 60, BlockSide.BACK, menu::getBlockState, this::onDirectionButtonPressed));
     }
 
+    @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initRedstoneTab() {
 
     }
@@ -122,5 +122,17 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         tag.putBoolean("reverse", reverse);
         tag.putBoolean("shift", hasShiftDown());
         sendAction(tag);
+    }
+
+    public enum TabType {
+        STATS(MeterScreen::initStatsTab),
+        CONFIG(MeterScreen::initConfigTab),
+        REDSTONE(MeterScreen::initRedstoneTab);
+
+        private final Consumer<MeterScreen> init;
+
+        TabType(Consumer<MeterScreen> init) {
+            this.init = init;
+        }
     }
 }
