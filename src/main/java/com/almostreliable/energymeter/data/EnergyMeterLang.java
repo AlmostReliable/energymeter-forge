@@ -15,9 +15,11 @@ import java.util.function.Supplier;
 public final class EnergyMeterLang extends LanguageProvider {
 
     public static final LangEntry ENERGY_RATE = LangEntry.label("energy_rate", "Energy Rate");
+    public static final LangEntry TOTAL_ENERGY = LangEntry.label("total_energy", "Total Energy");
     public static final LangEntry DISPLAY_MODE = LangEntry.label("display_mode", "Display Mode");
     public static final LangEntry TRANSFER_MODE = LangEntry.label("transfer_mode", "Transfer Mode");
     public static final LangEntry MEASURE_MODE = LangEntry.label("measure_mode", "Measure Mode");
+    public static final LangEntry CONNECTION_STATUS = LangEntry.label("connection_status", "Connection Status");
 
     EnergyMeterLang(PackOutput output) {
         super(output, ModConstants.MOD_ID, "en_us");

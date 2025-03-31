@@ -4,6 +4,7 @@ import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
+import com.almostreliable.energymeter.network.menu.handler.DoubleDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.IntegerDataHandler;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
@@ -25,8 +26,9 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     private DisplayMode displayMode = DisplayMode.SHORT;
     private TransferMode transferMode = TransferMode.SPLIT;
     private MeasureMode measureMode = MeasureMode.EXACT;
-    private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
     private int measureInterval;
+    private double totalEnergy;
+    private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
     public MeterMenu(int wid, Inventory playerInventory, MeterBlockEntity blockEntity) {
         super(Registration.METER_MENU.get(), wid, playerInventory, blockEntity);
@@ -50,12 +52,13 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
             v -> this.measureMode = v,
             MeasureMode.values()
         ));
+        menuSynchronizer.addDataHandler(new IntegerDataHandler(blockEntity::getMeasureInterval, v -> this.measureInterval = v));
+        menuSynchronizer.addDataHandler(new DoubleDataHandler(blockEntity::getTotalEnergy, v -> this.totalEnergy = v));
         menuSynchronizer.addDataHandler(new EnumDataHandler<>(
             blockEntity::getConnectionStatus,
             v -> this.connectionStatus = v,
             ConnectionStatus.values()
         ));
-        menuSynchronizer.addDataHandler(new IntegerDataHandler(blockEntity::getMeasureInterval, v -> this.measureInterval = v));
     }
 
     @Override
@@ -105,13 +108,18 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ConnectionStatus getConnectionStatus() {
-        return connectionStatus;
+    public double getMeasureInterval() {
+        return measureInterval;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public double getMeasureInterval() {
-        return measureInterval;
+    public double getTotalEnergy() {
+        return totalEnergy;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ConnectionStatus getConnectionStatus() {
+        return connectionStatus;
     }
     // endregion
 }

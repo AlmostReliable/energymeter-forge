@@ -36,6 +36,7 @@ import static com.almostreliable.energymeter.core.Constants.DISPLAY_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
+import static com.almostreliable.energymeter.core.Constants.TOTAL_ENERGY_ID;
 import static com.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
@@ -57,6 +58,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     // tracking & display
     private int tickDelay;
     private double energyRate;
+    private double totalEnergy;
     private double zeroThreshold;
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
@@ -75,6 +77,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         tag.putString(MEASURE_MODE_ID, measureMode.name());
         tag.putInt(MEASURE_INTERVAL_ID, measureInterval);
         tag.putInt(ZERO_TOLERANCE_ID, zeroTolerance);
+        tag.putDouble(TOTAL_ENERGY_ID, totalEnergy);
     }
 
     @Override
@@ -86,6 +89,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         if (tag.contains(MEASURE_MODE_ID)) measureMode = MeasureMode.valueOf(tag.getString(MEASURE_MODE_ID));
         if (tag.contains(MEASURE_INTERVAL_ID)) measureInterval = tag.getInt(MEASURE_INTERVAL_ID);
         if (tag.contains(ZERO_TOLERANCE_ID)) zeroTolerance = tag.getInt(ZERO_TOLERANCE_ID);
+        if (tag.contains(TOTAL_ENERGY_ID)) totalEnergy = tag.getDouble(TOTAL_ENERGY_ID);
     }
 
     @Override
@@ -119,6 +123,8 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         double average = energyHandler.getAverage();
         double oldEnergyRate = energyRate;
         energyRate = average / measureInterval;
+        totalEnergy += energyRate;
+
         if (oldEnergyRate != energyRate) {
             PacketDistributor.sendToPlayersTrackingChunk(
                 level,
@@ -218,7 +224,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     public double getEnergyRate() {
-        return Math.round(energyRate * 1_000.0) / 1_000.0;
+        return energyRate;
+    }
+
+    public double getTotalEnergy() {
+        return totalEnergy;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -227,9 +237,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     public ConnectionStatus getConnectionStatus() {
-        if (connectionStatus == ConnectionStatus.TRANSFERRING) {
-            return transferMode == TransferMode.CONSUME ? ConnectionStatus.CONSUMING : ConnectionStatus.TRANSFERRING;
-        }
         return connectionStatus;
     }
 }

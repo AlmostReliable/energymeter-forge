@@ -63,14 +63,14 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         labelLayout.addChild(new StringWidget(EnergyMeterLang.ENERGY_RATE.get().append(":"), font));
         labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(String.valueOf(menu.getEnergyRate())), font));
         labelLayout.addChild(SpacerElement.height(2));
-        labelLayout.addChild(new StringWidget(EnergyMeterLang.DISPLAY_MODE.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getDisplayMode().name()), font));
+        labelLayout.addChild(new StringWidget(EnergyMeterLang.TOTAL_ENERGY.get().append(":"), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(String.valueOf(menu.getTotalEnergy())), font));
         labelLayout.addChild(SpacerElement.height(2));
         labelLayout.addChild(new StringWidget(EnergyMeterLang.TRANSFER_MODE.get().append(":"), font));
         labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getTransferMode().name()), font));
         labelLayout.addChild(SpacerElement.height(2));
-        labelLayout.addChild(new StringWidget(EnergyMeterLang.MEASURE_MODE.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getMeasureMode().name()), font));
+        labelLayout.addChild(new StringWidget(EnergyMeterLang.CONNECTION_STATUS.get().append(":"), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> Component.literal(menu.getConnectionStatus().name()), font));
 
         labelLayout.arrangeElements();
         FrameLayout.alignInRectangle(labelLayout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.2f, 0.5f);

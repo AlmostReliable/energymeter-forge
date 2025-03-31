@@ -15,6 +15,7 @@ public interface Constants {
     String MEASURE_MODE_ID = "measure_mode";
     String MEASURE_INTERVAL_ID = "measure_interval";
     String ZERO_TOLERANCE_ID = "zero_tolerance";
+    String TOTAL_ENERGY_ID = "total_energy";
     public static final String WIDTH_ID = "width";
     public static final String HEIGHT_ID = "height";
 
