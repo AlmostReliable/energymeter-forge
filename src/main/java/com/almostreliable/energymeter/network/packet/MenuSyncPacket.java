@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter.network.packet;
 
+import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
-import com.almostreliable.energymeter.util.Utils;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 public final class MenuSyncPacket implements CustomPacketPayload {
 
-    public static final Type<MenuSyncPacket> TYPE = new Type<>(Utils.getRL("menu_sync"));
+    public static final Type<MenuSyncPacket> TYPE = new Type<>(EnergyMeter.getRL("menu_sync"));
     public static final StreamCodec<FriendlyByteBuf, MenuSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(
         MenuSyncPacket::encode,
         MenuSyncPacket::decode

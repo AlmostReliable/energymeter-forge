@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.block.multiblock;
 
-import com.almostreliable.energymeter.util.Utils;
+import com.almostreliable.energymeter.EnergyMeter;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
@@ -8,6 +8,8 @@ import net.minecraft.util.StringRepresentable;
 import com.google.common.base.Preconditions;
 
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
 
 public enum MultiblockType implements StringRepresentable {
 
@@ -59,15 +61,15 @@ public enum MultiblockType implements StringRepresentable {
 
     @Override
     public String getSerializedName() {
-        return name().toLowerCase();
+        return name().toLowerCase(Locale.ROOT);
     }
 
     public ResourceLocation getTexture() {
-        return Utils.getRL("block/" + getSerializedName());
+        return EnergyMeter.getRL("block/" + getSerializedName());
     }
 
     public ResourceLocation getFrontTexture() {
-        return Utils.getRL("block/" + getSerializedName() + "_front");
+        return EnergyMeter.getRL("block/" + getSerializedName() + "_front");
     }
 
     @Nullable

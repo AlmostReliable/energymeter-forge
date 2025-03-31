@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter.network.packet;
 
+import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
-import com.almostreliable.energymeter.util.Utils;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public final class ClientActionPacket implements CustomPacketPayload {
 
-    public static final Type<ClientActionPacket> TYPE = new Type<>(Utils.getRL("client_action"));
+    public static final Type<ClientActionPacket> TYPE = new Type<>(EnergyMeter.getRL("client_action"));
     public static final StreamCodec<FriendlyByteBuf, ClientActionPacket> STREAM_CODEC = CustomPacketPayload.codec(
         ClientActionPacket::encode,
         ClientActionPacket::decode

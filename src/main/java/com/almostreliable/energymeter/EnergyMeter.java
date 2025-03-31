@@ -5,6 +5,7 @@ import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.data.DataGeneration;
 import com.almostreliable.energymeter.network.PacketHandler;
 
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -22,5 +23,9 @@ public final class EnergyMeter {
         PacketHandler.init(modEventBus);
         Config.init(modContainer);
         modEventBus.addListener(DataGeneration::init);
+    }
+
+    public static ResourceLocation getRL(String key) {
+        return ResourceLocation.fromNamespaceAndPath(ModConstants.MOD_ID, key);
     }
 }

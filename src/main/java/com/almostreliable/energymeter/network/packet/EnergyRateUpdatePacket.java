@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter.network.packet;
 
+import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
-import com.almostreliable.energymeter.util.Utils;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public final class EnergyRateUpdatePacket implements CustomPacketPayload {
 
-    public static final Type<EnergyRateUpdatePacket> TYPE = new Type<>(Utils.getRL("energy_rate_update"));
+    public static final Type<EnergyRateUpdatePacket> TYPE = new Type<>(EnergyMeter.getRL("energy_rate_update"));
     public static final StreamCodec<FriendlyByteBuf, EnergyRateUpdatePacket> STREAM_CODEC = CustomPacketPayload.codec(
         EnergyRateUpdatePacket::encode,
         EnergyRateUpdatePacket::decode

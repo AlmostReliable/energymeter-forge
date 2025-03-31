@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter.client.screen.widget;
 
+import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.client.screen.MeterScreen.TabType;
-import com.almostreliable.energymeter.util.TextUtils;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public class TabButton extends AbstractWidget {
 
-    private static final ResourceLocation TEXTURE = TextUtils.getRL("textures/gui/tab.png");
+    private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/tab.png");
     private static final int TEXTURE_WIDTH = 45;
     private static final int TEXTURE_HEIGHT = 32;
     private static final int TAB_WIDTH = 25;

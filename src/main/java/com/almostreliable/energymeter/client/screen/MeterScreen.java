@@ -1,12 +1,12 @@
 package com.almostreliable.energymeter.client.screen;
 
+import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton;
 import com.almostreliable.energymeter.client.screen.widget.DirectionButton.BlockSide;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
-import com.almostreliable.energymeter.util.TextUtils;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.StringWidget;
@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
-    private static final ResourceLocation TEXTURE = TextUtils.getRL("textures/gui/meter_screen.png");
+    private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/meter_screen.png");
     private static final int TEXTURE_WIDTH = 133;
     private static final int TEXTURE_HEIGHT = 127;
 
