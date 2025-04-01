@@ -1,8 +1,7 @@
 package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.EnergyMeter;
-import com.almostreliable.energymeter.client.screen.widget.DirectionButton;
-import com.almostreliable.energymeter.client.screen.widget.DirectionButton.BlockSide;
+import com.almostreliable.energymeter.client.screen.widget.IoSelectButton;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
@@ -49,7 +48,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         LinearLayout tabLayout = LinearLayout.horizontal().spacing(1);
 
         for (TabType tabType : TabType.values()) {
-            tabLayout.addChild(new TabButton(tabType, currentTab, this::onTabButtonPressed));
+            tabLayout.addChild(new TabButton(tabType, currentTab, this::onTabButtonClicked));
         }
 
         tabLayout.arrangeElements();
@@ -80,14 +79,13 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initConfigTab() {
-        int x = leftPos + 20;
-        int y = topPos + 10;
-
-        addRenderableWidget(new DirectionButton(x + 30, y, BlockSide.TOP, menu::getBlockState, this::onDirectionButtonPressed));
-        addRenderableWidget(new DirectionButton(x, y + 30, BlockSide.LEFT, menu::getBlockState, this::onDirectionButtonPressed));
-        addRenderableWidget(new DirectionButton(x + 60, y + 30, BlockSide.RIGHT, menu::getBlockState, this::onDirectionButtonPressed));
-        addRenderableWidget(new DirectionButton(x + 30, y + 60, BlockSide.BOTTOM, menu::getBlockState, this::onDirectionButtonPressed));
-        addRenderableWidget(new DirectionButton(x + 60, y + 60, BlockSide.BACK, menu::getBlockState, this::onDirectionButtonPressed));
+        IoSelectButton.createAsLayout(
+            leftPos + 20,
+            topPos + 10,
+            menu.getBlockState(),
+            menu::getIoSetting,
+            this::onIoSelectButtonClicked
+        ).visitWidgets(this::addRenderableWidget);
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
@@ -100,7 +98,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         int y = 10;
 
         for (Direction direction : Direction.values()) {
-            String text = direction.getName() + ": " + menu.getIoConfig().getSetting(direction).name();
+            String text = direction.getName() + ": " + menu.getIoSetting(direction).name();
             guiGraphics.drawString(font, text, -80, y, 15_658_734);
             y += 20;
         }
@@ -111,12 +109,12 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
-    private void onTabButtonPressed(TabType tabType) {
+    private void onTabButtonClicked(TabType tabType) {
         currentTab = tabType;
         rebuildWidgets();
     }
 
-    private void onDirectionButtonPressed(Direction direction, boolean reverse) {
+    private void onIoSelectButtonClicked(Direction direction, boolean reverse) {
         CompoundTag tag = new CompoundTag();
         tag.putString("type", "direction_button");
         tag.putInt("direction", direction.ordinal());

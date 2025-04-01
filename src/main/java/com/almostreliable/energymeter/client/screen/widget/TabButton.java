@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public class TabButton extends AbstractWidget {
 
-    private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/tab.png");
+    private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/button/tab.png");
     private static final int TEXTURE_WIDTH = 45;
     private static final int TEXTURE_HEIGHT = 32;
     private static final int TAB_WIDTH = 25;

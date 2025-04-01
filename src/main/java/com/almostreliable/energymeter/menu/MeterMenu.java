@@ -9,6 +9,7 @@ import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.IntegerDataHandler;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
+import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
@@ -88,8 +89,8 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     // region syncing client getters
     @OnlyIn(Dist.CLIENT)
-    public IoConfig getIoConfig() {
-        return ioConfig;
+    public IoSetting getIoSetting(Direction direction) {
+        return ioConfig.getSetting(direction);
     }
 
     @OnlyIn(Dist.CLIENT)
