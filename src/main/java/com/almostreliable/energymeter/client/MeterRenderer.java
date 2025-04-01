@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.client;
 
 import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.almostreliable.energymeter.util.NumberFormatter;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -20,6 +21,8 @@ import com.mojang.math.Axis;
 public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity> {
 
     private static final int MAX_DISTANCE = 32;
+    private static final float HALF = 1f / 2f;
+    private static final float SCALE = 1f / 40f;
     private final Font font;
 
     public MeterRenderer(Context context) {
@@ -43,17 +46,7 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity> {
         Direction bottom = FacingEntityBlock.getBottomDir(blockState);
 
         stack.pushPose();
-
-        // // format the current flow rate and draw it according to its size, so it's centered
-        // var text = TextUtils.formatEnergy(blockEntity.getEnergyRate(), false);
-        // var flowRate = text.getA();
-        // var unit = text.getB() + "/t";
-        // // flow rate
-        // drawText(flowRate, -font.lineHeight - OFFSET, stack, buffer);
-        // // unit
-        // drawText(unit, OFFSET, stack, buffer);
-
-        stack.translate(0.5, 0.5, 0.5);
+        stack.translate(HALF, HALF, HALF);
 
         switch (facing) {
             case UP -> stack.mulPose(bottom.getRotation());
@@ -67,14 +60,15 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity> {
             }
         }
 
-        stack.translate(0, 0, -0.5 - 0.000_1);
+        stack.translate(0, SCALE, -HALF - 0.000_1);
 
-        float scale = 1f / 32f;
-        stack.scale(scale, scale, scale);
+        stack.scale(SCALE, SCALE, SCALE);
 
-        double energyRate = blockEntity.getEnergyRate();
-        String text = String.format("%.2f", energyRate);
-        drawText(text, 0, stack, buffer);
+        NumberFormatter.FormatResult energyRateFormatted = NumberFormatter.formatEnergy(blockEntity.getEnergyRate());
+        drawText(energyRateFormatted.getEnergy(), -font.lineHeight, stack, buffer);
+
+        stack.scale(0.8f, 0.8f, 0.8f);
+        drawText(energyRateFormatted.getUnitPerTick(), 0, stack, buffer);
 
         stack.popPose();
     }

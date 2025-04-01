@@ -18,17 +18,43 @@ public final class NumberFormatter {
 
     private NumberFormatter() {}
 
-    public static String formatEnergyRate(double energy) {
-        return formatTotalEnergy(energy) + "/t";
-    }
-
-    public static String formatTotalEnergy(double energy) {
+    public static FormatResult formatEnergy(double energy) {
         int index = 0;
         while (energy >= 1_000 && index < UNIT_PREFIXES.length - 1) {
             energy /= 1_000;
             index++;
         }
 
-        return DECIMAL_FORMAT.format(energy) + " " + UNIT_PREFIXES[index] + "FE";
+        String formattedEnergy = DECIMAL_FORMAT.format(energy);
+        String unit = UNIT_PREFIXES[index] + "FE";
+
+        return new FormatResult(formattedEnergy, unit);
+    }
+
+    public static final class FormatResult {
+
+        private final String energy;
+        private final String unit;
+
+        private FormatResult(String energy, String unit) {
+            this.energy = energy;
+            this.unit = unit;
+        }
+
+        public String asUnitPerTick() {
+            return energy + " " + unit + "/t";
+        }
+
+        public String asTotalUnit() {
+            return energy + " " + unit;
+        }
+
+        public String getEnergy() {
+            return energy;
+        }
+
+        public String getUnitPerTick() {
+            return unit + "/t";
+        }
     }
 }

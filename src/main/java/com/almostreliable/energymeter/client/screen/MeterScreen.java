@@ -62,10 +62,10 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         LinearLayout labelLayout = LinearLayout.vertical().spacing(2);
 
         labelLayout.addChild(new StringWidget(EnergyMeterLang.ENERGY_RATE.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatEnergyRate(menu.getEnergyRate()), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick(), font));
         labelLayout.addChild(SpacerElement.height(2));
         labelLayout.addChild(new StringWidget(EnergyMeterLang.TOTAL_ENERGY.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatTotalEnergy(menu.getTotalEnergy()), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit(), font));
         labelLayout.addChild(SpacerElement.height(2));
         labelLayout.addChild(new StringWidget(EnergyMeterLang.TRANSFER_MODE.get().append(":"), font));
         labelLayout.addChild(new SupplyingStringWidget(() -> menu.getTransferMode().name(), font));
