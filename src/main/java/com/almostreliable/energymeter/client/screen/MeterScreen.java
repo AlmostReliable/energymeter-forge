@@ -9,6 +9,7 @@ import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.NumberFormatter;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -86,6 +87,12 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             menu::getIoSetting,
             this::onIoSelectButtonClicked
         ).visitWidgets(this::addRenderableWidget);
+
+        addRenderableWidget(
+            Button.builder(Component.literal("Transfer Mode"), this::onTransferModeButtonClicked)
+                .pos(leftPos + 20, topPos + 80)
+                .build()
+        );
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
@@ -102,6 +109,9 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             guiGraphics.drawString(font, text, -80, y, 15_658_734);
             y += 20;
         }
+
+        String text = "transfer mode: " + menu.getTransferMode().name();
+        guiGraphics.drawString(font, text, -80, y, 15_658_734);
     }
 
     @Override
@@ -120,6 +130,13 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         tag.putInt("direction", direction.ordinal());
         tag.putBoolean("reverse", reverse);
         tag.putBoolean("shift", hasShiftDown());
+        sendAction(tag);
+    }
+
+    private void onTransferModeButtonClicked(Button ignoredButton) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("type", "setting_changed");
+        tag.putString("setting", "transfer_mode");
         sendAction(tag);
     }
 

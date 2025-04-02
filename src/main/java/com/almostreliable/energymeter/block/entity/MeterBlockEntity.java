@@ -30,7 +30,6 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.TestOnly;
 
 import static com.almostreliable.energymeter.core.Constants.DISPLAY_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
@@ -206,7 +205,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         return transferMode;
     }
 
-    @TestOnly
     public void setTransferMode(TransferMode transferMode) {
         this.transferMode = transferMode;
     }
