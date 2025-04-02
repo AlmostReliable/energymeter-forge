@@ -66,16 +66,35 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     public void receiveClientData(ServerPlayer player, CompoundTag data) {
         String type = data.getString("type");
 
-        if (type.equals("direction_button")) {
-            Direction direction = Direction.values()[data.getInt("direction")];
-            boolean reverse = data.getBoolean("reverse");
-            boolean shift = data.getBoolean("shift");
+        switch (type) {
+            case "io_setting" -> {
+                Direction direction = Direction.values()[data.getInt("direction")];
 
-            if (shift) {
-                blockEntity.getIoConfig().resetSetting(direction);
-            } else {
-                blockEntity.getIoConfig().cycleSetting(direction, reverse);
+                if (data.contains("setting")) {
+                    IoSetting setting = IoSetting.values()[data.getInt("setting")];
+                    blockEntity.getIoConfig().setSetting(direction, setting);
+                    return;
+                }
+
+                boolean reverse = data.getBoolean("reverse");
+                boolean shift = data.getBoolean("shift");
+
+                if (shift) {
+                    blockEntity.getIoConfig().resetSetting(direction);
+                } else {
+                    blockEntity.getIoConfig().cycleSetting(direction, reverse);
+                }
             }
+            case "setting_changed" -> {
+                String setting = data.getString("setting");
+                if (setting.equals("transfer_mode")) {
+                    TransferMode currentMode = blockEntity.getTransferMode();
+                    int newOrdinal = (currentMode.ordinal() + 1) % TransferMode.values().length;
+                    TransferMode newMode = TransferMode.values()[newOrdinal];
+                    blockEntity.setTransferMode(newMode);
+                }
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }
 

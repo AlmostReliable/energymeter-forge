@@ -1,12 +1,14 @@
 package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.EnergyMeter;
-import com.almostreliable.energymeter.client.screen.widget.IoSelectButton;
+import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
+import com.almostreliable.energymeter.client.screen.widget.IoSettingWidget;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.NumberFormatter;
+import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -80,13 +82,18 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initConfigTab() {
-        IoSelectButton.createAsLayout(
+        IoSettingWidget ioSettingWidget = new IoSettingWidget();
+        BlockSideButton.createAsLayout(
             leftPos + 20,
             topPos + 10,
             menu.getBlockState(),
+            ioSettingWidget,
+            menu::getTransferMode,
             menu::getIoSetting,
-            this::onIoSelectButtonClicked
+            this::onBlockSideButtonClicked,
+            this::onIoSettingSelected
         ).visitWidgets(this::addRenderableWidget);
+        addRenderableWidget(ioSettingWidget);
 
         addRenderableWidget(
             Button.builder(Component.literal("Transfer Mode"), this::onTransferModeButtonClicked)
@@ -124,12 +131,20 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         rebuildWidgets();
     }
 
-    private void onIoSelectButtonClicked(Direction direction, boolean reverse) {
+    private void onBlockSideButtonClicked(Direction direction, boolean reverse) {
         CompoundTag tag = new CompoundTag();
-        tag.putString("type", "direction_button");
+        tag.putString("type", "io_setting");
         tag.putInt("direction", direction.ordinal());
         tag.putBoolean("reverse", reverse);
         tag.putBoolean("shift", hasShiftDown());
+        sendAction(tag);
+    }
+
+    private void onIoSettingSelected(Direction direction, IoSetting setting) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("type", "io_setting");
+        tag.putInt("direction", direction.ordinal());
+        tag.putInt("setting", setting.ordinal());
         sendAction(tag);
     }
 

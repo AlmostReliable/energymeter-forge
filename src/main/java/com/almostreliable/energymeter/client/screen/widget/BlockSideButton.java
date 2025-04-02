@@ -2,15 +2,14 @@ package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.FacingEntityBlock;
-import com.almostreliable.energymeter.util.TypeEnums;
+import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
+import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.layouts.GridLayout;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -18,8 +17,9 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-public final class IoSelectButton extends AbstractWidget {
+public final class BlockSideButton extends PositionlessWidget {
 
     private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/button/io.png");
     private static final int TEXTURE_WIDTH = 51;
@@ -28,30 +28,44 @@ public final class IoSelectButton extends AbstractWidget {
 
     private final BlockSide blockSide;
     private final Direction direction;
-    private final Function<Direction, TypeEnums.IoSetting> settingSupplier;
+    private final IoSettingWidget ioSettingWidget;
+    private final Supplier<TransferMode> transferModeSupplier;
+    private final Function<Direction, IoSetting> settingSupplier;
     private final BiConsumer<Direction, Boolean> onClick;
+    private final BiConsumer<Direction, IoSetting> onSelect;
 
-    private IoSelectButton(
-        BlockSide blockSide, Direction direction, Function<Direction, TypeEnums.IoSetting> settingSupplier,
-        BiConsumer<Direction, Boolean> onClick
+    private BlockSideButton(
+        BlockSide blockSide, Direction direction, IoSettingWidget ioSettingWidget, Supplier<TransferMode> transferModeSupplier,
+        Function<Direction, IoSetting> settingSupplier, BiConsumer<Direction, Boolean> onClick, BiConsumer<Direction, IoSetting> onSelect
     ) {
-        super(0, 0, BUTTON_SIZE, BUTTON_SIZE, Component.empty());
+        super(BUTTON_SIZE, BUTTON_SIZE);
         this.blockSide = blockSide;
         this.direction = direction;
+        this.ioSettingWidget = ioSettingWidget;
+        this.transferModeSupplier = transferModeSupplier;
         this.settingSupplier = settingSupplier;
         this.onClick = onClick;
+        this.onSelect = onSelect;
     }
 
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     public static GridLayout createAsLayout(
-        int x, int y, BlockState blockState, Function<Direction, TypeEnums.IoSetting> settingSupplier,
-        BiConsumer<Direction, Boolean> onClick
+        int x, int y, BlockState blockState, IoSettingWidget ioSettingWidget, Supplier<TransferMode> transferModeSupplier,
+        Function<Direction, IoSetting> settingSupplier, BiConsumer<Direction, Boolean> onClick, BiConsumer<Direction, IoSetting> onSelect
     ) {
         GridLayout layout = new GridLayout(x, y).spacing(1);
 
         for (BlockSide blockSide : BlockSide.values()) {
             Direction direction = blockSide.getDirection(blockState);
-            IoSelectButton button = new IoSelectButton(blockSide, direction, settingSupplier, onClick);
+            BlockSideButton button = new BlockSideButton(
+                blockSide,
+                direction,
+                ioSettingWidget,
+                transferModeSupplier,
+                settingSupplier,
+                onClick,
+                onSelect
+            );
             layout.addChild(button, blockSide.getRow(), blockSide.getColumn());
         }
 
@@ -65,21 +79,16 @@ public final class IoSelectButton extends AbstractWidget {
         guiGraphics.blit(TEXTURE, getX(), getY(), 0, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
         // setting overlay
-        TypeEnums.IoSetting setting = settingSupplier.apply(direction);
-        if (setting != TypeEnums.IoSetting.OFF) {
+        IoSetting setting = settingSupplier.apply(direction);
+        if (setting != IoSetting.OFF) {
             int uOffset = setting.ordinal() * BUTTON_SIZE;
             guiGraphics.blit(TEXTURE, getX(), getY(), uOffset, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
     }
 
     @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-        defaultButtonNarrationText(narrationElementOutput);
-    }
-
-    @Override
     public void playDownSound(SoundManager handler) {
-        if (blockSide == BlockSide.FRONT) return;
+        if (blockSide == BlockSide.FRONT || ioSettingWidget.isBound()) return;
         super.playDownSound(handler);
     }
 
@@ -89,8 +98,21 @@ public final class IoSelectButton extends AbstractWidget {
     }
 
     @Override
+    protected boolean clicked(double mouseX, double mouseY) {
+        return !ioSettingWidget.isBound() && super.clicked(mouseX, mouseY);
+    }
+
+    @Override
     public void onClick(double mouseX, double mouseY, int button) {
-        onClick.accept(direction, button == GLFW.GLFW_MOUSE_BUTTON_RIGHT);
+        if (!Screen.hasShiftDown() && transferModeSupplier.get() == TransferMode.TRANSFER) {
+            ioSettingWidget.bind(getX(), getY(), this::onSettingWidgetClicked);
+        } else {
+            onClick.accept(direction, button == GLFW.GLFW_MOUSE_BUTTON_RIGHT);
+        }
+    }
+
+    private void onSettingWidgetClicked(IoSetting setting) {
+        onSelect.accept(direction, setting);
     }
 
     public enum BlockSide {

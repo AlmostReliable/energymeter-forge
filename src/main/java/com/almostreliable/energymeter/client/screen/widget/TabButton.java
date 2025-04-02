@@ -4,15 +4,12 @@ import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.client.screen.MeterScreen.TabType;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 
-public class TabButton extends AbstractWidget {
+public class TabButton extends PositionlessWidget {
 
     private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/button/tab.png");
     private static final int TEXTURE_WIDTH = 45;
@@ -27,7 +24,7 @@ public class TabButton extends AbstractWidget {
     private final Consumer<TabType> onClick;
 
     public TabButton(TabType tabType, TabType selected, Consumer<TabType> onClick) {
-        super(0, 0, TAB_WIDTH, TAB_HEIGHT, Component.empty());
+        super(TAB_WIDTH, TAB_HEIGHT);
         this.tabType = tabType;
         this.isSelected = tabType == selected;
         this.onClick = onClick;
@@ -42,11 +39,6 @@ public class TabButton extends AbstractWidget {
         // tab icon
         int uOffset = tabType.ordinal() * ICON_WIDTH;
         guiGraphics.blit(TEXTURE, getX() + 5, getY() + 3, uOffset, TAB_HEIGHT, ICON_WIDTH, ICON_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-    }
-
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-        defaultButtonNarrationText(narrationElementOutput);
     }
 
     @Override
