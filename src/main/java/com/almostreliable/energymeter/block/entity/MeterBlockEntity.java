@@ -4,13 +4,13 @@ import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.component.EnergyHandler;
 import com.almostreliable.energymeter.block.component.EnergyHandlerHost;
 import com.almostreliable.energymeter.block.component.IoConfig;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
-import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
@@ -157,7 +157,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     @Nullable
     public IEnergyStorage getEnergyCapability(@Nullable Direction direction) {
-        if (direction == null || ioConfig.getSetting(direction) == IoSetting.OFF) return null;
+        if (direction == null || ioConfig.getSetting(direction).isDisabled()) return null;
         return energyHandler.getEnergyStorage(direction);
     }
 

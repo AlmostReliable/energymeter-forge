@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.block.component;
 
-import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.core.BlockPos;
@@ -70,7 +70,7 @@ public class EnergyHandler {
     }
 
     public void onIoSettingChanged(Direction direction, IoSetting setting) {
-        if (setting == IoSetting.OUT) return;
+        if (setting.isOutput()) return;
         outputCache.remove(direction);
     }
 

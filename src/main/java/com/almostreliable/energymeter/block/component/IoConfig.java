@@ -1,7 +1,6 @@
 package com.almostreliable.energymeter.block.component;
 
 import com.almostreliable.energymeter.network.menu.DataHandler;
-import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -48,14 +47,8 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     public void cycleSetting(Direction direction, boolean reverse) {
         IoSetting currentSetting = directionToSetting.get(direction);
-        var ioSettingValues = IoSetting.values();
-
-        int newSettingOrdinal = (currentSetting.ordinal() + (reverse ? -1 : 1)) % ioSettingValues.length;
-        if (newSettingOrdinal < 0) {
-            newSettingOrdinal = ioSettingValues.length - 1;
-        }
-
-        setSetting(direction, ioSettingValues[newSettingOrdinal]);
+        IoSetting newSetting = reverse ? currentSetting.previous() : currentSetting.next();
+        setSetting(direction, newSetting);
     }
 
     public void resetSetting(Direction direction) {
@@ -63,19 +56,28 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     }
 
     public void forEachOutput(Consumer<Direction> consumer) {
-        for (var entry : directionToSetting.entrySet()) {
-            if (entry.getValue() == IoSetting.OUT) {
-                consumer.accept(entry.getKey());
-            }
-        }
+        directionToSetting.entrySet().stream()
+            .filter(e -> e.getValue().isOutput)
+            .sorted((e1, e2) -> Integer.compare(e2.getValue().priority, e1.getValue().priority))
+            .forEach(e -> consumer.accept(e.getKey()));
     }
 
     public boolean hasInput() {
-        return directionToSetting.containsValue(IoSetting.IN);
+        for (IoSetting setting : directionToSetting.values()) {
+            if (setting.isInput) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean hasOutput() {
-        return directionToSetting.containsValue(IoSetting.OUT);
+        for (IoSetting setting : directionToSetting.values()) {
+            if (setting.isOutput) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -83,7 +85,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         for (var entry : directionToSetting.entrySet()) {
-            tag.putString(entry.getKey().name(), entry.getValue().name());
+            tag.put(entry.getKey().name(), entry.getValue().serialize());
         }
         return tag;
     }
@@ -91,29 +93,121 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag compoundTag) {
         for (Direction direction : Direction.values()) {
-            String setting = compoundTag.getString(direction.name());
-            directionToSetting.put(direction, IoSetting.valueOf(setting));
+            IoSetting setting = IoSetting.deserialize(compoundTag.getCompound(direction.name()));
+            directionToSetting.put(direction, setting);
         }
     }
 
     @Override
     public void encode(FriendlyByteBuf buffer) {
-        for (Direction dir : Direction.values()) {
-            buffer.writeByte(directionToSetting.get(dir).ordinal());
+        for (Direction direction : Direction.values()) {
+            IoSetting setting = directionToSetting.get(direction);
+            buffer.writeByte(setting.getOrdinal());
+            if (setting.isOutput) {
+                buffer.writeByte(setting.priority);
+            }
         }
         changed = false;
     }
 
     @Override
     public void decode(FriendlyByteBuf buffer) {
-        for (Direction dir : Direction.values()) {
-            // TODO: extract all occurrences of Enum#values() to a variable as it is a costly operation
-            directionToSetting.put(dir, IoSetting.values()[buffer.readByte()]);
+        for (Direction direction : Direction.values()) {
+            IoSetting setting = IoSetting.of(buffer.readByte());
+            if (setting.isOutput) {
+                setting = setting.withPriority(buffer.readByte());
+            }
+            setSetting(direction, setting);
         }
     }
 
     @Override
     public boolean hasChanged() {
         return changed;
+    }
+
+    public static final class IoSetting {
+
+        public static final IoSetting OFF = new IoSetting(0, "off", false, false, 0);
+        public static final IoSetting IN = new IoSetting(1, "input", true, false, 0);
+        public static final IoSetting OUT = new IoSetting(2, "output", false, true, 1);
+        private static final IoSetting[] VALUES = {OFF, IN, OUT};
+
+        private final int ordinal;
+        private final String name;
+        private final boolean isInput;
+        private final boolean isOutput;
+        private final int priority;
+
+        private IoSetting(int ordinal, String name, boolean isInput, boolean isOutput, int priority) {
+            this.ordinal = ordinal;
+            this.name = name;
+            this.isInput = isInput;
+            this.isOutput = isOutput;
+            this.priority = priority;
+        }
+
+        public static IoSetting of(int ordinal) {
+            return VALUES[ordinal];
+        }
+
+        public CompoundTag serialize() {
+            CompoundTag tag = new CompoundTag();
+            tag.putInt("ordinal", ordinal);
+            if (isOutput) {
+                tag.putInt("priority", priority);
+            }
+            return tag;
+        }
+
+        public static IoSetting deserialize(CompoundTag tag) {
+            int ordinal = tag.getInt("ordinal");
+            IoSetting setting = of(ordinal);
+            if (setting.isOutput()) {
+                return setting.withPriority(tag.getInt("priority"));
+            }
+            return setting;
+        }
+
+        private IoSetting next() {
+            int nextOrdinal = (ordinal + 1) % VALUES.length;
+            return VALUES[nextOrdinal];
+        }
+
+        private IoSetting previous() {
+            int prevOrdinal = (ordinal - 1 + VALUES.length) % VALUES.length;
+            return VALUES[prevOrdinal];
+        }
+
+        public boolean isDisabled() {
+            return !isInput && !isOutput;
+        }
+
+        public boolean isInput() {
+            return isInput;
+        }
+
+        public boolean isOutput() {
+            return isOutput;
+        }
+
+        public IoSetting withPriority(int priority) {
+            if (!isOutput) {
+                throw new IllegalStateException("cannot set priority on non-output setting");
+            }
+            return new IoSetting(ordinal, name, isInput, true, priority);
+        }
+
+        public int getOrdinal() {
+            return ordinal;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getPriority() {
+            return priority;
+        }
     }
 }

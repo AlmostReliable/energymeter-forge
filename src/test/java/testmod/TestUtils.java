@@ -1,8 +1,8 @@
 package testmod;
 
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.core.Registration;
-import com.almostreliable.energymeter.util.TypeEnums;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -47,8 +47,8 @@ public final class TestUtils {
         MeterBlockEntity meterBlockEntity = setupMeter(helper);
 
         // set io configuration, west to input, east to output
-        meterBlockEntity.getIoConfig().setSetting(Direction.WEST, TypeEnums.IoSetting.IN);
-        meterBlockEntity.getIoConfig().setSetting(Direction.EAST, TypeEnums.IoSetting.OUT);
+        meterBlockEntity.getIoConfig().setSetting(Direction.WEST, IoSetting.IN);
+        meterBlockEntity.getIoConfig().setSetting(Direction.EAST, IoSetting.OUT);
 
         // place test energy blocks on both configured sides
         helper.setBlock(DEFAULT_POS.relative(Direction.WEST), TestRegistration.ENERGY_BLOCK.get());

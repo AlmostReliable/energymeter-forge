@@ -12,13 +12,6 @@ public final class TypeEnums {
     }
 
     /**
-     * Enum to represent the different IO settings for the side configuration.
-     */
-    public enum IoSetting {
-        OFF, IN, OUT
-    }
-
-    /**
      * Enum to represent a setting for the different GUI buttons.
      */
     public enum Setting {

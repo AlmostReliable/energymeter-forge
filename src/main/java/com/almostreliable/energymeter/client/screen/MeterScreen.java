@@ -1,14 +1,13 @@
 package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.EnergyMeter;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
-import com.almostreliable.energymeter.client.screen.widget.IoSettingWidget;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.NumberFormatter;
-import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -82,18 +81,15 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initConfigTab() {
-        IoSettingWidget ioSettingWidget = new IoSettingWidget();
-        BlockSideButton.createAsLayout(
+        BlockSideButton.create(
             leftPos + 20,
             topPos + 10,
             menu.getBlockState(),
-            ioSettingWidget,
             menu::getTransferMode,
             menu::getIoSetting,
             this::onBlockSideButtonClicked,
             this::onIoSettingSelected
-        ).visitWidgets(this::addRenderableWidget);
-        addRenderableWidget(ioSettingWidget);
+        ).forEach(this::addRenderableWidget);
 
         addRenderableWidget(
             Button.builder(Component.literal("Transfer Mode"), this::onTransferModeButtonClicked)
@@ -112,7 +108,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         int y = 10;
 
         for (Direction direction : Direction.values()) {
-            String text = direction.getName() + ": " + menu.getIoSetting(direction).name();
+            String text = direction.getName() + ": " + menu.getIoSetting(direction).getName();
             guiGraphics.drawString(font, text, -80, y, 15_658_734);
             y += 20;
         }
@@ -144,7 +140,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         CompoundTag tag = new CompoundTag();
         tag.putString("type", "io_setting");
         tag.putInt("direction", direction.ordinal());
-        tag.putInt("setting", setting.ordinal());
+        tag.put("setting", setting.serialize());
         sendAction(tag);
     }
 

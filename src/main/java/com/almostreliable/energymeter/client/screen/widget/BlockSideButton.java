@@ -2,10 +2,11 @@ package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.FacingEntityBlock;
-import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.sounds.SoundManager;
@@ -15,7 +16,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -49,11 +54,12 @@ public final class BlockSideButton extends PositionlessWidget {
     }
 
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
-    public static GridLayout createAsLayout(
-        int x, int y, BlockState blockState, IoSettingWidget ioSettingWidget, Supplier<TransferMode> transferModeSupplier,
+    public static Collection<AbstractWidget> create(
+        int x, int y, BlockState blockState, Supplier<TransferMode> transferModeSupplier,
         Function<Direction, IoSetting> settingSupplier, BiConsumer<Direction, Boolean> onClick, BiConsumer<Direction, IoSetting> onSelect
     ) {
         GridLayout layout = new GridLayout(x, y).spacing(1);
+        IoSettingWidget ioSettingWidget = new IoSettingWidget();
 
         for (BlockSide blockSide : BlockSide.values()) {
             Direction direction = blockSide.getDirection(blockState);
@@ -70,7 +76,11 @@ public final class BlockSideButton extends PositionlessWidget {
         }
 
         layout.arrangeElements();
-        return layout;
+
+        List<AbstractWidget> widgets = new ArrayList<>();
+        layout.visitWidgets(widgets::add);
+        widgets.add(ioSettingWidget);
+        return widgets;
     }
 
     @Override
@@ -80,9 +90,21 @@ public final class BlockSideButton extends PositionlessWidget {
 
         // setting overlay
         IoSetting setting = settingSupplier.apply(direction);
-        if (setting != IoSetting.OFF) {
-            int uOffset = setting.ordinal() * BUTTON_SIZE;
+        if (!setting.isDisabled()) {
+            int uOffset = setting.getOrdinal() * BUTTON_SIZE;
             guiGraphics.blit(TEXTURE, getX(), getY(), uOffset, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        }
+
+        // output priority
+        if (transferModeSupplier.get() == TransferMode.TRANSFER && !ioSettingWidget.isBound() && setting.isOutput()) {
+            int priority = setting.getPriority();
+            guiGraphics.drawCenteredString(
+                font,
+                String.valueOf(priority),
+                getX() + BUTTON_SIZE / 2 + 1,
+                getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
+                15_658_734
+            );
         }
     }
 
@@ -122,7 +144,98 @@ public final class BlockSideButton extends PositionlessWidget {
         onSelect.accept(direction, setting);
     }
 
-    public enum BlockSide {
+    public static final class IoSettingWidget extends PositionlessWidget {
+
+        private static final Consumer<IoSetting> DEFAULT_ON_SELECT = setting -> {};
+        private Consumer<IoSetting> onSelect = DEFAULT_ON_SELECT;
+
+        private IoSettingWidget() {
+            super(BUTTON_SIZE * 6, BUTTON_SIZE);
+            disable();
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            // background
+            guiGraphics.fill(getX() - 1, getY() - 1, getX() + BUTTON_SIZE * 6 + 1, getY() + BUTTON_SIZE + 1, 0xFF00_FFA2);
+
+            // off button
+            guiGraphics.blit(TEXTURE, getX(), getY(), 0, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+
+            // input button background and overlay
+            guiGraphics.blit(TEXTURE, getX() + BUTTON_SIZE, getY(), 0, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            guiGraphics.blit(
+                TEXTURE,
+                getX() + BUTTON_SIZE,
+                getY(),
+                BUTTON_SIZE,
+                0,
+                BUTTON_SIZE,
+                BUTTON_SIZE,
+                TEXTURE_WIDTH,
+                TEXTURE_HEIGHT
+            );
+
+            // output button backgrounds and overlays
+            for (int i = 0; i < 4; i++) {
+                renderOutputButton(guiGraphics, i);
+            }
+        }
+
+        private void renderOutputButton(GuiGraphics guiGraphics, int index) {
+            int x = getX() + BUTTON_SIZE * 2 + BUTTON_SIZE * index;
+
+            // button background
+            guiGraphics.blit(TEXTURE, x, getY(), 0, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+
+            // button overlay
+            guiGraphics.blit(TEXTURE, x, getY(), BUTTON_SIZE * 2, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+
+            // button priority
+            guiGraphics.drawCenteredString(
+                font,
+                String.valueOf(index + 1),
+                x + BUTTON_SIZE / 2 + 1,
+                getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
+                15_658_734
+            );
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY, int button) {
+            // check mouseX to see which button was clicked
+            if (mouseX >= getX() && mouseX <= getX() + BUTTON_SIZE) {
+                // off button
+                onSelect.accept(IoSetting.OFF);
+            } else if (mouseX >= getX() + BUTTON_SIZE && mouseX <= getX() + BUTTON_SIZE * 2) {
+                // input button
+                onSelect.accept(IoSetting.IN);
+            } else if (mouseX >= getX() + BUTTON_SIZE * 2 && mouseX <= getX() + BUTTON_SIZE * 6) {
+                // output buttons
+                int outputNumber = (int) ((mouseX - getX() - BUTTON_SIZE * 2) / BUTTON_SIZE) + 1;
+                onSelect.accept(IoSetting.OUT.withPriority(outputNumber));
+            }
+
+            disable();
+        }
+
+        private void disable() {
+            onSelect = DEFAULT_ON_SELECT;
+            visible = false;
+        }
+
+        private void bind(int x, int y, Consumer<IoSetting> onSelect) {
+            setPosition(x, y);
+            this.onSelect = onSelect;
+            visible = true;
+        }
+
+        private boolean isBound() {
+            return visible;
+        }
+    }
+
+    private enum BlockSide {
 
         BOTTOM(FacingEntityBlock::getBottomDir, 3, 2),
         TOP(d -> FacingEntityBlock.getBottomDir(d).getOpposite(), 1, 2),

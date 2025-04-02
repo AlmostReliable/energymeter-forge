@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.menu;
 
 import com.almostreliable.energymeter.block.component.IoConfig;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
@@ -9,7 +10,6 @@ import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.IntegerDataHandler;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
-import com.almostreliable.energymeter.util.TypeEnums.IoSetting;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
@@ -67,34 +67,38 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
         String type = data.getString("type");
 
         switch (type) {
-            case "io_setting" -> {
-                Direction direction = Direction.values()[data.getInt("direction")];
-
-                if (data.contains("setting")) {
-                    IoSetting setting = IoSetting.values()[data.getInt("setting")];
-                    blockEntity.getIoConfig().setSetting(direction, setting);
-                    return;
-                }
-
-                boolean reverse = data.getBoolean("reverse");
-                boolean shift = data.getBoolean("shift");
-
-                if (shift) {
-                    blockEntity.getIoConfig().resetSetting(direction);
-                } else {
-                    blockEntity.getIoConfig().cycleSetting(direction, reverse);
-                }
-            }
-            case "setting_changed" -> {
-                String setting = data.getString("setting");
-                if (setting.equals("transfer_mode")) {
-                    TransferMode currentMode = blockEntity.getTransferMode();
-                    int newOrdinal = (currentMode.ordinal() + 1) % TransferMode.values().length;
-                    TransferMode newMode = TransferMode.values()[newOrdinal];
-                    blockEntity.setTransferMode(newMode);
-                }
-            }
+            case "setting_changed" -> receiveSettingChange(data);
+            case "io_setting" -> receiveIoSettingChange(data);
             default -> throw new IllegalStateException("Unexpected value: " + type);
+        }
+    }
+
+    private void receiveSettingChange(CompoundTag data) {
+        String setting = data.getString("setting");
+        if (setting.equals("transfer_mode")) {
+            TransferMode currentMode = blockEntity.getTransferMode();
+            int newOrdinal = (currentMode.ordinal() + 1) % TransferMode.values().length;
+            TransferMode newMode = TransferMode.values()[newOrdinal];
+            blockEntity.setTransferMode(newMode);
+        }
+    }
+
+    private void receiveIoSettingChange(CompoundTag data) {
+        Direction direction = Direction.values()[data.getInt("direction")];
+
+        if (data.contains("setting")) {
+            IoSetting setting = IoSetting.deserialize(data.getCompound("setting"));
+            blockEntity.getIoConfig().setSetting(direction, setting);
+            return;
+        }
+
+        boolean reverse = data.getBoolean("reverse");
+        boolean shift = data.getBoolean("shift");
+
+        if (shift) {
+            blockEntity.getIoConfig().resetSetting(direction);
+        } else {
+            blockEntity.getIoConfig().cycleSetting(direction, reverse);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.block.component;
 
-import com.almostreliable.energymeter.util.TypeEnums;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -12,9 +12,9 @@ import java.util.function.Supplier;
 public final class ForwardingEnergyStorage implements IEnergyStorage {
 
     private final EnergyHandler energyHandler;
-    private final Supplier<TypeEnums.IoSetting> settingSupplier;
+    private final Supplier<IoSetting> settingSupplier;
 
-    public ForwardingEnergyStorage(EnergyHandler energyHandler, Supplier<TypeEnums.IoSetting> settingSupplier) {
+    public ForwardingEnergyStorage(EnergyHandler energyHandler, Supplier<IoSetting> settingSupplier) {
         this.energyHandler = energyHandler;
         this.settingSupplier = settingSupplier;
     }
@@ -44,7 +44,7 @@ public final class ForwardingEnergyStorage implements IEnergyStorage {
 
     @Override
     public boolean canReceive() {
-        return settingSupplier.get() == TypeEnums.IoSetting.IN;
+        return settingSupplier.get().isInput();
     }
 
     @Override
