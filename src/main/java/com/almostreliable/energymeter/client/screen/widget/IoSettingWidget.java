@@ -76,16 +76,14 @@ public class IoSettingWidget extends PositionlessWidget {
     }
 
     private void disable() {
-        visible = false;
-        active = false;
         onSelect = DEFAULT_ON_SELECT;
+        visible = false;
     }
 
     void bind(int x, int y, Consumer<IoSetting> onSelect) {
         setPosition(x, y);
         this.onSelect = onSelect;
         visible = true;
-        active = true;
     }
 
     boolean isBound() {
