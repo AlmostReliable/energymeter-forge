@@ -88,7 +88,7 @@ public final class BlockSideButton extends PositionlessWidget {
 
     @Override
     public void playDownSound(SoundManager handler) {
-        if (blockSide == BlockSide.FRONT || ioSettingWidget.isBound()) return;
+        if (blockSide == BlockSide.FRONT && !Screen.hasShiftDown()) return;
         super.playDownSound(handler);
     }
 
@@ -104,6 +104,13 @@ public final class BlockSideButton extends PositionlessWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY, int button) {
+        if (blockSide == BlockSide.FRONT) {
+            if (Screen.hasShiftDown()) {
+                // TODO: reset all settings
+            }
+            return;
+        }
+
         if (!Screen.hasShiftDown() && transferModeSupplier.get() == TransferMode.TRANSFER) {
             ioSettingWidget.bind(getX(), getY(), this::onSettingWidgetClicked);
         } else {
