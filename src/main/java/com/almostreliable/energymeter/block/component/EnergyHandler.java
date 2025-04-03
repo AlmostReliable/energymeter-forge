@@ -2,7 +2,6 @@ package com.almostreliable.energymeter.block.component;
 
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
@@ -10,8 +9,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import com.google.common.primitives.Ints;
-
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -117,7 +114,6 @@ public class EnergyHandler {
 
         host.getIoConfig().forEachOutput(direction -> {
             var capabilityCache = getOrSetupCache(direction);
-            if (capabilityCache == null) return;
             IEnergyStorage outputEnergyStorage = capabilityCache.getCapability();
             if (outputEnergyStorage == null) return;
 
@@ -127,7 +123,6 @@ public class EnergyHandler {
         return outputEnergyStorages;
     }
 
-    @Nullable
     private BlockCapabilityCache<IEnergyStorage, Direction> getOrSetupCache(Direction direction) {
         var cache = outputCache.get(direction);
         if (cache != null) return cache;
@@ -136,21 +131,14 @@ public class EnergyHandler {
             throw new IllegalStateException("energy handler cache accessed too early or from client");
         }
 
-        BlockPos targetPos = host.getBlockPos().relative(direction);
-        if (level.getBlockState(targetPos).isAir()) {
-            return null;
-        }
-
         cache = BlockCapabilityCache.create(
             Capabilities.EnergyStorage.BLOCK,
             level,
-            targetPos,
+            host.getBlockPos().relative(direction),
             direction.getOpposite(),
             () -> !host.isRemoved(),
             () -> outputCache.remove(direction)
         );
-
-        if (cache.getCapability() == null) return null;
 
         outputCache.put(direction, cache);
         return cache;
