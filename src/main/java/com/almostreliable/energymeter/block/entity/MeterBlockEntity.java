@@ -58,7 +58,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
-        this.ioConfig = new IoConfig(this::onConnectionRelevantSettingChanged);
+        this.ioConfig = new IoConfig(this::onIoConfigChanged);
         this.energyHandler = new EnergyHandler(this);
     }
 
@@ -153,6 +153,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         }
     }
 
+    private void onIoConfigChanged() {
+        onConnectionRelevantSettingChanged();
+        setChanged();
+    }
+
     private void onConnectionRelevantSettingChanged() {
         if (!(level instanceof ServerLevel serverLevel)) return;
         energyHandler.clear();
@@ -181,6 +186,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     public void setTransferMode(TransferMode transferMode) {
         this.transferMode = transferMode;
         onConnectionRelevantSettingChanged();
+        setChanged();
     }
 
     public MeasureMode getMeasureMode() {
