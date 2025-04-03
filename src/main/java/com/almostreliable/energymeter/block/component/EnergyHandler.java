@@ -30,11 +30,10 @@ public class EnergyHandler {
 
     private double energyPerInterval;
 
-    public EnergyHandler(EnergyHandlerHost host, Direction facing) {
+    public EnergyHandler(EnergyHandlerHost host) {
         this.host = host;
 
         for (Direction direction : Direction.values()) {
-            if (direction == facing) continue;
             energyStorage.put(direction, new ForwardingEnergyStorage(this, () -> host.getIoConfig().getSetting(direction)));
         }
     }

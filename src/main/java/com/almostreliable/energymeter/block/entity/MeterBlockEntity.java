@@ -1,6 +1,5 @@
 package com.almostreliable.energymeter.block.entity;
 
-import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.component.EnergyHandler;
 import com.almostreliable.energymeter.block.component.EnergyHandlerHost;
 import com.almostreliable.energymeter.block.component.IoConfig;
@@ -64,7 +63,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
         this.ioConfig = new IoConfig(this::onIoSettingChanged);
-        this.energyHandler = new EnergyHandler(this, FacingEntityBlock.getFacingDir(state));
+        this.energyHandler = new EnergyHandler(this);
     }
 
     @Override
