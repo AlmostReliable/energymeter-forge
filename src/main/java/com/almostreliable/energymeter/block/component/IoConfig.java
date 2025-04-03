@@ -12,17 +12,16 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     private final Map<Direction, IoSetting> directionToSetting = new EnumMap<>(Direction.class);
-    private final BiConsumer<Direction, IoSetting> settingChangedListener;
+    private final Runnable changeListener;
     private boolean changed;
 
-    public IoConfig(BiConsumer<Direction, IoSetting> settingChangedListener) {
-        this.settingChangedListener = settingChangedListener;
+    public IoConfig(Runnable changeListener) {
+        this.changeListener = changeListener;
 
         for (Direction direction : Direction.values()) {
             directionToSetting.put(direction, IoSetting.OFF);
@@ -30,7 +29,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     }
 
     public IoConfig() {
-        this((direction, setting) -> {});
+        this(() -> {});
     }
 
     public IoSetting getSetting(Direction direction) {
@@ -42,7 +41,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
         directionToSetting.put(direction, setting);
         changed = true;
-        settingChangedListener.accept(direction, setting);
+        changeListener.run();
     }
 
     public void cycleSetting(Direction direction, boolean reverse) {

@@ -3,7 +3,6 @@ package com.almostreliable.energymeter.block.entity;
 import com.almostreliable.energymeter.block.component.EnergyHandler;
 import com.almostreliable.energymeter.block.component.EnergyHandlerHost;
 import com.almostreliable.energymeter.block.component.IoConfig;
-import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MeterMenu;
@@ -59,7 +58,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
-        this.ioConfig = new IoConfig(this::onIoSettingChanged);
+        this.ioConfig = new IoConfig(this::onConnectionRelevantSettingChanged);
         this.energyHandler = new EnergyHandler(this);
     }
 
@@ -89,6 +88,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     public void onLoad() {
         super.onLoad();
         if (level != null && !level.isClientSide) {
+            // TODO: test if this should be saved or if it's random enough on load after rejoining the world
             tickDelay = (int) (TICK_TIME - (level.getGameTime() % TICK_TIME));
         }
     }
@@ -101,6 +101,8 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     @Override
     public void tick(ServerLevel level) {
+        if (connectionStatus == ConnectionStatus.DISCONNECTED) return;
+
         if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
             energyHandler.onIntervalReached();
         }
@@ -119,11 +121,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         totalEnergy += energyRate * measureInterval;
 
         if (oldEnergyRate != energyRate) {
-            PacketDistributor.sendToPlayersTrackingChunk(
-                level,
-                level.getChunk(worldPosition).getPos(),
-                new EnergyRateUpdatePacket(worldPosition, energyRate)
-            );
+            syncEnergyRate(level);
 
             if (energyRate > 0) {
                 connectionStatus = ConnectionStatus.TRANSFERRING;
@@ -139,9 +137,15 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         }
     }
 
-    private void onIoSettingChanged(Direction direction, IoSetting setting) {
-        energyHandler.onIoSettingChanged(direction, setting);
+    private void syncEnergyRate(ServerLevel level) {
+        PacketDistributor.sendToPlayersTrackingChunk(
+            level,
+            level.getChunk(worldPosition).getPos(),
+            new EnergyRateUpdatePacket(worldPosition, energyRate)
+        );
+    }
 
+    private void refreshConnectionStatus() {
         if ((transferMode.requiresInput() && !ioConfig.hasInput()) || (transferMode.requiresOutput() && !ioConfig.hasOutput())) {
             connectionStatus = ConnectionStatus.DISCONNECTED;
         } else {
@@ -149,41 +153,20 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         }
     }
 
+    private void onConnectionRelevantSettingChanged() {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        energyHandler.clear();
+        refreshConnectionStatus();
+        serverLevel.invalidateCapabilities(worldPosition);
+        energyRate = 0;
+        syncEnergyRate(serverLevel);
+    }
+
     @Nullable
     public IEnergyStorage getEnergyCapability(@Nullable Direction direction) {
         if (direction == null || ioConfig.getSetting(direction).isDisabled()) return null;
         return energyHandler.getEnergyStorage(direction);
     }
-
-    // /**
-    //  * Convenience method used by the {@link SettingUpdatePacket} in order
-    //  * to flip a specific setting after a button click on the client.
-    //  *
-    //  * @param setting the setting to update
-    //  */
-    // public void updateSetting(Setting setting) {
-    //     switch (setting) {
-    //         case NUMBER -> {
-    //             displayMode = displayMode == DisplayMode.SHORT ? DisplayMode.LONG : DisplayMode.SHORT;
-    //             syncData(SyncFlags.NUMBER_MODE);
-    //         }
-    //         case MODE -> {
-    //             transferMode = transferMode == TransferMode.TRANSFER ? TransferMode.CONSUME : TransferMode.TRANSFER;
-    //             syncData(SyncFlags.MODE);
-    //         }
-    //         case ACCURACY -> {
-    //             var flags = SyncFlags.ACCURACY;
-    //             if (measureMode == MeasureMode.EXACT) {
-    //                 measureMode = MeasureMode.INTERVAL;
-    //             } else {
-    //                 measureMode = MeasureMode.EXACT;
-    //                 measureInterval = Config.COMMON.defaultInterval.getAsInt();
-    //                 flags |= SyncFlags.INTERVAL;
-    //             }
-    //             syncData(flags);
-    //         }
-    //     }
-    // }
 
     @Override
     public IoConfig getIoConfig() {
@@ -197,6 +180,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public void setTransferMode(TransferMode transferMode) {
         this.transferMode = transferMode;
+        onConnectionRelevantSettingChanged();
     }
 
     public MeasureMode getMeasureMode() {
