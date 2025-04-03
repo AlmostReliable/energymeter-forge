@@ -19,13 +19,6 @@ public final class TypeEnums {
     }
 
     /**
-     * Enum to represent the number mode of the meter.
-     */
-    public enum DisplayMode {
-        SHORT, LONG
-    }
-
-    /**
      * Enum to represent the status of the meter.
      */
     public enum ConnectionStatus {

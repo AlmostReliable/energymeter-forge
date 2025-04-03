@@ -102,11 +102,6 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
     }
 
     @LuaFunction(mainThread = true)
-    public final MethodResult getNumberMode() {
-        return MethodResult.of(entity.getDisplayMode().name());
-    }
-
-    @LuaFunction(mainThread = true)
     public final MethodResult getMode() {
         return MethodResult.of(entity.getTransferMode().name());
     }

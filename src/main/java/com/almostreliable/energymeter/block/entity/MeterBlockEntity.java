@@ -9,7 +9,6 @@ import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
-import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
@@ -30,7 +29,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jetbrains.annotations.Nullable;
 
-import static com.almostreliable.energymeter.core.Constants.DISPLAY_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
@@ -47,7 +45,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private final EnergyHandler energyHandler;
 
     // settings
-    private DisplayMode displayMode = DisplayMode.SHORT;
     private TransferMode transferMode = TransferMode.SPLIT;
     private MeasureMode measureMode = MeasureMode.EXACT;
     private int measureInterval = Config.COMMON.defaultInterval.getAsInt();
@@ -70,7 +67,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put(SIDE_CONFIG_ID, ioConfig.serializeNBT(registries));
-        tag.putString(DISPLAY_MODE_ID, displayMode.name());
         tag.putString(TRANSFER_MODE_ID, transferMode.name());
         tag.putString(MEASURE_MODE_ID, measureMode.name());
         tag.putInt(MEASURE_INTERVAL_ID, measureInterval);
@@ -82,7 +78,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains(SIDE_CONFIG_ID)) ioConfig.deserializeNBT(registries, tag.getCompound(SIDE_CONFIG_ID));
-        if (tag.contains(DISPLAY_MODE_ID)) displayMode = DisplayMode.valueOf(tag.getString(DISPLAY_MODE_ID));
         if (tag.contains(TRANSFER_MODE_ID)) transferMode = TransferMode.valueOf(tag.getString(TRANSFER_MODE_ID));
         if (tag.contains(MEASURE_MODE_ID)) measureMode = MeasureMode.valueOf(tag.getString(MEASURE_MODE_ID));
         if (tag.contains(MEASURE_INTERVAL_ID)) measureInterval = tag.getInt(MEASURE_INTERVAL_ID);
@@ -193,10 +188,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @Override
     public IoConfig getIoConfig() {
         return ioConfig;
-    }
-
-    public DisplayMode getDisplayMode() {
-        return displayMode;
     }
 
     @Override

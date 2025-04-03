@@ -6,7 +6,6 @@ import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
-import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
@@ -34,7 +33,6 @@ public class MeterBlockEntityTests {
         helper.assertFalse(ioConfig.hasChanged(), "energy meter io config should not be marked as changed by default");
 
         // test enum defaults
-        helper.assertValueEqual(meterBlockEntity.getDisplayMode(), DisplayMode.SHORT, "display mode");
         helper.assertValueEqual(meterBlockEntity.getTransferMode(), TransferMode.SPLIT, "transfer mode");
         helper.assertValueEqual(meterBlockEntity.getMeasureMode(), MeasureMode.EXACT, "measure mode");
         helper.assertValueEqual(meterBlockEntity.getConnectionStatus(), ConnectionStatus.DISCONNECTED, "connection status");

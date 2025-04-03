@@ -9,7 +9,6 @@ import com.almostreliable.energymeter.network.menu.handler.DoubleDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.IntegerDataHandler;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
-import com.almostreliable.energymeter.util.TypeEnums.DisplayMode;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
@@ -24,7 +23,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     private final IoConfig ioConfig = new IoConfig();
-    private DisplayMode displayMode = DisplayMode.SHORT;
     private TransferMode transferMode = TransferMode.SPLIT;
     private MeasureMode measureMode = MeasureMode.EXACT;
     private int measureInterval;
@@ -38,11 +36,6 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     @Override
     public void setupDataHandlers() {
         menuSynchronizer.addDataHandler(new DelegateDataHandler(blockEntity.getIoConfig(), () -> ioConfig));
-        menuSynchronizer.addDataHandler(new EnumDataHandler<>(
-            blockEntity::getDisplayMode,
-            v -> this.displayMode = v,
-            DisplayMode.values()
-        ));
         menuSynchronizer.addDataHandler(new EnumDataHandler<>(
             blockEntity::getTransferMode,
             v -> this.transferMode = v,
@@ -114,11 +107,6 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     @OnlyIn(Dist.CLIENT)
     public IoSetting getIoSetting(Direction direction) {
         return ioConfig.getSetting(direction);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public DisplayMode getDisplayMode() {
-        return displayMode;
     }
 
     @OnlyIn(Dist.CLIENT)

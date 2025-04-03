@@ -10,7 +10,6 @@ public interface Constants {
     // serialization
     String SIDE_CONFIG_ID = "side_config";
     String TRANSFER_RATE_ID = "transfer_rate";
-    String DISPLAY_MODE_ID = "display_mode";
     String TRANSFER_MODE_ID = "transfer_mode";
     String MEASURE_MODE_ID = "measure_mode";
     String MEASURE_INTERVAL_ID = "measure_interval";
