@@ -6,8 +6,10 @@
   "label.energymeter.connection_status": "Connection Status",
   "label.energymeter.display_mode": "Display Mode",
   "label.energymeter.energy_rate": "Energy Rate",
+  "label.energymeter.interval": "Interval",
   "label.energymeter.measure_mode": "Measure Mode",
   "label.energymeter.total_energy": "Total Energy",
   "label.energymeter.transfer_mode": "Transfer Mode",
+  "label.energymeter.zero_tolerance": "Tolerance",
   "tab.energymeter.main": "Energy Meter"
 }

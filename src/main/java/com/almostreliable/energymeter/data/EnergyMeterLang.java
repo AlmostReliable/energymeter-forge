@@ -20,6 +20,8 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry TRANSFER_MODE = LangEntry.label("transfer_mode", "Transfer Mode");
     public static final LangEntry MEASURE_MODE = LangEntry.label("measure_mode", "Measure Mode");
     public static final LangEntry CONNECTION_STATUS = LangEntry.label("connection_status", "Connection Status");
+    public static final LangEntry INTERVAL = LangEntry.label("interval", "Interval");
+    public static final LangEntry ZERO_TOLERANCE = LangEntry.label("zero_tolerance", "Tolerance");
 
     EnergyMeterLang(PackOutput output) {
         super(output, ModConstants.MOD_ID, "en_us");
@@ -42,7 +44,7 @@ public final class EnergyMeterLang extends LanguageProvider {
             return entry;
         }
 
-        public static LangEntry label(String id, String value) {
+        private static LangEntry label(String id, String value) {
             return of("label", id, value);
         }
 

@@ -26,6 +26,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     private TransferMode transferMode = TransferMode.SPLIT;
     private MeasureMode measureMode = MeasureMode.EXACT;
     private int measureInterval;
+    private int zeroTolerance;
     private double totalEnergy;
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
@@ -47,6 +48,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
             MeasureMode.values()
         ));
         menuSynchronizer.addDataHandler(new IntegerDataHandler(blockEntity::getMeasureInterval, v -> this.measureInterval = v));
+        menuSynchronizer.addDataHandler(new IntegerDataHandler(blockEntity::getZeroTolerance, v -> this.zeroTolerance = v));
         menuSynchronizer.addDataHandler(new DoubleDataHandler(blockEntity::getTotalEnergy, v -> this.totalEnergy = v));
         menuSynchronizer.addDataHandler(new EnumDataHandler<>(
             blockEntity::getConnectionStatus,
@@ -120,8 +122,13 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public double getMeasureInterval() {
+    public int getMeasureInterval() {
         return measureInterval;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public int getZeroTolerance() {
+        return zeroTolerance;
     }
 
     @OnlyIn(Dist.CLIENT)
