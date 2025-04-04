@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
+import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
@@ -11,10 +12,8 @@ import com.almostreliable.energymeter.util.NumberFormatter;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
-import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.core.Direction;
@@ -99,23 +98,19 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
                 .build()
         );
 
-        GridLayout textBoxLayout = new GridLayout(leftPos + 2, topPos + 70).spacing(2);
-        GridLayout.RowHelper rowHelper = textBoxLayout.createRowHelper(2);
+        LinearLayout inputLayout = LinearLayout.vertical().spacing(2);
+        inputLayout.setPosition(leftPos + 2, topPos + 70);
 
-        StringWidget intervalLabel = new StringWidget(EnergyMeterLang.INTERVAL.get().append(":"), font);
-        EditBox intervalTextBox = new EditBox(font, 50, font.lineHeight + 4, Component.empty());
-        intervalTextBox.setValue(String.valueOf(menu.getMeasureInterval()));
-        StringWidget toleranceLabel = new StringWidget(EnergyMeterLang.ZERO_TOLERANCE.get().append(":"), font);
-        EditBox toleranceTextBox = new EditBox(font, 50, font.lineHeight + 4, Component.empty());
-        toleranceTextBox.setValue(String.valueOf(menu.getZeroTolerance()));
+        var intervalInput = new InputLayoutElement(EnergyMeterLang.INTERVAL.get().append(":"), font)
+            .set(String.valueOf(menu.getMeasureInterval()));
+        var toleranceInput = new InputLayoutElement(EnergyMeterLang.ZERO_TOLERANCE.get().append(":"), font)
+            .set(String.valueOf(menu.getZeroTolerance()));
 
-        rowHelper.addChild(intervalLabel);
-        rowHelper.addChild(intervalTextBox);
-        rowHelper.addChild(toleranceLabel);
-        rowHelper.addChild(toleranceTextBox);
+        inputLayout.addChild(intervalInput);
+        inputLayout.addChild(toleranceInput);
 
-        textBoxLayout.arrangeElements();
-        textBoxLayout.visitWidgets(this::addRenderableWidget);
+        inputLayout.arrangeElements();
+        inputLayout.visitWidgets(this::addRenderableWidget);
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
