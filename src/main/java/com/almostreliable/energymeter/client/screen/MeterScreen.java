@@ -94,7 +94,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         addRenderableWidget(
             Button.builder(Component.literal("Transfer Mode"), this::onTransferModeButtonClicked)
-                .pos(leftPos + 20, topPos + 100)
+                .pos(leftPos + 20, topPos + 120)
                 .build()
         );
 
@@ -105,9 +105,12 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             .set(String.valueOf(menu.getMeasureInterval()));
         var toleranceInput = new InputLayoutElement(EnergyMeterLang.ZERO_TOLERANCE.get().append(":"), font)
             .set(String.valueOf(menu.getZeroTolerance()));
+        var transferLimitInput = new InputLayoutElement(EnergyMeterLang.TRANSFER_LIMIT.get().append(":"), font)
+            .set(String.valueOf(menu.getTransferLimit()));
 
         inputLayout.addChild(intervalInput);
         inputLayout.addChild(toleranceInput);
+        inputLayout.addChild(transferLimitInput);
 
         inputLayout.arrangeElements();
         inputLayout.visitWidgets(this::addRenderableWidget);

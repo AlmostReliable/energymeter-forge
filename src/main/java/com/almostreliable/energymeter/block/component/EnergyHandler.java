@@ -76,20 +76,22 @@ public class EnergyHandler {
             return amount;
         }
 
-        MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(amount);
+        int energyToForward = host.getTransferLimit() < 0 ? amount : Math.min(host.getTransferLimit(), amount);
+
+        MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(energyToForward);
         var maxEnergyPerOutput = maxEnergyPerOutputResult.maxEnergyPerOutput;
         int maxEnergyPerOutputSum = maxEnergyPerOutputResult.maxEnergyPerOutputSum;
 
         if (maxEnergyPerOutputSum <= 0) return 0;
-        if (simulate) return Math.min(maxEnergyPerOutputSum, amount);
+        if (simulate) return Math.min(maxEnergyPerOutputSum, energyToForward);
 
-        if (maxEnergyPerOutputSum <= amount) {
+        if (maxEnergyPerOutputSum <= energyToForward) {
             fillOutputsWithMaxEnergy(maxEnergyPerOutput);
             energyPerInterval += maxEnergyPerOutputSum;
             return maxEnergyPerOutputSum;
         }
 
-        int energyForwarded = splitEnergyBetweenOutputs(maxEnergyPerOutput, amount);
+        int energyForwarded = splitEnergyBetweenOutputs(maxEnergyPerOutput, energyToForward);
         energyPerInterval += energyForwarded;
         return energyForwarded;
     }

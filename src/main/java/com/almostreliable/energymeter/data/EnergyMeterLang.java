@@ -22,6 +22,7 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry CONNECTION_STATUS = LangEntry.label("connection_status", "Connection Status");
     public static final LangEntry INTERVAL = LangEntry.label("interval", "Interval");
     public static final LangEntry ZERO_TOLERANCE = LangEntry.label("zero_tolerance", "Tolerance");
+    public static final LangEntry TRANSFER_LIMIT = LangEntry.label("transfer_limit", "Transfer Limit");
 
     EnergyMeterLang(PackOutput output) {
         super(output, ModConstants.MOD_ID, "en_us");

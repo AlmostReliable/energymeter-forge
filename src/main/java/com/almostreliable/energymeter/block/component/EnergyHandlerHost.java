@@ -16,7 +16,9 @@ public interface EnergyHandlerHost {
 
     boolean isRemoved();
 
+    IoConfig getIoConfig();
+
     TypeEnums.TransferMode getTransferMode();
 
-    IoConfig getIoConfig();
+    int getTransferLimit();
 }

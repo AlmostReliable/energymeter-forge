@@ -32,6 +32,7 @@ import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
 import static com.almostreliable.energymeter.core.Constants.TOTAL_ENERGY_ID;
+import static com.almostreliable.energymeter.core.Constants.TRANSFER_LIMIT_ID;
 import static com.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
@@ -48,6 +49,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private MeasureMode measureMode = MeasureMode.EXACT;
     private int measureInterval = Config.COMMON.defaultInterval.getAsInt();
     private int zeroTolerance = Config.COMMON.defaultInterval.getAsInt();
+    private int transferLimit = -1;
 
     // tracking & display
     private int tickDelay;
@@ -70,6 +72,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         tag.putString(MEASURE_MODE_ID, measureMode.name());
         tag.putInt(MEASURE_INTERVAL_ID, measureInterval);
         tag.putInt(ZERO_TOLERANCE_ID, zeroTolerance);
+        tag.putInt(TRANSFER_LIMIT_ID, transferLimit);
         tag.putDouble(TOTAL_ENERGY_ID, totalEnergy);
     }
 
@@ -81,6 +84,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         if (tag.contains(MEASURE_MODE_ID)) measureMode = MeasureMode.valueOf(tag.getString(MEASURE_MODE_ID));
         if (tag.contains(MEASURE_INTERVAL_ID)) measureInterval = tag.getInt(MEASURE_INTERVAL_ID);
         if (tag.contains(ZERO_TOLERANCE_ID)) zeroTolerance = tag.getInt(ZERO_TOLERANCE_ID);
+        if (tag.contains(TRANSFER_LIMIT_ID)) transferLimit = tag.getInt(TRANSFER_LIMIT_ID);
         if (tag.contains(TOTAL_ENERGY_ID)) totalEnergy = tag.getDouble(TOTAL_ENERGY_ID);
     }
 
@@ -207,6 +211,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public double getTotalEnergy() {
         return totalEnergy;
+    }
+
+    @Override
+    public int getTransferLimit() {
+        return transferLimit;
     }
 
     @OnlyIn(Dist.CLIENT)
