@@ -1,6 +1,5 @@
 package testmod.test;
 
-import com.almostreliable.energymeter.ModConstants;
 import com.almostreliable.energymeter.block.component.ForwardingEnergyStorage;
 import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
@@ -16,9 +15,10 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
+import testmod.TestMod;
 import testmod.TestUtils;
 
-@GameTestHolder(ModConstants.MOD_ID)
+@GameTestHolder(TestMod.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class MeterBlockEntityTests {
 
