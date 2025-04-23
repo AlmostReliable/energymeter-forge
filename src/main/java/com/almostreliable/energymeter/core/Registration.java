@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,7 +30,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.function.Function;
 
 public final class Registration {
@@ -61,7 +62,7 @@ public final class Registration {
             .title(EnergyMeterLang.LangEntry.of("tab", "main", ModConstants.MOD_NAME).get())
             .icon(METER_BLOCK::toStack)
             .noScrollBar()
-            .displayItems((features, output) -> output.acceptAll(List.of(METER_BLOCK.toStack(), MONITOR_BLOCK.toStack())))
+            .displayItems((features, output) -> output.acceptAll(getKnownItems()))
             .build()
     );
 
@@ -77,6 +78,10 @@ public final class Registration {
         MENUS.register(modEventBus);
 
         modEventBus.addListener(Registration::registerCapabilities);
+    }
+
+    private static Collection<ItemStack> getKnownItems() {
+        return ITEMS.getEntries().stream().map(e -> e.value().getDefaultInstance()).toList();
     }
 
     public static Iterable<Block> getKnownBlocks() {
