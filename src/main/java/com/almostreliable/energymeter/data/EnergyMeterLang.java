@@ -1,13 +1,20 @@
 package com.almostreliable.energymeter.data;
 
 import com.almostreliable.energymeter.ModConstants;
+import com.almostreliable.energymeter.block.component.IoConfig;
+import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
 
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -23,6 +30,8 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry INTERVAL = LangEntry.label("interval", "Interval");
     public static final LangEntry ZERO_TOLERANCE = LangEntry.label("zero_tolerance", "Tolerance");
     public static final LangEntry TRANSFER_LIMIT = LangEntry.label("transfer_limit", "Transfer Limit");
+    public static final Map<BlockSideButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(BlockSideButton.BlockSide.values());
+    public static final Map<IoConfig.IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoConfig.IoSetting.values());
 
     EnergyMeterLang(PackOutput output) {
         super(output, ModConstants.MOD_ID, "en_us");
@@ -47,6 +56,19 @@ public final class EnergyMeterLang extends LanguageProvider {
 
         private static LangEntry label(String id, String value) {
             return of("label", id, value);
+        }
+
+        private static <T extends Enum<?>> Map<T, LangEntry> enumValues(T[] enumValues) {
+            Map<T, LangEntry> enumEntries = new HashMap<>();
+
+            String prefix = enumValues[0].getClass().getSimpleName().toLowerCase(Locale.ROOT);
+            for (T enumValue : enumValues) {
+                String id = enumValue.name().toLowerCase(Locale.ROOT);
+                String value = StringUtils.capitalize(id);
+                enumEntries.put(enumValue, of(prefix, id, value));
+            }
+
+            return enumEntries;
         }
 
         @Override
