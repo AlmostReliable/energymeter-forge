@@ -123,16 +123,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int y = 10;
-
-        for (Direction direction : Direction.values()) {
-            String text = direction.getName() + ": " + menu.getIoSetting(direction).setting().name();
-            guiGraphics.drawString(font, text, -80, y, 15_658_734);
-            y += 20;
-        }
-
-        String text = "transfer mode: " + menu.getTransferMode().name();
-        guiGraphics.drawString(font, text, -80, y, 15_658_734);
+        // don't render title and inventory labels
     }
 
     @Override
