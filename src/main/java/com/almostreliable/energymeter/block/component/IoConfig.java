@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.block.component;
 
 import com.almostreliable.energymeter.network.menu.DataHandler;
+import com.almostreliable.energymeter.util.EnumExtension;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -134,7 +135,6 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         public static final IoSettingWithPriority OFF = new IoSettingWithPriority(IoSetting.OFF, 0);
         public static final IoSettingWithPriority IN = new IoSettingWithPriority(IoSetting.IN, 0);
         public static final IoSettingWithPriority OUT_DEFAULT = new IoSettingWithPriority(IoSetting.OUT, 1);
-        private static final IoSetting[] IO_SETTINGS = IoSetting.values();
 
         public static IoSettingWithPriority priorityOutput(int priority) {
             return new IoSettingWithPriority(IoSetting.OUT, priority);
@@ -171,23 +171,21 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         }
 
         private static IoSettingWithPriority decode(FriendlyByteBuf buffer) {
-            IoSetting setting = IO_SETTINGS[buffer.readByte()];
+            IoSetting setting = IoSetting.values()[buffer.readByte()];
             int priority = buffer.readByte();
             return new IoSettingWithPriority(setting, priority);
         }
 
-        private IoSettingWithPriority next() {
-            int nextOrdinal = (setting.ordinal() + 1) % IO_SETTINGS.length;
-            return new IoSettingWithPriority(IO_SETTINGS[nextOrdinal], priority);
+        public IoSettingWithPriority next() {
+            return new IoSettingWithPriority(setting.next(), priority);
         }
 
         private IoSettingWithPriority previous() {
-            int prevOrdinal = (setting.ordinal() - 1 + IO_SETTINGS.length) % IO_SETTINGS.length;
-            return new IoSettingWithPriority(IO_SETTINGS[prevOrdinal], priority);
+            return new IoSettingWithPriority(setting.previous(), priority);
         }
     }
 
-    public enum IoSetting {
+    public enum IoSetting implements EnumExtension {
 
         OFF(false, false),
         IN(true, false),

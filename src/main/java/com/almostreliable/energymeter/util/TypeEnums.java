@@ -28,7 +28,8 @@ public final class TypeEnums {
     /**
      * Enum to represent the mode of the meter.
      */
-    public enum TransferMode {
+    public enum TransferMode implements EnumExtension {
+
         SPLIT(true, true),
         TRANSFER(true, true),
         CONSUME(true, false);
