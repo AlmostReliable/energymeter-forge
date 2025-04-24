@@ -3,7 +3,10 @@ package com.almostreliable.energymeter.client.screen.widget;
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.component.IoConfig;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
+import com.almostreliable.energymeter.data.EnergyMeterLang;
+import com.almostreliable.energymeter.util.ClientUtils;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,6 +15,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -39,6 +43,8 @@ public final class BlockSideButton extends PositionlessWidget {
     private final Function<Direction, IoSettingWithPriority> settingSupplier;
     private final BiConsumer<Direction, Boolean> onClick;
     private final BiConsumer<Direction, IoSettingWithPriority> onSelect;
+
+    private IoSettingWithPriority previousSetting = IoSettingWithPriority.priorityOutput(0);
 
     private BlockSideButton(
         BlockSide blockSide, Direction direction, IoSettingWidget ioSettingWidget, Supplier<TransferMode> transferModeSupplier,
@@ -109,6 +115,12 @@ public final class BlockSideButton extends PositionlessWidget {
                 15_658_734
             );
         }
+
+        // refresh the tooltip if needed
+        if (!setting.equals(previousSetting)) {
+            previousSetting = setting;
+            refreshTooltip(setting);
+        }
     }
 
     @Override
@@ -145,6 +157,27 @@ public final class BlockSideButton extends PositionlessWidget {
 
     private void onSettingWidgetClicked(IoSettingWithPriority setting) {
         onSelect.accept(direction, setting);
+    }
+
+    private void refreshTooltip(IoSettingWithPriority ioSettingWithPriority) {
+        IoSetting setting = ioSettingWithPriority.setting();
+        int priority = ioSettingWithPriority.priority();
+
+        List<Component> tooltipComponents = new ArrayList<>();
+        tooltipComponents.add(EnergyMeterLang.BLOCK_SIDES.get(blockSide).get());
+
+        if (blockSide != BlockSide.FRONT) {
+            tooltipComponents.add(Component.literal(" "));
+            tooltipComponents.add(EnergyMeterLang.CURRENT_SETTING.get()
+                .append(": ")
+                .append(EnergyMeterLang.IO_SETTINGS.get(setting).get()));
+        }
+
+        if (transferModeSupplier.get() == TransferMode.TRANSFER && ioSettingWithPriority.isOutput()) {
+            tooltipComponents.add(EnergyMeterLang.OUTPUT_PRIORITY.get().append(": ").append(String.valueOf(priority)));
+        }
+
+        setTooltip(ClientUtils.createTooltip(tooltipComponents));
     }
 
     public static final class IoSettingWidget extends PositionlessWidget {
@@ -238,7 +271,7 @@ public final class BlockSideButton extends PositionlessWidget {
         }
     }
 
-    private enum BlockSide {
+    public enum BlockSide {
 
         BOTTOM(FacingEntityBlock::getBottomDir, 3, 2),
         TOP(d -> FacingEntityBlock.getBottomDir(d).getOpposite(), 1, 2),

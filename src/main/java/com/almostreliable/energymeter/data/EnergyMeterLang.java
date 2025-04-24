@@ -30,6 +30,10 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry INTERVAL = LangEntry.label("interval", "Interval");
     public static final LangEntry ZERO_TOLERANCE = LangEntry.label("zero_tolerance", "Tolerance");
     public static final LangEntry TRANSFER_LIMIT = LangEntry.label("transfer_limit", "Transfer Limit");
+
+    public static final LangEntry CURRENT_SETTING = LangEntry.label("current_setting", "Current Setting");
+    public static final LangEntry OUTPUT_PRIORITY = LangEntry.label("output_priority", "Output Priority");
+
     public static final Map<BlockSideButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(BlockSideButton.BlockSide.values());
     public static final Map<IoConfig.IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoConfig.IoSetting.values());
 
@@ -58,7 +62,12 @@ public final class EnergyMeterLang extends LanguageProvider {
             return of("label", id, value);
         }
 
-        private static <T extends Enum<?>> Map<T, LangEntry> enumValues(T[] enumValues) {
+        private static LangEntry tooltip(String id, String value) {
+            return of("tooltip", id, value);
+        }
+
+        @SafeVarargs
+        private static <T extends Enum<?>> Map<T, LangEntry> enumValues(T... enumValues) {
             Map<T, LangEntry> enumEntries = new HashMap<>();
 
             String prefix = enumValues[0].getClass().getSimpleName().toLowerCase(Locale.ROOT);

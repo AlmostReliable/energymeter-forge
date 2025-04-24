@@ -4,6 +4,9 @@ issueTrackerURL = "https://github.com/${githubUser}/${githubRepo}/issues"
 license = "${license}"
 logoFile = "logo.png"
 
+[[mixins]]
+config = "${modId}.mixins.json"
+
 [[mods]]
 modId = "${modId}"
 version = "${version}"
