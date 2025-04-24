@@ -96,7 +96,7 @@ public final class BlockSideButton extends PositionlessWidget {
         }
 
         // output priority
-        if (transferModeSupplier.get() == TransferMode.TRANSFER && !ioSettingWidget.isBound() && setting.isOutput()) {
+        if (transferModeSupplier.get() == TransferMode.TRANSFER && ioSettingWidget.isUnbound() && setting.isOutput()) {
             int priority = setting.getPriority();
             guiGraphics.drawCenteredString(
                 font,
@@ -121,7 +121,7 @@ public final class BlockSideButton extends PositionlessWidget {
 
     @Override
     protected boolean clicked(double mouseX, double mouseY) {
-        return !ioSettingWidget.isBound() && super.clicked(mouseX, mouseY);
+        return ioSettingWidget.isUnbound() && super.clicked(mouseX, mouseY);
     }
 
     @Override
@@ -230,8 +230,8 @@ public final class BlockSideButton extends PositionlessWidget {
             visible = true;
         }
 
-        private boolean isBound() {
-            return visible;
+        private boolean isUnbound() {
+            return !visible;
         }
     }
 
