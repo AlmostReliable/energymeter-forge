@@ -21,6 +21,9 @@ import java.util.function.Supplier;
 @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
 public final class EnergyMeterLang extends LanguageProvider {
 
+    // @formatter:off
+
+    // labels
     public static final LangEntry ENERGY_RATE = LangEntry.label("energy_rate", "Energy Rate");
     public static final LangEntry TOTAL_ENERGY = LangEntry.label("total_energy", "Total Energy");
     public static final LangEntry DISPLAY_MODE = LangEntry.label("display_mode", "Display Mode");
@@ -31,11 +34,25 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry ZERO_TOLERANCE = LangEntry.label("zero_tolerance", "Tolerance");
     public static final LangEntry TRANSFER_LIMIT = LangEntry.label("transfer_limit", "Transfer Limit");
 
-    public static final LangEntry CURRENT_SETTING = LangEntry.label("current_setting", "Current Setting");
-    public static final LangEntry OUTPUT_PRIORITY = LangEntry.label("output_priority", "Output Priority");
+    // tooltips
+    public static final LangEntry CURRENT_SETTING = LangEntry.tooltip("current_setting", "Current Setting");
+    public static final LangEntry OUTPUT_PRIORITY = LangEntry.tooltip("output_priority", "Output Priority");
+    public static final LangEntry CYCLE_NEXT_SETTING = LangEntry.tooltip("cycle_next_setting", "Next setting");
+    public static final LangEntry CYCLE_PREVIOUS_SETTING = LangEntry.tooltip("cycle_previous_setting", "Previous setting");
+    public static final LangEntry SELECT_SETTING = LangEntry.tooltip("select_setting", "Select setting");
+    public static final LangEntry RESET_SETTING = LangEntry.tooltip("reset_setting", "Reset setting");
+    public static final LangEntry RESET_ALL_SETTINGS = LangEntry.tooltip("reset_all_settings", "Reset all settings");
 
+    // controls
+    public static final LangEntry LMB = LangEntry.control("lmb", "Click");
+    public static final LangEntry RMB = LangEntry.control("rmb", "Right-Click");
+    public static final LangEntry SHIFT = LangEntry.control("shift", "Shift");
+
+    // enums
     public static final Map<BlockSideButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(BlockSideButton.BlockSide.values());
     public static final Map<IoConfig.IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoConfig.IoSetting.values());
+
+    // @formatter:on
 
     EnergyMeterLang(PackOutput output) {
         super(output, ModConstants.MOD_ID, "en_us");
@@ -64,6 +81,10 @@ public final class EnergyMeterLang extends LanguageProvider {
 
         private static LangEntry tooltip(String id, String value) {
             return of("tooltip", id, value);
+        }
+
+        private static LangEntry control(String id, String value) {
+            return of("control", id, value);
         }
 
         @SafeVarargs

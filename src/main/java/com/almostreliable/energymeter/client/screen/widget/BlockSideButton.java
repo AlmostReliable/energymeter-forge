@@ -6,7 +6,7 @@ import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
-import com.almostreliable.energymeter.util.ClientUtils;
+import com.almostreliable.energymeter.util.TooltipBuilder;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -44,7 +44,8 @@ public final class BlockSideButton extends PositionlessWidget {
     private final BiConsumer<Direction, Boolean> onClick;
     private final BiConsumer<Direction, IoSettingWithPriority> onSelect;
 
-    private IoSettingWithPriority previousSetting = IoSettingWithPriority.priorityOutput(0);
+    private TransferMode previousTransferMode;
+    private IoSettingWithPriority previousSetting;
 
     private BlockSideButton(
         BlockSide blockSide, Direction direction, IoSettingWidget ioSettingWidget, Supplier<TransferMode> transferModeSupplier,
@@ -59,6 +60,10 @@ public final class BlockSideButton extends PositionlessWidget {
         this.settingSupplier = settingSupplier;
         this.onClick = onClick;
         this.onSelect = onSelect;
+
+        // set the previous fields to something different from the current value, so the cache resets
+        previousTransferMode = transferModeSupplier.get().next();
+        previousSetting = settingSupplier.apply(direction).next();
     }
 
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
@@ -105,7 +110,8 @@ public final class BlockSideButton extends PositionlessWidget {
         }
 
         // output priority
-        if (transferModeSupplier.get() == TransferMode.TRANSFER && ioSettingWidget.isUnbound() && setting.isOutput()) {
+        TransferMode transferMode = transferModeSupplier.get();
+        if (transferMode == TransferMode.TRANSFER && ioSettingWidget.isUnbound() && setting.isOutput()) {
             int priority = setting.priority();
             guiGraphics.drawCenteredString(
                 font,
@@ -117,9 +123,10 @@ public final class BlockSideButton extends PositionlessWidget {
         }
 
         // refresh the tooltip if needed
-        if (!setting.equals(previousSetting)) {
+        if (transferMode != previousTransferMode || !setting.equals(previousSetting)) {
+            previousTransferMode = transferMode;
             previousSetting = setting;
-            refreshTooltip(setting);
+            refreshTooltip(transferMode, setting);
         }
     }
 
@@ -159,25 +166,36 @@ public final class BlockSideButton extends PositionlessWidget {
         onSelect.accept(direction, setting);
     }
 
-    private void refreshTooltip(IoSettingWithPriority ioSettingWithPriority) {
+    private void refreshTooltip(TransferMode transferMode, IoSettingWithPriority ioSettingWithPriority) {
         IoSetting setting = ioSettingWithPriority.setting();
         int priority = ioSettingWithPriority.priority();
 
-        List<Component> tooltipComponents = new ArrayList<>();
-        tooltipComponents.add(EnergyMeterLang.BLOCK_SIDES.get(blockSide).get());
+        TooltipBuilder tooltipBuilder = TooltipBuilder.create().header(EnergyMeterLang.BLOCK_SIDES.get(blockSide).get());
 
         if (blockSide != BlockSide.FRONT) {
-            tooltipComponents.add(Component.literal(" "));
-            tooltipComponents.add(EnergyMeterLang.CURRENT_SETTING.get()
-                .append(": ")
-                .append(EnergyMeterLang.IO_SETTINGS.get(setting).get()));
+            tooltipBuilder.blankLine().keyValue(EnergyMeterLang.CURRENT_SETTING.get(), EnergyMeterLang.IO_SETTINGS.get(setting).get());
         }
 
         if (transferModeSupplier.get() == TransferMode.TRANSFER && ioSettingWithPriority.isOutput()) {
-            tooltipComponents.add(EnergyMeterLang.OUTPUT_PRIORITY.get().append(": ").append(String.valueOf(priority)));
+            tooltipBuilder.keyValue(EnergyMeterLang.OUTPUT_PRIORITY.get(), Component.literal(String.valueOf(priority)));
         }
 
-        setTooltip(ClientUtils.createTooltip(tooltipComponents));
+        tooltipBuilder.blankLine();
+
+        if (blockSide == BlockSide.FRONT) {
+            tooltipBuilder.shiftLmbAction(EnergyMeterLang.RESET_ALL_SETTINGS.get());
+        } else {
+            if (transferMode == TransferMode.TRANSFER) {
+                tooltipBuilder.lmbAction(EnergyMeterLang.SELECT_SETTING.get())
+                    .shiftLmbAction(EnergyMeterLang.RESET_SETTING.get());
+            } else {
+                tooltipBuilder.lmbAction(EnergyMeterLang.CYCLE_NEXT_SETTING.get())
+                    .rmbAction(EnergyMeterLang.CYCLE_PREVIOUS_SETTING.get())
+                    .shiftLmbAction(EnergyMeterLang.RESET_SETTING.get());
+            }
+        }
+
+        setTooltip(tooltipBuilder.build());
     }
 
     public static final class IoSettingWidget extends PositionlessWidget {
