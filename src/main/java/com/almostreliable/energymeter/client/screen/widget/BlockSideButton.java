@@ -2,7 +2,8 @@ package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.FacingEntityBlock;
-import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
+import com.almostreliable.energymeter.block.component.IoConfig;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -35,13 +36,14 @@ public final class BlockSideButton extends PositionlessWidget {
     private final Direction direction;
     private final IoSettingWidget ioSettingWidget;
     private final Supplier<TransferMode> transferModeSupplier;
-    private final Function<Direction, IoSetting> settingSupplier;
+    private final Function<Direction, IoSettingWithPriority> settingSupplier;
     private final BiConsumer<Direction, Boolean> onClick;
-    private final BiConsumer<Direction, IoSetting> onSelect;
+    private final BiConsumer<Direction, IoSettingWithPriority> onSelect;
 
     private BlockSideButton(
         BlockSide blockSide, Direction direction, IoSettingWidget ioSettingWidget, Supplier<TransferMode> transferModeSupplier,
-        Function<Direction, IoSetting> settingSupplier, BiConsumer<Direction, Boolean> onClick, BiConsumer<Direction, IoSetting> onSelect
+        Function<Direction, IoSettingWithPriority> settingSupplier, BiConsumer<Direction, Boolean> onClick,
+        BiConsumer<Direction, IoSettingWithPriority> onSelect
     ) {
         super(BUTTON_SIZE, BUTTON_SIZE);
         this.blockSide = blockSide;
@@ -56,7 +58,8 @@ public final class BlockSideButton extends PositionlessWidget {
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     public static Collection<AbstractWidget> create(
         int x, int y, BlockState blockState, Supplier<TransferMode> transferModeSupplier,
-        Function<Direction, IoSetting> settingSupplier, BiConsumer<Direction, Boolean> onClick, BiConsumer<Direction, IoSetting> onSelect
+        Function<Direction, IoSettingWithPriority> settingSupplier, BiConsumer<Direction, Boolean> onClick,
+        BiConsumer<Direction, IoSettingWithPriority> onSelect
     ) {
         GridLayout layout = new GridLayout(x, y).spacing(1);
         IoSettingWidget ioSettingWidget = new IoSettingWidget();
@@ -89,15 +92,15 @@ public final class BlockSideButton extends PositionlessWidget {
         guiGraphics.blit(TEXTURE, getX(), getY(), 0, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
         // setting overlay
-        IoSetting setting = settingSupplier.apply(direction);
+        IoSettingWithPriority setting = settingSupplier.apply(direction);
         if (!setting.isDisabled()) {
-            int uOffset = setting.getOrdinal() * BUTTON_SIZE;
+            int uOffset = setting.setting().ordinal() * BUTTON_SIZE;
             guiGraphics.blit(TEXTURE, getX(), getY(), uOffset, 0, BUTTON_SIZE, BUTTON_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
 
         // output priority
         if (transferModeSupplier.get() == TransferMode.TRANSFER && ioSettingWidget.isUnbound() && setting.isOutput()) {
-            int priority = setting.getPriority();
+            int priority = setting.priority();
             guiGraphics.drawCenteredString(
                 font,
                 String.valueOf(priority),
@@ -140,14 +143,14 @@ public final class BlockSideButton extends PositionlessWidget {
         }
     }
 
-    private void onSettingWidgetClicked(IoSetting setting) {
+    private void onSettingWidgetClicked(IoSettingWithPriority setting) {
         onSelect.accept(direction, setting);
     }
 
     public static final class IoSettingWidget extends PositionlessWidget {
 
-        private static final Consumer<IoSetting> DEFAULT_ON_SELECT = setting -> {};
-        private Consumer<IoSetting> onSelect = DEFAULT_ON_SELECT;
+        private static final Consumer<IoSettingWithPriority> DEFAULT_ON_SELECT = setting -> {};
+        private Consumer<IoSettingWithPriority> onSelect = DEFAULT_ON_SELECT;
 
         private IoSettingWidget() {
             super(BUTTON_SIZE * 6, BUTTON_SIZE);
@@ -177,7 +180,7 @@ public final class BlockSideButton extends PositionlessWidget {
             );
 
             // output button backgrounds and overlays
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < IoConfig.MAX_PRIORITY; i++) {
                 renderOutputButton(guiGraphics, i);
             }
         }
@@ -206,14 +209,14 @@ public final class BlockSideButton extends PositionlessWidget {
             // check mouseX to see which button was clicked
             if (mouseX >= getX() && mouseX <= getX() + BUTTON_SIZE) {
                 // off button
-                onSelect.accept(IoSetting.OFF);
+                onSelect.accept(IoSettingWithPriority.OFF);
             } else if (mouseX >= getX() + BUTTON_SIZE && mouseX <= getX() + BUTTON_SIZE * 2) {
                 // input button
-                onSelect.accept(IoSetting.IN);
+                onSelect.accept(IoSettingWithPriority.IN);
             } else if (mouseX >= getX() + BUTTON_SIZE * 2 && mouseX <= getX() + BUTTON_SIZE * 6) {
                 // output buttons
-                int outputNumber = (int) ((mouseX - getX() - BUTTON_SIZE * 2) / BUTTON_SIZE) + 1;
-                onSelect.accept(IoSetting.OUT.withPriority(outputNumber));
+                int priority = (int) ((mouseX - getX() - BUTTON_SIZE * 2) / BUTTON_SIZE) + 1;
+                onSelect.accept(IoSettingWithPriority.priorityOutput(priority));
             }
 
             disable();
@@ -224,7 +227,7 @@ public final class BlockSideButton extends PositionlessWidget {
             visible = false;
         }
 
-        private void bind(int x, int y, Consumer<IoSetting> onSelect) {
+        private void bind(int x, int y, Consumer<IoSettingWithPriority> onSelect) {
             setPosition(x, y);
             this.onSelect = onSelect;
             visible = true;

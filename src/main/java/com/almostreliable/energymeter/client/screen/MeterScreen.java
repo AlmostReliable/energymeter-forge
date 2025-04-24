@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.EnergyMeter;
-import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
 import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
@@ -126,7 +126,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         int y = 10;
 
         for (Direction direction : Direction.values()) {
-            String text = direction.getName() + ": " + menu.getIoSetting(direction).getName();
+            String text = direction.getName() + ": " + menu.getIoSetting(direction).setting().name();
             guiGraphics.drawString(font, text, -80, y, 15_658_734);
             y += 20;
         }
@@ -154,7 +154,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         sendAction(tag);
     }
 
-    private void onIoSettingSelected(Direction direction, IoSetting setting) {
+    private void onIoSettingSelected(Direction direction, IoSettingWithPriority setting) {
         CompoundTag tag = new CompoundTag();
         tag.putString("type", "io_setting");
         tag.putInt("direction", direction.ordinal());

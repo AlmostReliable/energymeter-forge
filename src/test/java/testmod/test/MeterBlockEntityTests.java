@@ -2,7 +2,7 @@ package testmod.test;
 
 import com.almostreliable.energymeter.block.component.ForwardingEnergyStorage;
 import com.almostreliable.energymeter.block.component.IoConfig;
-import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
 import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
@@ -53,8 +53,8 @@ public class MeterBlockEntityTests {
         TestUtils.assertNull(energyCapWithoutContext, "energy meter should not expose the internal energy capability");
 
         // set io configuration, west to input, east to output
-        meterBlockEntity.getIoConfig().setSetting(Direction.WEST, IoSetting.IN);
-        meterBlockEntity.getIoConfig().setSetting(Direction.EAST, IoSetting.OUT);
+        meterBlockEntity.getIoConfig().setSetting(Direction.WEST, IoSettingWithPriority.IN);
+        meterBlockEntity.getIoConfig().setSetting(Direction.EAST, IoSettingWithPriority.OUT_DEFAULT);
 
         // test whether energy input capability exposes correct handler
         IEnergyStorage inputEnergyCap = meterBlockEntity.getEnergyCapability(Direction.WEST);

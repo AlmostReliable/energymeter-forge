@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.block.component;
 
-import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -12,9 +12,9 @@ import java.util.function.Supplier;
 public final class ForwardingEnergyStorage implements IEnergyStorage {
 
     private final EnergyHandler energyHandler;
-    private final Supplier<IoSetting> settingSupplier;
+    private final Supplier<IoSettingWithPriority> settingSupplier;
 
-    public ForwardingEnergyStorage(EnergyHandler energyHandler, Supplier<IoSetting> settingSupplier) {
+    public ForwardingEnergyStorage(EnergyHandler energyHandler, Supplier<IoSettingWithPriority> settingSupplier) {
         this.energyHandler = energyHandler;
         this.settingSupplier = settingSupplier;
     }

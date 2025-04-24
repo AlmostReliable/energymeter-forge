@@ -16,7 +16,9 @@ import java.util.function.Consumer;
 
 public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
-    private final Map<Direction, IoSetting> directionToSetting = new EnumMap<>(Direction.class);
+    public static final int MAX_PRIORITY = 4;
+
+    private final Map<Direction, IoSettingWithPriority> directionToSetting = new EnumMap<>(Direction.class);
     private final Runnable changeListener;
     private boolean changed;
 
@@ -24,7 +26,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         this.changeListener = changeListener;
 
         for (Direction direction : Direction.values()) {
-            directionToSetting.put(direction, IoSetting.OFF);
+            directionToSetting.put(direction, IoSettingWithPriority.OFF);
         }
     }
 
@@ -32,12 +34,12 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         this(() -> {});
     }
 
-    public IoSetting getSetting(Direction direction) {
+    public IoSettingWithPriority getSetting(Direction direction) {
         return directionToSetting.get(direction);
     }
 
-    public void setSetting(Direction direction, IoSetting setting) {
-        if (directionToSetting.get(direction) == setting) return;
+    public void setSetting(Direction direction, IoSettingWithPriority setting) {
+        if (getSetting(direction).equals(setting)) return;
 
         directionToSetting.put(direction, setting);
         changed = true;
@@ -45,25 +47,29 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     }
 
     public void cycleSetting(Direction direction, boolean reverse) {
-        IoSetting currentSetting = directionToSetting.get(direction);
-        IoSetting newSetting = reverse ? currentSetting.previous() : currentSetting.next();
+        IoSettingWithPriority currentSetting = getSetting(direction);
+        IoSettingWithPriority newSetting = reverse ? currentSetting.previous() : currentSetting.next();
         setSetting(direction, newSetting);
     }
 
     public void resetSetting(Direction direction) {
-        setSetting(direction, IoSetting.OFF);
+        setSetting(direction, IoSettingWithPriority.OFF);
     }
 
     public void forEachOutput(Consumer<Direction> consumer) {
-        directionToSetting.entrySet().stream()
-            .filter(e -> e.getValue().isOutput)
-            .sorted((e1, e2) -> Integer.compare(e2.getValue().priority, e1.getValue().priority))
-            .forEach(e -> consumer.accept(e.getKey()));
+        for (int priority = MAX_PRIORITY; priority >= 1; priority--) {
+            for (Direction direction : Direction.values()) {
+                IoSettingWithPriority entry = directionToSetting.get(direction);
+                if (entry.setting.isOutput && entry.priority == priority) {
+                    consumer.accept(direction);
+                }
+            }
+        }
     }
 
     public boolean hasInput() {
-        for (IoSetting setting : directionToSetting.values()) {
-            if (setting.isInput) {
+        for (IoSettingWithPriority entry : directionToSetting.values()) {
+            if (entry.setting.isInput) {
                 return true;
             }
         }
@@ -71,8 +77,8 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     }
 
     public boolean hasOutput() {
-        for (IoSetting setting : directionToSetting.values()) {
-            if (setting.isOutput) {
+        for (IoSettingWithPriority entry : directionToSetting.values()) {
+            if (entry.setting.isOutput) {
                 return true;
             }
         }
@@ -83,16 +89,20 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     @UnknownNullability
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        for (var entry : directionToSetting.entrySet()) {
-            tag.put(entry.getKey().name(), entry.getValue().serialize());
+
+        for (Direction direction : Direction.values()) {
+            IoSettingWithPriority setting = directionToSetting.get(direction);
+            tag.put(direction.name(), setting.serialize());
         }
+
         return tag;
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag compoundTag) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         for (Direction direction : Direction.values()) {
-            IoSetting setting = IoSetting.deserialize(compoundTag.getCompound(direction.name()));
+            CompoundTag directionTag = tag.getCompound(direction.name());
+            IoSettingWithPriority setting = IoSettingWithPriority.deserialize(directionTag);
             directionToSetting.put(direction, setting);
         }
     }
@@ -100,11 +110,8 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     @Override
     public void encode(FriendlyByteBuf buffer) {
         for (Direction direction : Direction.values()) {
-            IoSetting setting = directionToSetting.get(direction);
-            buffer.writeByte(setting.getOrdinal());
-            if (setting.isOutput) {
-                buffer.writeByte(setting.priority);
-            }
+            IoSettingWithPriority setting = directionToSetting.get(direction);
+            setting.encode(buffer);
         }
         changed = false;
     }
@@ -112,11 +119,8 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     @Override
     public void decode(FriendlyByteBuf buffer) {
         for (Direction direction : Direction.values()) {
-            IoSetting setting = IoSetting.of(buffer.readByte());
-            if (setting.isOutput) {
-                setting = setting.withPriority(buffer.readByte());
-            }
-            setSetting(direction, setting);
+            IoSettingWithPriority setting = IoSettingWithPriority.decode(buffer);
+            directionToSetting.put(direction, setting);
         }
     }
 
@@ -125,88 +129,76 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         return changed;
     }
 
-    public static final class IoSetting {
+    public record IoSettingWithPriority(IoSetting setting, int priority) {
 
-        public static final IoSetting OFF = new IoSetting(0, "off", false, false, 0);
-        public static final IoSetting IN = new IoSetting(1, "input", true, false, 0);
-        public static final IoSetting OUT = new IoSetting(2, "output", false, true, 1);
-        private static final IoSetting[] VALUES = {OFF, IN, OUT};
+        public static final IoSettingWithPriority OFF = new IoSettingWithPriority(IoSetting.OFF, 0);
+        public static final IoSettingWithPriority IN = new IoSettingWithPriority(IoSetting.IN, 0);
+        public static final IoSettingWithPriority OUT_DEFAULT = new IoSettingWithPriority(IoSetting.OUT, 1);
+        private static final IoSetting[] IO_SETTINGS = IoSetting.values();
 
-        private final int ordinal;
-        private final String name;
-        private final boolean isInput;
-        private final boolean isOutput;
-        private final int priority;
-
-        private IoSetting(int ordinal, String name, boolean isInput, boolean isOutput, int priority) {
-            this.ordinal = ordinal;
-            this.name = name;
-            this.isInput = isInput;
-            this.isOutput = isOutput;
-            this.priority = priority;
+        public static IoSettingWithPriority priorityOutput(int priority) {
+            return new IoSettingWithPriority(IoSetting.OUT, priority);
         }
 
-        public static IoSetting of(int ordinal) {
-            return VALUES[ordinal];
+        public boolean isDisabled() {
+            return this == OFF || (!setting.isInput && !setting.isOutput);
+        }
+
+        public boolean isInput() {
+            return this == IN || setting.isInput;
+        }
+
+        public boolean isOutput() {
+            return this == OUT_DEFAULT || setting.isOutput;
         }
 
         public CompoundTag serialize() {
             CompoundTag tag = new CompoundTag();
-            tag.putInt("ordinal", ordinal);
-            if (isOutput) {
-                tag.putInt("priority", priority);
-            }
+            tag.putString("setting", setting.name());
+            tag.putInt("priority", priority);
             return tag;
         }
 
-        public static IoSetting deserialize(CompoundTag tag) {
-            int ordinal = tag.getInt("ordinal");
-            IoSetting setting = of(ordinal);
-            if (setting.isOutput()) {
-                return setting.withPriority(tag.getInt("priority"));
-            }
-            return setting;
+        public static IoSettingWithPriority deserialize(CompoundTag tag) {
+            IoSetting setting = IoSetting.valueOf(tag.getString("setting"));
+            int priority = tag.getInt("priority");
+            return new IoSettingWithPriority(setting, priority);
         }
 
-        private IoSetting next() {
-            int nextOrdinal = (ordinal + 1) % VALUES.length;
-            return VALUES[nextOrdinal];
+        private void encode(FriendlyByteBuf buffer) {
+            buffer.writeByte(setting.ordinal());
+            buffer.writeByte(priority);
         }
 
-        private IoSetting previous() {
-            int prevOrdinal = (ordinal - 1 + VALUES.length) % VALUES.length;
-            return VALUES[prevOrdinal];
+        private static IoSettingWithPriority decode(FriendlyByteBuf buffer) {
+            IoSetting setting = IO_SETTINGS[buffer.readByte()];
+            int priority = buffer.readByte();
+            return new IoSettingWithPriority(setting, priority);
         }
 
-        public boolean isDisabled() {
-            return !isInput && !isOutput;
+        private IoSettingWithPriority next() {
+            int nextOrdinal = (setting.ordinal() + 1) % IO_SETTINGS.length;
+            return new IoSettingWithPriority(IO_SETTINGS[nextOrdinal], priority);
         }
 
-        public boolean isInput() {
-            return isInput;
+        private IoSettingWithPriority previous() {
+            int prevOrdinal = (setting.ordinal() - 1 + IO_SETTINGS.length) % IO_SETTINGS.length;
+            return new IoSettingWithPriority(IO_SETTINGS[prevOrdinal], priority);
         }
+    }
 
-        public boolean isOutput() {
-            return isOutput;
-        }
+    public enum IoSetting {
 
-        public IoSetting withPriority(int priority) {
-            if (!isOutput) {
-                throw new IllegalStateException("cannot set priority on non-output setting");
-            }
-            return new IoSetting(ordinal, name, isInput, true, priority);
-        }
+        OFF(false, false),
+        IN(true, false),
+        OUT(false, true);
 
-        public int getOrdinal() {
-            return ordinal;
-        }
+        private final boolean isInput;
+        private final boolean isOutput;
 
-        public String getName() {
-            return name;
-        }
-
-        public int getPriority() {
-            return priority;
+        IoSetting(boolean isInput, boolean isOutput) {
+            this.isInput = isInput;
+            this.isOutput = isOutput;
         }
     }
 }

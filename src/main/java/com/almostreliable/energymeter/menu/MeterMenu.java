@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter.menu;
 
 import com.almostreliable.energymeter.block.component.IoConfig;
-import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
@@ -81,10 +81,10 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     }
 
     private void receiveIoSettingChange(CompoundTag data) {
-        Direction direction = Direction.values()[data.getInt("direction")];
+        Direction direction = Direction.values()[data.getByte("direction")];
 
         if (data.contains("setting")) {
-            IoSetting setting = IoSetting.deserialize(data.getCompound("setting"));
+            IoSettingWithPriority setting = IoSettingWithPriority.deserialize(data.getCompound("setting"));
             blockEntity.getIoConfig().setSetting(direction, setting);
             return;
         }
@@ -109,7 +109,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     // region syncing client getters
     @OnlyIn(Dist.CLIENT)
-    public IoSetting getIoSetting(Direction direction) {
+    public IoSettingWithPriority getIoSetting(Direction direction) {
         return ioConfig.getSetting(direction);
     }
 
