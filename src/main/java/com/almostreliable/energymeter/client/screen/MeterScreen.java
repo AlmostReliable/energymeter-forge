@@ -55,7 +55,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         }
 
         tabLayout.arrangeElements();
-        FrameLayout.alignInRectangle(tabLayout, leftPos, topPos - TabButton.TAB_HEIGHT + 1, TEXTURE_WIDTH, TabButton.TAB_HEIGHT, 0.1f, 0);
+        FrameLayout.alignInRectangle(tabLayout, leftPos, topPos - TabButton.TAB_HEIGHT + 1, TEXTURE_WIDTH, TabButton.TAB_HEIGHT, 0.5f, 0);
         tabLayout.visitWidgets(this::addRenderableWidget);
     }
 
@@ -85,16 +85,6 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initConfigTab() {
-        BlockSideButton.create(
-            leftPos + 20,
-            topPos + 10,
-            menu.getBlockState(),
-            menu::getTransferMode,
-            menu::getIoSetting,
-            this::onBlockSideButtonClicked,
-            this::onIoSettingSelected
-        ).forEach(this::addRenderableWidget);
-
         addRenderableWidget(
             Button.builder(Component.literal("Transfer Mode"), this::onTransferModeButtonClicked)
                 .pos(leftPos + 20, topPos + 120)
@@ -117,6 +107,19 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         inputLayout.arrangeElements();
         inputLayout.visitWidgets(this::addRenderableWidget);
+    }
+
+    @SuppressWarnings("MethodOnlyUsedFromInnerClass")
+    private void initIoTab() {
+        BlockSideButton.create(
+            leftPos + 20,
+            topPos + 10,
+            menu.getBlockState(),
+            menu::getTransferMode,
+            menu::getIoSetting,
+            this::onBlockSideButtonClicked,
+            this::onIoSettingSelected
+        ).forEach(this::addRenderableWidget);
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
@@ -166,6 +169,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     public enum TabType {
         STATISTICS(MeterScreen::initStatsTab),
         CONFIGURATION(MeterScreen::initConfigTab),
+        IO(MeterScreen::initIoTab),
         REDSTONE(MeterScreen::initRedstoneTab);
 
         private final Consumer<MeterScreen> init;
