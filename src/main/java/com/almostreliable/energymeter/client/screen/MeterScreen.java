@@ -69,11 +69,14 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         labelLayout.addChild(new StringWidget(EnergyMeterLang.TOTAL_ENERGY.get().append(":"), font));
         labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit(), font));
         labelLayout.addChild(SpacerElement.height(2));
+        labelLayout.addChild(new StringWidget(EnergyMeterLang.CONNECTION_STATUS.get().append(":"), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> menu.getConnectionStatus().name(), font));
+        labelLayout.addChild(SpacerElement.height(2));
         labelLayout.addChild(new StringWidget(EnergyMeterLang.TRANSFER_MODE.get().append(":"), font));
         labelLayout.addChild(new SupplyingStringWidget(() -> menu.getTransferMode().name(), font));
         labelLayout.addChild(SpacerElement.height(2));
-        labelLayout.addChild(new StringWidget(EnergyMeterLang.CONNECTION_STATUS.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> menu.getConnectionStatus().name(), font));
+        labelLayout.addChild(new StringWidget(EnergyMeterLang.MEASURE_MODE.get().append(":"), font));
+        labelLayout.addChild(new SupplyingStringWidget(() -> menu.getMeasureMode().name(), font));
 
         labelLayout.arrangeElements();
         FrameLayout.alignInRectangle(labelLayout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
