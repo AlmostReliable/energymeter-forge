@@ -30,7 +30,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     private static final int TEXTURE_WIDTH = 133;
     private static final int TEXTURE_HEIGHT = 127;
 
-    private TabType currentTab = TabType.STATS;
+    private TabType currentTab = TabType.STATISTICS;
 
     @SuppressWarnings("AssignmentToSuperclassField")
     public MeterScreen(MeterMenu menu, Inventory playerInventory, Component title) {
@@ -164,8 +164,8 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     public enum TabType {
-        STATS(MeterScreen::initStatsTab),
-        CONFIG(MeterScreen::initConfigTab),
+        STATISTICS(MeterScreen::initStatsTab),
+        CONFIGURATION(MeterScreen::initConfigTab),
         REDSTONE(MeterScreen::initRedstoneTab);
 
         private final Consumer<MeterScreen> init;

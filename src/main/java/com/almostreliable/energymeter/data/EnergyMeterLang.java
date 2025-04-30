@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.data;
 
 import com.almostreliable.energymeter.ModConstants;
 import com.almostreliable.energymeter.block.component.IoConfig;
+import com.almostreliable.energymeter.client.screen.MeterScreen;
 import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
 
 import net.minecraft.data.PackOutput;
@@ -51,6 +52,7 @@ public final class EnergyMeterLang extends LanguageProvider {
     // enums
     public static final Map<BlockSideButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(BlockSideButton.BlockSide.values());
     public static final Map<IoConfig.IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoConfig.IoSetting.values());
+    public static final Map<MeterScreen.TabType, LangEntry> TAB_TYPE = LangEntry.enumValues(MeterScreen.TabType.values());
 
     // @formatter:on
 

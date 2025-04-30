@@ -2,8 +2,10 @@ package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.client.screen.MeterScreen.TabType;
+import com.almostreliable.energymeter.data.EnergyMeterLang;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
 
@@ -28,6 +30,8 @@ public class TabButton extends PositionlessWidget {
         this.tabType = tabType;
         this.isSelected = tabType == selected;
         this.onClick = onClick;
+
+        setTooltip(Tooltip.create(EnergyMeterLang.TAB_TYPE.get(tabType).get()));
     }
 
     @Override
