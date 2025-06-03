@@ -170,10 +170,13 @@ public final class BlockSideButton extends PositionlessWidget {
         IoSetting setting = ioSettingWithPriority.setting();
         int priority = ioSettingWithPriority.priority();
 
-        TooltipBuilder tooltipBuilder = TooltipBuilder.create().header(EnergyMeterLang.BLOCK_SIDES.get(blockSide).get());
+        TooltipBuilder tooltipBuilder = TooltipBuilder.create()
+            .header(EnergyMeterLang.BLOCK_SIDES.get(blockSide).get())
+            .blankLine()
+            .keyValue(EnergyMeterLang.DIRECTION.get(), EnergyMeterLang.DIRECTIONS.get(direction).get());
 
         if (blockSide != BlockSide.FRONT) {
-            tooltipBuilder.blankLine().keyValue(EnergyMeterLang.CURRENT_SETTING.get(), EnergyMeterLang.IO_SETTINGS.get(setting).get());
+            tooltipBuilder.keyValue(EnergyMeterLang.CURRENT_SETTING.get(), EnergyMeterLang.IO_SETTINGS.get(setting).get());
         }
 
         if (transferModeSupplier.get() == TransferMode.TRANSFER && ioSettingWithPriority.isOutput()) {

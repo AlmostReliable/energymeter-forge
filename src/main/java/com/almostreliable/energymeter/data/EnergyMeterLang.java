@@ -5,6 +5,7 @@ import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.client.screen.MeterScreen;
 import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
 
+import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -37,6 +38,7 @@ public final class EnergyMeterLang extends LanguageProvider {
 
     // tooltips
     public static final LangEntry CURRENT_SETTING = LangEntry.tooltip("current_setting", "Current Setting");
+    public static final LangEntry DIRECTION = LangEntry.tooltip("direction", "Direction");
     public static final LangEntry OUTPUT_PRIORITY = LangEntry.tooltip("output_priority", "Output Priority");
     public static final LangEntry CYCLE_NEXT_SETTING = LangEntry.tooltip("cycle_next_setting", "Next setting");
     public static final LangEntry CYCLE_PREVIOUS_SETTING = LangEntry.tooltip("cycle_previous_setting", "Previous setting");
@@ -51,6 +53,7 @@ public final class EnergyMeterLang extends LanguageProvider {
 
     // enums
     public static final Map<BlockSideButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(BlockSideButton.BlockSide.values());
+    public static final Map<Direction, LangEntry> DIRECTIONS = LangEntry.enumValues(Direction.values());
     public static final Map<IoConfig.IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoConfig.IoSetting.values());
     public static final Map<MeterScreen.TabType, LangEntry> TAB_TYPE = LangEntry.enumValues(MeterScreen.TabType.values());
 
