@@ -137,6 +137,10 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         public static final IoSettingWithPriority OUT_DEFAULT = new IoSettingWithPriority(IoSetting.OUT, 1);
 
         public static IoSettingWithPriority priorityOutput(int priority) {
+            if (priority == 0 || priority == 1) {
+                return OUT_DEFAULT;
+            }
+
             return new IoSettingWithPriority(IoSetting.OUT, priority);
         }
 
