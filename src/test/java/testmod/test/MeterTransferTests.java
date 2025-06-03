@@ -1,7 +1,7 @@
 package testmod.test;
 
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
-import com.almostreliable.energymeter.util.TypeEnums;
+import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -18,7 +18,7 @@ import testmod.content.EnergyBlockEntity;
 @PrefixGameTestTemplate(false)
 public class MeterTransferTests {
 
-    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = "empty_test_structure")
+    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
     public void meterConsumerOne(GameTestHelper helper) {
         TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
         MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
@@ -26,7 +26,7 @@ public class MeterTransferTests {
         IEnergyStorage outputEnergyBlockCap = meterWithIoResult.outputEnergyBlockCap();
 
         // set transfer mode to consume
-        meterBlockEntity.setTransferMode(TypeEnums.TransferMode.CONSUME);
+        meterBlockEntity.setTransferMode(TransferMode.CONSUME);
 
         // let input energy block emit energy towards the meter
         int energyPerTick = TestUtils.getRandomEnergyRate();
@@ -42,7 +42,7 @@ public class MeterTransferTests {
         );
     }
 
-    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = "empty_test_structure")
+    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
     public void meterTransferOneToOne(GameTestHelper helper) {
         TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
         MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
@@ -50,7 +50,7 @@ public class MeterTransferTests {
         IEnergyStorage outputEnergyBlockCap = meterWithIoResult.outputEnergyBlockCap();
 
         // set transfer mode to transfer
-        meterBlockEntity.setTransferMode(TypeEnums.TransferMode.TRANSFER);
+        meterBlockEntity.setTransferMode(TransferMode.TRANSFER);
 
         // let input energy block emit energy towards the meter
         int energyPerTick = TestUtils.getRandomEnergyRate();

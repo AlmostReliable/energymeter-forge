@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class TestUtils {
 
+    public static final String EMPTY_STRUCTURE = "empty_test_structure";
     public static final BlockPos DEFAULT_POS = new BlockPos(1, 2, 1);
 
     private TestUtils() {}
