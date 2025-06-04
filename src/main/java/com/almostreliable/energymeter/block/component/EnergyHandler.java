@@ -13,7 +13,6 @@ import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,24 +90,31 @@ public class EnergyHandler {
             return maxEnergyPerOutputSum;
         }
 
-        int energyForwarded = splitEnergyBetweenOutputs(maxEnergyPerOutput, energyToForward);
+        int energyForwarded = 0;
+
+        if (host.getTransferMode() == TransferMode.SPLIT) {
+            energyForwarded = splitEnergyBetweenOutputs(maxEnergyPerOutput, energyToForward);
+        } else if (host.getTransferMode() == TransferMode.TRANSFER) {
+            energyForwarded = transferEnergyToOutputs(maxEnergyPerOutput, energyToForward);
+        }
+
         energyPerInterval += energyForwarded;
         return energyForwarded;
     }
 
     private MaxEnergyPerOutputResult calculateMaxEnergyPerOutput(int maxEnergyToForward) {
-        Map<IEnergyStorage, Integer> energyPerOutput = new HashMap<>();
+        List<EnergyPerOutputEntry> maxEnergyPerOutput = new ArrayList<>();
         long maxEnergyPerOutputSum = 0;
 
         for (IEnergyStorage neighborEnergyStorage : getValidOutputEnergyStorages()) {
-            int maxEnergyPerOutput = neighborEnergyStorage.receiveEnergy(maxEnergyToForward, true);
-            if (maxEnergyPerOutput > 0) {
-                energyPerOutput.put(neighborEnergyStorage, maxEnergyPerOutput);
-                maxEnergyPerOutputSum += maxEnergyPerOutput;
+            int maxAcceptedEnergy = neighborEnergyStorage.receiveEnergy(maxEnergyToForward, true);
+            if (maxAcceptedEnergy > 0) {
+                maxEnergyPerOutput.add(new EnergyPerOutputEntry(neighborEnergyStorage, maxAcceptedEnergy));
+                maxEnergyPerOutputSum += maxAcceptedEnergy;
             }
         }
 
-        return new MaxEnergyPerOutputResult(energyPerOutput, Ints.saturatedCast(maxEnergyPerOutputSum));
+        return new MaxEnergyPerOutputResult(maxEnergyPerOutput, Ints.saturatedCast(maxEnergyPerOutputSum));
     }
 
     public Iterable<IEnergyStorage> getValidOutputEnergyStorages() {
@@ -146,30 +152,30 @@ public class EnergyHandler {
         return cache;
     }
 
-    private void fillOutputsWithMaxEnergy(Map<IEnergyStorage, Integer> maxEnergyPerOutput) {
-        for (var outputEntry : maxEnergyPerOutput.entrySet()) {
-            IEnergyStorage neighborEnergyStorage = outputEntry.getKey();
-            int energyToReceiveMax = outputEntry.getValue();
+    private void fillOutputsWithMaxEnergy(List<EnergyPerOutputEntry> maxEnergyPerOutput) {
+        for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
+            IEnergyStorage neighborEnergyStorage = outputEntry.energyStorage;
+            int energyToReceiveMax = outputEntry.maxEnergy;
             neighborEnergyStorage.receiveEnergy(energyToReceiveMax, false);
         }
     }
 
-    private int splitEnergyBetweenOutputs(Map<IEnergyStorage, Integer> energyPerOutput, int maxEnergyToForward) {
+    private int splitEnergyBetweenOutputs(List<EnergyPerOutputEntry> maxEnergyPerOutput, int maxEnergyToForward) {
         var energyToForward = maxEnergyToForward;
         var energyForwarded = 0;
 
-        while (!energyPerOutput.isEmpty() && energyToForward >= energyPerOutput.size()) {
-            var energyToForwardPerOutput = energyToForward / energyPerOutput.size();
-            var fullOutputs = new ArrayList<IEnergyStorage>();
+        while (!maxEnergyPerOutput.isEmpty() && energyToForward >= maxEnergyPerOutput.size()) {
+            var energyToForwardPerOutput = energyToForward / maxEnergyPerOutput.size();
+            var fullOutputEntries = new ArrayList<EnergyPerOutputEntry>();
 
-            for (var output : energyPerOutput.entrySet()) {
-                IEnergyStorage neighborEnergyStorage = output.getKey();
-                int maxEnergyForOutput = output.getValue();
+            for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
+                IEnergyStorage neighborEnergyStorage = outputEntry.energyStorage;
+                int maxEnergyForOutput = outputEntry.maxEnergy;
                 var energyToForwardForOutput = energyToForwardPerOutput;
 
                 if (maxEnergyForOutput < energyToForwardForOutput) {
                     energyToForwardForOutput = maxEnergyForOutput;
-                    fullOutputs.add(neighborEnergyStorage);
+                    fullOutputEntries.add(outputEntry);
                 }
 
                 neighborEnergyStorage.receiveEnergy(energyToForwardForOutput, false);
@@ -177,11 +183,28 @@ public class EnergyHandler {
                 energyForwarded += energyToForwardForOutput;
             }
 
-            fullOutputs.forEach(energyPerOutput::remove);
+            fullOutputEntries.forEach(maxEnergyPerOutput::remove);
         }
 
         return energyForwarded;
     }
 
-    private record MaxEnergyPerOutputResult(Map<IEnergyStorage, Integer> maxEnergyPerOutput, int maxEnergyPerOutputSum) {}
+    private int transferEnergyToOutputs(List<EnergyPerOutputEntry> maxEnergyPerOutput, int maxEnergyToForward) {
+        var energyToForward = maxEnergyToForward;
+        var energyForwarded = 0;
+
+        for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
+            if (energyToForward <= 0) break;
+            IEnergyStorage neighborEnergyStorage = outputEntry.energyStorage;
+            int energyAccepted = neighborEnergyStorage.receiveEnergy(energyToForward, false);
+            energyToForward -= energyAccepted;
+            energyForwarded += energyAccepted;
+        }
+
+        return energyForwarded;
+    }
+
+    private record EnergyPerOutputEntry(IEnergyStorage energyStorage, int maxEnergy) {}
+
+    private record MaxEnergyPerOutputResult(List<EnergyPerOutputEntry> maxEnergyPerOutput, int maxEnergyPerOutputSum) {}
 }
