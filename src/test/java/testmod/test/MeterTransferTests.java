@@ -68,4 +68,81 @@ public class MeterTransferTests {
             }
         );
     }
+
+    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
+    public void meterTransferOneToThree(GameTestHelper helper) {
+        var plotResult = TestUtils.PlotBuilder.create(helper)
+            .input(Direction.UP)
+            .output(Direction.WEST, 3)
+            .output(Direction.SOUTH, 2)
+            .output(Direction.EAST, 1)
+            .build();
+
+        MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
+        EnergyBlockEntity inputEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.UP);
+        EnergyBlockEntity westOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.WEST);
+        IEnergyStorage westOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.WEST);
+        EnergyBlockEntity southOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.SOUTH);
+        IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
+        IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
+
+        // set transfer mode to transfer
+        meterBlockEntity.setTransferMode(TransferMode.TRANSFER);
+
+        int energyPerTick = TestUtils.getRandomEnergyRate();
+
+        // set the capacity of the first two outputs, so they are full after a single operation
+        westOutEnergyBlockEntity.setEnergyCapacity(energyPerTick);
+        southOutEnergyBlockEntity.setEnergyCapacity(energyPerTick);
+
+        // let input energy block emit energy towards the meter
+        inputEnergyBlockEntity.sendEnergyPerTick(Direction.DOWN, energyPerTick);
+
+        helper.runAtTickTime(
+            MeterBlockEntity.TICK_TIME,
+            () -> {
+                // check whether west (priority 3) only received one tick of energy (full capacity)
+                int westEnergyStored = westOutEnergyBlockCap.getEnergyStored();
+                helper.assertTrue(
+                    westOutEnergyBlockCap.getEnergyStored() == energyPerTick,
+                    String.format("expected stored priority 3 output energy of %s, but was %s", energyPerTick, westEnergyStored)
+                );
+
+                // check whether south (priority 2) only received one tick of energy (full capacity)
+                int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
+                helper.assertTrue(
+                    southOutEnergyBlockCap.getEnergyStored() == energyPerTick,
+                    String.format("expected stored priority 2 output energy of %s, but was %s", energyPerTick, southEnergyStored)
+                );
+
+                // check whether east (priority 1) only received the remaining ticks of energy
+                int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+                int expectedEastEnergyStored = energyPerTick * 3;
+                helper.assertTrue(
+                    eastEnergyStored == expectedEastEnergyStored,
+                    String.format("expected stored priority 1 output energy of %s, but was %s", expectedEastEnergyStored, eastEnergyStored)
+                );
+            }
+        );
+
+        helper.runAtTickTime(
+            MeterBlockEntity.TICK_TIME + 1,
+            () -> {
+                double energyRate = meterBlockEntity.getEnergyRate();
+                helper.assertTrue(
+                    energyRate == energyPerTick,
+                    String.format("expected energy rate to be equal to input energy rate of %s, but was %s", energyPerTick, energyRate)
+                );
+
+                double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.TICK_TIME;
+                helper.assertTrue(
+                    totalEnergyTransferred == expectedEnergyTransferred,
+                    String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
+                );
+
+                helper.succeed();
+            }
+        );
+    }
 }

@@ -11,7 +11,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import testmod.TestRegistration;
@@ -23,7 +22,7 @@ import java.util.Map;
 
 public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockEntity {
 
-    private final EnergyStorage energyStorage = new EnergyStorage(100_000);
+    private final ModifiableEnergyStorage energyStorage = new ModifiableEnergyStorage(100_000);
     private final Map<Direction, Integer> energyToSendPerTick = new EnumMap<>(Direction.class);
 
     public EnergyBlockEntity(BlockPos pos, BlockState blockState) {
@@ -58,6 +57,10 @@ public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockE
 
     public void sendEnergyPerTick(Direction direction, int energy) {
         energyToSendPerTick.put(direction, energy);
+    }
+
+    public void setEnergyCapacity(int capacity) {
+        energyStorage.setCapacity(capacity);
     }
 
     @Nullable
