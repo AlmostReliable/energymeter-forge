@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     public static final int MAX_PRIORITY = 4;
+    private static final Direction[] DIRECTIONS = Direction.values();
 
     private final Map<Direction, IoSettingWithPriority> directionToSetting = new EnumMap<>(Direction.class);
     private final Runnable changeListener;
@@ -26,7 +27,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     public IoConfig(Runnable changeListener) {
         this.changeListener = changeListener;
 
-        for (Direction direction : Direction.values()) {
+        for (Direction direction : DIRECTIONS) {
             directionToSetting.put(direction, IoSettingWithPriority.OFF);
         }
     }
@@ -59,7 +60,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     public void forEachOutput(Consumer<Direction> consumer) {
         for (int priority = MAX_PRIORITY; priority >= 1; priority--) {
-            for (Direction direction : Direction.values()) {
+            for (Direction direction : DIRECTIONS) {
                 IoSettingWithPriority entry = directionToSetting.get(direction);
                 if (entry.setting.isOutput && entry.priority == priority) {
                     consumer.accept(direction);
@@ -91,7 +92,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
 
-        for (Direction direction : Direction.values()) {
+        for (Direction direction : DIRECTIONS) {
             IoSettingWithPriority setting = directionToSetting.get(direction);
             tag.put(direction.name(), setting.serialize());
         }
@@ -101,7 +102,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-        for (Direction direction : Direction.values()) {
+        for (Direction direction : DIRECTIONS) {
             CompoundTag directionTag = tag.getCompound(direction.name());
             IoSettingWithPriority setting = IoSettingWithPriority.deserialize(directionTag);
             directionToSetting.put(direction, setting);
@@ -110,7 +111,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     @Override
     public void encode(FriendlyByteBuf buffer) {
-        for (Direction direction : Direction.values()) {
+        for (Direction direction : DIRECTIONS) {
             IoSettingWithPriority setting = directionToSetting.get(direction);
             setting.encode(buffer);
         }
@@ -119,7 +120,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     @Override
     public void decode(FriendlyByteBuf buffer) {
-        for (Direction direction : Direction.values()) {
+        for (Direction direction : DIRECTIONS) {
             IoSettingWithPriority setting = IoSettingWithPriority.decode(buffer);
             directionToSetting.put(direction, setting);
         }
