@@ -43,7 +43,7 @@ public final class TestUtils {
     }
 
     public static int getRandomEnergyRate() {
-        return (int) (Math.random() * 10_000);
+        return 1_000 + (int) (Math.random() * 9_000);
     }
 
     public static MeterBlockEntity setupMeter(GameTestHelper helper) {
