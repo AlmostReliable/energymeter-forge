@@ -14,12 +14,13 @@ import testmod.TestMod;
 import testmod.TestUtils;
 import testmod.content.EnergyBlockEntity;
 
+@SuppressWarnings("NewMethodNamingConvention")
 @GameTestHolder(TestMod.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class MeterTransferTests {
 
     @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
-    public void meterConsumerOne(GameTestHelper helper) {
+    public void consume_single(GameTestHelper helper) {
         TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
         MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
         EnergyBlockEntity inputEnergyBlockEntity = meterWithIoResult.inputEnergyBlockEntity();
@@ -43,7 +44,7 @@ public class MeterTransferTests {
     }
 
     @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
-    public void meterTransferOneToOne(GameTestHelper helper) {
+    public void transfer_one_to_one(GameTestHelper helper) {
         TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
         MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
         EnergyBlockEntity inputEnergyBlockEntity = meterWithIoResult.inputEnergyBlockEntity();
@@ -70,7 +71,7 @@ public class MeterTransferTests {
     }
 
     @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
-    public void meterTransferOneToThree(GameTestHelper helper) {
+    public void transfer_one_to_three(GameTestHelper helper) {
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .input(Direction.UP)
             .output(Direction.WEST, 3)

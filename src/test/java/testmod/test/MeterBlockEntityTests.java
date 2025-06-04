@@ -18,12 +18,13 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import testmod.TestMod;
 import testmod.TestUtils;
 
+@SuppressWarnings("NewMethodNamingConvention")
 @GameTestHolder(TestMod.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class MeterBlockEntityTests {
 
     @GameTest(template = TestUtils.EMPTY_STRUCTURE)
-    public void meterDefaults(GameTestHelper helper) {
+    public void defaults(GameTestHelper helper) {
         MeterBlockEntity meterBlockEntity = TestUtils.setupMeter(helper);
 
         // test whether io configuration has correct default values
@@ -41,7 +42,7 @@ public class MeterBlockEntityTests {
     }
 
     @GameTest(template = TestUtils.EMPTY_STRUCTURE)
-    public void meterEnergyCap(GameTestHelper helper) {
+    public void energy_cap(GameTestHelper helper) {
         MeterBlockEntity meterBlockEntity = TestUtils.setupMeter(helper);
 
         // test capability access without io configuration
