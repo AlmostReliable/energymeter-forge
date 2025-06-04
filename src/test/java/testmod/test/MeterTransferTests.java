@@ -100,22 +100,51 @@ public class MeterTransferTests {
         inputEnergyBlockEntity.sendEnergyPerTick(Direction.DOWN, energyPerTick);
 
         helper.runAtTickTime(
-            MeterBlockEntity.TICK_TIME,
+            1,
             () -> {
                 // check whether west (priority 3) only received one tick of energy (full capacity)
                 int westEnergyStored = westOutEnergyBlockCap.getEnergyStored();
                 helper.assertTrue(
-                    westOutEnergyBlockCap.getEnergyStored() == energyPerTick,
+                    westEnergyStored == energyPerTick,
                     String.format("expected stored priority 3 output energy of %s, but was %s", energyPerTick, westEnergyStored)
                 );
 
+                // make sure the other outputs are still empty
+                int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
+                helper.assertTrue(
+                    southEnergyStored == 0,
+                    String.format("expected stored priority 2 output to be empty, but was %s", southEnergyStored)
+                );
+                int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+                helper.assertTrue(
+                    eastEnergyStored == 0,
+                    String.format("expected stored priority 1 output to be empty, but was %s", eastEnergyStored)
+                );
+            }
+        );
+
+        helper.runAtTickTime(
+            2,
+            () -> {
                 // check whether south (priority 2) only received one tick of energy (full capacity)
                 int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
                 helper.assertTrue(
-                    southOutEnergyBlockCap.getEnergyStored() == energyPerTick,
+                    southEnergyStored == energyPerTick,
                     String.format("expected stored priority 2 output energy of %s, but was %s", energyPerTick, southEnergyStored)
                 );
 
+                // make sure the other outputs are still empty
+                int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+                helper.assertTrue(
+                    eastEnergyStored == 0,
+                    String.format("expected stored priority 1 output to be empty, but was %s", eastEnergyStored)
+                );
+            }
+        );
+
+        helper.runAtTickTime(
+            MeterBlockEntity.TICK_TIME,
+            () -> {
                 // check whether east (priority 1) only received the remaining ticks of energy
                 int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
                 int expectedEastEnergyStored = energyPerTick * 3;
