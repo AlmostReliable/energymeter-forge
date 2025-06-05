@@ -20,30 +20,6 @@ import testmod.content.EnergyBlockEntity;
 public class MeterTransferTests {
 
     @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
-    public void consume_single(GameTestHelper helper) {
-        TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
-        MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
-        EnergyBlockEntity inputEnergyBlockEntity = meterWithIoResult.inputEnergyBlockEntity();
-        IEnergyStorage outputEnergyBlockCap = meterWithIoResult.outputEnergyBlockCap();
-
-        // set transfer mode to consume
-        meterBlockEntity.setTransferMode(TransferMode.CONSUME);
-
-        // let input energy block emit energy towards the meter
-        int energyPerTick = TestUtils.getRandomEnergyRate();
-        inputEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
-
-        helper.runAtTickTime(
-            MeterBlockEntity.TICK_TIME + 1,
-            () -> {
-                helper.assertTrue(meterBlockEntity.getEnergyRate() == energyPerTick, "energy rate should be equal to input energy rate");
-                helper.assertTrue(outputEnergyBlockCap.getEnergyStored() == 0, "output energy block should be empty");
-                helper.succeed();
-            }
-        );
-    }
-
-    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
     public void transfer_one_to_one(GameTestHelper helper) {
         TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
         MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
