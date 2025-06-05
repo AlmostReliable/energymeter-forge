@@ -8,5 +8,9 @@
   },
   "client": [
     "WidgetTooltipMixin"
+  ],
+  "mixins": [
+    "GameTestInfoMixin",
+    "StructureUtilsMixin"
   ]
 }
