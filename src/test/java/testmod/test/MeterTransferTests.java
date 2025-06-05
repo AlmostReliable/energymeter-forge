@@ -36,11 +36,26 @@ public class MeterTransferTests {
         helper.runAtTickTime(
             MeterBlockEntity.TICK_TIME + 1,
             () -> {
-                helper.assertTrue(meterBlockEntity.getEnergyRate() == energyPerTick, "energy rate should be equal to input energy rate");
+                double energyRate = meterBlockEntity.getEnergyRate();
                 helper.assertTrue(
-                    outputEnergyBlockCap.getEnergyStored() == energyPerTick * (MeterBlockEntity.TICK_TIME + 1),
-                    "output energy block should have received the energy"
+                    energyRate == energyPerTick,
+                    String.format("expected energy rate to be equal to input energy rate of %s, but was %s", energyPerTick, energyRate)
                 );
+
+                double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.TICK_TIME;
+                helper.assertTrue(
+                    totalEnergyTransferred == expectedEnergyTransferred,
+                    String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
+                );
+
+                int energyStored = outputEnergyBlockCap.getEnergyStored();
+                int expectedEnergyStored = energyPerTick * (MeterBlockEntity.TICK_TIME + 1);
+                helper.assertTrue(
+                    energyStored == expectedEnergyStored,
+                    String.format("expected stored output energy of %s, but was %s", expectedEnergyStored, energyStored)
+                );
+
                 helper.succeed();
             }
         );
