@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockEntity {
 
-    private final ModifiableEnergyStorage energyStorage = new ModifiableEnergyStorage(100_000);
+    private final ModifiableEnergyStorage energyStorage = new ModifiableEnergyStorage(200_000);
     private final Map<Direction, Integer> energyToSendPerTick = new EnumMap<>(Direction.class);
 
     public EnergyBlockEntity(BlockPos pos, BlockState blockState) {
