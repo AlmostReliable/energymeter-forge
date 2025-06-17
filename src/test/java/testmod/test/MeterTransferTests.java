@@ -62,6 +62,57 @@ public class MeterTransferTests {
     }
 
     @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
+    public void transfer_three_to_one(GameTestHelper helper) {
+        var plotResult = TestUtils.PlotBuilder.create(helper)
+            .inputs(Direction.WEST, Direction.SOUTH, Direction.EAST)
+            .output(Direction.UP)
+            .build();
+
+        MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
+        EnergyBlockEntity westInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.WEST);
+        EnergyBlockEntity southInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.SOUTH);
+        EnergyBlockEntity eastInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.EAST);
+        IEnergyStorage outputEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.UP);
+
+        // set transfer mode to transfer
+        meterBlockEntity.setTransferMode(TransferMode.TRANSFER);
+
+        // let input energy blocks emit energy towards the meter
+        int energyPerTick = TestUtils.getRandomEnergyRate();
+        westInEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+        southInEnergyBlockEntity.sendEnergyPerTick(Direction.NORTH, energyPerTick);
+        eastInEnergyBlockEntity.sendEnergyPerTick(Direction.WEST, energyPerTick);
+
+        helper.runAtTickTime(
+            MeterBlockEntity.TICK_TIME + 1,
+            () -> {
+                double energyRate = meterBlockEntity.getEnergyRate();
+                int expectedEnergyRate = energyPerTick * 3;
+                helper.assertTrue(
+                    energyRate == expectedEnergyRate,
+                    String.format("expected energy rate to be equal to input energy rate of %s, but was %s", expectedEnergyRate, energyRate)
+                );
+
+                double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.TICK_TIME * 3;
+                helper.assertTrue(
+                    totalEnergyTransferred == expectedEnergyTransferred,
+                    String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
+                );
+
+                int energyStored = outputEnergyBlockCap.getEnergyStored();
+                int expectedEnergyStored = energyPerTick * (MeterBlockEntity.TICK_TIME + 1) * 3;
+                helper.assertTrue(
+                    energyStored == expectedEnergyStored,
+                    String.format("expected stored output energy of %s, but was %s", expectedEnergyStored, energyStored)
+                );
+
+                helper.succeed();
+            }
+        );
+    }
+
+    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
     public void transfer_one_to_three(GameTestHelper helper) {
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .input(Direction.UP)
@@ -157,6 +208,92 @@ public class MeterTransferTests {
 
                 double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
                 int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.TICK_TIME;
+                helper.assertTrue(
+                    totalEnergyTransferred == expectedEnergyTransferred,
+                    String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
+                );
+
+                helper.succeed();
+            }
+        );
+    }
+
+    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
+    public void transfer_two_to_two(GameTestHelper helper) {
+        var plotResult = TestUtils.PlotBuilder.create(helper)
+            .inputs(Direction.UP, Direction.WEST)
+            .output(Direction.SOUTH, 2)
+            .output(Direction.EAST, 1)
+            .build();
+
+        MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
+        EnergyBlockEntity upInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.UP);
+        EnergyBlockEntity westInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.WEST);
+        EnergyBlockEntity southOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.SOUTH);
+        IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
+        IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
+
+        // set transfer mode to transfer
+        meterBlockEntity.setTransferMode(TransferMode.TRANSFER);
+
+        int energyPerTick = TestUtils.getRandomEnergyRate();
+
+        // set the capacity of the first output, so it's full after a single operation
+        southOutEnergyBlockEntity.setEnergyCapacity(energyPerTick * 2);
+
+        // let input energy blocks emit energy towards the meter
+        upInEnergyBlockEntity.sendEnergyPerTick(Direction.DOWN, energyPerTick);
+        westInEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+
+        helper.runAtTickTime(
+            1,
+            () -> {
+                // check whether south (priority 2) only received one tick of energy from two inputs (full capacity)
+                int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
+                int expectedSouthEnergyStored = energyPerTick * 2;
+                helper.assertTrue(
+                    southEnergyStored == expectedSouthEnergyStored,
+                    String.format(
+                        "expected stored priority 2 output energy of %s, but was %s",
+                        expectedSouthEnergyStored,
+                        southEnergyStored
+                    )
+                );
+
+                // make sure the other outputs are still empty
+                int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+                helper.assertTrue(
+                    eastEnergyStored == 0,
+                    String.format("expected stored priority 1 output to be empty, but was %s", eastEnergyStored)
+                );
+            }
+        );
+
+        helper.runAtTickTime(
+            MeterBlockEntity.TICK_TIME,
+            () -> {
+                // check whether east (priority 1) only received the remaining ticks of energy from two inputs
+                int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+                int expectedEastEnergyStored = energyPerTick * 2 * 4;
+                helper.assertTrue(
+                    eastEnergyStored == expectedEastEnergyStored,
+                    String.format("expected stored priority 1 output energy of %s, but was %s", expectedEastEnergyStored, eastEnergyStored)
+                );
+            }
+        );
+
+        helper.runAtTickTime(
+            MeterBlockEntity.TICK_TIME + 1,
+            () -> {
+                double energyRate = meterBlockEntity.getEnergyRate();
+                int expectedEnergyRate = energyPerTick * 2;
+                helper.assertTrue(
+                    energyRate == expectedEnergyRate,
+                    String.format("expected energy rate to be equal to input energy rate of %s, but was %s", expectedEnergyRate, energyRate)
+                );
+
+                double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+                int expectedEnergyTransferred = energyPerTick * 2 * MeterBlockEntity.TICK_TIME;
                 helper.assertTrue(
                     totalEnergyTransferred == expectedEnergyTransferred,
                     String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
