@@ -1,4 +1,4 @@
-package com.almostreliable.energymeter.mixin;
+package testmod.mixin;
 
 import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.server.level.ServerLevel;

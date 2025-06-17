@@ -1,4 +1,4 @@
-package com.almostreliable.energymeter.mixin;
+package testmod.mixin;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestInfo;
@@ -33,11 +33,11 @@ public abstract class GameTestInfoMixin {
     private BlockPos structureBlockPos;
 
     @Shadow
-    public abstract Rotation getRotation();
-
-    @Shadow
     @Final
     private ServerLevel level;
+
+    @Shadow
+    public abstract Rotation getRotation();
 
     @Shadow
     public abstract String getTestName();
