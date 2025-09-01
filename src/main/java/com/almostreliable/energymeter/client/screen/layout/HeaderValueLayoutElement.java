@@ -6,7 +6,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LayoutElement;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -19,8 +19,8 @@ public class HeaderValueLayoutElement implements LayoutElement {
     private final SupplyingStringWidget valueWidget;
     private final Font font;
 
-    public HeaderValueLayoutElement(Component header, Supplier<String> valueSupplier, Font font) {
-        this.headerWidget = new StringWidget(header, font);
+    public HeaderValueLayoutElement(MutableComponent header, Supplier<String> valueSupplier, Font font) {
+        this.headerWidget = new StringWidget(header.append(":"), font);
         this.valueWidget = new SupplyingStringWidget(valueSupplier, font);
         this.font = font;
     }

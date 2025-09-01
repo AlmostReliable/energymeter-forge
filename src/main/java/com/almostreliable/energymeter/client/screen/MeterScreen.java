@@ -46,76 +46,72 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     private void initTabs() {
-        LinearLayout tabLayout = LinearLayout.horizontal().spacing(1);
+        LinearLayout layout = LinearLayout.horizontal().spacing(1);
 
         for (TabType tabType : TabType.values()) {
-            tabLayout.addChild(new TabButton(tabType, currentTab, this::onTabButtonClicked));
+            layout.addChild(new TabButton(tabType, currentTab, this::onTabButtonClicked));
         }
 
-        tabLayout.arrangeElements();
-        FrameLayout.alignInRectangle(tabLayout, leftPos, topPos - TabButton.TAB_HEIGHT + 1, TEXTURE_WIDTH, TabButton.TAB_HEIGHT, 0.5f, 0);
-        tabLayout.visitWidgets(this::addRenderableWidget);
+        layout.arrangeElements();
+        FrameLayout.alignInRectangle(layout, leftPos, topPos - TabButton.TAB_HEIGHT + 1, TEXTURE_WIDTH, TabButton.TAB_HEIGHT, 0.5f, 0);
+        layout.visitWidgets(this::addRenderableWidget);
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initStatsTab() {
-        LinearLayout labelLayout = LinearLayout.vertical().spacing(4);
+        LinearLayout layout = LinearLayout.vertical().spacing(4);
 
-        labelLayout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.ENERGY_RATE.get().append(":"),
+        layout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.ENERGY_RATE.get(),
             () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick(),
             font
         ));
-        labelLayout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.TOTAL_ENERGY.get().append(":"),
+        layout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.TOTAL_ENERGY.get(),
             () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit(),
             font
         ));
-        labelLayout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.CONNECTION_STATUS.get().append(":"),
+        layout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.CONNECTION_STATUS.get(),
             () -> menu.getConnectionStatus().name(),
             font
         ));
-        labelLayout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.TRANSFER_MODE.get().append(":"),
-            () -> menu.getTransferMode().name(),
-            font
-        ));
-        labelLayout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.MEASURE_MODE.get().append(":"),
-            () -> menu.getMeasureMode().name(),
-            font
-        ));
 
-        labelLayout.arrangeElements();
-        FrameLayout.alignInRectangle(labelLayout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
-        labelLayout.visitWidgets(this::addRenderableOnly);
+        layout.arrangeElements();
+        FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
+        layout.visitWidgets(this::addRenderableOnly);
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initConfigTab() {
-        addRenderableWidget(
-            Button.builder(Component.literal("Transfer Mode"), this::onTransferModeButtonClicked)
-                .pos(leftPos + 20, topPos + 120)
-                .build()
-        );
+        LinearLayout layout = LinearLayout.vertical().spacing(4);
 
-        LinearLayout inputLayout = LinearLayout.vertical().spacing(2);
-        inputLayout.setPosition(leftPos + 2, topPos + 70);
+        layout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.TRANSFER_MODE.get(),
+            () -> menu.getTransferMode().name(),
+            font
+        ));
+        layout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.MEASURE_MODE.get(),
+            () -> menu.getMeasureMode().name(),
+            font
+        ));
 
-        var intervalInput = new InputLayoutElement(EnergyMeterLang.INTERVAL.get().append(":"), font)
-            .set(String.valueOf(menu.getMeasureInterval()));
-        var toleranceInput = new InputLayoutElement(EnergyMeterLang.ZERO_TOLERANCE.get().append(":"), font)
-            .set(String.valueOf(menu.getZeroTolerance()));
-        var transferLimitInput = new InputLayoutElement(EnergyMeterLang.TRANSFER_LIMIT.get().append(":"), font)
-            .set(String.valueOf(menu.getTransferLimit()));
+        layout.addChild(Button.builder(Component.literal("Transfer Mode"), this::onTransferModeButtonClicked)
+            .pos(leftPos + 20, topPos + 120)
+            .width(100)
+            .build());
 
-        inputLayout.addChild(intervalInput);
-        inputLayout.addChild(toleranceInput);
-        inputLayout.addChild(transferLimitInput);
+        layout.addChild(new InputLayoutElement(EnergyMeterLang.INTERVAL.get().append(":"), font)
+            .set(String.valueOf(menu.getMeasureInterval())));
+        layout.addChild(new InputLayoutElement(EnergyMeterLang.ZERO_TOLERANCE.get().append(":"), font)
+            .set(String.valueOf(menu.getZeroTolerance())));
+        layout.addChild(new InputLayoutElement(EnergyMeterLang.TRANSFER_LIMIT.get().append(":"), font)
+            .set(String.valueOf(menu.getTransferLimit())));
 
-        inputLayout.arrangeElements();
-        inputLayout.visitWidgets(this::addRenderableWidget);
+        layout.arrangeElements();
+        FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
+        layout.visitWidgets(this::addRenderableOnly);
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
