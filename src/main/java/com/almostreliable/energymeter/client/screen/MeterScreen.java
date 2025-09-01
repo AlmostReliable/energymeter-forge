@@ -11,6 +11,7 @@ import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.NumberFormatter;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -111,7 +112,13 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         layout.arrangeElements();
         FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
-        layout.visitWidgets(this::addRenderableOnly);
+        layout.visitWidgets(renderable -> {
+            if (renderable instanceof AbstractButton) {
+                addRenderableWidget(renderable);
+                return;
+            }
+            addRenderableOnly(renderable);
+        });
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
