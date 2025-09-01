@@ -2,9 +2,9 @@ package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
+import com.almostreliable.energymeter.client.screen.layout.HeaderValueLayoutElement;
 import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
-import com.almostreliable.energymeter.client.screen.widget.SupplyingStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
@@ -12,10 +12,8 @@ import com.almostreliable.energymeter.util.NumberFormatter;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
-import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -61,22 +59,33 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initStatsTab() {
-        LinearLayout labelLayout = LinearLayout.vertical().spacing(2);
+        LinearLayout labelLayout = LinearLayout.vertical().spacing(4);
 
-        labelLayout.addChild(new StringWidget(EnergyMeterLang.ENERGY_RATE.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick(), font));
-        labelLayout.addChild(SpacerElement.height(2));
-        labelLayout.addChild(new StringWidget(EnergyMeterLang.TOTAL_ENERGY.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit(), font));
-        labelLayout.addChild(SpacerElement.height(2));
-        labelLayout.addChild(new StringWidget(EnergyMeterLang.CONNECTION_STATUS.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> menu.getConnectionStatus().name(), font));
-        labelLayout.addChild(SpacerElement.height(2));
-        labelLayout.addChild(new StringWidget(EnergyMeterLang.TRANSFER_MODE.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> menu.getTransferMode().name(), font));
-        labelLayout.addChild(SpacerElement.height(2));
-        labelLayout.addChild(new StringWidget(EnergyMeterLang.MEASURE_MODE.get().append(":"), font));
-        labelLayout.addChild(new SupplyingStringWidget(() -> menu.getMeasureMode().name(), font));
+        labelLayout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.ENERGY_RATE.get().append(":"),
+            () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick(),
+            font
+        ));
+        labelLayout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.TOTAL_ENERGY.get().append(":"),
+            () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit(),
+            font
+        ));
+        labelLayout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.CONNECTION_STATUS.get().append(":"),
+            () -> menu.getConnectionStatus().name(),
+            font
+        ));
+        labelLayout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.TRANSFER_MODE.get().append(":"),
+            () -> menu.getTransferMode().name(),
+            font
+        ));
+        labelLayout.addChild(new HeaderValueLayoutElement(
+            EnergyMeterLang.MEASURE_MODE.get().append(":"),
+            () -> menu.getMeasureMode().name(),
+            font
+        ));
 
         labelLayout.arrangeElements();
         FrameLayout.alignInRectangle(labelLayout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
