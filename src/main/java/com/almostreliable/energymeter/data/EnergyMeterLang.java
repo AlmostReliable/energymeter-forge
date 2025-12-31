@@ -3,7 +3,8 @@ package com.almostreliable.energymeter.data;
 import com.almostreliable.energymeter.ModConstants;
 import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.client.screen.MeterScreen;
-import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
+import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
+import com.almostreliable.energymeter.util.TypeEnums;
 
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
@@ -26,15 +27,19 @@ public final class EnergyMeterLang extends LanguageProvider {
     // @formatter:off
 
     // labels
-    public static final LangEntry ENERGY_RATE = LangEntry.label("energy_rate", "Energy Rate");
-    public static final LangEntry TOTAL_ENERGY = LangEntry.label("total_energy", "Total Energy");
+    public static final LangEntry ENERGY_RATE = LangEntry.label("energy_rate", "Current");
+    public static final LangEntry TOTAL_ENERGY = LangEntry.label("total_energy", "Total");
     public static final LangEntry DISPLAY_MODE = LangEntry.label("display_mode", "Display Mode");
-    public static final LangEntry TRANSFER_MODE = LangEntry.label("transfer_mode", "Transfer Mode");
-    public static final LangEntry MEASURE_MODE = LangEntry.label("measure_mode", "Measure Mode");
-    public static final LangEntry CONNECTION_STATUS = LangEntry.label("connection_status", "Connection Status");
+    public static final LangEntry TRANSFER_MODE = LangEntry.label("transfer_mode", "Transferring");
+    public static final LangEntry MEASURE_MODE = LangEntry.label("measure_mode", "Measuring");
+    public static final LangEntry CONNECTION_STATUS = LangEntry.label("connection_status", "Status");
     public static final LangEntry INTERVAL = LangEntry.label("interval", "Interval");
     public static final LangEntry ZERO_TOLERANCE = LangEntry.label("zero_tolerance", "Tolerance");
-    public static final LangEntry TRANSFER_LIMIT = LangEntry.label("transfer_limit", "Transfer Limit");
+    public static final LangEntry TRANSFER_LIMIT = LangEntry.label("transfer_limit", "Limit");
+    public static final LangEntry IO_SETTING = LangEntry.label("io_setting", "I/O");
+    public static final LangEntry STATISTICS = LangEntry.label("statistics", "Statistics");
+    public static final LangEntry MODES = LangEntry.label("modes", "Modes");
+    public static final LangEntry SETTINGS = LangEntry.label("settings", "Settings");
 
     // tooltips
     public static final LangEntry CURRENT_SETTING = LangEntry.tooltip("current_setting", "Current Setting");
@@ -52,10 +57,13 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry SHIFT = LangEntry.control("shift", "Shift");
 
     // enums
-    public static final Map<BlockSideButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(BlockSideButton.BlockSide.values());
+    public static final Map<IoConfigButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(IoConfigButton.BlockSide.values());
     public static final Map<Direction, LangEntry> DIRECTIONS = LangEntry.enumValues(Direction.values());
     public static final Map<IoConfig.IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoConfig.IoSetting.values());
     public static final Map<MeterScreen.TabType, LangEntry> TAB_TYPE = LangEntry.enumValues(MeterScreen.TabType.values());
+    public static final Map<TypeEnums.TransferMode, LangEntry> TRANSFER_MODES = LangEntry.enumValues(TypeEnums.TransferMode.values());
+    public static final Map<TypeEnums.MeasureMode, LangEntry> MEASURE_MODES = LangEntry.enumValues(TypeEnums.MeasureMode.values());
+    public static final Map<TypeEnums.ConnectionStatus, LangEntry> CONNECTION_STATUSES = LangEntry.enumValues(TypeEnums.ConnectionStatus.values());
 
     // @formatter:on
 

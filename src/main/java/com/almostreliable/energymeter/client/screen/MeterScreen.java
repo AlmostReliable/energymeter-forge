@@ -2,17 +2,20 @@ package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
-import com.almostreliable.energymeter.client.screen.layout.HeaderValueLayoutElement;
 import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
-import com.almostreliable.energymeter.client.screen.widget.BlockSideButton;
+import com.almostreliable.energymeter.client.screen.widget.DynamicTextWidget;
+import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
+import com.almostreliable.energymeter.client.screen.widget.RadioButton;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
+import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideListener;
+import com.almostreliable.energymeter.client.screen.widget.base.OutlinedCompositeWidget;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.NumberFormatter;
+import com.almostreliable.energymeter.util.TypeEnums;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.core.Direction;
@@ -21,29 +24,81 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
-    private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/meter_screen.png");
-    private static final int TEXTURE_WIDTH = 133;
-    private static final int TEXTURE_HEIGHT = 127;
+    private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/meter.png");
+    private static final int GUI_WIDTH = 234;
+    private static final int GUI_HEIGHT = 185;
+    private static final int PANE_SPACING = 4;
+    private static final int LEFT_PANE_WIDTH = 90;
+    private static final int RIGHT_PANE_WIDTH = GUI_WIDTH - LEFT_PANE_WIDTH - PANE_SPACING;
+    private static final int VERTICAL_ELEMENT_SPACING = 4;
+    private static final int GLOBAL_INFO_WIDTH = 70;
 
-    private TabType currentTab = TabType.STATISTICS;
+    private final List<ClickedOutsideListener> clickedOutsideListeners = new ArrayList<>();
+    private TabType currentTab = TabType.CONFIGURATION;
 
     @SuppressWarnings("AssignmentToSuperclassField")
     public MeterScreen(MeterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        imageWidth = TEXTURE_WIDTH;
-        imageHeight = TEXTURE_HEIGHT;
+        imageWidth = GUI_WIDTH;
+        imageHeight = GUI_HEIGHT;
     }
 
     @Override
     protected void init() {
         super.init();
 
+        initGlobalInfo();
         initTabs();
         currentTab.init.accept(this);
+    }
+
+    private void initGlobalInfo() {
+        var energyRateComposite = OutlinedCompositeWidget.ofElement(
+            EnergyMeterLang.ENERGY_RATE.get(),
+            new DynamicTextWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick())
+        );
+
+        var totalEnergyComposite = OutlinedCompositeWidget.ofElement(
+            EnergyMeterLang.TOTAL_ENERGY.get(),
+            new DynamicTextWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit())
+        );
+
+        var statusComposite = OutlinedCompositeWidget.ofElement(
+            EnergyMeterLang.CONNECTION_STATUS.get(),
+            new DynamicTextWidget(GLOBAL_INFO_WIDTH, () -> EnergyMeterLang.CONNECTION_STATUSES.get(menu.getConnectionStatus()).get())
+        );
+
+        var ioConfigLayout = IoConfigButton.createGroup(
+            menu.getBlockState(),
+            menu::getIoSetting,
+            this::onIoSettingSelected,
+            menu::getTransferMode,
+            widget -> {
+                addRenderableWidget(widget);
+                clickedOutsideListeners.add(widget);
+            }
+        );
+        var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.IO_SETTING.get(), ioConfigLayout);
+        ioConfigComposite.setMinWidth(GLOBAL_INFO_WIDTH);
+
+        var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
+        layout.addChild(energyRateComposite);
+        layout.addChild(totalEnergyComposite);
+        layout.addChild(statusComposite);
+        layout.addChild(ioConfigComposite);
+
+        layout.arrangeElements();
+        FrameLayout.centerInRectangle(layout, leftPos, topPos, LEFT_PANE_WIDTH, GUI_HEIGHT);
+
+        layout.visitWidgets(this::addRenderableWidget);
     }
 
     private void initTabs() {
@@ -54,89 +109,70 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         }
 
         layout.arrangeElements();
-        FrameLayout.alignInRectangle(layout, leftPos, topPos - TabButton.TAB_HEIGHT + 1, TEXTURE_WIDTH, TabButton.TAB_HEIGHT, 0.5f, 0);
+        FrameLayout.alignInRectangle(
+            layout,
+            leftPos + LEFT_PANE_WIDTH + PANE_SPACING,
+            topPos - TabButton.TAB_HEIGHT + 1,
+            RIGHT_PANE_WIDTH,
+            TabButton.TAB_HEIGHT,
+            0.1f,
+            0
+        );
+
         layout.visitWidgets(this::addRenderableWidget);
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
-    private void initStatsTab() {
-        LinearLayout layout = LinearLayout.vertical().spacing(4);
-
-        layout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.ENERGY_RATE.get(),
-            () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick(),
-            font
-        ));
-        layout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.TOTAL_ENERGY.get(),
-            () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit(),
-            font
-        ));
-        layout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.CONNECTION_STATUS.get(),
-            () -> menu.getConnectionStatus().name(),
-            font
-        ));
-
-        layout.arrangeElements();
-        FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
-        layout.visitWidgets(this::addRenderableOnly);
-    }
-
-    @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initConfigTab() {
-        LinearLayout layout = LinearLayout.vertical().spacing(4);
+        var transferModeRadioButtons = RadioButton.createGroup(
+            90,
+            EnergyMeterLang.TRANSFER_MODES,
+            menu::getTransferMode,
+            this::onTransferModeSelected
+        );
+        var transferModeComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.TRANSFER_MODE.get(), transferModeRadioButtons);
 
-        layout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.TRANSFER_MODE.get(),
-            () -> menu.getTransferMode().name(),
-            font
-        ));
-        layout.addChild(new HeaderValueLayoutElement(
-            EnergyMeterLang.MEASURE_MODE.get(),
-            () -> menu.getMeasureMode().name(),
-            font
-        ));
+        var measureModeRadioButtons = RadioButton.createGroup(
+            90,
+            EnergyMeterLang.MEASURE_MODES,
+            menu::getMeasureMode,
+            this::onMeasureModeSelected
+        );
+        var measureModeComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.MEASURE_MODE.get(), measureModeRadioButtons);
 
-        layout.addChild(Button.builder(Component.literal("Transfer Mode"), this::onTransferModeButtonClicked)
-            .pos(leftPos + 20, topPos + 120)
-            .width(100)
-            .build());
+        var modesLayout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
+        modesLayout.addChild(transferModeComposite);
+        modesLayout.addChild(measureModeComposite);
+        var modesComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.MODES.get(), modesLayout, 0xFFBF_BFBF);
 
-        layout.addChild(new InputLayoutElement(EnergyMeterLang.INTERVAL.get().append(":"), font)
+        var settingsLayout = LinearLayout.vertical().spacing(1);
+        settingsLayout.addChild(new InputLayoutElement(EnergyMeterLang.INTERVAL.get().append(":"), font)
             .set(String.valueOf(menu.getMeasureInterval())));
-        layout.addChild(new InputLayoutElement(EnergyMeterLang.ZERO_TOLERANCE.get().append(":"), font)
+        settingsLayout.addChild(new InputLayoutElement(EnergyMeterLang.ZERO_TOLERANCE.get().append(":"), font)
             .set(String.valueOf(menu.getZeroTolerance())));
-        layout.addChild(new InputLayoutElement(EnergyMeterLang.TRANSFER_LIMIT.get().append(":"), font)
+        settingsLayout.addChild(new InputLayoutElement(EnergyMeterLang.TRANSFER_LIMIT.get().append(":"), font)
             .set(String.valueOf(menu.getTransferLimit())));
+        var settingsComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.SETTINGS.get(), settingsLayout);
+
+        var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
+        layout.addChild(modesComposite);
+        layout.addChild(settingsComposite);
 
         layout.arrangeElements();
-        FrameLayout.alignInRectangle(layout, leftPos, topPos, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0.3f, 0.5f);
-        layout.visitWidgets(renderable -> {
-            if (renderable instanceof AbstractButton) {
-                addRenderableWidget(renderable);
-                return;
-            }
-            addRenderableOnly(renderable);
-        });
-    }
+        FrameLayout.centerInRectangle(layout, leftPos + LEFT_PANE_WIDTH + PANE_SPACING, topPos, RIGHT_PANE_WIDTH, GUI_HEIGHT);
 
-    @SuppressWarnings("MethodOnlyUsedFromInnerClass")
-    private void initIoTab() {
-        BlockSideButton.create(
-            leftPos + 20,
-            topPos + 10,
-            menu.getBlockState(),
-            menu::getTransferMode,
-            menu::getIoSetting,
-            this::onBlockSideButtonClicked,
-            this::onIoSettingSelected
-        ).forEach(this::addRenderableWidget);
+        layout.visitWidgets(this::addRenderableWidget);
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initRedstoneTab() {
+        var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
+        layout.addChild(new StringWidget(Component.literal("Work in progress!"), font));
 
+        layout.arrangeElements();
+        FrameLayout.centerInRectangle(layout, leftPos + LEFT_PANE_WIDTH + PANE_SPACING, topPos, RIGHT_PANE_WIDTH, GUI_HEIGHT);
+
+        layout.visitWidgets(this::addRenderableOnly);
     }
 
     @Override
@@ -146,7 +182,21 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, GUI_WIDTH, GUI_HEIGHT);
+    }
+
+    @Override
+    protected void clearWidgets() {
+        super.clearWidgets();
+        clickedOutsideListeners.clear();
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for (var clickedOutsideListener : clickedOutsideListeners) {
+            clickedOutsideListener.receiveClickOutside(mouseX, mouseY);
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void onTabButtonClicked(TabType tabType) {
@@ -154,34 +204,34 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         rebuildWidgets();
     }
 
-    private void onBlockSideButtonClicked(Direction direction, boolean reverse) {
+    private void onIoSettingSelected(@Nullable Direction direction, IoSettingWithPriority setting) {
         CompoundTag tag = new CompoundTag();
         tag.putString("type", "io_setting");
-        tag.putInt("direction", direction.ordinal());
-        tag.putBoolean("reverse", reverse);
-        tag.putBoolean("shift", hasShiftDown());
+        if (direction == null) {
+            tag.putString("reset", "");
+        } else {
+            tag.putInt("direction", direction.ordinal());
+            tag.put("setting", setting.serialize());
+        }
         sendAction(tag);
     }
 
-    private void onIoSettingSelected(Direction direction, IoSettingWithPriority setting) {
+    private void onTransferModeSelected(TypeEnums.TransferMode mode) {
         CompoundTag tag = new CompoundTag();
-        tag.putString("type", "io_setting");
-        tag.putInt("direction", direction.ordinal());
-        tag.put("setting", setting.serialize());
+        tag.putString("type", "transfer_mode");
+        tag.putInt("value", mode.ordinal());
         sendAction(tag);
     }
 
-    private void onTransferModeButtonClicked(Button ignoredButton) {
+    private void onMeasureModeSelected(TypeEnums.MeasureMode mode) {
         CompoundTag tag = new CompoundTag();
-        tag.putString("type", "setting_changed");
-        tag.putString("setting", "transfer_mode");
+        tag.putString("type", "measure_mode");
+        tag.putInt("value", mode.ordinal());
         sendAction(tag);
     }
 
     public enum TabType {
-        STATISTICS(MeterScreen::initStatsTab),
         CONFIGURATION(MeterScreen::initConfigTab),
-        IO(MeterScreen::initIoTab),
         REDSTONE(MeterScreen::initRedstoneTab);
 
         private final Consumer<MeterScreen> init;

@@ -26,10 +26,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     public IoConfig(Runnable changeListener) {
         this.changeListener = changeListener;
-
-        for (Direction direction : DIRECTIONS) {
-            directionToSetting.put(direction, IoSettingWithPriority.OFF);
-        }
+        resetSettings();
     }
 
     public IoConfig() {
@@ -48,14 +45,12 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         changeListener.run();
     }
 
-    public void cycleSetting(Direction direction, boolean reverse) {
-        IoSettingWithPriority currentSetting = getSetting(direction);
-        IoSettingWithPriority newSetting = reverse ? currentSetting.previous() : currentSetting.next();
-        setSetting(direction, newSetting);
-    }
-
-    public void resetSetting(Direction direction) {
-        setSetting(direction, IoSettingWithPriority.OFF);
+    public void resetSettings() {
+        for (Direction direction : DIRECTIONS) {
+            directionToSetting.put(direction, IoSettingWithPriority.OFF);
+        }
+        changed = true;
+        changeListener.run();
     }
 
     public void forEachOutput(Consumer<Direction> consumer) {
@@ -185,7 +180,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
             return new IoSettingWithPriority(setting.next(), priority);
         }
 
-        private IoSettingWithPriority previous() {
+        public IoSettingWithPriority previous() {
             return new IoSettingWithPriority(setting.previous(), priority);
         }
     }

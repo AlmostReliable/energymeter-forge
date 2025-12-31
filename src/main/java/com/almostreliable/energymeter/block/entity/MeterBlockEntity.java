@@ -36,6 +36,7 @@ import static com.almostreliable.energymeter.core.Constants.TRANSFER_LIMIT_ID;
 import static com.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
+// TODO: schedule status update until next tick to prevent flickering
 public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEntity, EnergyHandlerHost {
 
     public static final int TICK_TIME = 5;
@@ -195,6 +196,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public MeasureMode getMeasureMode() {
         return measureMode;
+    }
+
+    public void setMeasureMode(MeasureMode measureMode) {
+        this.measureMode = measureMode;
+        setChanged();
     }
 
     public int getMeasureInterval() {

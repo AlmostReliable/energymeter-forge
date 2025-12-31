@@ -1,5 +1,7 @@
 package com.almostreliable.energymeter.util;
 
+import net.minecraft.network.chat.Component;
+
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -41,12 +43,12 @@ public final class NumberFormatter {
             this.unit = unit;
         }
 
-        public String asUnitPerTick() {
-            return energy + " " + unit + "/t";
+        public Component asUnitPerTick() {
+            return Component.literal(energy + " " + getUnitPerTick());
         }
 
-        public String asTotalUnit() {
-            return energy + " " + unit;
+        public Component asTotalUnit() {
+            return Component.literal(energy + " " + unit);
         }
 
         public String getEnergy() {

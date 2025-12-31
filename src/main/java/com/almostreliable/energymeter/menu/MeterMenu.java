@@ -64,45 +64,39 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
         String type = data.getString("type");
 
         switch (type) {
-            case "setting_changed" -> receiveSettingChange(data);
             case "io_setting" -> receiveIoSettingChange(data);
+            case "transfer_mode" -> receiveTransferModeChange(data);
+            case "measure_mode" -> receiveMeasureModeChange(data);
             default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }
 
-    private void receiveSettingChange(CompoundTag data) {
-        String setting = data.getString("setting");
-        if (setting.equals("transfer_mode")) {
-            TransferMode currentMode = blockEntity.getTransferMode();
-            int newOrdinal = (currentMode.ordinal() + 1) % TransferMode.values().length;
-            TransferMode newMode = TransferMode.values()[newOrdinal];
-            blockEntity.setTransferMode(newMode);
-        }
-    }
-
     private void receiveIoSettingChange(CompoundTag data) {
-        Direction direction = Direction.values()[data.getByte("direction")];
-
-        if (data.contains("setting")) {
-            IoSettingWithPriority setting = IoSettingWithPriority.deserialize(data.getCompound("setting"));
-            blockEntity.getIoConfig().setSetting(direction, setting);
+        if (data.contains("reset")) {
+            blockEntity.getIoConfig().resetSettings();
             return;
         }
 
-        boolean reverse = data.getBoolean("reverse");
-        boolean shift = data.getBoolean("shift");
+        var direction = Direction.values()[data.getByte("direction")];
+        var setting = data.getCompound("setting");
+        blockEntity.getIoConfig().setSetting(direction, IoSettingWithPriority.deserialize(setting));
+    }
 
-        if (shift) {
-            blockEntity.getIoConfig().resetSetting(direction);
-        } else {
-            blockEntity.getIoConfig().cycleSetting(direction, reverse);
-        }
+    private void receiveTransferModeChange(CompoundTag data) {
+        var ordinal = data.getByte("value");
+        blockEntity.setTransferMode(TransferMode.values()[ordinal]);
+    }
+
+    private void receiveMeasureModeChange(CompoundTag data) {
+        var ordinal = data.getByte("value");
+        blockEntity.setMeasureMode(MeasureMode.values()[ordinal]);
     }
 
     public BlockState getBlockState() {
         return blockEntity.getBlockState();
     }
 
+    // already synchronized through the block entity for displaying in the BER
     public double getEnergyRate() {
         return blockEntity.getEnergyRate();
     }

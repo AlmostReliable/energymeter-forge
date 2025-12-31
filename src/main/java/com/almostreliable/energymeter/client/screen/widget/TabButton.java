@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.client.screen.MeterScreen.TabType;
+import com.almostreliable.energymeter.client.screen.widget.base.LayoutPositionedButton;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,10 +12,10 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 
-public class TabButton extends PositionlessWidget {
+public class TabButton extends LayoutPositionedButton {
 
     private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/button/tab.png");
-    private static final int TEXTURE_WIDTH = 60;
+    private static final int TEXTURE_WIDTH = 30;
     private static final int TEXTURE_HEIGHT = 32;
     private static final int TAB_WIDTH = 25;
     public static final int TAB_HEIGHT = 19;
@@ -35,6 +36,12 @@ public class TabButton extends PositionlessWidget {
     }
 
     @Override
+    public void onPress() {
+        if (isSelected) return;
+        onClick.accept(tabType);
+    }
+
+    @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // tab background
         int tabHeight = isSelected ? TAB_HEIGHT : (TAB_HEIGHT - 1);
@@ -49,11 +56,5 @@ public class TabButton extends PositionlessWidget {
     public void playDownSound(SoundManager handler) {
         if (isSelected) return;
         super.playDownSound(handler);
-    }
-
-    @Override
-    public void onClick(double mouseX, double mouseY, int button) {
-        if (isSelected) return;
-        onClick.accept(tabType);
     }
 }
