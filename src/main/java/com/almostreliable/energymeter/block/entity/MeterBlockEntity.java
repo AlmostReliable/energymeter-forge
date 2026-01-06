@@ -55,7 +55,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     // tracking & display
     private int tickDelay;
     private double energyRate;
-    private double totalEnergy;
+    private long totalEnergy;
     private double zeroThreshold;
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
@@ -74,7 +74,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         tag.putInt(MEASURE_INTERVAL_ID, measureInterval);
         tag.putInt(ZERO_TOLERANCE_ID, zeroTolerance);
         tag.putInt(TRANSFER_LIMIT_ID, transferLimit);
-        tag.putDouble(TOTAL_ENERGY_ID, totalEnergy);
+        tag.putLong(TOTAL_ENERGY_ID, totalEnergy);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         if (tag.contains(MEASURE_INTERVAL_ID)) measureInterval = tag.getInt(MEASURE_INTERVAL_ID);
         if (tag.contains(ZERO_TOLERANCE_ID)) zeroTolerance = tag.getInt(ZERO_TOLERANCE_ID);
         if (tag.contains(TRANSFER_LIMIT_ID)) transferLimit = tag.getInt(TRANSFER_LIMIT_ID);
-        if (tag.contains(TOTAL_ENERGY_ID)) totalEnergy = tag.getDouble(TOTAL_ENERGY_ID);
+        if (tag.contains(TOTAL_ENERGY_ID)) totalEnergy = tag.getLong(TOTAL_ENERGY_ID);
     }
 
     @Override
@@ -120,10 +120,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private void onTickTimeReached(ServerLevel level) {
         if (!energyHandler.hasHistory()) return;
 
-        double average = energyHandler.getAverage();
+        var measuredEnergy = energyHandler.calculateAndRestartInterval(measureMode == MeasureMode.INTERVAL);
         double oldEnergyRate = energyRate;
+        double average = measuredEnergy.average();
         energyRate = average / measureInterval;
-        totalEnergy += energyRate * measureInterval;
+        totalEnergy += measuredEnergy.total();
 
         if (oldEnergyRate != energyRate) {
             syncEnergyRate(level);
@@ -133,12 +134,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             } else {
                 connectionStatus = ConnectionStatus.IDLE;
             }
-        }
-
-        if (measureMode == MeasureMode.INTERVAL) {
-            energyHandler.resetHistory(average);
-        } else {
-            energyHandler.resetHistory();
         }
     }
 
@@ -215,7 +210,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         return energyRate;
     }
 
-    public double getTotalEnergy() {
+    public long getTotalEnergy() {
         return totalEnergy;
     }
 

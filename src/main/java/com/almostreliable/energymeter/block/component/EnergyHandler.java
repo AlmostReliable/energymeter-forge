@@ -20,10 +20,11 @@ public class EnergyHandler {
 
     private final EnergyHandlerHost host;
     private final Map<Direction, ForwardingEnergyStorage> energyStorage = new EnumMap<>(Direction.class);
-    private final List<Double> energyPerIntervalHistory = Collections.synchronizedList(new ArrayList<>());
+    private final List<Long> energyPerIntervalHistory = Collections.synchronizedList(new ArrayList<>());
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> outputCache = new EnumMap<>(Direction.class);
 
-    private double energyPerInterval;
+    private long energyPerInterval;
+    private double lastIntervalAverage;
 
     public EnergyHandler(EnergyHandlerHost host) {
         this.host = host;
@@ -41,26 +42,31 @@ public class EnergyHandler {
         return !energyPerIntervalHistory.isEmpty();
     }
 
-    public void resetHistory() {
+    private void resetHistory() {
         energyPerIntervalHistory.clear();
-    }
-
-    public void resetHistory(double initialValue) {
-        resetHistory();
-        energyPerIntervalHistory.add(initialValue);
-    }
-
-    public double getAverage() {
-        double sum = 0;
-        for (double energy : energyPerIntervalHistory) {
-            sum += energy;
-        }
-        return sum / energyPerIntervalHistory.size();
     }
 
     public void onIntervalReached() {
         energyPerIntervalHistory.add(energyPerInterval);
         energyPerInterval = 0;
+    }
+
+    public MeasuredEnergy calculateAndRestartInterval(boolean factorInLastInterval) {
+        long total = 0;
+        for (long energy : energyPerIntervalHistory) {
+            total += energy;
+        }
+
+        double average;
+        if (factorInLastInterval) {
+            average = (total + lastIntervalAverage) / (energyPerIntervalHistory.size() + 1);
+        } else {
+            average = (double) total / energyPerIntervalHistory.size();
+        }
+
+        lastIntervalAverage = average;
+        resetHistory();
+        return new MeasuredEnergy(total, average);
     }
 
     public void clear() {
@@ -194,7 +200,7 @@ public class EnergyHandler {
         var energyForwarded = 0;
 
         for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
-            if (energyToForward <= 0) break;
+            if (energyToForward <= 0) return energyForwarded;
             IEnergyStorage neighborEnergyStorage = outputEntry.energyStorage;
             int energyAccepted = neighborEnergyStorage.receiveEnergy(energyToForward, false);
             energyToForward -= energyAccepted;
@@ -203,6 +209,8 @@ public class EnergyHandler {
 
         return energyForwarded;
     }
+
+    public record MeasuredEnergy(long total, double average) {}
 
     private record EnergyPerOutputEntry(IEnergyStorage energyStorage, int maxEnergy) {}
 
