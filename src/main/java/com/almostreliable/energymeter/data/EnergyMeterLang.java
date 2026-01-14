@@ -6,7 +6,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionSt
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.client.screen.MeterScreen.TabType;
-import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
+import com.almostreliable.energymeter.client.screen.widget.IoConfigButton.BlockSide;
 
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
@@ -16,7 +16,7 @@ import net.neoforged.neoforge.common.data.LanguageProvider;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -59,13 +59,13 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry SHIFT = LangEntry.control("shift", "Shift");
 
     // enums
-    public static final Map<IoConfigButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(IoConfigButton.BlockSide.values());
-    public static final Map<Direction, LangEntry> DIRECTIONS = LangEntry.enumValues(Direction.values());
-    public static final Map<IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoSetting.values());
-    public static final Map<TabType, LangEntry> TAB_TYPE = LangEntry.enumValues(TabType.values());
-    public static final Map<TransferMode, LangEntry> TRANSFER_MODES = LangEntry.enumValues(TransferMode.values());
-    public static final Map<MeasureMode, LangEntry> MEASURE_MODES = LangEntry.enumValues(MeasureMode.values());
-    public static final Map<ConnectionStatus, LangEntry> CONNECTION_STATUSES = LangEntry.enumValues(ConnectionStatus.values());
+    public static final Map<BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(BlockSide.class, BlockSide.values());
+    public static final Map<Direction, LangEntry> DIRECTIONS = LangEntry.enumValues(Direction.class, Direction.values());
+    public static final Map<IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoSetting.class, IoSetting.values());
+    public static final Map<TabType, LangEntry> TAB_TYPE = LangEntry.enumValues(TabType.class, TabType.values());
+    public static final Map<TransferMode, LangEntry> TRANSFER_MODES = LangEntry.enumValues(TransferMode.class, TransferMode.values());
+    public static final Map<MeasureMode, LangEntry> MEASURE_MODES = LangEntry.enumValues(MeasureMode.class, MeasureMode.values());
+    public static final Map<ConnectionStatus, LangEntry> CONNECTION_STATUSES = LangEntry.enumValues(ConnectionStatus.class, ConnectionStatus.values());
 
     // @formatter:on
 
@@ -103,8 +103,8 @@ public final class EnergyMeterLang extends LanguageProvider {
         }
 
         @SafeVarargs
-        private static <T extends Enum<?>> Map<T, LangEntry> enumValues(T... enumValues) {
-            Map<T, LangEntry> enumEntries = new HashMap<>();
+        private static <T extends Enum<T>> EnumMap<T, LangEntry> enumValues(Class<T> clazz, T... enumValues) {
+            var enumEntries = new EnumMap<T, LangEntry>(clazz);
 
             String prefix = enumValues[0].getClass().getSimpleName().toLowerCase(Locale.ROOT);
             for (T enumValue : enumValues) {
