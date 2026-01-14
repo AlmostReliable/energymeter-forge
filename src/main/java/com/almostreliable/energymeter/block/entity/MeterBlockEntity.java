@@ -7,9 +7,7 @@ import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
-import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
-import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
-import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
+import com.almostreliable.energymeter.util.EnumExtension;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,6 +25,8 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Supplier;
 
 import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
 import static com.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
@@ -213,5 +213,34 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public ConnectionStatus getConnectionStatus() {
         return connectionStatus;
+    }
+
+    public enum ConnectionStatus {
+        DISCONNECTED, IDLE, SPLITTING, TRANSFERRING, CONSUMING
+    }
+
+    public enum TransferMode implements EnumExtension {
+
+        SPLIT(true, true, ConnectionStatus.SPLITTING),
+        TRANSFER(true, true, ConnectionStatus.TRANSFERRING),
+        CONSUME(true, false, ConnectionStatus.CONSUMING);
+
+        private final boolean requiresInput;
+        private final boolean requiresOutput;
+        private final ConnectionStatus activeStatus;
+
+        TransferMode(boolean requiresInput, boolean requiresOutput, ConnectionStatus activeStatus) {
+            this.requiresInput = requiresInput;
+            this.requiresOutput = requiresOutput;
+            this.activeStatus = activeStatus;
+        }
+
+        private boolean isCorrectlyConfigured(Supplier<Boolean> hasInput, Supplier<Boolean> hasOutput) {
+            return (!requiresInput || hasInput.get()) && (!requiresOutput || hasOutput.get());
+        }
+    }
+
+    public enum MeasureMode {
+        EXACT, INTERVAL
     }
 }

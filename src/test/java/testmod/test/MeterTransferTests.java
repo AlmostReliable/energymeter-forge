@@ -1,7 +1,7 @@
 package testmod.test;
 
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
-import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;

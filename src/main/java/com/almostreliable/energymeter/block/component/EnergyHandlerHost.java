@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.block.component;
 
-import com.almostreliable.energymeter.util.TypeEnums;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -18,7 +18,7 @@ public interface EnergyHandlerHost {
 
     IoConfig getIoConfig();
 
-    TypeEnums.TransferMode getTransferMode();
+    TransferMode getTransferMode();
 
     int getTransferLimit();
 }

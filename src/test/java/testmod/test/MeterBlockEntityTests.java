@@ -4,9 +4,9 @@ import com.almostreliable.energymeter.block.component.ForwardingEnergyStorage;
 import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
-import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
-import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
-import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionStatus;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;

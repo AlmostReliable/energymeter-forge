@@ -3,14 +3,14 @@ package com.almostreliable.energymeter.menu;
 import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionStatus;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.IntegerDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.LongDataHandler;
-import com.almostreliable.energymeter.util.TypeEnums.ConnectionStatus;
-import com.almostreliable.energymeter.util.TypeEnums.MeasureMode;
-import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

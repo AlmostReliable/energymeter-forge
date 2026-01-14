@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.block.component;
 
-import com.almostreliable.energymeter.util.TypeEnums.TransferMode;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

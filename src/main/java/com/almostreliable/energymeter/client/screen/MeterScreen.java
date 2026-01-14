@@ -2,6 +2,8 @@ package com.almostreliable.energymeter.client.screen;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.client.screen.widget.DynamicTextWidget;
 import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
@@ -12,7 +14,6 @@ import com.almostreliable.energymeter.client.screen.widget.base.OutlinedComposit
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.NumberFormatter;
-import com.almostreliable.energymeter.util.TypeEnums;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.StringWidget;
@@ -216,14 +217,14 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         sendAction(tag);
     }
 
-    private void onTransferModeSelected(TypeEnums.TransferMode mode) {
+    private void onTransferModeSelected(TransferMode mode) {
         CompoundTag tag = new CompoundTag();
         tag.putString("type", "transfer_mode");
         tag.putInt("value", mode.ordinal());
         sendAction(tag);
     }
 
-    private void onMeasureModeSelected(TypeEnums.MeasureMode mode) {
+    private void onMeasureModeSelected(MeasureMode mode) {
         CompoundTag tag = new CompoundTag();
         tag.putString("type", "measure_mode");
         tag.putInt("value", mode.ordinal());

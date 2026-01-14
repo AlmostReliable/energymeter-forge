@@ -1,10 +1,12 @@
 package com.almostreliable.energymeter.data;
 
 import com.almostreliable.energymeter.ModConstants;
-import com.almostreliable.energymeter.block.component.IoConfig;
-import com.almostreliable.energymeter.client.screen.MeterScreen;
+import com.almostreliable.energymeter.block.component.IoConfig.IoSetting;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionStatus;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
+import com.almostreliable.energymeter.client.screen.MeterScreen.TabType;
 import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
-import com.almostreliable.energymeter.util.TypeEnums;
 
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
@@ -59,11 +61,11 @@ public final class EnergyMeterLang extends LanguageProvider {
     // enums
     public static final Map<IoConfigButton.BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(IoConfigButton.BlockSide.values());
     public static final Map<Direction, LangEntry> DIRECTIONS = LangEntry.enumValues(Direction.values());
-    public static final Map<IoConfig.IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoConfig.IoSetting.values());
-    public static final Map<MeterScreen.TabType, LangEntry> TAB_TYPE = LangEntry.enumValues(MeterScreen.TabType.values());
-    public static final Map<TypeEnums.TransferMode, LangEntry> TRANSFER_MODES = LangEntry.enumValues(TypeEnums.TransferMode.values());
-    public static final Map<TypeEnums.MeasureMode, LangEntry> MEASURE_MODES = LangEntry.enumValues(TypeEnums.MeasureMode.values());
-    public static final Map<TypeEnums.ConnectionStatus, LangEntry> CONNECTION_STATUSES = LangEntry.enumValues(TypeEnums.ConnectionStatus.values());
+    public static final Map<IoSetting, LangEntry> IO_SETTINGS = LangEntry.enumValues(IoSetting.values());
+    public static final Map<TabType, LangEntry> TAB_TYPE = LangEntry.enumValues(TabType.values());
+    public static final Map<TransferMode, LangEntry> TRANSFER_MODES = LangEntry.enumValues(TransferMode.values());
+    public static final Map<MeasureMode, LangEntry> MEASURE_MODES = LangEntry.enumValues(MeasureMode.values());
+    public static final Map<ConnectionStatus, LangEntry> CONNECTION_STATUSES = LangEntry.enumValues(ConnectionStatus.values());
 
     // @formatter:on
 
