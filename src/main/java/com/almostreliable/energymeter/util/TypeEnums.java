@@ -1,5 +1,7 @@
 package com.almostreliable.energymeter.util;
 
+import java.util.function.Supplier;
+
 public final class TypeEnums {
 
     private TypeEnums() {}
@@ -10,24 +12,22 @@ public final class TypeEnums {
 
     public enum TransferMode implements EnumExtension {
 
-        SPLIT(true, true),
-        TRANSFER(true, true),
-        CONSUME(true, false);
+        SPLIT(true, true, ConnectionStatus.SPLITTING),
+        TRANSFER(true, true, ConnectionStatus.TRANSFERRING),
+        CONSUME(true, false, ConnectionStatus.CONSUMING);
 
         private final boolean requiresInput;
         private final boolean requiresOutput;
+        public final ConnectionStatus activeStatus;
 
-        TransferMode(boolean requiresInput, boolean requiresOutput) {
+        TransferMode(boolean requiresInput, boolean requiresOutput, ConnectionStatus activeStatus) {
             this.requiresInput = requiresInput;
             this.requiresOutput = requiresOutput;
+            this.activeStatus = activeStatus;
         }
 
-        public boolean requiresInput() {
-            return requiresInput;
-        }
-
-        public boolean requiresOutput() {
-            return requiresOutput;
+        public boolean isCorrectlyConfigured(Supplier<Boolean> hasInput, Supplier<Boolean> hasOutput) {
+            return (!requiresInput || hasInput.get()) && (!requiresOutput || hasOutput.get());
         }
     }
 

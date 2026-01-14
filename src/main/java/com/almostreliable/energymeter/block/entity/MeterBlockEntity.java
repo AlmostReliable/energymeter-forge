@@ -36,7 +36,6 @@ import static com.almostreliable.energymeter.core.Constants.TRANSFER_LIMIT_ID;
 import static com.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
 import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
-// TODO: schedule status update until next tick to prevent flickering
 public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEntity, EnergyHandlerHost {
 
     public static final int TICK_TIME = 5;
@@ -57,11 +56,13 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private double energyRate;
     private long totalEnergy;
     private double zeroThreshold;
+
+    // status
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
-        this.ioConfig = new IoConfig(this::onIoConfigChanged);
+        this.ioConfig = new IoConfig(this::onConnectionRelevantSettingChanged);
         this.energyHandler = new EnergyHandler(this);
     }
 
@@ -106,7 +107,10 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     @Override
     public void tick(ServerLevel level) {
-        if (connectionStatus == ConnectionStatus.DISCONNECTED) return;
+        if (!transferMode.isCorrectlyConfigured(ioConfig::hasInput, ioConfig::hasOutput)) {
+            connectionStatus = ConnectionStatus.DISCONNECTED;
+            return;
+        }
 
         if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
             energyHandler.onIntervalReached();
@@ -115,6 +119,8 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         if ((level.getGameTime() + tickDelay) % TICK_TIME == 0) {
             onTickTimeReached(level);
         }
+
+        connectionStatus = energyRate > 0 ? transferMode.activeStatus : ConnectionStatus.IDLE;
     }
 
     private void onTickTimeReached(ServerLevel level) {
@@ -128,12 +134,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
         if (oldEnergyRate != energyRate) {
             syncEnergyRate(level);
-
-            if (energyRate > 0) {
-                connectionStatus = ConnectionStatus.TRANSFERRING;
-            } else {
-                connectionStatus = ConnectionStatus.IDLE;
-            }
         }
     }
 
@@ -145,26 +145,13 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         );
     }
 
-    private void refreshConnectionStatus() {
-        if ((transferMode.requiresInput() && !ioConfig.hasInput()) || (transferMode.requiresOutput() && !ioConfig.hasOutput())) {
-            connectionStatus = ConnectionStatus.DISCONNECTED;
-        } else {
-            connectionStatus = ConnectionStatus.IDLE;
-        }
-    }
-
-    private void onIoConfigChanged() {
-        onConnectionRelevantSettingChanged();
-        setChanged();
-    }
-
     private void onConnectionRelevantSettingChanged() {
         if (!(level instanceof ServerLevel serverLevel)) return;
-        energyHandler.clear();
-        refreshConnectionStatus();
         serverLevel.invalidateCapabilities(worldPosition);
+        energyHandler.clear();
         energyRate = 0;
         syncEnergyRate(serverLevel);
+        setChanged();
     }
 
     @Nullable
