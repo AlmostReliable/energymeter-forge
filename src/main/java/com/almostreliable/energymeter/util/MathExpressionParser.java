@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Grammar:
- * expression := term (('+' | '-') term)*
- * term       := power (('*' | '/') power)*
- * power      := factor ('^' power)?
+ * Grammar:<p>
+ * expression := term (('+' | '-') term)*<p>
+ * term       := power (('*' | '/') power)*<p>
+ * power      := factor ('^' power)?<p>
  * factor     := NUMBER | '(' expression ')' | '-' factor
  */
 public final class MathExpressionParser {
