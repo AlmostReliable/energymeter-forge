@@ -32,6 +32,10 @@ public final class TooltipBuilder {
         return add(Component.literal(" "));
     }
 
+    public TooltipBuilder literal(String text) {
+        return add(Component.literal(text));
+    }
+
     public TooltipBuilder header(MutableComponent header) {
         return add(header.withStyle(ChatFormatting.GOLD));
     }
