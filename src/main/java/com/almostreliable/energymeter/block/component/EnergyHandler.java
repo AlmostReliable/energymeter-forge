@@ -81,7 +81,7 @@ public class EnergyHandler {
             return amount;
         }
 
-        int energyToForward = host.getTransferLimit() < 0 ? amount : Math.min(host.getTransferLimit(), amount);
+        int energyToForward = host.getTransferLimit() <= 0 ? amount : Math.min(host.getTransferLimit(), amount);
 
         MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(energyToForward);
         var maxEnergyPerOutput = maxEnergyPerOutputResult.maxEnergyPerOutput;

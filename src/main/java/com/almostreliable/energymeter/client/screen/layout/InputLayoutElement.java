@@ -1,33 +1,55 @@
 package com.almostreliable.energymeter.client.screen.layout;
 
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.almostreliable.energymeter.client.screen.widget.NumberEditBox;
+
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.network.chat.Component;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class InputLayoutElement implements LayoutElement {
 
-    private static final int ELEMENT_WIDTH = 115;
     private static final int TEXT_BOX_WIDTH = 50;
+    private static final int BUTTON_SIZE = 13;
     private static final int SPACING = 5;
 
+    private final TextBoxType type;
+    private final int width;
     private final int height;
+    private final BiConsumer<TextBoxType, Integer> onValueUpdated;
     private final StringWidget label;
-    private final EditBox textBox;
+    private final NumberEditBox textBox;
+    private final Button confirmButton;
 
-    public InputLayoutElement(Component label, Font font) {
+    public InputLayoutElement(
+        TextBoxType type, int width, Font font, Component label, Supplier<String> valueSupplier,
+        BiConsumer<TextBoxType, Integer> onValueUpdated
+    ) {
+        this.type = type;
+        this.width = width;
         this.height = font.lineHeight + 4;
-        this.label = new StringWidget(ELEMENT_WIDTH - SPACING - TEXT_BOX_WIDTH, height, label, font).alignRight();
-        this.textBox = new EditBox(font, TEXT_BOX_WIDTH, height, Component.empty());
+        this.onValueUpdated = onValueUpdated;
+        this.label = new StringWidget(width - BUTTON_SIZE - 1 - TEXT_BOX_WIDTH - SPACING, height, label, font).alignRight();
+        this.textBox = new NumberEditBox(font, TEXT_BOX_WIDTH, height, valueSupplier, this::onValueEntered, this::onConfirm);
+        this.confirmButton = Button.builder(Component.empty(), btn -> onConfirm()).size(BUTTON_SIZE, BUTTON_SIZE).build();
     }
 
-    public InputLayoutElement set(String value) {
-        textBox.setValue(value);
-        return this;
+    private void onValueEntered(boolean valid) {
+        confirmButton.active = valid;
+    }
+
+    private void onConfirm() {
+        confirmButton.active = false;
+        var value = textBox.getIntValue();
+        textBox.reset();
+        onValueUpdated.accept(type, value);
     }
 
     @Override
@@ -38,7 +60,8 @@ public class InputLayoutElement implements LayoutElement {
     @Override
     public void setX(int x) {
         label.setX(x);
-        textBox.setX(x + (ELEMENT_WIDTH - TEXT_BOX_WIDTH));
+        textBox.setX(x + (width - TEXT_BOX_WIDTH - BUTTON_SIZE - 1));
+        confirmButton.setX(x + width - BUTTON_SIZE);
     }
 
     @Override
@@ -50,11 +73,12 @@ public class InputLayoutElement implements LayoutElement {
     public void setY(int y) {
         label.setY(y);
         textBox.setY(y);
+        confirmButton.setY(y);
     }
 
     @Override
     public int getWidth() {
-        return ELEMENT_WIDTH;
+        return width;
     }
 
     @Override
@@ -66,5 +90,23 @@ public class InputLayoutElement implements LayoutElement {
     public void visitWidgets(Consumer<AbstractWidget> consumer) {
         label.visitWidgets(consumer);
         textBox.visitWidgets(consumer);
+        confirmButton.visitWidgets(consumer);
+    }
+
+    public enum TextBoxType {
+
+        MEASURE_INTERVAL(MeterBlockEntity::setMeasureInterval),
+        ZERO_TOLERANCE(MeterBlockEntity::setZeroTolerance),
+        TRANSFER_LIMIT(MeterBlockEntity::setTransferLimit);
+
+        private final BiConsumer<MeterBlockEntity, Integer> valueUpdater;
+
+        TextBoxType(BiConsumer<MeterBlockEntity, Integer> valueUpdater) {
+            this.valueUpdater = valueUpdater;
+        }
+
+        public void updateValue(MeterBlockEntity blockEntity, int value) {
+            valueUpdater.accept(blockEntity, value);
+        }
     }
 }

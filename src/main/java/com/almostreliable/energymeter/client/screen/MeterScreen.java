@@ -17,8 +17,10 @@ import com.almostreliable.energymeter.util.NumberFormatter;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -55,7 +57,6 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     @Override
     protected void init() {
         super.init();
-
         initGlobalInfo();
         initTabs();
         currentTab.init.accept(this);
@@ -82,10 +83,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             menu::getIoSetting,
             this::onIoSettingSelected,
             menu::getTransferMode,
-            widget -> {
-                addRenderableWidget(widget);
-                clickedOutsideListeners.add(widget);
-            }
+            this::addRenderableWidget
         );
         var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.IO_SETTING.get(), ioConfigLayout);
         ioConfigComposite.setMinWidth(GLOBAL_INFO_WIDTH);
@@ -147,12 +145,30 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         var modesComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.MODES.get(), modesLayout, 0xFFBF_BFBF);
 
         var settingsLayout = LinearLayout.vertical().spacing(1);
-        settingsLayout.addChild(new InputLayoutElement(EnergyMeterLang.INTERVAL.get().append(":"), font)
-            .set(String.valueOf(menu.getMeasureInterval())));
-        settingsLayout.addChild(new InputLayoutElement(EnergyMeterLang.ZERO_TOLERANCE.get().append(":"), font)
-            .set(String.valueOf(menu.getZeroTolerance())));
-        settingsLayout.addChild(new InputLayoutElement(EnergyMeterLang.TRANSFER_LIMIT.get().append(":"), font)
-            .set(String.valueOf(menu.getTransferLimit())));
+        settingsLayout.addChild(new InputLayoutElement(
+            InputLayoutElement.TextBoxType.MEASURE_INTERVAL,
+            110,
+            font,
+            EnergyMeterLang.INTERVAL.get().append(":"),
+            () -> String.valueOf(menu.getMeasureInterval()),
+            this::onTextValueUpdated
+        ));
+        settingsLayout.addChild(new InputLayoutElement(
+            InputLayoutElement.TextBoxType.ZERO_TOLERANCE,
+            110,
+            font,
+            EnergyMeterLang.ZERO_TOLERANCE.get().append(":"),
+            () -> String.valueOf(menu.getZeroTolerance()),
+            this::onTextValueUpdated
+        ));
+        settingsLayout.addChild(new InputLayoutElement(
+            InputLayoutElement.TextBoxType.TRANSFER_LIMIT,
+            110,
+            font,
+            EnergyMeterLang.TRANSFER_LIMIT.get().append(":"),
+            () -> String.valueOf(menu.getTransferLimit()),
+            this::onTextValueUpdated
+        ));
         var settingsComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.SETTINGS.get(), settingsLayout);
 
         var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
@@ -184,6 +200,14 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, GUI_WIDTH, GUI_HEIGHT);
+    }
+
+    @Override
+    protected <T extends GuiEventListener & NarratableEntry> T addWidget(T listener) {
+        if (listener instanceof ClickedOutsideListener clickedOutsideListener) {
+            clickedOutsideListeners.add(clickedOutsideListener);
+        }
+        return super.addWidget(listener);
     }
 
     @Override
@@ -228,6 +252,14 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         CompoundTag tag = new CompoundTag();
         tag.putString("type", "measure_mode");
         tag.putInt("value", mode.ordinal());
+        sendAction(tag);
+    }
+
+    private void onTextValueUpdated(InputLayoutElement.TextBoxType textBox, int value) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("type", "text_value");
+        tag.putInt("text_box", textBox.ordinal());
+        tag.putInt("value", value);
         sendAction(tag);
     }
 

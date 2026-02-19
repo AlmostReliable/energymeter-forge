@@ -1,20 +1,27 @@
 package com.almostreliable.energymeter.client.screen.widget;
 
+import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideListener;
 import com.almostreliable.energymeter.util.MathExpressionParser;
 import com.almostreliable.energymeter.util.TooltipBuilder;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 
+import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.lwjgl.glfw.GLFW;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.OptionalLong;
+import java.math.RoundingMode;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
@@ -23,7 +30,7 @@ import java.util.regex.Pattern;
  * Uses the {@link MathExpressionParser} to calculate a math expression input
  * and displays it as a {@link Tooltip}.
  */
-public class NumberEditBox extends EditBox {
+public class NumberEditBox extends EditBox implements ClickedOutsideListener {
 
     private static final int NORMAL_TEXT_COLOR = 0xFFFF_FFFF;
     private static final int ERROR_TEXT_COLOR = 0xFFFF_0000;
@@ -33,30 +40,105 @@ public class NumberEditBox extends EditBox {
     private static final String OPERATORS = BINARY_OPERATORS + "-";
     private static final char NONE_CHAR = '\0';
 
-    private boolean isValid = true;
-    @Nullable
-    private BigDecimal lastParsedValue;
-    @Nullable
-    private Runnable onConfirm;
+    // TODO:
+    //  - cache initial value
+    //  - automatically unfocuses so don't show value from value supplier if focused (edited)
+    //  - don't show value from value supplier if it has been focused and the value changed without confirmation
+    //  - show indicator when the value has been edited (maybe by marking activating the submit button)
 
-    public NumberEditBox(Font font, int width, int height) {
+    private final Supplier<String> valueSupplier;
+    private final BooleanConsumer onValueEntered;
+    private final Runnable onConfirm;
+
+    private boolean newValueEntered;
+    @Nullable
+    private BigDecimal parsedValue;
+    @Nullable
+    private String tooltip;
+
+    public NumberEditBox(
+        Font font, int width, int height, Supplier<String> valueSupplier, BooleanConsumer onValueEntered, Runnable onConfirm) {
         super(font, width, height, Component.empty());
+        this.valueSupplier = valueSupplier;
+        this.onValueEntered = onValueEntered;
+        this.onConfirm = onConfirm;
+
         setMaxLength(128);
         setTextColor(NORMAL_TEXT_COLOR);
-        setFGColor(0xFF00_FFA2);
         setTextShadow(false);
-        setResponder(this::onTextChanged);
+        setResponder(this::onValueChanged);
+    }
+
+    @Override
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        updateValueFromServer();
+        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        if (tooltip != null) {
+            var mc = Minecraft.getInstance();
+            var tooltipSequence = TooltipBuilder.create().literal(tooltip).build().toCharSequence(mc);
+            var tooltipWidth = mc.font.width(tooltipSequence.getFirst()) + 16;
+            guiGraphics.renderTooltip(mc.font, tooltipSequence, getX() + width - tooltipWidth, getY());
+        }
+    }
+
+    private void updateValueFromServer() {
+        if (newValueEntered) return;
+        var text = valueSupplier.get();
+        if (text.equals(getValue())) return;
+        setValue(text);
+    }
+
+    @Override
+    protected boolean isValidClickButton(int button) {
+        return button == GLFW.GLFW_MOUSE_BUTTON_LEFT || button == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY, int button) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+            reset();
+            return;
+        }
+        super.onClick(mouseX, mouseY, button);
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (canConsumeInput() && (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)) {
-            if (onConfirm != null && getLongValue().isPresent()) {
+            if (parsedValue != null) {
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                reset();
+                setFocused(false);
                 onConfirm.run();
             }
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public void onClickedOutside() {
+        setFocused(false);
+    }
+
+    @Override
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
+        tooltip = null;
+    }
+
+    private void onValueChanged(String text) {
+        tooltip = null;
+        newValueEntered = true;
+
+        validateAndUpdate();
+
+        if (parsedValue == null) {
+            setTextColor(ERROR_TEXT_COLOR);
+        } else {
+            setTextColor(NORMAL_TEXT_COLOR);
+        }
+        onValueEntered.accept(parsedValue != null);
     }
 
     @Override
@@ -83,6 +165,7 @@ public class NumberEditBox extends EditBox {
         }
 
         if (c == ')' && isOperator(prev)) return false;
+        if (c == ')' && !hasOpeningParenthesis()) return false;
         if (prev == '(' && isBinaryOperator(c)) return false;
 
         if (c == '(' && prev != NONE_CHAR && !isOperator(prev)) {
@@ -114,6 +197,25 @@ public class NumberEditBox extends EditBox {
         return NONE_CHAR;
     }
 
+    private boolean hasOpeningParenthesis() {
+        String value = getValue();
+        int cursor = getCursorPosition();
+
+        int openCount = 0;
+        int closeCount = 0;
+
+        for (int i = cursor - 1; i >= 0; i--) {
+            char c = value.charAt(i);
+            if (c == '(') {
+                openCount++;
+            } else if (c == ')') {
+                closeCount++;
+            }
+        }
+
+        return openCount > closeCount;
+    }
+
     private boolean hasDecimalInCurrentNumber() {
         String value = getValue();
         int cursor = getCursorPosition();
@@ -134,40 +236,33 @@ public class NumberEditBox extends EditBox {
         return BINARY_OPERATORS.indexOf(c) >= 0;
     }
 
-    private void onTextChanged(String text) {
-        validate();
-    }
+    private void validateAndUpdate() {
+        var textValue = getValue();
+        var isMathExpression = MATH_EXPRESSION_PATTERN.matcher(textValue.trim()).find();
 
-    private void validate() {
-        Optional<BigDecimal> parsed = MathExpressionParser.parse(getValue());
-        lastParsedValue = parsed.orElse(null);
+        parsedValue = MathExpressionParser.parse(textValue).orElse(null);
+        if (parsedValue == null) return;
 
-        boolean wasValid = isValid;
-        isValid = lastParsedValue != null;
-
-        if (isValid != wasValid) {
-            setTextColor(isValid ? NORMAL_TEXT_COLOR : ERROR_TEXT_COLOR);
-        }
-
-        if (isValid && isMathExpression(getValue())) {
-            // noinspection OptionalGetWithoutIsPresent
-            setTooltip(TooltipBuilder.create().literal("= " + parsed.get().stripTrailingZeros().toPlainString()).build());
-        } else {
-            setTooltip(null);
+        if (parsedValue.scale() > 0) {
+            parsedValue = parsedValue.setScale(0, RoundingMode.HALF_UP);
+            if (isMathExpression) {
+                tooltip = "≈ " + parsedValue.toPlainString();
+            }
+        } else if (isMathExpression) {
+            tooltip = "= " + parsedValue.toPlainString();
         }
     }
 
-    private boolean isMathExpression(String text) {
-        return MATH_EXPRESSION_PATTERN.matcher(text.trim()).find();
+    public void reset() {
+        newValueEntered = false;
+        parsedValue = null;
+        tooltip = null;
+        updateValueFromServer();
     }
 
-    public OptionalLong getLongValue() {
-        if (!isValid || lastParsedValue == null) return OptionalLong.empty();
-        if (lastParsedValue.scale() > 0) return OptionalLong.empty();
-        return OptionalLong.of(lastParsedValue.longValueExact());
-    }
-
-    public void setOnConfirm(Runnable callback) {
-        this.onConfirm = callback;
+    public int getIntValue() {
+        Preconditions.checkNotNull(parsedValue, "value needs to be parsed first");
+        Preconditions.checkArgument(parsedValue.scale() <= 0, "value needs to be rounded to an integer");
+        return parsedValue.intValueExact();
     }
 }

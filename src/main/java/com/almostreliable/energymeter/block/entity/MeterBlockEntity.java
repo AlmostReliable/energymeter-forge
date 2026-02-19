@@ -49,7 +49,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private MeasureMode measureMode = MeasureMode.EXACT;
     private int measureInterval = Config.COMMON.defaultInterval.getAsInt();
     private int zeroTolerance = Config.COMMON.defaultInterval.getAsInt();
-    private int transferLimit = -1;
+    private int transferLimit;
 
     // tracking & display
     private int tickDelay;
@@ -189,8 +189,16 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         return measureInterval;
     }
 
+    public void setMeasureInterval(int measureInterval) {
+        this.measureInterval = Math.max(measureInterval, 5);
+    }
+
     public int getZeroTolerance() {
         return zeroTolerance;
+    }
+
+    public void setZeroTolerance(int zeroTolerance) {
+        this.zeroTolerance = Math.max(zeroTolerance, 5);
     }
 
     public double getEnergyRate() {
@@ -204,6 +212,10 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @Override
     public int getTransferLimit() {
         return transferLimit;
+    }
+
+    public void setTransferLimit(int transferLimit) {
+        this.transferLimit = Math.max(transferLimit, 0);
     }
 
     @OnlyIn(Dist.CLIENT)

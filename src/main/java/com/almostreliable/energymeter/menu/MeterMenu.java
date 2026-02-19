@@ -6,6 +6,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionStatus;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
+import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
@@ -67,6 +68,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
             case "io_setting" -> receiveIoSettingChange(data);
             case "transfer_mode" -> receiveTransferModeChange(data);
             case "measure_mode" -> receiveMeasureModeChange(data);
+            case "text_value" -> receiveTextValueUpdate(data);
             default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }
@@ -77,19 +79,26 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
             return;
         }
 
-        var direction = Direction.values()[data.getByte("direction")];
+        var direction = Direction.values()[data.getInt("direction")];
         var setting = data.getCompound("setting");
         blockEntity.getIoConfig().setSetting(direction, IoSettingWithPriority.deserialize(setting));
     }
 
     private void receiveTransferModeChange(CompoundTag data) {
-        var ordinal = data.getByte("value");
+        var ordinal = data.getInt("value");
         blockEntity.setTransferMode(TransferMode.values()[ordinal]);
     }
 
     private void receiveMeasureModeChange(CompoundTag data) {
-        var ordinal = data.getByte("value");
+        var ordinal = data.getInt("value");
         blockEntity.setMeasureMode(MeasureMode.values()[ordinal]);
+    }
+
+    private void receiveTextValueUpdate(CompoundTag data) {
+        var ordinal = data.getInt("text_box");
+        var textBox = InputLayoutElement.TextBoxType.values()[ordinal];
+        var value = data.getInt("value");
+        textBox.updateValue(blockEntity, value);
     }
 
     public BlockState getBlockState() {

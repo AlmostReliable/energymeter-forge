@@ -28,6 +28,8 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
     private final LayoutSettingsImpl padding;
     private final List<AbstractWidget> children;
 
+    @Nullable
+    private GuiEventListener focused;
     private int minWidth;
 
     private OutlinedCompositeWidget(
@@ -128,11 +130,21 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
     @Nullable
     @Override
     public GuiEventListener getFocused() {
-        return null;
+        return focused;
     }
 
     @Override
-    public void setFocused(@Nullable GuiEventListener focused) {}
+    public void setFocused(@Nullable GuiEventListener focused) {
+        if (this.focused != null) {
+            this.focused.setFocused(false);
+        }
+
+        if (focused != null) {
+            focused.setFocused(true);
+        }
+
+        this.focused = focused;
+    }
 
     @Override
     public void setX(int x) {
