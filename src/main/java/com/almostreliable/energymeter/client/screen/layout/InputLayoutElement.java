@@ -23,6 +23,7 @@ public class InputLayoutElement implements LayoutElement {
     private final TextBoxType type;
     private final int width;
     private final int height;
+    private final Supplier<String> valueSupplier;
     private final BiConsumer<TextBoxType, Integer> onValueUpdated;
     private final StringWidget label;
     private final NumberEditBox textBox;
@@ -35,6 +36,7 @@ public class InputLayoutElement implements LayoutElement {
         this.type = type;
         this.width = width;
         this.height = font.lineHeight + 4;
+        this.valueSupplier = valueSupplier;
         this.onValueUpdated = onValueUpdated;
         this.label = new StringWidget(width - BUTTON_SIZE - 1 - TEXT_BOX_WIDTH - SPACING, height, label, font).alignRight();
         this.textBox = new NumberEditBox(font, TEXT_BOX_WIDTH, height, valueSupplier, this::onValueEntered, this::onConfirm);
@@ -42,14 +44,17 @@ public class InputLayoutElement implements LayoutElement {
     }
 
     private void onValueEntered(boolean valid) {
-        confirmButton.active = valid;
+        boolean buttonActive = valid;
+        var value = textBox.getValue();
+        if (value.equals(valueSupplier.get())) buttonActive = false;
+        confirmButton.active = buttonActive;
     }
 
     private void onConfirm() {
         confirmButton.active = false;
         var value = textBox.getIntValue();
-        textBox.reset();
         onValueUpdated.accept(type, value);
+        textBox.resetNoUpdate();
     }
 
     @Override

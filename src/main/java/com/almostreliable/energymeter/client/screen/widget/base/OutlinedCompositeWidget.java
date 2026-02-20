@@ -135,7 +135,9 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
 
     @Override
     public void setFocused(@Nullable GuiEventListener focused) {
-        if (this.focused != null) {
+        if (this.focused != null && this.focused == focused && this.focused.isFocused()) return;
+
+        if (this.focused != null && this.focused.isFocused()) {
             this.focused.setFocused(false);
         }
 

@@ -96,7 +96,8 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     @Override
     public void onClick(double mouseX, double mouseY, int button) {
         if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-            reset();
+            setValue("");
+            newValueEntered = true;
             return;
         }
         super.onClick(mouseX, mouseY, button);
@@ -124,12 +125,15 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     @Override
     public void setFocused(boolean focused) {
         super.setFocused(focused);
+        if (!focused && getValue().isEmpty()) {
+            reset();
+            return;
+        }
         tooltip = null;
     }
 
     private void onValueChanged(String text) {
         tooltip = null;
-        newValueEntered = true;
 
         validateAndUpdate();
 
@@ -147,6 +151,7 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         for (char c : text.toCharArray()) {
             if (canInsertCharacter(c)) {
                 filtered.append(c);
+                newValueEntered = true;
             }
         }
         super.insertText(filtered.toString());
@@ -253,10 +258,14 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         }
     }
 
-    public void reset() {
+    public void resetNoUpdate() {
         newValueEntered = false;
         parsedValue = null;
         tooltip = null;
+    }
+
+    public void reset() {
+        resetNoUpdate();
         updateValueFromServer();
     }
 
