@@ -40,12 +40,6 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     private static final String OPERATORS = BINARY_OPERATORS + "-";
     private static final char NONE_CHAR = '\0';
 
-    // TODO:
-    //  - cache initial value
-    //  - automatically unfocuses so don't show value from value supplier if focused (edited)
-    //  - don't show value from value supplier if it has been focused and the value changed without confirmation
-    //  - show indicator when the value has been edited (maybe by marking activating the submit button)
-
     private final Supplier<String> valueSupplier;
     private final BooleanConsumer onValueEntered;
     private final Runnable onConfirm;
@@ -281,7 +275,7 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         tooltip = null;
     }
 
-    public void reset() {
+    private void reset() {
         resetNoUpdate();
         updateValueFromServer();
     }
