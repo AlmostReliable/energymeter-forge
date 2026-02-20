@@ -118,6 +118,18 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     }
 
     @Override
+    public void deleteChars(int num) {
+        super.deleteChars(num);
+        newValueEntered = true;
+    }
+
+    @Override
+    public void deleteWords(int num) {
+        super.deleteWords(num);
+        newValueEntered = true;
+    }
+
+    @Override
     public void onClickedOutside() {
         setFocused(false);
     }
