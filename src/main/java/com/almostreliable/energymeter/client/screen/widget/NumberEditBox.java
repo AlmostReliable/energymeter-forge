@@ -159,8 +159,7 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
 
     @SuppressWarnings("RedundantIfStatement")
     private boolean canInsertCharacter(char c) {
-        if (!isValidCharacter(c)) return false;
-        if (Character.isWhitespace(c)) return true;
+        if (!isValidCharacter(c) || Character.isWhitespace(c)) return false;
 
         char prev = previousNonWhitespace();
         if (prev == NONE_CHAR && isBinaryOperator(c)) return false;
