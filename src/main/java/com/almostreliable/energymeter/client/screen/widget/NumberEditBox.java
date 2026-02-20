@@ -108,9 +108,9 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         if (canConsumeInput() && (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)) {
             if (parsedValue != null) {
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                onConfirm.run();
                 reset();
                 setFocused(false);
-                onConfirm.run();
             }
             return true;
         }
