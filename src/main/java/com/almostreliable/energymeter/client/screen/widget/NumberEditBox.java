@@ -166,6 +166,12 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
                 newValueEntered = true;
             }
         }
+
+        if (getValue().equals("0") && getCursorPosition() == 1) {
+            setValue(filtered.toString());
+            return;
+        }
+
         super.insertText(filtered.toString());
     }
 
