@@ -204,6 +204,13 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @Override
     protected <T extends GuiEventListener & NarratableEntry> T addWidget(T listener) {
+        if (listener instanceof OutlinedCompositeWidget composite) {
+            for (var child : composite.children()) {
+                if (child instanceof ClickedOutsideListener clickedOutsideListener) {
+                    clickedOutsideListeners.add(clickedOutsideListener);
+                }
+            }
+        }
         if (listener instanceof ClickedOutsideListener clickedOutsideListener) {
             clickedOutsideListeners.add(clickedOutsideListener);
         }
