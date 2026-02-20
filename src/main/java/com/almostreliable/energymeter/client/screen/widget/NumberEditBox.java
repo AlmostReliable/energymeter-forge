@@ -35,7 +35,7 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     private static final int NORMAL_TEXT_COLOR = 0xFFFF_FFFF;
     private static final int ERROR_TEXT_COLOR = 0xFFFF_0000;
 
-    private static final Pattern MATH_EXPRESSION_PATTERN = Pattern.compile("[+\\-*/^()]");
+    private static final Pattern MATH_EXPRESSION_PATTERN = Pattern.compile("\\d\\s*[+\\-*/^]\\s*\\d");
     private static final String BINARY_OPERATORS = "+*/^";
     private static final String OPERATORS = BINARY_OPERATORS + "-";
     private static final char NONE_CHAR = '\0';
