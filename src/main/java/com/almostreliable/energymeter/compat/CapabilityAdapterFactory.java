@@ -2,13 +2,8 @@ package com.almostreliable.energymeter.compat;
 
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.compat.cct.MeterPeripheral;
-import com.almostreliable.energymeter.compat.cct.PeripheralAdapter;
-
-import net.neoforged.fml.ModList;
 
 import javax.annotation.Nullable;
-
-import static com.almostreliable.energymeter.core.Constants.CCT_ID;
 
 public final class CapabilityAdapterFactory {
 
@@ -25,9 +20,9 @@ public final class CapabilityAdapterFactory {
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     @Nullable
     public static ICapabilityAdapter<MeterPeripheral> createMeterPeripheral(MeterBlockEntity entity) {
-        if (ModList.get().isLoaded(CCT_ID)) {
-            return new PeripheralAdapter(entity);
-        }
+        // if (ModList.get().isLoaded(CCT_ID)) {
+        //     return new PeripheralAdapter(entity);
+        // }
 
         return null;
     }

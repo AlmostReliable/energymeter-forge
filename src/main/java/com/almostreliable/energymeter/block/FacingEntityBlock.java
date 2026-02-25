@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.block;
 
 import com.almostreliable.energymeter.block.entity.TickableBlock;
+import com.almostreliable.energymeter.core.Constants;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class FacingEntityBlock extends TickableBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    public static final DirectionProperty BOTTOM = DirectionProperty.create("bottom");
+    public static final DirectionProperty BOTTOM = DirectionProperty.create(Constants.BOTTOM_PROP);
 
     FacingEntityBlock(Properties properties) {
         super(properties);

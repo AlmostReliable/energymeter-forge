@@ -6,6 +6,7 @@ import com.almostreliable.energymeter.block.multiblock.MultiblockTypeProperty;
 import com.almostreliable.energymeter.block.multiblock.OptionalDirection;
 import com.almostreliable.energymeter.block.multiblock.OptionalDirectionProperty;
 import com.almostreliable.energymeter.core.Config;
+import com.almostreliable.energymeter.core.Constants;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -34,7 +35,7 @@ import java.util.Map;
 
 public class MonitorBlock extends FacingEntityBlock {
 
-    public static final BooleanProperty CONTROLLER = BooleanProperty.create("controller");
+    public static final BooleanProperty CONTROLLER = BooleanProperty.create(Constants.CONTROLLER_PROP);
     public static final OptionalDirectionProperty HORIZONTAL = OptionalDirectionProperty.HORIZONTAL;
     public static final OptionalDirectionProperty VERTICAL = OptionalDirectionProperty.VERTICAL;
     public static final MultiblockTypeProperty TYPE = MultiblockTypeProperty.INSTANCE;

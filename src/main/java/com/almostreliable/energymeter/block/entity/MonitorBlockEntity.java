@@ -29,15 +29,15 @@ public class MonitorBlockEntity extends BlockEntity implements TickableMenuBlock
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        if (width != 0) tag.putInt(Constants.WIDTH_ID, width);
-        if (height != 0) tag.putInt(Constants.HEIGHT_ID, height);
+        if (width != 0) tag.putInt(Constants.MULTIBLOCK_WIDTH_ID, width);
+        if (height != 0) tag.putInt(Constants.MULTIBLOCK_HEIGHT_ID, height);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains(Constants.WIDTH_ID)) width = tag.getInt(Constants.WIDTH_ID);
-        if (tag.contains(Constants.HEIGHT_ID)) height = tag.getInt(Constants.HEIGHT_ID);
+        if (tag.contains(Constants.MULTIBLOCK_WIDTH_ID)) width = tag.getInt(Constants.MULTIBLOCK_WIDTH_ID);
+        if (tag.contains(Constants.MULTIBLOCK_HEIGHT_ID)) height = tag.getInt(Constants.MULTIBLOCK_HEIGHT_ID);
     }
 
     @Nullable

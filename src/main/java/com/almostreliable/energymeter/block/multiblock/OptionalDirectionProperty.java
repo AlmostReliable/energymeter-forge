@@ -1,5 +1,7 @@
 package com.almostreliable.energymeter.block.multiblock;
 
+import com.almostreliable.energymeter.core.Constants;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 
@@ -10,13 +12,13 @@ import java.util.List;
 public final class OptionalDirectionProperty extends EnumProperty<OptionalDirection> {
 
     public static final OptionalDirectionProperty HORIZONTAL = create(
-        "horizontal",
+        Constants.HORIZONTAL_PROP,
         Direction.NORTH,
         Direction.SOUTH,
         Direction.WEST,
         Direction.EAST
     );
-    public static final OptionalDirectionProperty VERTICAL = create("vertical", Direction.UP, Direction.DOWN);
+    public static final OptionalDirectionProperty VERTICAL = create(Constants.VERTICAL_PROP, Direction.UP, Direction.DOWN);
 
     private OptionalDirectionProperty(String name, Collection<Direction> directions) {
         super(name, OptionalDirection.class, mapDirections(directions));
