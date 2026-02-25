@@ -12,8 +12,6 @@ almostgradle.setup {
 repositories {
     // CC: Tweaked
     maven("https://maven.squiddev.cc/")
-
-    mavenLocal()
 }
 
 dependencies {
