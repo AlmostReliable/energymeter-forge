@@ -1,6 +1,5 @@
 package com.almostreliable.energymeter.client.screen;
 
-import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
@@ -14,6 +13,7 @@ import com.almostreliable.energymeter.client.screen.widget.base.OutlinedComposit
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.NumberFormatter;
+import com.almostreliable.energymeter.util.TexRenderer;
 import com.almostreliable.energymeter.util.TooltipBuilder;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,7 +26,6 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +36,6 @@ import java.util.function.Consumer;
 
 public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
-    private static final ResourceLocation TEXTURE = EnergyMeter.getRL("textures/gui/meter.png");
     private static final int GUI_WIDTH = 234;
     private static final int GUI_HEIGHT = 185;
     private static final int PANE_SPACING = 4;
@@ -45,6 +43,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     private static final int RIGHT_PANE_WIDTH = GUI_WIDTH - LEFT_PANE_WIDTH - PANE_SPACING;
     private static final int VERTICAL_ELEMENT_SPACING = 4;
     private static final int GLOBAL_INFO_WIDTH = 70;
+    private static final TexRenderer BACKGROUND = TexRenderer.gui("meter").tex(0, 0, GUI_WIDTH, GUI_HEIGHT);
 
     private final List<ClickedOutsideListener> clickedOutsideListeners = new ArrayList<>();
 
@@ -226,7 +225,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             }
         }
 
-        guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, GUI_WIDTH, GUI_HEIGHT);
+        BACKGROUND.target(leftPos, topPos).render(guiGraphics);
     }
 
     @Override
