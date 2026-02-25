@@ -113,7 +113,8 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             return;
         }
 
-        if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
+        var interval = measureMode == MeasureMode.INTERVAL ? measureInterval : TICK_TIME;
+        if ((level.getGameTime() + tickDelay) % interval == 0) {
             energyHandler.onIntervalReached();
         }
 
