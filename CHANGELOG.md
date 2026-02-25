@@ -13,4 +13,5 @@ This is an EOL release. The mod will no longer receive updates, except for criti
 Initial 1.20.1 release!
 
 <!-- Versions -->
+[1.0.1]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.20.1-forge-1.0.1
 [1.0.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.20.1-1.0.0
