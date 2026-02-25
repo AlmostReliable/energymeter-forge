@@ -26,7 +26,9 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     public IoConfig(Runnable changeListener) {
         this.changeListener = changeListener;
-        resetSettings();
+        for (Direction direction : DIRECTIONS) {
+            directionToSetting.put(direction, IoSettingWithPriority.OFF);
+        }
     }
 
     public IoConfig() {
