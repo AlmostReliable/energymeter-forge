@@ -31,6 +31,7 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
     @Nullable
     private GuiEventListener focused;
     private int minWidth;
+    private float alignX;
 
     private OutlinedCompositeWidget(
         Component message, int color, Layout layout, LayoutSettingsImpl padding, List<AbstractWidget> children
@@ -111,6 +112,11 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
     @Override
     public void arrangeElements() {
         layout.arrangeElements();
+        if (alignX > 0 && minWidth > 0) {
+            var layoutWidth = layout.getWidth();
+            var x = (int) ((minWidth - layoutWidth) * alignX);
+            layout.visitChildren(element -> element.setX(element.getX() + x));
+        }
         recalculateDimensions();
     }
 
@@ -162,6 +168,7 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
 
     public void setMinWidth(int minWidth) {
         this.minWidth = minWidth;
+        this.alignX = 0.5f;
     }
 
     private static final class SingleElementLayout extends AbstractLayout {

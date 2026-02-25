@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 
 - fixed output priority being zero when switching from split to transfer mode
+- fixed I/O config widgets not being centered in their group box
 
 ## [0.1.0] - 2026-02-25
 
