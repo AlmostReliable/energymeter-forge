@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 
 - added button to reset the total energy transferred
+- added option to set custom interval length for exact/instant mode
 - fixed output priority being zero when switching from split to transfer mode
 - fixed I/O config widgets not being centered in their group box
 - fixed changed meter configuration values not always being saved

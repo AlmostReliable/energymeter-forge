@@ -113,17 +113,15 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             return;
         }
 
-        var isSmoothed = measureMode == MeasureMode.SMOOTHED;
-        var interval = isSmoothed ? measureInterval : DEFAULT_INTERVAL;
-        if ((level.getGameTime() + tickDelay) % interval == 0) {
-            onIntervalReached(level, isSmoothed, interval);
+        if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
+            onIntervalReached(level);
         }
 
         connectionStatus = energyRate > 0 ? transferMode.activeStatus : ConnectionStatus.IDLE;
     }
 
-    private void onIntervalReached(ServerLevel level, boolean isSmoothed, int interval) {
-        var measuredEnergy = energyHandler.calculateAndRestartCycle(interval, isSmoothed);
+    private void onIntervalReached(ServerLevel level) {
+        var measuredEnergy = energyHandler.calculateAndRestartCycle(measureInterval, measureMode == MeasureMode.SMOOTHED);
         var lastEnergyRate = energyRate;
         energyRate = measuredEnergy.average();
         totalEnergy += measuredEnergy.total();
