@@ -25,7 +25,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     private final IoConfig ioConfig = new IoConfig();
     private TransferMode transferMode = TransferMode.SPLIT;
-    private MeasureMode measureMode = MeasureMode.EXACT;
+    private MeasureMode measureMode = MeasureMode.INSTANT;
     private int measureInterval;
     private int zeroTolerance;
     private int transferLimit;

@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - fixed I/O config widgets not being centered in their group box
 - fixed changed meter configuration values not always being saved
 - improved performance by drastically simplifying interval average calculation logic
+- renamed measuring modes from "exact" and "interval" to "instant" and "smoothed"
 
 ## [0.1.0] - 2026-02-25
 

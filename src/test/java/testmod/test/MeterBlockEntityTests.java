@@ -35,7 +35,7 @@ public class MeterBlockEntityTests {
 
         // test enum defaults
         helper.assertValueEqual(meterBlockEntity.getTransferMode(), TransferMode.SPLIT, "transfer mode");
-        helper.assertValueEqual(meterBlockEntity.getMeasureMode(), MeasureMode.EXACT, "measure mode");
+        helper.assertValueEqual(meterBlockEntity.getMeasureMode(), MeasureMode.INSTANT, "measure mode");
         helper.assertValueEqual(meterBlockEntity.getConnectionStatus(), ConnectionStatus.DISCONNECTED, "connection status");
 
         helper.succeed();

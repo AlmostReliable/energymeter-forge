@@ -219,7 +219,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         if (intervalSettingsWidget != null) {
-            var enabled = menu.getMeasureMode() == MeasureMode.INTERVAL;
+            var enabled = menu.getMeasureMode() == MeasureMode.SMOOTHED;
             if (enabled != intervalSettingsEnabled) {
                 intervalSettingsWidget.setEnabled(enabled);
                 intervalSettingsEnabled = enabled;

@@ -46,7 +46,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     // settings
     private TransferMode transferMode = TransferMode.SPLIT;
-    private MeasureMode measureMode = MeasureMode.EXACT;
+    private MeasureMode measureMode = MeasureMode.INSTANT;
     private int measureInterval = Config.COMMON.defaultInterval.getAsInt();
     private int zeroTolerance = Config.COMMON.defaultInterval.getAsInt();
     private int transferLimit;
@@ -113,17 +113,17 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             return;
         }
 
-        var isIntervalMode = measureMode == MeasureMode.INTERVAL;
-        var interval = isIntervalMode ? measureInterval : DEFAULT_INTERVAL;
+        var isSmoothed = measureMode == MeasureMode.SMOOTHED;
+        var interval = isSmoothed ? measureInterval : DEFAULT_INTERVAL;
         if ((level.getGameTime() + tickDelay) % interval == 0) {
-            onIntervalReached(level, isIntervalMode, interval);
+            onIntervalReached(level, isSmoothed, interval);
         }
 
         connectionStatus = energyRate > 0 ? transferMode.activeStatus : ConnectionStatus.IDLE;
     }
 
-    private void onIntervalReached(ServerLevel level, boolean isIntervalMode, int interval) {
-        var measuredEnergy = energyHandler.calculateAndRestartCycle(interval, isIntervalMode);
+    private void onIntervalReached(ServerLevel level, boolean isSmoothed, int interval) {
+        var measuredEnergy = energyHandler.calculateAndRestartCycle(interval, isSmoothed);
         var lastEnergyRate = energyRate;
         energyRate = measuredEnergy.average();
         totalEnergy += measuredEnergy.total();
@@ -259,6 +259,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     public enum MeasureMode {
-        EXACT, INTERVAL
+        INSTANT, SMOOTHED
     }
 }
