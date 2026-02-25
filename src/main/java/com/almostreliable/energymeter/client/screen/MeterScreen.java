@@ -68,17 +68,17 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     private void initGlobalInfo() {
         var energyRateComposite = OutlinedCompositeWidget.ofElement(
-            EnergyMeterLang.ENERGY_RATE.get(),
+            EnergyMeterLang.HEADER_CURRENT.get(),
             new DynamicMarqueeStringWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick())
         );
 
         var totalEnergyComposite = OutlinedCompositeWidget.ofElement(
-            EnergyMeterLang.TOTAL_ENERGY.get(),
+            EnergyMeterLang.HEADER_TOTAL.get(),
             new DynamicMarqueeStringWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit())
         );
 
         var statusComposite = OutlinedCompositeWidget.ofElement(
-            EnergyMeterLang.CONNECTION_STATUS.get(),
+            EnergyMeterLang.HEADER_STATUS.get(),
             new DynamicMarqueeStringWidget(
                 GLOBAL_INFO_WIDTH,
                 () -> EnergyMeterLang.CONNECTION_STATUSES.get(menu.getConnectionStatus()).get()
@@ -92,7 +92,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             menu::getTransferMode,
             this::addRenderableWidget
         );
-        var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.IO_SETTING.get(), ioConfigLayout);
+        var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_IO.get(), ioConfigLayout);
         ioConfigComposite.setMinWidth(GLOBAL_INFO_WIDTH);
 
         var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
@@ -136,7 +136,10 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             menu::getTransferMode,
             this::onTransferModeSelected
         );
-        var transferModeComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.TRANSFER_MODE.get(), transferModeRadioButtons);
+        var transferModeComposite = OutlinedCompositeWidget.ofLayout(
+            EnergyMeterLang.SUB_HEADER_TRANSFERRING.get(),
+            transferModeRadioButtons
+        );
 
         var measureModeRadioButtons = RadioButton.createGroup(
             102,
@@ -144,19 +147,19 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             menu::getMeasureMode,
             this::onMeasureModeSelected
         );
-        var measureModeComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.MEASURE_MODE.get(), measureModeRadioButtons);
+        var measureModeComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.SUB_HEADER_MEASURING.get(), measureModeRadioButtons);
 
         var modesLayout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
         modesLayout.addChild(transferModeComposite);
         modesLayout.addChild(measureModeComposite);
-        var modesComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.MODES.get(), modesLayout, 0xFFBF_BFBF);
+        var modesComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_MODES.get(), modesLayout, 0xFFBF_BFBF);
 
         var settingsLayout = LinearLayout.vertical().spacing(1);
         settingsLayout.addChild(new InputLayoutElement(
             InputLayoutElement.TextBoxType.TRANSFER_LIMIT,
             110,
             font,
-            EnergyMeterLang.TRANSFER_LIMIT.get().append(":"),
+            EnergyMeterLang.SETTING_LIMIT.get().append(":"),
             () -> String.valueOf(menu.getTransferLimit()),
             this::onTextValueUpdated
         ));
@@ -164,7 +167,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             InputLayoutElement.TextBoxType.ZERO_TOLERANCE,
             110,
             font,
-            EnergyMeterLang.ZERO_TOLERANCE.get().append(":"),
+            EnergyMeterLang.SETTING_TOLERANCE.get().append(":"),
             () -> String.valueOf(menu.getZeroTolerance()),
             this::onTextValueUpdated
         ));
@@ -172,12 +175,12 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             InputLayoutElement.TextBoxType.MEASURE_INTERVAL,
             110,
             font,
-            EnergyMeterLang.INTERVAL.get().append(":"),
+            EnergyMeterLang.SETTING_INTERVAL.get().append(":"),
             () -> String.valueOf(menu.getMeasureInterval()),
             this::onTextValueUpdated
         );
         settingsLayout.addChild(intervalSettingsWidget);
-        var settingsComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.SETTINGS.get(), settingsLayout);
+        var settingsComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_SETTINGS.get(), settingsLayout);
 
         var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
         layout.addChild(modesComposite);

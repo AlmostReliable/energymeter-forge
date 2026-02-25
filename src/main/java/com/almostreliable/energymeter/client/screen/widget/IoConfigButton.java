@@ -184,19 +184,19 @@ public final class IoConfigButton extends LayoutPositionedWidget {
         TooltipBuilder tooltipBuilder = TooltipBuilder.create()
             .header(EnergyMeterLang.BLOCK_SIDES.get(blockSide).get())
             .blankLine()
-            .keyValue(EnergyMeterLang.DIRECTION.get(), directionName);
+            .keyValue(EnergyMeterLang.KEY_DIRECTION.get(), directionName);
 
         if (blockSide != BlockSide.FRONT) {
             IoSetting setting = ioSettingWithPriority.setting();
             if (transferMode == TransferMode.CONSUME && setting == IoSetting.OUT) {
                 setting = IoSetting.OFF;
             }
-            tooltipBuilder.keyValue(EnergyMeterLang.CURRENT_SETTING.get(), EnergyMeterLang.IO_SETTINGS.get(setting).get());
+            tooltipBuilder.keyValue(EnergyMeterLang.KEY_CURRENT_SETTING.get(), EnergyMeterLang.IO_SETTINGS.get(setting).get());
         }
 
         if (transferModeSupplier.get() == TransferMode.TRANSFER && ioSettingWithPriority.isOutput()) {
             int priority = ioSettingWithPriority.priority();
-            tooltipBuilder.keyValue(EnergyMeterLang.OUTPUT_PRIORITY.get(), Component.literal(String.valueOf(priority)));
+            tooltipBuilder.keyValue(EnergyMeterLang.KEY_OUTPUT_PRIORITY.get(), Component.literal(String.valueOf(priority)));
         }
 
         tooltipBuilder.blankLine();

@@ -46,7 +46,7 @@ public final class TooltipBuilder {
 
     public TooltipBuilder lmbAction(MutableComponent action) {
         return add(
-            EnergyMeterLang.LMB.get()
+            EnergyMeterLang.CONTROL_KEY_LMB.get()
                 .append(": ")
                 .withStyle(ChatFormatting.GRAY)
                 .append(action.withStyle(ChatFormatting.DARK_GRAY))
@@ -55,7 +55,7 @@ public final class TooltipBuilder {
 
     public TooltipBuilder rmbAction(MutableComponent action) {
         return add(
-            EnergyMeterLang.RMB.get()
+            EnergyMeterLang.CONTROL_KEY_RMB.get()
                 .append(": ")
                 .withStyle(ChatFormatting.GRAY)
                 .append(action.withStyle(ChatFormatting.DARK_GRAY))
@@ -64,9 +64,9 @@ public final class TooltipBuilder {
 
     public TooltipBuilder shiftLmbAction(MutableComponent action) {
         return add(
-            EnergyMeterLang.SHIFT.get()
+            EnergyMeterLang.CONTROL_KEY_SHIFT.get()
                 .append("-")
-                .append(EnergyMeterLang.LMB.get())
+                .append(EnergyMeterLang.CONTROL_KEY_LMB.get())
                 .append(": ")
                 .withStyle(ChatFormatting.GRAY)
                 .append(action.withStyle(ChatFormatting.DARK_GRAY))

@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
+import com.google.common.base.CaseFormat;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.EnumMap;
@@ -28,35 +29,39 @@ public final class EnergyMeterLang extends LanguageProvider {
 
     // @formatter:off
 
-    // labels
-    public static final LangEntry ENERGY_RATE = LangEntry.label("energy_rate", "Current");
-    public static final LangEntry TOTAL_ENERGY = LangEntry.label("total_energy", "Total");
-    public static final LangEntry DISPLAY_MODE = LangEntry.label("display_mode", "Display Mode");
-    public static final LangEntry TRANSFER_MODE = LangEntry.label("transfer_mode", "Transferring");
-    public static final LangEntry MEASURE_MODE = LangEntry.label("measure_mode", "Measuring");
-    public static final LangEntry CONNECTION_STATUS = LangEntry.label("connection_status", "Status");
-    public static final LangEntry INTERVAL = LangEntry.label("interval", "Interval");
-    public static final LangEntry ZERO_TOLERANCE = LangEntry.label("zero_tolerance", "Tolerance");
-    public static final LangEntry TRANSFER_LIMIT = LangEntry.label("transfer_limit", "Limit");
-    public static final LangEntry IO_SETTING = LangEntry.label("io_setting", "I/O");
-    public static final LangEntry STATISTICS = LangEntry.label("statistics", "Statistics");
-    public static final LangEntry MODES = LangEntry.label("modes", "Modes");
-    public static final LangEntry SETTINGS = LangEntry.label("settings", "Settings");
+    // header labels
+    public static final LangEntry HEADER_CURRENT = LangEntry.label("header_current", "Current");
+    public static final LangEntry HEADER_TOTAL = LangEntry.label("header_total", "Total");
+    public static final LangEntry HEADER_STATUS = LangEntry.label("header_status", "Status");
+    public static final LangEntry HEADER_IO = LangEntry.label("header_io", "I/O");
+    public static final LangEntry HEADER_MODES = LangEntry.label("header_modes", "Modes");
+    public static final LangEntry HEADER_SETTINGS = LangEntry.label("header_settings", "Settings");
 
-    // tooltips
-    public static final LangEntry CURRENT_SETTING = LangEntry.tooltip("current_setting", "Current Setting");
-    public static final LangEntry DIRECTION = LangEntry.tooltip("direction", "Direction");
-    public static final LangEntry OUTPUT_PRIORITY = LangEntry.tooltip("output_priority", "Output Priority");
-    public static final LangEntry CYCLE_NEXT_SETTING = LangEntry.tooltip("cycle_next_setting", "Next setting");
-    public static final LangEntry CYCLE_PREVIOUS_SETTING = LangEntry.tooltip("cycle_previous_setting", "Previous setting");
-    public static final LangEntry SELECT_SETTING = LangEntry.tooltip("select_setting", "Select setting");
-    public static final LangEntry RESET_SETTING = LangEntry.tooltip("reset_setting", "Reset setting");
-    public static final LangEntry RESET_ALL_SETTINGS = LangEntry.tooltip("reset_all_settings", "Reset all settings");
+    // sub header labels
+    public static final LangEntry SUB_HEADER_TRANSFERRING = LangEntry.label("sub_header_transferring", "Transferring");
+    public static final LangEntry SUB_HEADER_MEASURING = LangEntry.label("sub_header_measuring", "Measuring");
 
-    // controls
-    public static final LangEntry LMB = LangEntry.control("lmb", "Click");
-    public static final LangEntry RMB = LangEntry.control("rmb", "Right-Click");
-    public static final LangEntry SHIFT = LangEntry.control("shift", "Shift");
+    // setting labels
+    public static final LangEntry SETTING_LIMIT = LangEntry.label("setting_limit", "Limit");
+    public static final LangEntry SETTING_TOLERANCE = LangEntry.label("setting_tolerance", "Tolerance");
+    public static final LangEntry SETTING_INTERVAL = LangEntry.label("setting_interval", "Interval");
+
+    // key tooltips
+    public static final LangEntry KEY_DIRECTION = LangEntry.tooltip("key_direction", "Direction");
+    public static final LangEntry KEY_CURRENT_SETTING = LangEntry.tooltip("key_current_setting", "Current Setting");
+    public static final LangEntry KEY_OUTPUT_PRIORITY = LangEntry.tooltip("key_output_priority", "Output Priority");
+
+    // control key tooltips
+    public static final LangEntry CONTROL_KEY_LMB = LangEntry.tooltip("control_key_lmb", "Click");
+    public static final LangEntry CONTROL_KEY_RMB = LangEntry.tooltip("control_key_rmb", "Right-Click");
+    public static final LangEntry CONTROL_KEY_SHIFT = LangEntry.tooltip("control_key_shift", "Shift");
+
+    // control description tooltips
+    public static final LangEntry CYCLE_NEXT_SETTING = LangEntry.tooltip("control_desc_cycle_next_setting", "Next setting");
+    public static final LangEntry CYCLE_PREVIOUS_SETTING = LangEntry.tooltip("control_desc_cycle_previous_setting", "Previous setting");
+    public static final LangEntry SELECT_SETTING = LangEntry.tooltip("control_desc_select_setting", "Select setting");
+    public static final LangEntry RESET_SETTING = LangEntry.tooltip("control_desc_reset_setting", "Reset setting");
+    public static final LangEntry RESET_ALL_SETTINGS = LangEntry.tooltip("control_desc_reset_all_settings", "Reset all settings");
 
     // enums
     public static final Map<BlockSide, LangEntry> BLOCK_SIDES = LangEntry.enumValues(BlockSide.class, BlockSide.values());
@@ -98,15 +103,12 @@ public final class EnergyMeterLang extends LanguageProvider {
             return of("tooltip", id, value);
         }
 
-        private static LangEntry control(String id, String value) {
-            return of("control", id, value);
-        }
-
         @SafeVarargs
         private static <T extends Enum<T>> EnumMap<T, LangEntry> enumValues(Class<T> clazz, T... enumValues) {
-            var enumEntries = new EnumMap<T, LangEntry>(clazz);
+            var enumClassName = clazz.getSimpleName();
+            String prefix = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, enumClassName);
 
-            String prefix = enumValues[0].getClass().getSimpleName().toLowerCase(Locale.ROOT);
+            var enumEntries = new EnumMap<T, LangEntry>(clazz);
             for (T enumValue : enumValues) {
                 String id = enumValue.name().toLowerCase(Locale.ROOT);
                 String value = StringUtils.capitalize(id);
