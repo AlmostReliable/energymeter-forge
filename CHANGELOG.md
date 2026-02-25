@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- /
+
+## [0.2.0] - 2026-02-25
 
 - added button to reset the total energy transferred
 - added option to set custom interval length for exact/instant mode
@@ -20,4 +23,5 @@ The new version is a complete rewrite of the 1.20.1 version.
 
 <!-- Versions -->
 
+[0.2.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.2.0
 [0.1.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.1.0
