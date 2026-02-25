@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - added button to reset the total energy transferred
 - fixed output priority being zero when switching from split to transfer mode
 - fixed I/O config widgets not being centered in their group box
+- fixed changed meter configuration values not always being saved
 
 ## [0.1.0] - 2026-02-25
 

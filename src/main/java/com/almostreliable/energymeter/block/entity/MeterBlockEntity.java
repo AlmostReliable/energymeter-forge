@@ -195,6 +195,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public void setMeasureInterval(int measureInterval) {
         this.measureInterval = Math.max(measureInterval, 5);
+        setChanged();
     }
 
     public int getZeroTolerance() {
@@ -203,6 +204,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public void setZeroTolerance(int zeroTolerance) {
         this.zeroTolerance = Math.max(zeroTolerance, 5);
+        setChanged();
     }
 
     public double getEnergyRate() {
@@ -225,9 +227,10 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public void setTransferLimit(int transferLimit) {
         this.transferLimit = Math.max(transferLimit, 0);
+        setChanged();
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @OnlyIn(Dist.CLIENT) // only used for syncing
     public void setEnergyRate(double energyRate) {
         this.energyRate = energyRate;
     }
