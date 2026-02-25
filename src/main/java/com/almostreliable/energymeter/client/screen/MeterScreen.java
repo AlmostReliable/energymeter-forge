@@ -14,8 +14,10 @@ import com.almostreliable.energymeter.client.screen.widget.base.OutlinedComposit
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.util.NumberFormatter;
+import com.almostreliable.energymeter.util.TooltipBuilder;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.FrameLayout;
@@ -95,11 +97,17 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_IO.get(), ioConfigLayout);
         ioConfigComposite.setMinWidth(GLOBAL_INFO_WIDTH);
 
+        var resetButton = Button.builder(EnergyMeterLang.BUTTON_RESET_TOTAL.get(), $ -> onResetTotalButtonClicked())
+            .width(GLOBAL_INFO_WIDTH + 8)
+            .tooltip(TooltipBuilder.create().literal(EnergyMeterLang.BUTTON_RESET_TOTAL_TOOLTIP.get()).build())
+            .build();
+
         var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
         layout.addChild(energyRateComposite);
         layout.addChild(totalEnergyComposite);
         layout.addChild(statusComposite);
         layout.addChild(ioConfigComposite);
+        layout.addChild(resetButton);
 
         layout.arrangeElements();
         FrameLayout.centerInRectangle(layout, leftPos, topPos, LEFT_PANE_WIDTH, GUI_HEIGHT);
@@ -287,6 +295,12 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         tag.putString("type", "text_value");
         tag.putInt("text_box", textBox.ordinal());
         tag.putInt("value", value);
+        sendAction(tag);
+    }
+
+    private void onResetTotalButtonClicked() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("type", "reset_total");
         sendAction(tag);
     }
 

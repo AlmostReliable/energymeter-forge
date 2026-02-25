@@ -36,6 +36,10 @@ public final class TooltipBuilder {
         return add(Component.literal(text));
     }
 
+    public TooltipBuilder literal(Component component) {
+        return add(component);
+    }
+
     public TooltipBuilder header(MutableComponent header) {
         return add(header.withStyle(ChatFormatting.GOLD));
     }

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- added button to reset the total energy transferred
 - fixed output priority being zero when switching from split to transfer mode
 - fixed I/O config widgets not being centered in their group box
 

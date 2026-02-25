@@ -213,6 +213,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         return totalEnergy;
     }
 
+    public void setTotalEnergy(long totalEnergy) {
+        this.totalEnergy = totalEnergy;
+        setChanged();
+    }
+
     @Override
     public int getTransferLimit() {
         return transferLimit;

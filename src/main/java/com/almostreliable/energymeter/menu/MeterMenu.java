@@ -69,6 +69,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
             case "transfer_mode" -> receiveTransferModeChange(data);
             case "measure_mode" -> receiveMeasureModeChange(data);
             case "text_value" -> receiveTextValueUpdate(data);
+            case "reset_total" -> blockEntity.setTotalEnergy(0);
             default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }

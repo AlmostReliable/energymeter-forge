@@ -46,6 +46,12 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry SETTING_TOLERANCE = LangEntry.label("setting_tolerance", "Tolerance");
     public static final LangEntry SETTING_INTERVAL = LangEntry.label("setting_interval", "Interval");
 
+    // button labels
+    public static final LangEntry BUTTON_RESET_TOTAL = LangEntry.button("reset_total", "Reset Total");
+
+    // button tooltips
+    public static final LangEntry BUTTON_RESET_TOTAL_TOOLTIP = LangEntry.tooltip("reset_total_tooltip", "Pressing this button will reset the total energy transferred to zero. This is a destructive action and can't be undone.");
+
     // key tooltips
     public static final LangEntry KEY_DIRECTION = LangEntry.tooltip("key_direction", "Direction");
     public static final LangEntry KEY_CURRENT_SETTING = LangEntry.tooltip("key_current_setting", "Current Setting");
@@ -97,6 +103,10 @@ public final class EnergyMeterLang extends LanguageProvider {
 
         private static LangEntry label(String id, String value) {
             return of("label", id, value);
+        }
+
+        private static LangEntry button(String id, String value) {
+            return of("button", id, value);
         }
 
         private static LangEntry tooltip(String id, String value) {
