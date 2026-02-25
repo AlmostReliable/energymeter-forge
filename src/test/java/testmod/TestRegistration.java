@@ -1,6 +1,9 @@
 package testmod;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,18 +26,28 @@ public final class TestRegistration {
 
     // @formatter:off
 
+    private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, TestMod.MOD_ID);
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(TestMod.MOD_ID);
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(TestMod.MOD_ID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, TestMod.MOD_ID);
 
     public static final DeferredBlock<EnergyBlock> ENERGY_BLOCK = registerBlock("energy_block", EnergyBlock::new);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyBlockEntity>> ENERGY_BLOCK_ENTITY = registerBlockEntity(ENERGY_BLOCK, EnergyBlockEntity::new);
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
+        "tab", () -> CreativeModeTab.builder()
+            .title(Component.literal("Testmod"))
+            .icon(Items.NETHER_STAR::getDefaultInstance)
+            .noScrollBar()
+            .displayItems((features, output) -> output.accept(ENERGY_BLOCK))
+            .build()
+    );
 
     // @formatter:on
 
     private TestRegistration() {}
 
     public static void init(IEventBus modEventBus) {
+        CREATIVE_TABS.register(modEventBus);
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);

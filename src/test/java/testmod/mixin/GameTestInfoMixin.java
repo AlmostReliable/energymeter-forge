@@ -21,8 +21,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.Nullable;
 
 @Mixin(GameTestInfo.class)
@@ -60,7 +58,6 @@ public abstract class GameTestInfoMixin {
     }
 
     @Unique
-    @NotNull
     private SignText energymeter$getSignText() {
         String testName = getTestName();
         SignText signText = new SignText();
