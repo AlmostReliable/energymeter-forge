@@ -18,9 +18,9 @@ public class InputLayoutElement implements LayoutElement {
 
     public static final int NORMAL_TEXT_COLOR = 0xFFFF_FFFF;
     public static final int DISABLED_TEXT_COLOR = 0xFF80_8080;
-    private static final int TEXT_BOX_WIDTH = 50;
+    private static final int TEXT_BOX_WIDTH = 38;
     private static final int BUTTON_SIZE = 13;
-    private static final int SPACING = 5;
+    private static final int SPACING = 2;
 
     private final TextBoxType type;
     private final int width;

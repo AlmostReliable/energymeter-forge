@@ -131,7 +131,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initConfigTab() {
         var transferModeRadioButtons = RadioButton.createGroup(
-            90,
+            102,
             EnergyMeterLang.TRANSFER_MODES,
             menu::getTransferMode,
             this::onTransferModeSelected
@@ -139,7 +139,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         var transferModeComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.TRANSFER_MODE.get(), transferModeRadioButtons);
 
         var measureModeRadioButtons = RadioButton.createGroup(
-            90,
+            102,
             EnergyMeterLang.MEASURE_MODES,
             menu::getMeasureMode,
             this::onMeasureModeSelected
