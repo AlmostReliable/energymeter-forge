@@ -65,3 +65,5 @@ Redistribution of builds or rehosting is strictly prohibited.
 [minecraft]: https://www.minecraft.net/
 [neoforge]: https://neoforged.net/
 [releases]: https://github.com/AlmostReliable/energymeter/releases
+[energy meters]: https://www.curseforge.com/minecraft/mc-mods/energy-meters
+[@vladmarica]: https://github.com/vladmarica
