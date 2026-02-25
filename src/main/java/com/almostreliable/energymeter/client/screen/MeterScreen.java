@@ -146,11 +146,11 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         var settingsLayout = LinearLayout.vertical().spacing(1);
         settingsLayout.addChild(new InputLayoutElement(
-            InputLayoutElement.TextBoxType.MEASURE_INTERVAL,
+            InputLayoutElement.TextBoxType.TRANSFER_LIMIT,
             110,
             font,
-            EnergyMeterLang.INTERVAL.get().append(":"),
-            () -> String.valueOf(menu.getMeasureInterval()),
+            EnergyMeterLang.TRANSFER_LIMIT.get().append(":"),
+            () -> String.valueOf(menu.getTransferLimit()),
             this::onTextValueUpdated
         ));
         settingsLayout.addChild(new InputLayoutElement(
@@ -162,11 +162,11 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             this::onTextValueUpdated
         ));
         settingsLayout.addChild(new InputLayoutElement(
-            InputLayoutElement.TextBoxType.TRANSFER_LIMIT,
+            InputLayoutElement.TextBoxType.MEASURE_INTERVAL,
             110,
             font,
-            EnergyMeterLang.TRANSFER_LIMIT.get().append(":"),
-            () -> String.valueOf(menu.getTransferLimit()),
+            EnergyMeterLang.INTERVAL.get().append(":"),
+            () -> String.valueOf(menu.getMeasureInterval()),
             this::onTextValueUpdated
         ));
         var settingsComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.SETTINGS.get(), settingsLayout);
