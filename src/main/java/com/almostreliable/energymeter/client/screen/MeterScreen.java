@@ -5,7 +5,7 @@ import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPrio
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
-import com.almostreliable.energymeter.client.screen.widget.DynamicTextWidget;
+import com.almostreliable.energymeter.client.screen.widget.DynamicMarqueeStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
 import com.almostreliable.energymeter.client.screen.widget.RadioButton;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
@@ -69,17 +69,20 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     private void initGlobalInfo() {
         var energyRateComposite = OutlinedCompositeWidget.ofElement(
             EnergyMeterLang.ENERGY_RATE.get(),
-            new DynamicTextWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick())
+            new DynamicMarqueeStringWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick())
         );
 
         var totalEnergyComposite = OutlinedCompositeWidget.ofElement(
             EnergyMeterLang.TOTAL_ENERGY.get(),
-            new DynamicTextWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit())
+            new DynamicMarqueeStringWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit())
         );
 
         var statusComposite = OutlinedCompositeWidget.ofElement(
             EnergyMeterLang.CONNECTION_STATUS.get(),
-            new DynamicTextWidget(GLOBAL_INFO_WIDTH, () -> EnergyMeterLang.CONNECTION_STATUSES.get(menu.getConnectionStatus()).get())
+            new DynamicMarqueeStringWidget(
+                GLOBAL_INFO_WIDTH,
+                () -> EnergyMeterLang.CONNECTION_STATUSES.get(menu.getConnectionStatus()).get()
+            )
         );
 
         var ioConfigLayout = IoConfigButton.createGroup(

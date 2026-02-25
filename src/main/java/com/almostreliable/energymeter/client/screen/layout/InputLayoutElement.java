@@ -1,12 +1,12 @@
 package com.almostreliable.energymeter.client.screen.layout;
 
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.almostreliable.energymeter.client.screen.widget.MarqueeStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.NumberEditBox;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.network.chat.Component;
 
@@ -27,7 +27,7 @@ public class InputLayoutElement implements LayoutElement {
     private final int height;
     private final Supplier<String> valueSupplier;
     private final BiConsumer<TextBoxType, Integer> onValueUpdated;
-    private final StringWidget label;
+    private final MarqueeStringWidget label;
     private final NumberEditBox textBox;
     private final Button confirmButton;
 
@@ -40,7 +40,7 @@ public class InputLayoutElement implements LayoutElement {
         this.height = font.lineHeight + 4;
         this.valueSupplier = valueSupplier;
         this.onValueUpdated = onValueUpdated;
-        this.label = new StringWidget(width - BUTTON_SIZE - 1 - TEXT_BOX_WIDTH - SPACING, height, label, font).alignRight();
+        this.label = new MarqueeStringWidget(width - BUTTON_SIZE - 1 - TEXT_BOX_WIDTH - SPACING, height, label).alignRight();
         this.textBox = new NumberEditBox(font, TEXT_BOX_WIDTH, height, valueSupplier, this::onValueEntered, this::onConfirm);
         this.confirmButton = Button.builder(Component.empty(), btn -> onConfirm()).size(BUTTON_SIZE, BUTTON_SIZE).build();
     }

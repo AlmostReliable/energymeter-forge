@@ -1,0 +1,68 @@
+package com.almostreliable.energymeter.client.screen.widget;
+
+import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
+import com.almostreliable.energymeter.client.screen.widget.base.LayoutPositionedWidget;
+
+import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+
+public class MarqueeStringWidget extends LayoutPositionedWidget {
+
+    private static final double PERIOD_PER_SCROLLED_PIXEL = 0.5;
+    private static final double MIN_SCROLL_PERIOD = 3.0;
+
+    private int color = InputLayoutElement.NORMAL_TEXT_COLOR;
+    private float alignX;
+
+    public MarqueeStringWidget(int width, int height, Component message) {
+        super(width, height, message);
+    }
+
+    @Override
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        Component text = getMessage();
+
+        int widgetWidth = getWidth();
+        int textWidth = font.width(text);
+        int x = getX();
+        int y = getY() + (getHeight() - font.lineHeight) / 2;
+
+        if (textWidth <= widgetWidth) {
+            int alignedX = x + Math.round(alignX * (widgetWidth - textWidth));
+            guiGraphics.drawString(font, text, alignedX, y, color);
+            return;
+        }
+
+        int overflow = textWidth - widgetWidth;
+        double time = Util.getMillis() / 1_000.0;
+        double period = Math.max(overflow * PERIOD_PER_SCROLLED_PIXEL, MIN_SCROLL_PERIOD);
+        double phase = Math.sin((Math.PI / 2) * Math.cos(Math.PI * 2 * time / period)) / 2 + 0.5;
+
+        int scrollOffset = (int) Mth.lerp(phase, 0, overflow);
+
+        guiGraphics.enableScissor(x, getY() - 2, x + widgetWidth, getY() + getHeight() + 2);
+        guiGraphics.drawString(font, text, x - scrollOffset, y, color);
+        guiGraphics.disableScissor();
+    }
+
+    public MarqueeStringWidget alignLeft() {
+        this.alignX = 0.0f;
+        return this;
+    }
+
+    public MarqueeStringWidget alignCenter() {
+        this.alignX = 0.5f;
+        return this;
+    }
+
+    public MarqueeStringWidget alignRight() {
+        this.alignX = 1.0f;
+        return this;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+}
