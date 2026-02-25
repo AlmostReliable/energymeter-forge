@@ -54,6 +54,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     // tracking & display
     private int tickDelay;
     private double energyRate;
+    private long lastEnergySync;
     private long totalEnergy;
     private double zeroThreshold;
 
@@ -132,7 +133,8 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         energyRate = average / measureInterval;
         totalEnergy += measuredEnergy.total();
 
-        if (oldEnergyRate != energyRate) {
+        // only sync if the value changed or every second at most (for clients without any info)
+        if (oldEnergyRate != energyRate || level.getGameTime() - lastEnergySync >= 20) {
             syncEnergyRate(level);
         }
     }
@@ -143,6 +145,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             level.getChunk(worldPosition).getPos(),
             new EnergyRateUpdatePacket(worldPosition, energyRate)
         );
+        lastEnergySync = level.getGameTime();
     }
 
     private void onConnectionRelevantSettingChanged() {
