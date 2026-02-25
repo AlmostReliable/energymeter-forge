@@ -38,7 +38,7 @@ import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
 public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEntity, EnergyHandlerHost {
 
-    public static final int TICK_TIME = 5;
+    public static final int DEFAULT_INTERVAL = 5;
 
     // components
     private final IoConfig ioConfig;
@@ -54,7 +54,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     // tracking & display
     private int tickDelay;
     private double energyRate;
-    private long lastEnergySync;
+    private long lastEnergySyncTick;
     private long totalEnergy;
     private double zeroThreshold;
 
@@ -96,7 +96,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         super.onLoad();
         if (level != null && !level.isClientSide) {
             // TODO: test if this should be saved or if it's random enough on load after rejoining the world
-            tickDelay = (int) (TICK_TIME - (level.getGameTime() % TICK_TIME));
+            tickDelay = (int) (DEFAULT_INTERVAL - (level.getGameTime() % DEFAULT_INTERVAL));
         }
     }
 
@@ -113,29 +113,23 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             return;
         }
 
-        var interval = measureMode == MeasureMode.INTERVAL ? measureInterval : TICK_TIME;
+        var isIntervalMode = measureMode == MeasureMode.INTERVAL;
+        var interval = isIntervalMode ? measureInterval : DEFAULT_INTERVAL;
         if ((level.getGameTime() + tickDelay) % interval == 0) {
-            energyHandler.onIntervalReached();
-        }
-
-        if ((level.getGameTime() + tickDelay) % TICK_TIME == 0) {
-            onTickTimeReached(level);
+            onIntervalReached(level, isIntervalMode, interval);
         }
 
         connectionStatus = energyRate > 0 ? transferMode.activeStatus : ConnectionStatus.IDLE;
     }
 
-    private void onTickTimeReached(ServerLevel level) {
-        if (!energyHandler.hasHistory()) return;
-
-        var measuredEnergy = energyHandler.calculateAndRestartInterval(measureMode == MeasureMode.INTERVAL);
-        double oldEnergyRate = energyRate;
-        double average = measuredEnergy.average();
-        energyRate = average / measureInterval;
+    private void onIntervalReached(ServerLevel level, boolean isIntervalMode, int interval) {
+        var measuredEnergy = energyHandler.calculateAndRestartCycle(interval, isIntervalMode);
+        var lastEnergyRate = energyRate;
+        energyRate = measuredEnergy.average();
         totalEnergy += measuredEnergy.total();
 
         // only sync if the value changed or every second at most (for clients without any info)
-        if (oldEnergyRate != energyRate || level.getGameTime() - lastEnergySync >= 20) {
+        if (lastEnergyRate != energyRate || level.getGameTime() - lastEnergySyncTick >= 20) {
             syncEnergyRate(level);
         }
     }
@@ -146,7 +140,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             level.getChunk(worldPosition).getPos(),
             new EnergyRateUpdatePacket(worldPosition, energyRate)
         );
-        lastEnergySync = level.getGameTime();
+        lastEnergySyncTick = level.getGameTime();
     }
 
     private void onConnectionRelevantSettingChanged() {

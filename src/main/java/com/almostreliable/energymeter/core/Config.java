@@ -32,7 +32,7 @@ public final class Config {
         private CommonConfig(ModConfigSpec.Builder builder) {
             builder.push(Constants.METER_ID);
             defaultInterval = builder.comment("Default interval of ticks.")
-                .defineInRange("default_interval", MeterBlockEntity.TICK_TIME, 1, 200);
+                .defineInRange("default_interval", MeterBlockEntity.DEFAULT_INTERVAL, 5, 200);
             builder.pop();
 
             builder.push(Constants.MONITOR_ID);

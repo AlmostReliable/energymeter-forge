@@ -11,7 +11,6 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +18,7 @@ import java.util.Map;
 public class EnergyHandler {
 
     private final EnergyHandlerHost host;
-    private final Map<Direction, ForwardingEnergyStorage> energyStorage = new EnumMap<>(Direction.class);
-    private final List<Long> energyPerIntervalHistory = Collections.synchronizedList(new ArrayList<>());
+    private final Map<Direction, ForwardingEnergyStorage> forwardingEnergyStorage = new EnumMap<>(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> outputCache = new EnumMap<>(Direction.class);
 
     private long energyPerInterval;
@@ -30,48 +28,31 @@ public class EnergyHandler {
         this.host = host;
 
         for (Direction direction : Direction.values()) {
-            energyStorage.put(direction, new ForwardingEnergyStorage(this, () -> host.getIoConfig().getSetting(direction)));
+            forwardingEnergyStorage.put(direction, new ForwardingEnergyStorage(this, () -> host.getIoConfig().getSetting(direction)));
         }
     }
 
     public IEnergyStorage getEnergyStorage(Direction direction) {
-        return energyStorage.get(direction);
+        return forwardingEnergyStorage.get(direction);
     }
 
-    public boolean hasHistory() {
-        return !energyPerIntervalHistory.isEmpty();
-    }
-
-    private void resetHistory() {
-        energyPerIntervalHistory.clear();
-    }
-
-    public void onIntervalReached() {
-        energyPerIntervalHistory.add(energyPerInterval);
-        energyPerInterval = 0;
-    }
-
-    public MeasuredEnergy calculateAndRestartInterval(boolean factorInLastInterval) {
-        long total = 0;
-        for (long energy : energyPerIntervalHistory) {
-            total += energy;
-        }
-
+    public MeasuredEnergy calculateAndRestartCycle(int interval, boolean factorInLast) {
         double average;
-        if (factorInLastInterval) {
-            average = (total + lastIntervalAverage) / (energyPerIntervalHistory.size() + 1);
+        if (factorInLast) {
+            average = (energyPerInterval + lastIntervalAverage) / (interval + 1);
         } else {
-            average = (double) total / energyPerIntervalHistory.size();
+            average = (double) energyPerInterval / interval;
         }
 
         lastIntervalAverage = average;
-        resetHistory();
-        return new MeasuredEnergy(total, average);
+        var result = new MeasuredEnergy(energyPerInterval, average);
+        energyPerInterval = 0;
+
+        return result;
     }
 
     public void clear() {
         outputCache.clear();
-        resetHistory();
         energyPerInterval = 0;
     }
 

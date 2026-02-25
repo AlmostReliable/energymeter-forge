@@ -19,7 +19,7 @@ import testmod.content.EnergyBlockEntity;
 @PrefixGameTestTemplate(false)
 public class MeterConsumeTests {
 
-    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(setupTicks = MeterBlockEntity.DEFAULT_INTERVAL + 1, template = TestUtils.EMPTY_STRUCTURE)
     public void consume_single(GameTestHelper helper) {
         TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
         MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
@@ -34,7 +34,7 @@ public class MeterConsumeTests {
         inputEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
 
         helper.runAtTickTime(
-            MeterBlockEntity.TICK_TIME + 1,
+            MeterBlockEntity.DEFAULT_INTERVAL + 1,
             () -> {
                 double energyRate = meterBlockEntity.getEnergyRate();
                 helper.assertTrue(
@@ -43,7 +43,7 @@ public class MeterConsumeTests {
                 );
 
                 double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
-                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.TICK_TIME;
+                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL;
                 helper.assertTrue(
                     totalEnergyTransferred == expectedEnergyTransferred,
                     String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
@@ -60,7 +60,7 @@ public class MeterConsumeTests {
         );
     }
 
-    @GameTest(setupTicks = MeterBlockEntity.TICK_TIME + 1, template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(setupTicks = MeterBlockEntity.DEFAULT_INTERVAL + 1, template = TestUtils.EMPTY_STRUCTURE)
     public void consume_trio(GameTestHelper helper) {
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .inputs(Direction.WEST, Direction.SOUTH, Direction.EAST)
@@ -83,7 +83,7 @@ public class MeterConsumeTests {
         eastInEnergyBlockEntity.sendEnergyPerTick(Direction.WEST, energyPerTick);
 
         helper.runAtTickTime(
-            MeterBlockEntity.TICK_TIME + 1,
+            MeterBlockEntity.DEFAULT_INTERVAL + 1,
             () -> {
                 double energyRate = meterBlockEntity.getEnergyRate();
                 int expectedEnergyRate = energyPerTick * 3;
@@ -93,7 +93,7 @@ public class MeterConsumeTests {
                 );
 
                 double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
-                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.TICK_TIME * 3;
+                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL * 3;
                 helper.assertTrue(
                     totalEnergyTransferred == expectedEnergyTransferred,
                     String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
