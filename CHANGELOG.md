@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+- /
+
 ## [0.1.0] - 2026-02-25
 
 Initial 1.21.1 release! The mod is still subject to change and lacks some features, as well as explanations.
