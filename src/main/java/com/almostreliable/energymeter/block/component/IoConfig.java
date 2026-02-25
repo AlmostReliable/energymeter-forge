@@ -128,12 +128,12 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
 
     public record IoSettingWithPriority(IoSetting setting, int priority) {
 
-        public static final IoSettingWithPriority OFF = new IoSettingWithPriority(IoSetting.OFF, 0);
-        public static final IoSettingWithPriority IN = new IoSettingWithPriority(IoSetting.IN, 0);
+        public static final IoSettingWithPriority OFF = new IoSettingWithPriority(IoSetting.OFF, 1);
+        public static final IoSettingWithPriority IN = new IoSettingWithPriority(IoSetting.IN, 1);
         public static final IoSettingWithPriority OUT_DEFAULT = new IoSettingWithPriority(IoSetting.OUT, 1);
 
         public static IoSettingWithPriority priorityOutput(int priority) {
-            if (priority == 0 || priority == 1) {
+            if (priority <= 1) {
                 return OUT_DEFAULT;
             }
 
