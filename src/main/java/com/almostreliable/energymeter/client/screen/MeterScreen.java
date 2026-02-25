@@ -45,7 +45,11 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     private static final int GLOBAL_INFO_WIDTH = 70;
 
     private final List<ClickedOutsideListener> clickedOutsideListeners = new ArrayList<>();
+
     private TabType currentTab = TabType.CONFIGURATION;
+    private boolean intervalSettingsEnabled = true;
+    @Nullable
+    private InputLayoutElement intervalSettingsWidget;
 
     @SuppressWarnings("AssignmentToSuperclassField")
     public MeterScreen(MeterMenu menu, Inventory playerInventory, Component title) {
@@ -161,14 +165,15 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             () -> String.valueOf(menu.getZeroTolerance()),
             this::onTextValueUpdated
         ));
-        settingsLayout.addChild(new InputLayoutElement(
+        intervalSettingsWidget = new InputLayoutElement(
             InputLayoutElement.TextBoxType.MEASURE_INTERVAL,
             110,
             font,
             EnergyMeterLang.INTERVAL.get().append(":"),
             () -> String.valueOf(menu.getMeasureInterval()),
             this::onTextValueUpdated
-        ));
+        );
+        settingsLayout.addChild(intervalSettingsWidget);
         var settingsComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.SETTINGS.get(), settingsLayout);
 
         var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
@@ -199,6 +204,14 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        if (intervalSettingsWidget != null) {
+            var enabled = menu.getMeasureMode() == MeasureMode.INTERVAL;
+            if (enabled != intervalSettingsEnabled) {
+                intervalSettingsWidget.setEnabled(enabled);
+                intervalSettingsEnabled = enabled;
+            }
+        }
+
         guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, GUI_WIDTH, GUI_HEIGHT);
     }
 
@@ -221,6 +234,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     protected void clearWidgets() {
         super.clearWidgets();
         clickedOutsideListeners.clear();
+        intervalSettingsWidget = null;
     }
 
     @Override
