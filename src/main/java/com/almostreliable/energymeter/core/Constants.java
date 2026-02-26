@@ -21,6 +21,7 @@ public interface Constants {
     String MEASURE_INTERVAL_ID = "measure_interval";
     String ZERO_TOLERANCE_ID = "zero_tolerance";
     String TRANSFER_LIMIT_ID = "transfer_limit";
+    String ENERGY_RATE_ID = "energy_rate";
     String TOTAL_ENERGY_ID = "total_energy";
     String MULTIBLOCK_WIDTH_ID = "width";
     String MULTIBLOCK_HEIGHT_ID = "height";

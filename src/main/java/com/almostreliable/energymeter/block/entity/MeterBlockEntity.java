@@ -4,6 +4,7 @@ import com.almostreliable.energymeter.block.component.EnergyHandler;
 import com.almostreliable.energymeter.block.component.EnergyHandlerHost;
 import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.core.Config;
+import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
@@ -90,6 +91,20 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         if (tag.contains(ZERO_TOLERANCE_ID)) zeroTolerance = tag.getInt(ZERO_TOLERANCE_ID);
         if (tag.contains(TRANSFER_LIMIT_ID)) transferLimit = tag.getInt(TRANSFER_LIMIT_ID);
         if (tag.contains(TOTAL_ENERGY_ID)) totalEnergy = tag.getLong(TOTAL_ENERGY_ID);
+    }
+
+    // used to sync the latest energy rate to player entering the chunk
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        var tag = super.getUpdateTag(registries);
+        tag.putDouble(Constants.ENERGY_RATE_ID, energyRate);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.handleUpdateTag(tag, lookupProvider);
+        if (tag.contains(Constants.ENERGY_RATE_ID)) energyRate = tag.getDouble(Constants.ENERGY_RATE_ID);
     }
 
     @Override

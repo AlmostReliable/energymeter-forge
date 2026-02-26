@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - added proper client action registration system to avoid unhandled synced actions
 - fixed cable connections with mods relying on block updates instead of capability invalidation when an I/O config is changed
 - fixed cable connections with mods checking for non-directional energy storages
+- fixed players entering or re-entering the chunk not getting the latest energy rates
 
 ## [0.2.0] - 2026-02-25
 
