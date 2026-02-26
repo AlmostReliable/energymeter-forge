@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.energy.EmptyEnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -153,7 +154,9 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     @Nullable
     public IEnergyStorage getEnergyCapability(@Nullable Direction direction) {
-        if (direction == null || ioConfig.getSetting(direction).isDisabled()) return null;
+        // return empty storage on null direction because a few mod check this for cable connections
+        if (direction == null) return EmptyEnergyStorage.INSTANCE;
+        if (ioConfig.getSetting(direction).isDisabled()) return null;
         return energyHandler.getEnergyStorage(direction);
     }
 

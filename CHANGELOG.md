@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-- added a block update when an I/O config is changed
+- fixed cable connections with mods relying on block updates instead of capability invalidation when an I/O config is changed
+- fixed cable connections with mods checking for non-directional energy storages
 
 ## [0.2.0] - 2026-02-25
 
