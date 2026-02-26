@@ -51,9 +51,13 @@ public class EnergyHandler {
         return result;
     }
 
-    public void clear() {
+    public void clearOutputCacheAndReset() {
         outputCache.clear();
         energyPerInterval = 0;
+    }
+
+    public void clearOutputCache(Direction direction) {
+        outputCache.remove(direction);
     }
 
     public int forwardEnergy(int amount, boolean simulate) {
@@ -132,7 +136,7 @@ public class EnergyHandler {
             host.getBlockPos().relative(direction),
             direction.getOpposite(),
             () -> !host.isRemoved(),
-            () -> outputCache.remove(direction)
+            () -> clearOutputCache(direction)
         );
 
         outputCache.put(direction, cache);

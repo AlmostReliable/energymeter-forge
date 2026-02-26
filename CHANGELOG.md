@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 
 - added proper client action registration system to avoid unhandled synced actions
+- added fallback system to clear output caches when a neighbor block changes without invalidating its capability
 - fixed cable connections with mods relying on block updates instead of capability invalidation when an I/O config is changed
 - fixed cable connections with mods checking for non-directional energy storages
 - fixed players entering or re-entering the chunk not getting the latest energy rates

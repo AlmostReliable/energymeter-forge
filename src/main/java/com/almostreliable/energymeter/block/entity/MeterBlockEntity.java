@@ -161,10 +161,17 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         if (!(level instanceof ServerLevel serverLevel)) return;
         serverLevel.invalidateCapabilities(worldPosition);
         serverLevel.blockUpdated(worldPosition, getBlockState().getBlock());
-        energyHandler.clear();
+        energyHandler.clearOutputCacheAndReset();
         energyRate = 0;
         syncEnergyRate(serverLevel);
         setChanged();
+    }
+
+    // fall-back to clear output capability cache in case a block doesn't invalidate the capability
+    public void onNeighborBlockChange(Direction direction) {
+        if (ioConfig.getSetting(direction).isOutput()) {
+            energyHandler.clearOutputCache(direction);
+        }
     }
 
     @Nullable
