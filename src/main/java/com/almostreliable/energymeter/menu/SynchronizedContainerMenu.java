@@ -66,6 +66,10 @@ public abstract class SynchronizedContainerMenu<E extends BlockEntity> extends A
 
     public abstract void receiveClientData(ServerPlayer player, CompoundTag data);
 
+    public E getBlockEntity() {
+        return blockEntity;
+    }
+
     @SuppressWarnings("resource")
     public boolean isClient() {
         return playerInventory.player.level().isClientSide();

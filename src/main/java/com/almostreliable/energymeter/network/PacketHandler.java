@@ -1,5 +1,6 @@
 package com.almostreliable.energymeter.network;
 
+import com.almostreliable.energymeter.network.action.ClientActionRegistry;
 import com.almostreliable.energymeter.network.packet.ClientActionPacket;
 import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
 import com.almostreliable.energymeter.network.packet.MenuSyncPacket;
@@ -18,6 +19,7 @@ public final class PacketHandler {
 
     public static void init(IEventBus modEventBus) {
         modEventBus.addListener(PacketHandler::onPacketRegistration);
+        ClientActionRegistry.init();
     }
 
     private static void onPacketRegistration(RegisterPayloadHandlersEvent event) {

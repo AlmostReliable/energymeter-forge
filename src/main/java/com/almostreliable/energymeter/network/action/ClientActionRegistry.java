@@ -1,0 +1,86 @@
+package com.almostreliable.energymeter.network.action;
+
+import com.almostreliable.energymeter.EnergyMeter;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.almostreliable.energymeter.core.Constants;
+import com.almostreliable.energymeter.menu.MeterMenu;
+import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public final class ClientActionRegistry {
+
+    public static final ResourceLocation TRANSFER_MODE_ID = EnergyMeter.getRL(Constants.TRANSFER_MODE_ID);
+    public static final ResourceLocation MEASURE_MODE_ID = EnergyMeter.getRL(Constants.MEASURE_MODE_ID);
+    public static final ResourceLocation RESET_TOTAL_ID = EnergyMeter.getRL("reset_total");
+
+    private static final Map<ResourceLocation, Decoder<?>> DECODERS = new HashMap<>();
+    private static final String ID = "id";
+    private static final String PAYLOAD = "payload";
+
+    public static <T extends ClientAction<?>> void register(ResourceLocation id, Decoder<T> decoder) {
+        DECODERS.put(id, decoder);
+    }
+
+    public static CompoundTag encode(ClientAction<?> action) {
+        CompoundTag payload = new CompoundTag();
+        action.encode(payload);
+
+        CompoundTag data = new CompoundTag();
+        data.putString(ID, action.id().toString());
+        data.put(PAYLOAD, payload);
+
+        return data;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <M extends SynchronizedContainerMenu<?>> void handle(M menu, ServerPlayer player, CompoundTag data) {
+        var id = ResourceLocation.parse(data.getString(ID));
+        var payload = data.getCompound(PAYLOAD);
+
+        var decoder = (Decoder<ClientAction<M>>) DECODERS.get(id);
+        if (decoder == null) throw new IllegalStateException("unknown client action: " + id);
+
+        var action = decoder.decode(payload);
+        action.handleServer(menu, player);
+    }
+
+    public static void init() {
+        ClientActionRegistry.register(
+            TRANSFER_MODE_ID,
+            EnumClientAction.<MeterMenu, MeterBlockEntity.TransferMode> decoder(
+                TRANSFER_MODE_ID,
+                MeterBlockEntity.TransferMode.class,
+                (menu, value) -> menu.getBlockEntity().setTransferMode(value)
+            )
+        );
+
+        ClientActionRegistry.register(
+            MEASURE_MODE_ID,
+            EnumClientAction.<MeterMenu, MeterBlockEntity.MeasureMode> decoder(
+                MEASURE_MODE_ID,
+                MeterBlockEntity.MeasureMode.class,
+                (menu, value) -> menu.getBlockEntity().setMeasureMode(value)
+            )
+        );
+
+        ClientActionRegistry.register(IoSettingClientAction.ID, IoSettingClientAction::decode);
+        ClientActionRegistry.register(TextValueClientAction.ID, TextValueClientAction::decode);
+
+        ClientActionRegistry.register(
+            RESET_TOTAL_ID,
+            SimpleClientAction.<MeterMenu> decoder(RESET_TOTAL_ID, menu -> menu.getBlockEntity().setTotalEnergy(0))
+        );
+    }
+
+    @FunctionalInterface
+    public interface Decoder<T> {
+
+        T decode(CompoundTag tag);
+    }
+}

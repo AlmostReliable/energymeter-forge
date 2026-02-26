@@ -12,6 +12,11 @@ import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideLi
 import com.almostreliable.energymeter.client.screen.widget.base.OutlinedCompositeWidget;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
+import com.almostreliable.energymeter.network.action.ClientActionRegistry;
+import com.almostreliable.energymeter.network.action.EnumClientAction;
+import com.almostreliable.energymeter.network.action.IoSettingClientAction;
+import com.almostreliable.energymeter.network.action.SimpleClientAction;
+import com.almostreliable.energymeter.network.action.TextValueClientAction;
 import com.almostreliable.energymeter.util.NumberFormatter;
 import com.almostreliable.energymeter.util.TexRenderer;
 import com.almostreliable.energymeter.util.TooltipBuilder;
@@ -24,7 +29,6 @@ import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -250,43 +254,23 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     private void onIoSettingSelected(@Nullable Direction direction, IoSettingWithPriority setting) {
-        CompoundTag tag = new CompoundTag();
-        tag.putString("type", "io_setting");
-        if (direction == null) {
-            tag.putString("reset", "");
-        } else {
-            tag.putInt("direction", direction.ordinal());
-            tag.put("setting", setting.serialize());
-        }
-        sendAction(tag);
+        sendClientAction(IoSettingClientAction.change(direction, setting));
     }
 
     private void onTransferModeSelected(TransferMode mode) {
-        CompoundTag tag = new CompoundTag();
-        tag.putString("type", "transfer_mode");
-        tag.putInt("value", mode.ordinal());
-        sendAction(tag);
+        sendClientAction(new EnumClientAction<>(ClientActionRegistry.TRANSFER_MODE_ID, mode));
     }
 
     private void onMeasureModeSelected(MeasureMode mode) {
-        CompoundTag tag = new CompoundTag();
-        tag.putString("type", "measure_mode");
-        tag.putInt("value", mode.ordinal());
-        sendAction(tag);
+        sendClientAction(new EnumClientAction<>(ClientActionRegistry.MEASURE_MODE_ID, mode));
     }
 
     private void onTextValueUpdated(InputLayoutElement.TextBoxType textBox, int value) {
-        CompoundTag tag = new CompoundTag();
-        tag.putString("type", "text_value");
-        tag.putInt("text_box", textBox.ordinal());
-        tag.putInt("value", value);
-        sendAction(tag);
+        sendClientAction(new TextValueClientAction(textBox, value));
     }
 
     private void onResetTotalButtonClicked() {
-        CompoundTag tag = new CompoundTag();
-        tag.putString("type", "reset_total");
-        sendAction(tag);
+        sendClientAction(new SimpleClientAction<>(ClientActionRegistry.RESET_TOTAL_ID));
     }
 
     public enum TabType {

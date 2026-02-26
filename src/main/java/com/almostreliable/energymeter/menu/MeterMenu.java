@@ -6,8 +6,8 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionStatus;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
-import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.network.action.ClientActionRegistry;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.IntegerDataHandler;
@@ -62,44 +62,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     @Override
     public void receiveClientData(ServerPlayer player, CompoundTag data) {
-        String type = data.getString("type");
-
-        switch (type) {
-            case "io_setting" -> receiveIoSettingChange(data);
-            case "transfer_mode" -> receiveTransferModeChange(data);
-            case "measure_mode" -> receiveMeasureModeChange(data);
-            case "text_value" -> receiveTextValueUpdate(data);
-            case "reset_total" -> blockEntity.setTotalEnergy(0);
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        }
-    }
-
-    private void receiveIoSettingChange(CompoundTag data) {
-        if (data.contains("reset")) {
-            blockEntity.getIoConfig().resetSettings();
-            return;
-        }
-
-        var direction = Direction.values()[data.getInt("direction")];
-        var setting = data.getCompound("setting");
-        blockEntity.getIoConfig().setSetting(direction, IoSettingWithPriority.deserialize(setting));
-    }
-
-    private void receiveTransferModeChange(CompoundTag data) {
-        var ordinal = data.getInt("value");
-        blockEntity.setTransferMode(TransferMode.values()[ordinal]);
-    }
-
-    private void receiveMeasureModeChange(CompoundTag data) {
-        var ordinal = data.getInt("value");
-        blockEntity.setMeasureMode(MeasureMode.values()[ordinal]);
-    }
-
-    private void receiveTextValueUpdate(CompoundTag data) {
-        var ordinal = data.getInt("text_box");
-        var textBox = InputLayoutElement.TextBoxType.values()[ordinal];
-        var value = data.getInt("value");
-        textBox.updateValue(blockEntity, value);
+        ClientActionRegistry.handle(this, player, data);
     }
 
     public BlockState getBlockState() {
