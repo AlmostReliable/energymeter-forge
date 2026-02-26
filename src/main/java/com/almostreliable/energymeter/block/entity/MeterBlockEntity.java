@@ -144,6 +144,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private void onConnectionRelevantSettingChanged() {
         if (!(level instanceof ServerLevel serverLevel)) return;
         serverLevel.invalidateCapabilities(worldPosition);
+        serverLevel.blockUpdated(worldPosition, getBlockState().getBlock());
         energyHandler.clear();
         energyRate = 0;
         syncEnergyRate(serverLevel);

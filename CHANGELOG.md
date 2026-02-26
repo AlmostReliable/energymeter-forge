@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- /
+
+- added a block update when an I/O config is changed
 
 ## [0.2.0] - 2026-02-25
 
@@ -11,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - added option to set custom interval length for exact/instant mode
 - fixed output priority being zero when switching from split to transfer mode
 - fixed I/O config widgets not being centered in their group box
-- fixed changed meter configuration values not always being saved
+- fixed meter configuration values not always being saved
 - improved performance by drastically simplifying interval average calculation logic
 - renamed measuring modes from "exact" and "interval" to "instant" and "smoothed"
 
