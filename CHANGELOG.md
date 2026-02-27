@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- /
+
+## [0.3.0] - 2026-02-27
 
 - added new GUI tab showing a graphical representation of the last measured energy rates
 - added proper client action registration system to avoid unhandled synced actions
@@ -29,5 +32,6 @@ The new version is a complete rewrite of the 1.20.1 version.
 
 <!-- Versions -->
 
+[0.3.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.3.0
 [0.2.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.2.0
 [0.1.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.1.0
