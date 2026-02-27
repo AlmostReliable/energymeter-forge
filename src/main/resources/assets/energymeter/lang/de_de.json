@@ -24,13 +24,14 @@
   "io_setting.energymeter.in": "Eingang",
   "io_setting.energymeter.off": "Deaktiviert",
   "io_setting.energymeter.out": "Ausgang",
-  "measure_mode.energymeter.exact": "Exakt",
-  "measure_mode.energymeter.interval": "Intervall",
+  "measure_mode.energymeter.instant": "Exakt",
+  "measure_mode.energymeter.smoothed": "Geglättet",
   "tab_type.energymeter.configuration": "Konfiguration",
   "tab_type.energymeter.redstone": "Redstone",
   "transfer_mode.energymeter.consume": "Verbraucher",
   "transfer_mode.energymeter.split": "Aufteiler",
   "transfer_mode.energymeter.transfer": "Überträger",
+  "button.energymeter.reset_total": "Gesamt Reset",
   "label.energymeter.header_current": "Derzeit",
   "label.energymeter.header_total": "Gesamt",
   "label.energymeter.header_status": "Status",
@@ -52,5 +53,6 @@
   "tooltip.energymeter.control_desc_cycle_previous_setting": "vorherige Einstellung",
   "tooltip.energymeter.control_desc_reset_all_settings": "Alles zurücksetzen",
   "tooltip.energymeter.control_desc_reset_setting": "Zurücksetzen",
-  "tooltip.energymeter.control_desc_select_setting": "Einstellung wählen"
+  "tooltip.energymeter.control_desc_select_setting": "Einstellung wählen",
+  "tooltip.energymeter.reset_total_tooltip": "Das Betätigen dieses Knopfes wird die Gesamtenergie auf Null zurücksetzen. Das ist eine finale Aktion und kann nicht rückgängig gemacht werden."
 }
