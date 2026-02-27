@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.block.entity;
 
 import com.almostreliable.energymeter.block.component.EnergyHandler;
 import com.almostreliable.energymeter.block.component.EnergyHandlerHost;
+import com.almostreliable.energymeter.block.component.GraphHandler;
 import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Constants;
@@ -44,6 +45,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     // components
     private final IoConfig ioConfig;
+    private final GraphHandler graphHandler;
     private final EnergyHandler energyHandler;
 
     // settings
@@ -66,6 +68,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     public MeterBlockEntity(BlockPos pos, BlockState state) {
         super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
         this.ioConfig = new IoConfig(this::onConnectionRelevantSettingChanged);
+        this.graphHandler = new GraphHandler();
         this.energyHandler = new EnergyHandler(this);
     }
 
@@ -129,6 +132,8 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             return;
         }
 
+        graphHandler.tick(level.getGameTime() + tickDelay, measureInterval);
+
         if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
             onIntervalReached(level);
         }
@@ -141,6 +146,8 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         var lastEnergyRate = energyRate;
         energyRate = measuredEnergy.average();
         totalEnergy += measuredEnergy.total();
+
+        graphHandler.trackEnergyRate(energyRate);
 
         // only sync if the value changed or every second at most (for clients without any info)
         if (lastEnergyRate != energyRate || level.getGameTime() - lastEnergySyncTick >= 20) {
@@ -187,6 +194,15 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         return ioConfig;
     }
 
+    public GraphHandler getGraphHandler() {
+        return graphHandler;
+    }
+
+    public void toggleGraphPause() {
+        graphHandler.togglePause();
+        setChanged();
+    }
+
     @Override
     public TransferMode getTransferMode() {
         return transferMode;
@@ -213,6 +229,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public void setMeasureInterval(int measureInterval) {
         this.measureInterval = Math.max(measureInterval, 5);
+        graphHandler.clear();
         setChanged();
     }
 

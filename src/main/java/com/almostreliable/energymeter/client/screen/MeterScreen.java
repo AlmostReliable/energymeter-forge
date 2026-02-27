@@ -1,5 +1,7 @@
 package com.almostreliable.energymeter.client.screen;
 
+import com.almostreliable.energymeter.block.component.GraphHandler;
+import com.almostreliable.energymeter.block.component.GraphHandler.GraphPoint;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
@@ -21,6 +23,7 @@ import com.almostreliable.energymeter.util.NumberFormatter;
 import com.almostreliable.energymeter.util.TexRenderer;
 import com.almostreliable.energymeter.util.TooltipBuilder;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
@@ -28,9 +31,18 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -47,6 +59,8 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     private static final int RIGHT_PANE_WIDTH = GUI_WIDTH - LEFT_PANE_WIDTH - PANE_SPACING;
     private static final int VERTICAL_ELEMENT_SPACING = 4;
     private static final int GLOBAL_INFO_WIDTH = 70;
+    private static final int GRAPH_PADDING = 12;
+    private static final int GRAPH_MAX_VALUE_INSET = 6;
     private static final TexRenderer BACKGROUND = TexRenderer.gui("meter").tex(0, 0, GUI_WIDTH, GUI_HEIGHT);
 
     private final List<ClickedOutsideListener> clickedOutsideListeners = new ArrayList<>();
@@ -70,12 +84,15 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     private void initGlobalInfo() {
         var energyRateComposite = OutlinedCompositeWidget.ofElement(
             EnergyMeterLang.HEADER_CURRENT.get(),
-            new DynamicMarqueeStringWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).asUnitPerTick())
+            new DynamicMarqueeStringWidget(
+                GLOBAL_INFO_WIDTH,
+                () -> NumberFormatter.formatEnergy(menu.getEnergyRate()).componentWithUnitPerTick()
+            )
         );
 
         var totalEnergyComposite = OutlinedCompositeWidget.ofElement(
             EnergyMeterLang.HEADER_TOTAL.get(),
-            new DynamicMarqueeStringWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).asTotalUnit())
+            new DynamicMarqueeStringWidget(GLOBAL_INFO_WIDTH, () -> NumberFormatter.formatEnergy(menu.getTotalEnergy()).componentWithUnit())
         );
 
         var statusComposite = OutlinedCompositeWidget.ofElement(
@@ -199,6 +216,16 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
+    private void initGraphTab() {
+        addRenderableWidget(
+            Button.builder(Component.literal("II"), $ -> onToggleGraphPause())
+                .pos(leftPos + GUI_WIDTH - 22, topPos + 2)
+                .size(20, 20)
+                .build()
+        );
+    }
+
+    @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initRedstoneTab() {
         var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
         layout.addChild(new StringWidget(Component.literal("Work in progress!"), font));
@@ -217,6 +244,116 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         BACKGROUND.target(leftPos, topPos).render(guiGraphics);
+        if (currentTab != TabType.GRAPH) return;
+
+        // dimensions
+        int paneLeft = leftPos + LEFT_PANE_WIDTH + PANE_SPACING;
+        int paneBottom = topPos + GUI_HEIGHT;
+        int graphLeft = paneLeft + GRAPH_PADDING;
+        int graphRight = paneLeft + RIGHT_PANE_WIDTH - GRAPH_PADDING;
+        int graphTop = topPos + GRAPH_PADDING;
+        int graphBottom = paneBottom - GRAPH_PADDING;
+        int graphWidth = graphRight - graphLeft;
+        int graphHeight = graphBottom - graphTop - GRAPH_MAX_VALUE_INSET;
+
+        var graphHandler = menu.getGraphHandler();
+        var points = graphHandler.getPoints();
+
+        // no data
+        if (points.length == 0) {
+            guiGraphics.drawCenteredString(
+                font,
+                EnergyMeterLang.GRAPH_NO_DATA.get(),
+                paneLeft + RIGHT_PANE_WIDTH / 2,
+                topPos + GUI_HEIGHT / 2 - font.lineHeight / 2,
+                0xFFFFFF
+            );
+            return;
+        }
+
+        // paused
+        if (menu.isGraphPaused()) {
+            guiGraphics.drawCenteredString(
+                font,
+                EnergyMeterLang.GRAPH_PAUSED.get().withStyle(ChatFormatting.DARK_RED),
+                paneLeft + RIGHT_PANE_WIDTH / 2,
+                topPos + GUI_HEIGHT / 2 - font.lineHeight / 2,
+                0xFFFF_FFFF
+            );
+        }
+
+        // axes
+        guiGraphics.vLine(graphLeft, graphTop, graphBottom + GRAPH_PADDING / 2, 0xFFFF_FFFF);
+        guiGraphics.hLine(graphLeft - GRAPH_PADDING / 2, graphRight, graphBottom, 0xFFFF_FFFF);
+        var xLabel = EnergyMeterLang.GRAPH_INTERVAL.get();
+        guiGraphics.drawString(font, xLabel, graphRight - font.width(xLabel), graphBottom + 2, 0xFFFF_FFFF);
+
+        // y axis max value
+        var yLabel = graphHandler.getYLabel();
+        if (!yLabel.isEmpty()) {
+            guiGraphics.hLine(graphLeft - 2, graphLeft + 2, graphTop + GRAPH_MAX_VALUE_INSET, 0xFFFF_FFFF);
+            guiGraphics.drawString(
+                font,
+                yLabel,
+                graphLeft + 6,
+                graphTop + GRAPH_MAX_VALUE_INSET - font.lineHeight / 2,
+                0xFFFF_FFFF,
+                false
+            );
+        }
+
+        // points and lines
+        int previousX = -1;
+        int previousY = -1;
+
+        var pose = guiGraphics.pose().last().pose();
+        var bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        var progress = menu.getGraphProgress();
+        int progressOffset = Mth.floor(Mth.clampedLerp(0f, (float) graphWidth / GraphHandler.HISTORY_SIZE, progress));
+
+        for (GraphPoint point : points) {
+            int pX = graphLeft + Mth.floor(point.x() * graphWidth);
+            int pY = graphBottom - Mth.floor(point.y() * graphHeight);
+
+            // progress offset
+            pX -= progressOffset;
+
+            // collect line vertices
+            if (previousX != -1 && previousY != -1) {
+                bufferBuilder.addVertex(pose, previousX, previousY, 0).setColor(0xFFFF_FFFF).setNormal(1, 1, 0);
+                bufferBuilder.addVertex(pose, pX, pY, 0).setColor(0xFFFF_FFFF).setNormal(1, 1, 1);
+
+                // draw point marker
+                guiGraphics.enableScissor(graphLeft + 1, graphTop, graphRight, graphBottom);
+                guiGraphics.fill(pX - 2, pY - 2, pX + 1, pY + 1, 0xFF00_FFA2);
+                guiGraphics.disableScissor();
+            }
+
+            previousX = pX;
+            previousY = pY;
+        }
+
+        // draw progress line
+        if (previousX != -1 && previousY != -1) {
+            bufferBuilder.addVertex(pose, previousX, previousY, 0).setColor(0xFF00_FFA2).setNormal(1, 1, 0);
+            bufferBuilder.addVertex(pose, previousX + progressOffset, previousY, 0).setColor(0xFFFF_FFFF).setNormal(1, 1, 1);
+        }
+
+        var drawData = bufferBuilder.build();
+        if (drawData == null) return;
+
+        GlStateManager._depthMask(false);
+        GlStateManager._disableCull();
+        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+        RenderSystem.lineWidth(2.0F);
+        guiGraphics.enableScissor(graphLeft + 1, graphTop, graphRight, graphBottom);
+
+        BufferUploader.drawWithShader(drawData);
+
+        guiGraphics.disableScissor();
+        RenderSystem.lineWidth(1.0F);
+        GlStateManager._enableCull();
+        GlStateManager._depthMask(true);
     }
 
     @Override
@@ -273,8 +410,13 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         sendClientAction(new SimpleClientAction<>(ClientActionRegistry.RESET_TOTAL_ID));
     }
 
+    private void onToggleGraphPause() {
+        sendClientAction(new SimpleClientAction<>(ClientActionRegistry.TOGGLE_GRAPH_PAUSE_ID));
+    }
+
     public enum TabType {
         CONFIGURATION(MeterScreen::initConfigTab),
+        GRAPH(MeterScreen::initGraphTab),
         REDSTONE(MeterScreen::initRedstoneTab);
 
         private final Consumer<MeterScreen> init;

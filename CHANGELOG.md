@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- added new GUI tab showing a graphical representation of the last measured energy rates
 - added proper client action registration system to avoid unhandled synced actions
 - added fallback system to clear output caches when a neighbor block changes without invalidating its capability
 - fixed cable connections with mods relying on block updates instead of capability invalidation when an I/O config is changed

@@ -1,5 +1,6 @@
 package com.almostreliable.energymeter.menu;
 
+import com.almostreliable.energymeter.block.component.GraphHandler;
 import com.almostreliable.energymeter.block.component.IoConfig;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
@@ -8,8 +9,10 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.network.action.ClientActionRegistry;
+import com.almostreliable.energymeter.network.menu.handler.BooleanDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
+import com.almostreliable.energymeter.network.menu.handler.FloatDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.IntegerDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.LongDataHandler;
 
@@ -24,6 +27,9 @@ import net.neoforged.api.distmarker.OnlyIn;
 public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
     private final IoConfig ioConfig = new IoConfig();
+    private final GraphHandler graphHandler = new GraphHandler();
+    private float graphProgress;
+    private boolean graphPaused;
     private TransferMode transferMode = TransferMode.SPLIT;
     private MeasureMode measureMode = MeasureMode.INSTANT;
     private int measureInterval;
@@ -39,6 +45,9 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     @Override
     public void setupDataHandlers() {
         menuSynchronizer.addDataHandler(new DelegateDataHandler(blockEntity.getIoConfig(), () -> ioConfig));
+        menuSynchronizer.addDataHandler(new DelegateDataHandler(blockEntity.getGraphHandler(), () -> graphHandler));
+        menuSynchronizer.addDataHandler(new FloatDataHandler(blockEntity.getGraphHandler()::getProgress, v -> this.graphProgress = v));
+        menuSynchronizer.addDataHandler(new BooleanDataHandler(blockEntity.getGraphHandler()::isPaused, v -> this.graphPaused = v));
         menuSynchronizer.addDataHandler(new EnumDataHandler<>(
             blockEntity::getTransferMode,
             v -> this.transferMode = v,
@@ -78,6 +87,21 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     @OnlyIn(Dist.CLIENT)
     public IoSettingWithPriority getIoSetting(Direction direction) {
         return ioConfig.getSetting(direction);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public GraphHandler getGraphHandler() {
+        return graphHandler;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public float getGraphProgress() {
+        return graphProgress;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean isGraphPaused() {
+        return graphPaused;
     }
 
     @OnlyIn(Dist.CLIENT)

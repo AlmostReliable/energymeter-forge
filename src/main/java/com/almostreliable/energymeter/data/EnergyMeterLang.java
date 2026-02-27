@@ -46,6 +46,11 @@ public final class EnergyMeterLang extends LanguageProvider {
     public static final LangEntry SETTING_TOLERANCE = LangEntry.label("setting_tolerance", "Tolerance");
     public static final LangEntry SETTING_INTERVAL = LangEntry.label("setting_interval", "Interval");
 
+    // graph labels
+    public static final LangEntry GRAPH_NO_DATA = LangEntry.label("graph_no_data", "No data to display");
+    public static final LangEntry GRAPH_PAUSED = LangEntry.label("graph_paused", "PAUSED");
+    public static final LangEntry GRAPH_INTERVAL = LangEntry.label("graph_interval", "Interval");
+
     // button labels
     public static final LangEntry BUTTON_RESET_TOTAL = LangEntry.button("reset_total", "Reset Total");
 

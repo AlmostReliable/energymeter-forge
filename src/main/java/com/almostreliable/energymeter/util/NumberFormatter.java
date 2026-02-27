@@ -43,16 +43,20 @@ public final class NumberFormatter {
             this.unit = unit;
         }
 
-        public Component asUnitPerTick() {
-            return Component.literal(energy + " " + getUnitPerTick());
+        public Component componentWithUnit() {
+            return Component.literal(getEnergyWithUnit());
         }
 
-        public Component asTotalUnit() {
-            return Component.literal(energy + " " + unit);
+        public Component componentWithUnitPerTick() {
+            return Component.literal(energy + " " + getUnitPerTick());
         }
 
         public String getEnergy() {
             return energy;
+        }
+
+        public String getEnergyWithUnit() {
+            return energy + " " + unit;
         }
 
         public String getUnitPerTick() {

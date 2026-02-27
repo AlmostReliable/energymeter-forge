@@ -18,6 +18,7 @@ public final class ClientActionRegistry {
     public static final ResourceLocation TRANSFER_MODE_ID = EnergyMeter.getRL(Constants.TRANSFER_MODE_ID);
     public static final ResourceLocation MEASURE_MODE_ID = EnergyMeter.getRL(Constants.MEASURE_MODE_ID);
     public static final ResourceLocation RESET_TOTAL_ID = EnergyMeter.getRL("reset_total");
+    public static final ResourceLocation TOGGLE_GRAPH_PAUSE_ID = EnergyMeter.getRL("toggle_graph_pause");
 
     private static final Map<ResourceLocation, Decoder<?>> DECODERS = new HashMap<>();
     private static final String ID = "id";
@@ -75,6 +76,10 @@ public final class ClientActionRegistry {
         ClientActionRegistry.register(
             RESET_TOTAL_ID,
             SimpleClientAction.<MeterMenu> decoder(RESET_TOTAL_ID, menu -> menu.getBlockEntity().setTotalEnergy(0))
+        );
+        ClientActionRegistry.register(
+            TOGGLE_GRAPH_PAUSE_ID,
+            SimpleClientAction.<MeterMenu> decoder(TOGGLE_GRAPH_PAUSE_ID, menu -> menu.getBlockEntity().toggleGraphPause())
         );
     }
 
