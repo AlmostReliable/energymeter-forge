@@ -39,6 +39,9 @@ public class MeterBlockEntityTests {
         helper.assertValueEqual(meterBlockEntity.getMeasureMode(), MeasureMode.INSTANT, "measure mode");
         helper.assertValueEqual(meterBlockEntity.getConnectionStatus(), ConnectionStatus.DISCONNECTED, "connection status");
 
+        // test limit default
+        helper.assertValueEqual(meterBlockEntity.getTransferLimit(), 0, "transfer limit");
+
         helper.succeed();
     }
 
