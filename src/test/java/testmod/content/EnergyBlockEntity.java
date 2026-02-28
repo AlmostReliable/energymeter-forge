@@ -4,6 +4,8 @@ import com.almostreliable.energymeter.block.entity.TickableMenuBlockEntity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -17,19 +19,29 @@ import testmod.TestRegistration;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
-import java.util.Map;
-
 public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockEntity {
 
+    private static final Direction[] DIRECTIONS = Direction.values();
+    private static final String ENERGY_TO_EMIT_PER_TICK_ID = "energy_to_emit_per_tick";
+
     private final ModifiableEnergyStorage energyStorage = new ModifiableEnergyStorage(200_000);
-    private final Map<Direction, Integer> energyToSendPerTick = new EnumMap<>(Direction.class);
+
+    private int energyToEmitPerTick;
 
     public EnergyBlockEntity(BlockPos pos, BlockState blockState) {
         super(TestRegistration.ENERGY_BLOCK_ENTITY.get(), pos, blockState);
-        for (Direction direction : Direction.values()) {
-            energyToSendPerTick.put(direction, 0);
-        }
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putInt(ENERGY_TO_EMIT_PER_TICK_ID, energyToEmitPerTick);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        if (tag.contains(ENERGY_TO_EMIT_PER_TICK_ID)) energyToEmitPerTick = tag.getInt(ENERGY_TO_EMIT_PER_TICK_ID);
     }
 
     @Nullable
@@ -39,11 +51,9 @@ public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockE
 
     @Override
     public void tick(ServerLevel level) {
-        for (var entry : energyToSendPerTick.entrySet()) {
-            Direction direction = entry.getKey();
-            int energy = entry.getValue();
-            if (energy == 0) continue;
+        if (energyToEmitPerTick == 0) return;
 
+        for (var direction : DIRECTIONS) {
             IEnergyStorage targetEnergyStorage = level.getCapability(
                 Capabilities.EnergyStorage.BLOCK,
                 worldPosition.relative(direction),
@@ -51,21 +61,29 @@ public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockE
             );
             if (targetEnergyStorage == null) continue;
 
-            targetEnergyStorage.receiveEnergy(energy, false);
+            targetEnergyStorage.receiveEnergy(energyToEmitPerTick, false);
         }
-    }
-
-    public void sendEnergyPerTick(Direction direction, int energy) {
-        energyToSendPerTick.put(direction, energy);
-    }
-
-    public void setEnergyCapacity(int capacity) {
-        energyStorage.setCapacity(capacity);
     }
 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return null;
+        return new EnergyBlockMenu(containerId, playerInventory, this);
+    }
+
+    public void setEnergyToEmitPerTick(int energyToEmitPerTick) {
+        this.energyToEmitPerTick = energyToEmitPerTick;
+    }
+
+    public int getEnergyToEmitPerTick() {
+        return energyToEmitPerTick;
+    }
+
+    public void setCapacity(int capacity) {
+        energyStorage.setMaxEnergyStored(capacity);
+    }
+
+    public int getCapacity() {
+        return energyStorage.getMaxEnergyStored();
     }
 }

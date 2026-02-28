@@ -8,7 +8,7 @@ public class ModifiableEnergyStorage extends EnergyStorage {
         super(capacity);
     }
 
-    public void setCapacity(int capacity) {
+    public void setMaxEnergyStored(int capacity) {
         this.capacity = capacity;
     }
 }

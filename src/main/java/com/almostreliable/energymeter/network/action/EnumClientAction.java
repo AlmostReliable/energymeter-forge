@@ -48,15 +48,15 @@ public final class EnumClientAction<M extends SynchronizedContainerMenu<?>, E ex
     public static <M extends SynchronizedContainerMenu<?>, E extends Enum<E>> Decoder<EnumClientAction<M, E>> decoder(
         ResourceLocation id, Class<E> enumClass, BiConsumer<M, E> handler
     ) {
-        E[] values = enumClass.getEnumConstants();
+        E[] enumValues = enumClass.getEnumConstants();
 
         return tag -> {
             int ordinal = tag.getInt(VALUE_ID);
-            if (ordinal < 0 || ordinal >= values.length) {
+            if (ordinal < 0 || ordinal >= enumValues.length) {
                 throw new IllegalStateException("invalid enum ordinal: " + ordinal);
             }
 
-            return new EnumClientAction<>(id, values[ordinal], handler);
+            return new EnumClientAction<>(id, enumValues[ordinal], handler);
         };
     }
 }

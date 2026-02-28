@@ -1,5 +1,6 @@
 package com.almostreliable.energymeter.menu;
 
+import com.almostreliable.energymeter.network.action.ClientActionRegistry;
 import com.almostreliable.energymeter.network.menu.MenuSynchronizer;
 import com.almostreliable.energymeter.network.packet.MenuSyncPacket;
 
@@ -22,7 +23,7 @@ public abstract class SynchronizedContainerMenu<E extends BlockEntity> extends A
     protected final MenuSynchronizer menuSynchronizer;
     private final ContainerLevelAccess access;
 
-    SynchronizedContainerMenu(MenuType<?> menuType, int wid, Inventory playerInventory, E blockEntity) {
+    protected SynchronizedContainerMenu(MenuType<?> menuType, int wid, Inventory playerInventory, E blockEntity) {
         super(menuType, wid);
         this.playerInventory = playerInventory;
         this.blockEntity = blockEntity;
@@ -64,7 +65,9 @@ public abstract class SynchronizedContainerMenu<E extends BlockEntity> extends A
 
     public abstract void setupDataHandlers();
 
-    public abstract void receiveClientData(ServerPlayer player, CompoundTag data);
+    public void receiveClientData(ServerPlayer player, CompoundTag data) {
+        ClientActionRegistry.handle(this, player, data);
+    }
 
     public E getBlockEntity() {
         return blockEntity;

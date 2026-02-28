@@ -1,31 +1,32 @@
 package com.almostreliable.energymeter.network.action;
 
-import com.almostreliable.energymeter.EnergyMeter;
-import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement.TextBoxType;
-import com.almostreliable.energymeter.menu.MeterMenu;
+import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
+import com.almostreliable.energymeter.network.action.ClientActionRegistry.Decoder;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class TextValueClientAction implements ClientAction<MeterMenu> {
+public class TextValueClientAction<E extends BlockEntity, M extends SynchronizedContainerMenu<E>, T extends Enum<T> & TextValueClientAction.ValueConsumer<E>>
+    implements ClientAction<M> {
 
-    public static final ResourceLocation ID = EnergyMeter.getRL("text_value");
-    private static final TextBoxType[] TEXT_BOX_VALUES = TextBoxType.values();
     private static final String TEXT_BOX_ID = "text_box";
     private static final String VALUE_ID = "value";
 
-    private final TextBoxType textBox;
+    private final ResourceLocation id;
+    private final T textBox;
     private final int value;
 
-    public TextValueClientAction(TextBoxType textBox, int value) {
+    public TextValueClientAction(ResourceLocation id, T textBox, int value) {
+        this.id = id;
         this.textBox = textBox;
         this.value = value;
     }
 
     @Override
     public ResourceLocation id() {
-        return ID;
+        return id;
     }
 
     @Override
@@ -35,13 +36,27 @@ public class TextValueClientAction implements ClientAction<MeterMenu> {
     }
 
     @Override
-    public void handleServer(MeterMenu menu, ServerPlayer player) {
+    public void handleServer(M menu, ServerPlayer player) {
         textBox.updateValue(menu.getBlockEntity(), value);
     }
 
-    public static TextValueClientAction decode(CompoundTag tag) {
-        int ordinal = tag.getInt(TEXT_BOX_ID);
-        int value = tag.getInt(VALUE_ID);
-        return new TextValueClientAction(TEXT_BOX_VALUES[ordinal], value);
+    public static <E extends BlockEntity, M extends SynchronizedContainerMenu<E>,
+        T extends Enum<T> & ValueConsumer<E>> Decoder<TextValueClientAction<E, M, T>>
+    decoder(ResourceLocation id, Class<T> enumClass) {
+        T[] enumValues = enumClass.getEnumConstants();
+
+        return tag -> {
+            int ordinal = tag.getInt(TEXT_BOX_ID);
+            if (ordinal < 0 || ordinal >= enumValues.length) {
+                throw new IllegalStateException("invalid enum ordinal: " + ordinal);
+            }
+            int value = tag.getInt(VALUE_ID);
+            return new TextValueClientAction<>(id, enumValues[ordinal], value);
+        };
+    }
+
+    public interface ValueConsumer<T extends BlockEntity> {
+
+        void updateValue(T blockEntity, int value);
     }
 }

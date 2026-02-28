@@ -31,7 +31,7 @@ public class MeterConsumeTests {
 
         // let input energy block emit energy towards the meter
         int energyPerTick = TestUtils.getRandomEnergyRate();
-        inputEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+        inputEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             MeterBlockEntity.DEFAULT_INTERVAL + 1,
@@ -78,9 +78,9 @@ public class MeterConsumeTests {
 
         // let input energy blocks emit energy towards the meter
         int energyPerTick = TestUtils.getRandomEnergyRate();
-        westInEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
-        southInEnergyBlockEntity.sendEnergyPerTick(Direction.NORTH, energyPerTick);
-        eastInEnergyBlockEntity.sendEnergyPerTick(Direction.WEST, energyPerTick);
+        westInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        southInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        eastInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             MeterBlockEntity.DEFAULT_INTERVAL + 1,

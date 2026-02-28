@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class SynchronizedContainerScreen<M extends SynchronizedContainerMenu<?>> extends AbstractContainerScreen<M> {
 
-    SynchronizedContainerScreen(M menu, Inventory playerInventory, Component title) {
+    protected SynchronizedContainerScreen(M menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 

@@ -31,7 +31,7 @@ public class MeterTransferTests {
 
         // let input energy block emit energy towards the meter
         int energyPerTick = TestUtils.getRandomEnergyRate();
-        inputEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+        inputEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             MeterBlockEntity.DEFAULT_INTERVAL + 1,
@@ -79,9 +79,9 @@ public class MeterTransferTests {
 
         // let input energy blocks emit energy towards the meter
         int energyPerTick = TestUtils.getRandomEnergyRate();
-        westInEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
-        southInEnergyBlockEntity.sendEnergyPerTick(Direction.NORTH, energyPerTick);
-        eastInEnergyBlockEntity.sendEnergyPerTick(Direction.WEST, energyPerTick);
+        westInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        southInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        eastInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             MeterBlockEntity.DEFAULT_INTERVAL + 1,
@@ -135,11 +135,11 @@ public class MeterTransferTests {
         int energyPerTick = TestUtils.getRandomEnergyRate();
 
         // set the capacity of the first two outputs, so they are full after a single operation
-        westOutEnergyBlockEntity.setEnergyCapacity(energyPerTick);
-        southOutEnergyBlockEntity.setEnergyCapacity(energyPerTick);
+        westOutEnergyBlockEntity.setCapacity(energyPerTick);
+        southOutEnergyBlockEntity.setCapacity(energyPerTick);
 
         // let input energy block emit energy towards the meter
-        inputEnergyBlockEntity.sendEnergyPerTick(Direction.DOWN, energyPerTick);
+        inputEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             1,
@@ -239,11 +239,11 @@ public class MeterTransferTests {
         int energyPerTick = TestUtils.getRandomEnergyRate();
 
         // set the capacity of the first output, so it's full after a single operation
-        southOutEnergyBlockEntity.setEnergyCapacity(energyPerTick * 2);
+        southOutEnergyBlockEntity.setCapacity(energyPerTick * 2);
 
         // let input energy blocks emit energy towards the meter
-        upInEnergyBlockEntity.sendEnergyPerTick(Direction.DOWN, energyPerTick);
-        westInEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+        upInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        westInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             1,

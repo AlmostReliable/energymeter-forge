@@ -31,7 +31,7 @@ public class MeterSplitTests {
 
         // let input energy block emit energy towards the meter
         int energyPerTick = TestUtils.getRandomEnergyRate();
-        inputEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+        inputEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             MeterBlockEntity.DEFAULT_INTERVAL + 1,
@@ -79,9 +79,9 @@ public class MeterSplitTests {
 
         // let input energy blocks emit energy towards the meter
         int energyPerTick = TestUtils.getRandomEnergyRate();
-        westInEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
-        southInEnergyBlockEntity.sendEnergyPerTick(Direction.NORTH, energyPerTick);
-        eastInEnergyBlockEntity.sendEnergyPerTick(Direction.WEST, energyPerTick);
+        westInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        southInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        eastInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             MeterBlockEntity.DEFAULT_INTERVAL + 1,
@@ -135,7 +135,7 @@ public class MeterSplitTests {
         int energyPerTick = energyPerTickCalc;
 
         // let input energy block emit energy towards the meter
-        inputEnergyBlockEntity.sendEnergyPerTick(Direction.DOWN, energyPerTick);
+        inputEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             MeterBlockEntity.DEFAULT_INTERVAL + 1,
@@ -198,8 +198,8 @@ public class MeterSplitTests {
         int energyPerTick = energyPerTickCalc;
 
         // let input energy blocks emit energy towards the meter
-        upInEnergyBlockEntity.sendEnergyPerTick(Direction.DOWN, energyPerTick);
-        westInEnergyBlockEntity.sendEnergyPerTick(Direction.EAST, energyPerTick);
+        upInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        westInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
 
         helper.runAtTickTime(
             MeterBlockEntity.DEFAULT_INTERVAL + 1,

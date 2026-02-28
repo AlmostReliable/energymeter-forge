@@ -1,26 +1,19 @@
 package com.almostreliable.energymeter.block;
 
-import com.almostreliable.energymeter.block.entity.TickableBlock;
+import com.almostreliable.energymeter.block.entity.TickableMenuBlock;
 import com.almostreliable.energymeter.core.Constants;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.Nullable;
 
-public abstract class FacingEntityBlock extends TickableBlock {
+public abstract class FacingEntityBlock extends TickableMenuBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final DirectionProperty BOTTOM = DirectionProperty.create(Constants.BOTTOM_PROP);
@@ -46,28 +39,6 @@ public abstract class FacingEntityBlock extends TickableBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(FACING, BOTTOM);
-    }
-
-    @Nullable
-    @Override
-    protected MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof MenuProvider menuProvider) {
-            return menuProvider;
-        }
-
-        return super.getMenuProvider(state, level, pos);
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (player instanceof ServerPlayer serverPlayer && !serverPlayer.isShiftKeyDown()) {
-            MenuProvider menuProvider = getMenuProvider(state, level, pos);
-            if (menuProvider != null) {
-                serverPlayer.openMenu(menuProvider, pos);
-            }
-        }
-
-        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     public static Direction getFacingDir(BlockState state) {

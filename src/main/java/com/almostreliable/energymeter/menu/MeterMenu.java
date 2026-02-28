@@ -8,7 +8,6 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionSt
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.core.Registration;
-import com.almostreliable.energymeter.network.action.ClientActionRegistry;
 import com.almostreliable.energymeter.network.menu.handler.BooleanDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
@@ -17,8 +16,6 @@ import com.almostreliable.energymeter.network.menu.handler.IntegerDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.LongDataHandler;
 
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
@@ -67,11 +64,6 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
             v -> this.connectionStatus = v,
             ConnectionStatus.values()
         ));
-    }
-
-    @Override
-    public void receiveClientData(ServerPlayer player, CompoundTag data) {
-        ClientActionRegistry.handle(this, player, data);
     }
 
     public BlockState getBlockState() {

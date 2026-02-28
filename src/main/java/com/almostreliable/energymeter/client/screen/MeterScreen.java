@@ -3,6 +3,7 @@ package com.almostreliable.energymeter.client.screen;
 import com.almostreliable.energymeter.block.component.GraphHandler;
 import com.almostreliable.energymeter.block.component.GraphHandler.GraphPoint;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
+import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
@@ -48,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
@@ -179,24 +181,24 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         var modesComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_MODES.get(), modesLayout, 0xFFBF_BFBF);
 
         var settingsLayout = LinearLayout.vertical().spacing(1);
-        settingsLayout.addChild(new InputLayoutElement(
-            InputLayoutElement.TextBoxType.TRANSFER_LIMIT,
+        settingsLayout.addChild(new InputLayoutElement<>(
+            TextBoxType.TRANSFER_LIMIT,
             110,
             font,
             EnergyMeterLang.SETTING_LIMIT.get().append(":"),
             () -> String.valueOf(menu.getTransferLimit()),
             this::onTextValueUpdated
         ));
-        settingsLayout.addChild(new InputLayoutElement(
-            InputLayoutElement.TextBoxType.ZERO_TOLERANCE,
+        settingsLayout.addChild(new InputLayoutElement<>(
+            TextBoxType.ZERO_TOLERANCE,
             110,
             font,
             EnergyMeterLang.SETTING_TOLERANCE.get().append(":"),
             () -> String.valueOf(menu.getZeroTolerance()),
             this::onTextValueUpdated
         ));
-        settingsLayout.addChild(new InputLayoutElement(
-            InputLayoutElement.TextBoxType.MEASURE_INTERVAL,
+        settingsLayout.addChild(new InputLayoutElement<>(
+            TextBoxType.MEASURE_INTERVAL,
             110,
             font,
             EnergyMeterLang.SETTING_INTERVAL.get().append(":"),
@@ -402,8 +404,8 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         sendClientAction(new EnumClientAction<>(ClientActionRegistry.MEASURE_MODE_ID, mode));
     }
 
-    private void onTextValueUpdated(InputLayoutElement.TextBoxType textBox, int value) {
-        sendClientAction(new TextValueClientAction(textBox, value));
+    private void onTextValueUpdated(TextBoxType textBox, int value) {
+        sendClientAction(new TextValueClientAction<>(ClientActionRegistry.UPDATE_TEXT_ID, textBox, value));
     }
 
     private void onResetTotalButtonClicked() {
@@ -423,6 +425,23 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         TabType(Consumer<MeterScreen> init) {
             this.init = init;
+        }
+    }
+
+    public enum TextBoxType implements TextValueClientAction.ValueConsumer<MeterBlockEntity> {
+        MEASURE_INTERVAL(MeterBlockEntity::setMeasureInterval),
+        ZERO_TOLERANCE(MeterBlockEntity::setZeroTolerance),
+        TRANSFER_LIMIT(MeterBlockEntity::setTransferLimit);
+
+        private final BiConsumer<MeterBlockEntity, Integer> valueUpdater;
+
+        TextBoxType(BiConsumer<MeterBlockEntity, Integer> valueUpdater) {
+            this.valueUpdater = valueUpdater;
+        }
+
+        @Override
+        public void updateValue(MeterBlockEntity blockEntity, int value) {
+            valueUpdater.accept(blockEntity, value);
         }
     }
 }

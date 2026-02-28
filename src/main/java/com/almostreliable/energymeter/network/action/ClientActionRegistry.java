@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.network.action;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.almostreliable.energymeter.client.screen.MeterScreen;
 import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
@@ -19,6 +20,7 @@ public final class ClientActionRegistry {
     public static final ResourceLocation MEASURE_MODE_ID = EnergyMeter.getRL(Constants.MEASURE_MODE_ID);
     public static final ResourceLocation RESET_TOTAL_ID = EnergyMeter.getRL("reset_total");
     public static final ResourceLocation TOGGLE_GRAPH_PAUSE_ID = EnergyMeter.getRL("toggle_graph_pause");
+    public static final ResourceLocation UPDATE_TEXT_ID = EnergyMeter.getRL("update_text");
 
     private static final Map<ResourceLocation, Decoder<?>> DECODERS = new HashMap<>();
     private static final String ID = "id";
@@ -71,7 +73,13 @@ public final class ClientActionRegistry {
         );
 
         ClientActionRegistry.register(IoSettingClientAction.ID, IoSettingClientAction::decode);
-        ClientActionRegistry.register(TextValueClientAction.ID, TextValueClientAction::decode);
+        ClientActionRegistry.register(
+            UPDATE_TEXT_ID,
+            TextValueClientAction.<MeterBlockEntity, MeterMenu, MeterScreen.TextBoxType> decoder(
+                UPDATE_TEXT_ID,
+                MeterScreen.TextBoxType.class
+            )
+        );
 
         ClientActionRegistry.register(
             RESET_TOTAL_ID,
