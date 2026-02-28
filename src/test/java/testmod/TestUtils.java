@@ -42,6 +42,12 @@ public final class TestUtils {
         }
     }
 
+    public static void assertIdentity(@Nullable Object o, Object expected, String failureMessage) {
+        if (o != expected) {
+            throw new GameTestAssertException(failureMessage);
+        }
+    }
+
     public static int getRandomEnergyRate() {
         return 1_000 + (int) (Math.random() * 9_000);
     }

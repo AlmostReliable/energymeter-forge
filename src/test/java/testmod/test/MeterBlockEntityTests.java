@@ -11,6 +11,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.neoforged.neoforge.energy.EmptyEnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
@@ -51,7 +52,11 @@ public class MeterBlockEntityTests {
             TestUtils.assertNull(energyCap, "energy meter should not expose any energy capability by default");
         }
         IEnergyStorage energyCapWithoutContext = meterBlockEntity.getEnergyCapability(null);
-        TestUtils.assertNull(energyCapWithoutContext, "energy meter should not expose the internal energy capability");
+        TestUtils.assertIdentity(
+            energyCapWithoutContext,
+            EmptyEnergyStorage.INSTANCE,
+            "energy meter should only expose a non-modifiable energy storage when accessed without context"
+        );
 
         // set io configuration, west to input, east to output
         meterBlockEntity.getIoConfig().setSetting(Direction.WEST, IoSettingWithPriority.IN);
