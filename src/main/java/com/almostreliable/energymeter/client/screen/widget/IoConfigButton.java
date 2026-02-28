@@ -7,6 +7,7 @@ import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPrio
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideListener;
 import com.almostreliable.energymeter.client.screen.widget.base.LayoutPositionedWidget;
+import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.util.TexRenderer;
 import com.almostreliable.energymeter.util.TooltipBuilder;
@@ -241,7 +242,7 @@ public final class IoConfigButton extends LayoutPositionedWidget {
                 poseStack.translate(0, 0, Z_OFFSET);
 
                 // outline
-                guiGraphics.renderOutline(getX() - 1, getY() - 1, BUTTON_SIZE * 6 + 2, BUTTON_SIZE + 2, 0xFF00_FFA2);
+                guiGraphics.renderOutline(getX() - 1, getY() - 1, BUTTON_SIZE * 6 + 2, BUTTON_SIZE + 2, Constants.COLOR_ACCENT);
                 // off button
                 OFF.target(getX(), getY()).render(guiGraphics);
                 // input button

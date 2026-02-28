@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.client.screen.widget.base.LayoutPositionedWidget;
+import com.almostreliable.energymeter.core.Constants;
 
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,7 +13,7 @@ public class MarqueeStringWidget extends LayoutPositionedWidget {
     private static final double PERIOD_PER_SCROLLED_PIXEL = 0.5;
     private static final double MIN_SCROLL_PERIOD = 3.0;
 
-    private int color = 0xFFFF_FFFF;
+    private int color = Constants.COLOR_WHITE;
     private float alignX;
 
     public MarqueeStringWidget(int width, int height, Component message) {

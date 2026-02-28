@@ -1,5 +1,7 @@
 package com.almostreliable.energymeter.client.screen.widget.base;
 
+import com.almostreliable.energymeter.core.Constants;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -55,7 +57,7 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
     }
 
     public static OutlinedCompositeWidget ofLayout(Component title, Layout layout) {
-        return ofLayout(title, layout, 0xFFFF_FFFF);
+        return ofLayout(title, layout, Constants.COLOR_WHITE);
     }
 
     public static OutlinedCompositeWidget ofElement(Component title, LayoutElement element) {

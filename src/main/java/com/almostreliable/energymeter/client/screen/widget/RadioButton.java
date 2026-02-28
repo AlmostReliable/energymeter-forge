@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.client.screen.widget.base.LayoutPositionedButton;
+import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.data.EnergyMeterLang.LangEntry;
 import com.almostreliable.energymeter.util.TexRenderer;
 
@@ -78,6 +79,6 @@ public final class RadioButton<T extends Enum<T>> extends LayoutPositionedButton
         }
 
         buttonIcon.target(getX(), getY()).render(guiGraphics);
-        guiGraphics.drawString(font, getMessage(), getX() + TEXTURE_SIZE / 2 + HORIZONTAL_SPACING, getY() + 2, 0xFFFF_FFFF);
+        guiGraphics.drawString(font, getMessage(), getX() + TEXTURE_SIZE / 2 + HORIZONTAL_SPACING, getY() + 2, Constants.COLOR_WHITE);
     }
 }

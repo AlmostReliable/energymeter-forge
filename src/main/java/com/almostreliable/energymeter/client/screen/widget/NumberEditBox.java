@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideListener;
+import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.util.MathExpressionParser;
 import com.almostreliable.energymeter.util.TooltipBuilder;
 
@@ -32,8 +33,6 @@ import java.util.regex.Pattern;
  */
 public class NumberEditBox extends EditBox implements ClickedOutsideListener {
 
-    private static final int NORMAL_TEXT_COLOR = 0xFFFF_FFFF;
-    private static final int ERROR_TEXT_COLOR = 0xFFFF_0000;
     private static final Pattern MATH_EXPRESSION_PATTERN = Pattern.compile("\\d\\s*[+\\-*/^]\\s*\\d");
     private static final String BINARY_OPERATORS = "+*/^";
     private static final String OPERATORS = BINARY_OPERATORS + "-";
@@ -57,7 +56,7 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         this.onConfirm = onConfirm;
 
         setMaxLength(128);
-        setTextColor(NORMAL_TEXT_COLOR);
+        setTextColor(Constants.COLOR_WHITE);
         setTextShadow(false);
         setResponder(this::onValueChanged);
     }
@@ -142,11 +141,7 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
 
         validateAndUpdate();
 
-        if (parsedValue == null) {
-            setTextColor(ERROR_TEXT_COLOR);
-        } else {
-            setTextColor(NORMAL_TEXT_COLOR);
-        }
+        setTextColor(parsedValue == null ? Constants.COLOR_RED : Constants.COLOR_WHITE);
         onValueEntered.accept(parsedValue != null);
     }
 

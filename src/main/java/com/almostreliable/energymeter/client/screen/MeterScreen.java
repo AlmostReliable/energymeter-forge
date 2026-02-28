@@ -13,6 +13,7 @@ import com.almostreliable.energymeter.client.screen.widget.RadioButton;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideListener;
 import com.almostreliable.energymeter.client.screen.widget.base.OutlinedCompositeWidget;
+import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.action.ClientActionRegistry;
@@ -178,7 +179,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         var modesLayout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);
         modesLayout.addChild(transferModeComposite);
         modesLayout.addChild(measureModeComposite);
-        var modesComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_MODES.get(), modesLayout, 0xFFBF_BFBF);
+        var modesComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_MODES.get(), modesLayout, Constants.COLOR_GRAY);
 
         var settingsLayout = LinearLayout.vertical().spacing(1);
         settingsLayout.addChild(new InputLayoutElement<>(
@@ -268,7 +269,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
                 EnergyMeterLang.GRAPH_NO_DATA.get(),
                 paneLeft + RIGHT_PANE_WIDTH / 2,
                 topPos + GUI_HEIGHT / 2 - font.lineHeight / 2,
-                0xFFFFFF
+                Constants.COLOR_WHITE
             );
             return;
         }
@@ -280,26 +281,26 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
                 EnergyMeterLang.GRAPH_PAUSED.get().withStyle(ChatFormatting.DARK_RED),
                 paneLeft + RIGHT_PANE_WIDTH / 2,
                 topPos + GUI_HEIGHT / 2 - font.lineHeight / 2,
-                0xFFFF_FFFF
+                Constants.COLOR_WHITE
             );
         }
 
         // axes
-        guiGraphics.vLine(graphLeft, graphTop, graphBottom + GRAPH_PADDING / 2, 0xFFFF_FFFF);
-        guiGraphics.hLine(graphLeft - GRAPH_PADDING / 2, graphRight, graphBottom, 0xFFFF_FFFF);
+        guiGraphics.vLine(graphLeft, graphTop, graphBottom + GRAPH_PADDING / 2, Constants.COLOR_WHITE);
+        guiGraphics.hLine(graphLeft - GRAPH_PADDING / 2, graphRight, graphBottom, Constants.COLOR_WHITE);
         var xLabel = EnergyMeterLang.GRAPH_INTERVAL.get();
-        guiGraphics.drawString(font, xLabel, graphRight - font.width(xLabel), graphBottom + 2, 0xFFFF_FFFF);
+        guiGraphics.drawString(font, xLabel, graphRight - font.width(xLabel), graphBottom + 2, Constants.COLOR_WHITE);
 
         // y axis max value
         var yLabel = graphHandler.getYLabel();
         if (!yLabel.isEmpty()) {
-            guiGraphics.hLine(graphLeft - 2, graphLeft + 2, graphTop + GRAPH_MAX_VALUE_INSET, 0xFFFF_FFFF);
+            guiGraphics.hLine(graphLeft - 2, graphLeft + 2, graphTop + GRAPH_MAX_VALUE_INSET, Constants.COLOR_WHITE);
             guiGraphics.drawString(
                 font,
                 yLabel,
                 graphLeft + 6,
                 graphTop + GRAPH_MAX_VALUE_INSET - font.lineHeight / 2,
-                0xFFFF_FFFF,
+                Constants.COLOR_WHITE,
                 false
             );
         }
@@ -322,12 +323,12 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
             // collect line vertices
             if (previousX != -1 && previousY != -1) {
-                bufferBuilder.addVertex(pose, previousX, previousY, 0).setColor(0xFFFF_FFFF).setNormal(1, 1, 0);
-                bufferBuilder.addVertex(pose, pX, pY, 0).setColor(0xFFFF_FFFF).setNormal(1, 1, 1);
+                bufferBuilder.addVertex(pose, previousX, previousY, 0).setColor(Constants.COLOR_WHITE).setNormal(1, 1, 0);
+                bufferBuilder.addVertex(pose, pX, pY, 0).setColor(Constants.COLOR_WHITE).setNormal(1, 1, 1);
 
                 // draw point marker
                 guiGraphics.enableScissor(graphLeft + 1, graphTop, graphRight, graphBottom);
-                guiGraphics.fill(pX - 2, pY - 2, pX + 1, pY + 1, 0xFF00_FFA2);
+                guiGraphics.fill(pX - 2, pY - 2, pX + 1, pY + 1, Constants.COLOR_ACCENT);
                 guiGraphics.disableScissor();
             }
 
@@ -337,8 +338,8 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         // draw progress line
         if (previousX != -1 && previousY != -1) {
-            bufferBuilder.addVertex(pose, previousX, previousY, 0).setColor(0xFF00_FFA2).setNormal(1, 1, 0);
-            bufferBuilder.addVertex(pose, previousX + progressOffset, previousY, 0).setColor(0xFFFF_FFFF).setNormal(1, 1, 1);
+            bufferBuilder.addVertex(pose, previousX, previousY, 0).setColor(Constants.COLOR_ACCENT).setNormal(1, 1, 0);
+            bufferBuilder.addVertex(pose, previousX + progressOffset, previousY, 0).setColor(Constants.COLOR_ACCENT).setNormal(1, 1, 1);
         }
 
         var drawData = bufferBuilder.build();

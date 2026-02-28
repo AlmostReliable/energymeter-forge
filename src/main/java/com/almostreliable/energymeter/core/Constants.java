@@ -25,4 +25,10 @@ public interface Constants {
     String TOTAL_ENERGY_ID = "total_energy";
     String MULTIBLOCK_WIDTH_ID = "width";
     String MULTIBLOCK_HEIGHT_ID = "height";
+
+    // colors
+    int COLOR_ACCENT = 0xFF00_FFA2;
+    int COLOR_GRAY = 0xFFBF_BFBF;
+    int COLOR_RED = 0xFFFF_0000;
+    int COLOR_WHITE = 0xFFFF_FFFF;
 }
