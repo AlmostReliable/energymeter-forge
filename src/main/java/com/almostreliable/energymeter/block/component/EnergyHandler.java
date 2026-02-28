@@ -11,6 +11,7 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -155,8 +156,16 @@ public class EnergyHandler {
         var energyToForward = maxEnergyToForward;
         var energyForwarded = 0;
 
-        while (!maxEnergyPerOutput.isEmpty() && energyToForward >= maxEnergyPerOutput.size()) {
-            var energyToForwardPerOutput = energyToForward / maxEnergyPerOutput.size();
+        // prevent bias when the energy can't be split exactly between all outputs
+        Collections.shuffle(maxEnergyPerOutput);
+
+        while (!maxEnergyPerOutput.isEmpty() && energyToForward > 0) {
+            int energyToForwardPerOutput;
+            if (energyToForward <= maxEnergyPerOutput.size()) {
+                energyToForwardPerOutput = (int) Math.ceil((float) energyToForward / maxEnergyPerOutput.size());
+            } else {
+                energyToForwardPerOutput = energyToForward / maxEnergyPerOutput.size();
+            }
             var fullOutputEntries = new ArrayList<EnergyPerOutputEntry>();
 
             for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
@@ -169,9 +178,11 @@ public class EnergyHandler {
                     fullOutputEntries.add(outputEntry);
                 }
 
-                neighborEnergyStorage.receiveEnergy(energyToForwardForOutput, false);
-                energyToForward -= energyToForwardForOutput;
-                energyForwarded += energyToForwardForOutput;
+                var energyAccepted = neighborEnergyStorage.receiveEnergy(energyToForwardForOutput, false);
+                energyToForward -= energyAccepted;
+                energyForwarded += energyAccepted;
+
+                if (energyToForward <= 0) break;
             }
 
             fullOutputEntries.forEach(maxEnergyPerOutput::remove);

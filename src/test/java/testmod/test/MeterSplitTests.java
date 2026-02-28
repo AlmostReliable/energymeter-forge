@@ -192,8 +192,8 @@ public class MeterSplitTests {
         meterBlockEntity.setTransferMode(TransferMode.SPLIT);
 
         int energyPerTickCalc = TestUtils.getRandomEnergyRate();
-        if (energyPerTickCalc % 3 != 0) {
-            energyPerTickCalc += 3 - (energyPerTickCalc % 3);
+        if (energyPerTickCalc % 2 != 0) {
+            energyPerTickCalc += 2 - (energyPerTickCalc % 2);
         }
         int energyPerTick = energyPerTickCalc;
 

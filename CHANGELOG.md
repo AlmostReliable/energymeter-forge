@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- /
+
+- improve energy splitting algorithm to distribute leftover energy
 
 ## [0.3.0] - 2026-02-27
 
