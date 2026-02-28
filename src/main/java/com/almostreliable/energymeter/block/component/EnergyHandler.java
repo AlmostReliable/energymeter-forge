@@ -22,6 +22,7 @@ public class EnergyHandler {
     private final Map<Direction, ForwardingEnergyStorage> forwardingEnergyStorage = new EnumMap<>(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> outputCache = new EnumMap<>(Direction.class);
 
+    private int energyPerTick;
     private long energyPerInterval;
     private double lastIntervalAverage;
 
@@ -48,6 +49,7 @@ public class EnergyHandler {
         lastIntervalAverage = average;
         var result = new MeasuredEnergy(energyPerInterval, average);
         energyPerInterval = 0;
+        energyPerTick = 0;
 
         return result;
     }
@@ -55,6 +57,7 @@ public class EnergyHandler {
     public void clearOutputCacheAndReset() {
         outputCache.clear();
         energyPerInterval = 0;
+        energyPerTick = 0;
     }
 
     public void clearOutputCache(Direction direction) {
@@ -67,7 +70,11 @@ public class EnergyHandler {
             return amount;
         }
 
-        int energyToForward = host.getTransferLimit() <= 0 ? amount : Math.min(host.getTransferLimit(), amount);
+        var energyToForward = amount;
+        var transferLimit = host.getTransferLimit();
+        if (transferLimit > 0) {
+            energyToForward = Math.min(energyToForward, transferLimit - energyPerTick);
+        }
 
         MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(energyToForward);
         var maxEnergyPerOutput = maxEnergyPerOutputResult.maxEnergyPerOutput;
@@ -79,6 +86,7 @@ public class EnergyHandler {
         if (maxEnergyPerOutputSum <= energyToForward) {
             fillOutputsWithMaxEnergy(maxEnergyPerOutput);
             energyPerInterval += maxEnergyPerOutputSum;
+            energyPerTick += maxEnergyPerOutputSum;
             return maxEnergyPerOutputSum;
         }
 
@@ -91,7 +99,12 @@ public class EnergyHandler {
         }
 
         energyPerInterval += energyForwarded;
+        energyPerTick += energyForwarded;
         return energyForwarded;
+    }
+
+    public void tick() {
+        energyPerTick = 0;
     }
 
     private MaxEnergyPerOutputResult calculateMaxEnergyPerOutput(int maxEnergyToForward) {

@@ -133,6 +133,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         }
 
         graphHandler.tick(level.getGameTime() + tickDelay, measureInterval);
+        energyHandler.tick();
 
         if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
             onIntervalReached(level);
