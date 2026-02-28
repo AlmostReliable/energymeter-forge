@@ -40,7 +40,6 @@ public abstract class GameTestInfoMixin {
     @Shadow
     public abstract String getTestName();
 
-    @Unique
     @Inject(method = "prepareTestStructure", at = @At("RETURN"))
     private void placeSignWithTestName(CallbackInfoReturnable<GameTestInfo> cir) {
         assert structureBlockPos != null;
