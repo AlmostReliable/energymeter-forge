@@ -7,9 +7,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 
-import testmod.content.EnergyBlockEntity;
-import testmod.content.EnergyBlockMenu;
-import testmod.content.EnergyBlockScreen;
+import testmod.content.EnergyEmitterBlockEntity;
+import testmod.content.EnergyEmitterBlockMenu;
+import testmod.content.EnergyEmitterBlockScreen;
 
 @Mod(TestMod.MOD_ID)
 public final class TestMod {
@@ -21,9 +21,9 @@ public final class TestMod {
         TestRegistration.init(modEventBus);
         ClientActionRegistry.register(
             UPDATE_TEXT_ID,
-            TextValueClientAction.<EnergyBlockEntity, EnergyBlockMenu, EnergyBlockScreen.TextBoxType> decoder(
+            TextValueClientAction.<EnergyEmitterBlockEntity, EnergyEmitterBlockMenu, EnergyEmitterBlockScreen.TextBoxType> decoder(
                 UPDATE_TEXT_ID,
-                EnergyBlockScreen.TextBoxType.class
+                EnergyEmitterBlockScreen.TextBoxType.class
             )
         );
     }

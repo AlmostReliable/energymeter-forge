@@ -13,9 +13,9 @@ import testmod.TestMod;
 
 import java.util.function.BiConsumer;
 
-public class EnergyBlockScreen extends SynchronizedContainerScreen<EnergyBlockMenu> {
+public class EnergyEmitterBlockScreen extends SynchronizedContainerScreen<EnergyEmitterBlockMenu> {
 
-    public EnergyBlockScreen(EnergyBlockMenu menu, Inventory playerInventory, Component title) {
+    public EnergyEmitterBlockScreen(EnergyEmitterBlockMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
@@ -30,14 +30,6 @@ public class EnergyBlockScreen extends SynchronizedContainerScreen<EnergyBlockMe
             font,
             Component.literal("Energy to emit:"),
             () -> String.valueOf(menu.getEnergyToEmitPerTick()),
-            this::onTextValueUpdated
-        ));
-        layout.addChild(new InputLayoutElement<>(
-            TextBoxType.CAPACITY,
-            110,
-            font,
-            Component.literal("Capacity:"),
-            () -> String.valueOf(menu.getCapacity()),
             this::onTextValueUpdated
         ));
 
@@ -55,18 +47,17 @@ public class EnergyBlockScreen extends SynchronizedContainerScreen<EnergyBlockMe
         sendClientAction(new TextValueClientAction<>(TestMod.UPDATE_TEXT_ID, textBox, value));
     }
 
-    public enum TextBoxType implements TextValueClientAction.ValueConsumer<EnergyBlockEntity> {
-        ENERGY_TO_EMIT(EnergyBlockEntity::setEnergyToEmitPerTick),
-        CAPACITY(EnergyBlockEntity::setCapacity);
+    public enum TextBoxType implements TextValueClientAction.ValueConsumer<EnergyEmitterBlockEntity> {
+        ENERGY_TO_EMIT(EnergyEmitterBlockEntity::setEnergyToEmitPerTick);
 
-        private final BiConsumer<EnergyBlockEntity, Integer> valueUpdater;
+        private final BiConsumer<EnergyEmitterBlockEntity, Integer> valueUpdater;
 
-        TextBoxType(BiConsumer<EnergyBlockEntity, Integer> valueUpdater) {
+        TextBoxType(BiConsumer<EnergyEmitterBlockEntity, Integer> valueUpdater) {
             this.valueUpdater = valueUpdater;
         }
 
         @Override
-        public void updateValue(EnergyBlockEntity blockEntity, int value) {
+        public void updateValue(EnergyEmitterBlockEntity blockEntity, int value) {
             valueUpdater.accept(blockEntity, value);
         }
     }

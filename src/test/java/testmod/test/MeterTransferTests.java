@@ -13,7 +13,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import testmod.TestMod;
 import testmod.TestUtils;
 import testmod.TestUtils.SimplePlotResult;
-import testmod.content.EnergyBlockEntity;
+import testmod.content.EnergyReceiverBlockEntity;
 
 @SuppressWarnings("NewMethodNamingConvention")
 @GameTestHolder(TestMod.MOD_ID)
@@ -130,9 +130,9 @@ public class MeterTransferTests {
 
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
         var inputEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.UP);
-        EnergyBlockEntity westOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.WEST);
+        EnergyReceiverBlockEntity westOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.WEST);
         IEnergyStorage westOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.WEST);
-        EnergyBlockEntity southOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.SOUTH);
+        EnergyReceiverBlockEntity southOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.SOUTH);
         IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
         IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
 
@@ -201,7 +201,7 @@ public class MeterTransferTests {
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
         var upInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.UP);
         var westInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.WEST);
-        EnergyBlockEntity southOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.SOUTH);
+        EnergyReceiverBlockEntity southOutEnergyBlockEntity = plotResult.outputEnergyBlockEntities().get(Direction.SOUTH);
         IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
         IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
 

@@ -8,15 +8,15 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
-public class EnergyBlock extends TickableMenuBlock {
+public class EnergyReceiverBlock extends TickableMenuBlock {
 
-    public EnergyBlock(Properties properties) {
+    public EnergyReceiverBlock(Properties properties) {
         super(properties);
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new EnergyBlockEntity(pos, state);
+        return new EnergyReceiverBlockEntity(pos, state);
     }
 }

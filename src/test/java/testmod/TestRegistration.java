@@ -24,10 +24,13 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import testmod.content.EnergyBlock;
-import testmod.content.EnergyBlockEntity;
-import testmod.content.EnergyBlockMenu;
+import testmod.content.EnergyEmitterBlock;
+import testmod.content.EnergyEmitterBlockEntity;
+import testmod.content.EnergyEmitterBlockMenu;
+import testmod.content.EnergyReceiverBlock;
+import testmod.content.EnergyReceiverBlockEntity;
 
+import java.util.List;
 import java.util.function.Function;
 
 public final class TestRegistration {
@@ -40,15 +43,17 @@ public final class TestRegistration {
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, TestMod.MOD_ID);
     private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, ModConstants.MOD_ID);
 
-    public static final DeferredBlock<EnergyBlock> ENERGY_BLOCK = registerBlock("energy_block", EnergyBlock::new);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyBlockEntity>> ENERGY_BLOCK_ENTITY = registerBlockEntity(ENERGY_BLOCK, EnergyBlockEntity::new);
-    public static final DeferredHolder<MenuType<?>, MenuType<EnergyBlockMenu>> ENERGY_BLOCK_MENU = registerMenu(ENERGY_BLOCK, EnergyBlockEntity.class, EnergyBlockMenu::new);
+    public static final DeferredBlock<EnergyReceiverBlock> ENERGY_RECEIVER_BLOCK = registerBlock("energy_receiver_block", EnergyReceiverBlock::new);
+    public static final DeferredBlock<EnergyEmitterBlock> ENERGY_EMITTER_BLOCK = registerBlock("energy_emitter_block", EnergyEmitterBlock::new);
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyReceiverBlockEntity>> ENERGY_RECEIVER_BLOCK_ENTITY = registerBlockEntity(ENERGY_RECEIVER_BLOCK, EnergyReceiverBlockEntity::new);
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyEmitterBlockEntity>> ENERGY_EMITTER_BLOCK_ENTITY = registerBlockEntity(ENERGY_EMITTER_BLOCK, EnergyEmitterBlockEntity::new);
+    public static final DeferredHolder<MenuType<?>, MenuType<EnergyEmitterBlockMenu>> ENERGY_EMITTER_BLOCK_MENU = registerMenu(ENERGY_EMITTER_BLOCK, EnergyEmitterBlockEntity.class, EnergyEmitterBlockMenu::new);
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
             .title(Component.literal("Testmod"))
             .icon(Items.NETHER_STAR::getDefaultInstance)
             .noScrollBar()
-            .displayItems((features, output) -> output.accept(ENERGY_BLOCK))
+            .displayItems((features, output) -> output.acceptAll(List.of(ENERGY_EMITTER_BLOCK.toStack(), ENERGY_RECEIVER_BLOCK.toStack())))
             .build()
     );
 
@@ -69,8 +74,8 @@ public final class TestRegistration {
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(
             Capabilities.EnergyStorage.BLOCK,
-            ENERGY_BLOCK_ENTITY.get(),
-            EnergyBlockEntity::getEnergyCapability
+            ENERGY_RECEIVER_BLOCK_ENTITY.get(),
+            EnergyReceiverBlockEntity::getEnergyCapability
         );
     }
 

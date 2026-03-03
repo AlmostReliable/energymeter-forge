@@ -10,7 +10,7 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
-import testmod.content.EnergyBlockEntity;
+import testmod.content.EnergyReceiverBlockEntity;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -77,7 +77,7 @@ public final class TestUtils {
     public record SimplePlotResult(
         MeterBlockEntity meterBlockEntity,
         Consumer<Integer> inputEnergyFunction,
-        EnergyBlockEntity outputEnergyBlockEntity,
+        EnergyReceiverBlockEntity outputEnergyBlockEntity,
         IEnergyStorage outputEnergyBlockCap
     ) {}
 
@@ -86,7 +86,7 @@ public final class TestUtils {
         private final GameTestHelper helper;
         private final MeterBlockEntity meterBlockEntity;
         private final Map<Direction, Consumer<Integer>> inputEnergyFunctions = new EnumMap<>(Direction.class);
-        private final Map<Direction, EnergyBlockEntity> outputEnergyBlockEntities = new EnumMap<>(Direction.class);
+        private final Map<Direction, EnergyReceiverBlockEntity> outputEnergyBlockEntities = new EnumMap<>(Direction.class);
         private final Map<Direction, IEnergyStorage> outputEnergyBlockCaps = new EnumMap<>(Direction.class);
 
         private PlotBuilder(GameTestHelper helper, MeterBlockEntity meterBlockEntity) {
@@ -126,8 +126,8 @@ public final class TestUtils {
             meterBlockEntity.getIoConfig().setSetting(outputDirection, IoSettingWithPriority.priorityOutput(priority));
 
             // place the test energy block on the configured side
-            helper.setBlock(DEFAULT_POS.relative(outputDirection), TestRegistration.ENERGY_BLOCK.get());
-            EnergyBlockEntity outputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(outputDirection));
+            helper.setBlock(DEFAULT_POS.relative(outputDirection), TestRegistration.ENERGY_RECEIVER_BLOCK.get());
+            EnergyReceiverBlockEntity outputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(outputDirection));
 
             // test whether the energy block is empty
             IEnergyStorage outputEnergyBlockCap = outputEnergyBlockEntity.getEnergyCapability(null);
@@ -168,7 +168,7 @@ public final class TestUtils {
         public record Result(
             MeterBlockEntity meterBlockEntity,
             Map<Direction, Consumer<Integer>> inputEnergyFunctions,
-            Map<Direction, EnergyBlockEntity> outputEnergyBlockEntities,
+            Map<Direction, EnergyReceiverBlockEntity> outputEnergyBlockEntities,
             Map<Direction, IEnergyStorage> outputEnergyBlockCaps
         ) {}
     }

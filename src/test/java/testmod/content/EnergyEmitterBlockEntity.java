@@ -19,17 +19,15 @@ import testmod.TestRegistration;
 
 import org.jetbrains.annotations.Nullable;
 
-public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockEntity {
+public class EnergyEmitterBlockEntity extends BlockEntity implements TickableMenuBlockEntity {
 
     private static final Direction[] DIRECTIONS = Direction.values();
     private static final String ENERGY_TO_EMIT_PER_TICK_ID = "energy_to_emit_per_tick";
 
-    private final ModifiableEnergyStorage energyStorage = new ModifiableEnergyStorage(200_000);
-
     private int energyToEmitPerTick;
 
-    public EnergyBlockEntity(BlockPos pos, BlockState blockState) {
-        super(TestRegistration.ENERGY_BLOCK_ENTITY.get(), pos, blockState);
+    public EnergyEmitterBlockEntity(BlockPos pos, BlockState blockState) {
+        super(TestRegistration.ENERGY_RECEIVER_BLOCK_ENTITY.get(), pos, blockState);
     }
 
     @Override
@@ -42,11 +40,6 @@ public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockE
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains(ENERGY_TO_EMIT_PER_TICK_ID)) energyToEmitPerTick = tag.getInt(ENERGY_TO_EMIT_PER_TICK_ID);
-    }
-
-    @Nullable
-    public IEnergyStorage getEnergyCapability(@Nullable Direction ignoredDirection) {
-        return energyStorage;
     }
 
     @Override
@@ -68,7 +61,7 @@ public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockE
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new EnergyBlockMenu(containerId, playerInventory, this);
+        return new EnergyEmitterBlockMenu(containerId, playerInventory, this);
     }
 
     public void setEnergyToEmitPerTick(int energyToEmitPerTick) {
@@ -77,13 +70,5 @@ public class EnergyBlockEntity extends BlockEntity implements TickableMenuBlockE
 
     public int getEnergyToEmitPerTick() {
         return energyToEmitPerTick;
-    }
-
-    public void setCapacity(int capacity) {
-        energyStorage.setMaxEnergyStored(capacity);
-    }
-
-    public int getCapacity() {
-        return energyStorage.getMaxEnergyStored();
     }
 }
