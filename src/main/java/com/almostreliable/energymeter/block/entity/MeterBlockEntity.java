@@ -56,7 +56,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private int transferLimit;
 
     // tracking & display
-    private int tickDelay;
     private double energyRate;
     private long lastEnergySyncTick;
     private long totalEnergy;
@@ -110,15 +109,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         if (tag.contains(Constants.ENERGY_RATE_ID)) energyRate = tag.getDouble(Constants.ENERGY_RATE_ID);
     }
 
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        if (level != null && !level.isClientSide) {
-            // TODO: test if this should be saved or if it's random enough on load after rejoining the world
-            tickDelay = (int) (DEFAULT_INTERVAL - (level.getGameTime() % DEFAULT_INTERVAL));
-        }
-    }
-
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int wid, Inventory playerInventory, Player player) {
@@ -132,10 +122,10 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             return;
         }
 
-        graphHandler.tick(level.getGameTime() + tickDelay, measureInterval);
+        graphHandler.tick(level.getGameTime(), measureInterval);
         energyHandler.tick();
 
-        if ((level.getGameTime() + tickDelay) % measureInterval == 0) {
+        if (level.getGameTime() % measureInterval == 0) {
             onIntervalReached(level);
         }
 
