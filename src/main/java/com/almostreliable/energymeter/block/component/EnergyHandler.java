@@ -103,7 +103,7 @@ public class EnergyHandler {
         return energyForwarded;
     }
 
-    public void tick() {
+    public void resetTickLimiter() {
         energyPerTick = 0;
     }
 

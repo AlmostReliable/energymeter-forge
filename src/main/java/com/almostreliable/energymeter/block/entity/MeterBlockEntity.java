@@ -28,6 +28,8 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.function.Supplier;
 
@@ -123,7 +125,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         }
 
         graphHandler.tick(level.getGameTime(), measureInterval);
-        energyHandler.tick();
+        energyHandler.resetTickLimiter();
 
         if (level.getGameTime() % measureInterval == 0) {
             onIntervalReached(level);
@@ -133,17 +135,23 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     private void onIntervalReached(ServerLevel level) {
+        boolean energyChanged = refreshEnergyValues();
+
+        // only sync if the value changed or every second at most (for clients without any info)
+        if (energyChanged || level.getGameTime() - lastEnergySyncTick >= 20) {
+            syncEnergyRate(level);
+        }
+
+        graphHandler.trackEnergyRate(energyRate);
+    }
+
+    @VisibleForTesting
+    public boolean refreshEnergyValues() {
         var measuredEnergy = energyHandler.calculateAndRestartCycle(measureInterval, measureMode == MeasureMode.SMOOTHED);
         var lastEnergyRate = energyRate;
         energyRate = measuredEnergy.average();
         totalEnergy += measuredEnergy.total();
-
-        graphHandler.trackEnergyRate(energyRate);
-
-        // only sync if the value changed or every second at most (for clients without any info)
-        if (lastEnergyRate != energyRate || level.getGameTime() - lastEnergySyncTick >= 20) {
-            syncEnergyRate(level);
-        }
+        return lastEnergyRate != energyRate;
     }
 
     private void syncEnergyRate(ServerLevel level) {
@@ -187,6 +195,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     public GraphHandler getGraphHandler() {
         return graphHandler;
+    }
+
+    @TestOnly
+    public EnergyHandler getEnergyHandler() {
+        return energyHandler;
     }
 
     public void toggleGraphPause() {

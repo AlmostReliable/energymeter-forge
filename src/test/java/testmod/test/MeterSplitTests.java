@@ -12,115 +12,121 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import testmod.TestMod;
 import testmod.TestUtils;
-import testmod.content.EnergyBlockEntity;
+import testmod.TestUtils.SimplePlotResult;
 
 @SuppressWarnings("NewMethodNamingConvention")
 @GameTestHolder(TestMod.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class MeterSplitTests {
 
-    @GameTest(setupTicks = MeterBlockEntity.DEFAULT_INTERVAL + 1, template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
     public void split_one_to_one(GameTestHelper helper) {
-        TestUtils.MeterWithIoResult meterWithIoResult = TestUtils.setupMeterWithIo(helper);
-        MeterBlockEntity meterBlockEntity = meterWithIoResult.meterBlockEntity();
-        EnergyBlockEntity inputEnergyBlockEntity = meterWithIoResult.inputEnergyBlockEntity();
-        IEnergyStorage outputEnergyBlockCap = meterWithIoResult.outputEnergyBlockCap();
+        // set up the plot
+        SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
 
-        // set transfer mode to transfer
+        MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
+        var inputEnergyFunction = plotResult.inputEnergyFunction();
+        IEnergyStorage outputEnergyBlockCap = plotResult.outputEnergyBlockCap();
+
+        // set transfer mode to split
         meterBlockEntity.setTransferMode(TransferMode.SPLIT);
 
-        // let input energy block emit energy towards the meter
+        // push energy towards the meter from the input side
         int energyPerTick = TestUtils.getRandomEnergyRate();
-        inputEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {
+            inputEnergyFunction.accept(energyPerTick);
+        }
 
-        helper.runAtTickTime(
-            MeterBlockEntity.DEFAULT_INTERVAL + 1,
-            () -> {
-                double energyRate = meterBlockEntity.getEnergyRate();
-                helper.assertTrue(
-                    energyRate == energyPerTick,
-                    String.format("expected energy rate to be equal to input energy rate of %s, but was %s", energyPerTick, energyRate)
-                );
+        // simulate a full interval
+        meterBlockEntity.refreshEnergyValues();
 
-                double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
-                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL;
-                helper.assertTrue(
-                    totalEnergyTransferred == expectedEnergyTransferred,
-                    String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
-                );
-
-                int energyStored = outputEnergyBlockCap.getEnergyStored();
-                int expectedEnergyStored = energyPerTick * (MeterBlockEntity.DEFAULT_INTERVAL + 1);
-                helper.assertTrue(
-                    energyStored == expectedEnergyStored,
-                    String.format("expected stored output energy of %s, but was %s", expectedEnergyStored, energyStored)
-                );
-
-                helper.succeed();
-            }
+        // check the values
+        double energyRate = meterBlockEntity.getEnergyRate();
+        helper.assertTrue(
+            energyRate == energyPerTick,
+            String.format("expected energy rate to be equal to input energy rate of %s, but was %s", energyPerTick, energyRate)
         );
+
+        double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+        int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL;
+        helper.assertTrue(
+            totalEnergyTransferred == expectedEnergyTransferred,
+            String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
+        );
+
+        int energyStored = outputEnergyBlockCap.getEnergyStored();
+        int expectedEnergyStored = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL;
+        helper.assertTrue(
+            energyStored == expectedEnergyStored,
+            String.format("expected stored output energy of %s, but was %s", expectedEnergyStored, energyStored)
+        );
+
+        helper.succeed();
     }
 
-    @GameTest(setupTicks = MeterBlockEntity.DEFAULT_INTERVAL + 1, template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
     public void split_three_to_one(GameTestHelper helper) {
+        // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .inputs(Direction.WEST, Direction.SOUTH, Direction.EAST)
             .output(Direction.UP)
             .build();
 
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
-        EnergyBlockEntity westInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.WEST);
-        EnergyBlockEntity southInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.SOUTH);
-        EnergyBlockEntity eastInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.EAST);
+        var westInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.WEST);
+        var southInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.SOUTH);
+        var eastInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.EAST);
         IEnergyStorage outputEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.UP);
 
-        // set transfer mode to transfer
+        // set transfer mode to split
         meterBlockEntity.setTransferMode(TransferMode.SPLIT);
 
-        // let input energy blocks emit energy towards the meter
+        // push energy towards the meter from the input sides
         int energyPerTick = TestUtils.getRandomEnergyRate();
-        westInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
-        southInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
-        eastInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {
+            westInEnergyFunction.accept(energyPerTick);
+            southInEnergyFunction.accept(energyPerTick);
+            eastInEnergyFunction.accept(energyPerTick);
+        }
 
-        helper.runAtTickTime(
-            MeterBlockEntity.DEFAULT_INTERVAL + 1,
-            () -> {
-                double energyRate = meterBlockEntity.getEnergyRate();
-                int expectedEnergyRate = energyPerTick * 3;
-                helper.assertTrue(
-                    energyRate == expectedEnergyRate,
-                    String.format("expected energy rate to be equal to input energy rate of %s, but was %s", expectedEnergyRate, energyRate)
-                );
+        // simulate a full interval
+        meterBlockEntity.refreshEnergyValues();
 
-                double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
-                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL * 3;
-                helper.assertTrue(
-                    totalEnergyTransferred == expectedEnergyTransferred,
-                    String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
-                );
-
-                int energyStored = outputEnergyBlockCap.getEnergyStored();
-                int expectedEnergyStored = energyPerTick * (MeterBlockEntity.DEFAULT_INTERVAL + 1) * 3;
-                helper.assertTrue(
-                    energyStored == expectedEnergyStored,
-                    String.format("expected stored output energy of %s, but was %s", expectedEnergyStored, energyStored)
-                );
-
-                helper.succeed();
-            }
+        // check the values
+        double energyRate = meterBlockEntity.getEnergyRate();
+        int expectedEnergyRate = energyPerTick * 3;
+        helper.assertTrue(
+            energyRate == expectedEnergyRate,
+            String.format("expected energy rate to be equal to input energy rate of %s, but was %s", expectedEnergyRate, energyRate)
         );
+
+        double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+        int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL * 3;
+        helper.assertTrue(
+            totalEnergyTransferred == expectedEnergyTransferred,
+            String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
+        );
+
+        int energyStored = outputEnergyBlockCap.getEnergyStored();
+        int expectedEnergyStored = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL * 3;
+        helper.assertTrue(
+            energyStored == expectedEnergyStored,
+            String.format("expected stored output energy of %s, but was %s", expectedEnergyStored, energyStored)
+        );
+
+        helper.succeed();
     }
 
-    @GameTest(setupTicks = MeterBlockEntity.DEFAULT_INTERVAL + 1, template = TestUtils.EMPTY_STRUCTURE)
-    public void split_one_to_three(GameTestHelper helper) {
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    public void split_one_to_three_even_energy(GameTestHelper helper) {
+        // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .input(Direction.UP)
             .outputs(Direction.WEST, Direction.SOUTH, Direction.EAST)
             .build();
 
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
-        EnergyBlockEntity inputEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.UP);
+        var inputEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.UP);
         IEnergyStorage westOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.WEST);
         IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
         IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
@@ -128,110 +134,103 @@ public class MeterSplitTests {
         // set transfer mode to split
         meterBlockEntity.setTransferMode(TransferMode.SPLIT);
 
-        int energyPerTickCalc = TestUtils.getRandomEnergyRate();
-        if (energyPerTickCalc % 3 != 0) {
-            energyPerTickCalc += 3 - (energyPerTickCalc % 3);
+        // push energy towards the meter from the input side
+        int energyPerTick = TestUtils.getRandomDivisibleEnergyRate(3);
+        for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {
+            inputEnergyFunction.accept(energyPerTick);
         }
-        int energyPerTick = energyPerTickCalc;
 
-        // let input energy block emit energy towards the meter
-        inputEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        // simulate a full interval
+        meterBlockEntity.refreshEnergyValues();
 
-        helper.runAtTickTime(
-            MeterBlockEntity.DEFAULT_INTERVAL + 1,
-            () -> {
-                double energyRate = meterBlockEntity.getEnergyRate();
-                helper.assertTrue(
-                    energyRate == energyPerTick,
-                    String.format("expected energy rate to be equal to input energy rate of %s, but was %s", energyPerTick, energyRate)
-                );
-
-                double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
-                int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL;
-                helper.assertTrue(
-                    totalEnergyTransferred == expectedEnergyTransferred,
-                    String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
-                );
-
-                int expectedEnergyStored = energyPerTick * (MeterBlockEntity.DEFAULT_INTERVAL + 1) / 3;
-                int westEnergyStored = westOutEnergyBlockCap.getEnergyStored();
-                helper.assertTrue(
-                    westEnergyStored == expectedEnergyStored,
-                    String.format("expected stored west output energy of %s, but was %s", expectedEnergyStored, westEnergyStored)
-                );
-                int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
-                helper.assertTrue(
-                    southEnergyStored == expectedEnergyStored,
-                    String.format("expected stored south output energy of %s, but was %s", expectedEnergyStored, southEnergyStored)
-                );
-                int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
-                helper.assertTrue(
-                    eastEnergyStored == expectedEnergyStored,
-                    String.format("expected stored east output energy of %s, but was %s", expectedEnergyStored, eastEnergyStored)
-                );
-
-                helper.succeed();
-            }
+        // check the values
+        double energyRate = meterBlockEntity.getEnergyRate();
+        helper.assertTrue(
+            energyRate == energyPerTick,
+            String.format("expected energy rate to be equal to input energy rate of %s, but was %s", energyPerTick, energyRate)
         );
+
+        double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+        int expectedEnergyTransferred = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL;
+        helper.assertTrue(
+            totalEnergyTransferred == expectedEnergyTransferred,
+            String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
+        );
+
+        int expectedEnergyStored = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL / 3;
+        int westEnergyStored = westOutEnergyBlockCap.getEnergyStored();
+        helper.assertTrue(
+            westEnergyStored == expectedEnergyStored,
+            String.format("expected stored west output energy of %s, but was %s", expectedEnergyStored, westEnergyStored)
+        );
+        int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
+        helper.assertTrue(
+            southEnergyStored == expectedEnergyStored,
+            String.format("expected stored south output energy of %s, but was %s", expectedEnergyStored, southEnergyStored)
+        );
+        int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+        helper.assertTrue(
+            eastEnergyStored == expectedEnergyStored,
+            String.format("expected stored east output energy of %s, but was %s", expectedEnergyStored, eastEnergyStored)
+        );
+
+        helper.succeed();
     }
 
-    @GameTest(setupTicks = MeterBlockEntity.DEFAULT_INTERVAL + 1, template = TestUtils.EMPTY_STRUCTURE)
-    public void split_two_to_two(GameTestHelper helper) {
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    public void split_two_to_two_even_energy(GameTestHelper helper) {
+        // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .inputs(Direction.UP, Direction.WEST)
             .outputs(Direction.SOUTH, Direction.EAST)
             .build();
 
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
-        EnergyBlockEntity upInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.UP);
-        EnergyBlockEntity westInEnergyBlockEntity = plotResult.inputEnergyBlockEntities().get(Direction.WEST);
+        var upInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.UP);
+        var westInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.WEST);
         IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
         IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
 
-        // set transfer mode to transfer
+        // set transfer mode to split
         meterBlockEntity.setTransferMode(TransferMode.SPLIT);
 
-        int energyPerTickCalc = TestUtils.getRandomEnergyRate();
-        if (energyPerTickCalc % 2 != 0) {
-            energyPerTickCalc += 2 - (energyPerTickCalc % 2);
+        // push energy towards the meter from the input sides
+        int energyPerTick = TestUtils.getRandomDivisibleEnergyRate(2);
+        for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {
+            upInEnergyFunction.accept(energyPerTick);
+            westInEnergyFunction.accept(energyPerTick);
         }
-        int energyPerTick = energyPerTickCalc;
 
-        // let input energy blocks emit energy towards the meter
-        upInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
-        westInEnergyBlockEntity.setEnergyToEmitPerTick(energyPerTick);
+        // simulate a full interval
+        meterBlockEntity.refreshEnergyValues();
 
-        helper.runAtTickTime(
-            MeterBlockEntity.DEFAULT_INTERVAL + 1,
-            () -> {
-                double energyRate = meterBlockEntity.getEnergyRate();
-                int expectedEnergyRate = energyPerTick * 2;
-                helper.assertTrue(
-                    energyRate == expectedEnergyRate,
-                    String.format("expected energy rate to be equal to input energy rate of %s, but was %s", expectedEnergyRate, energyRate)
-                );
-
-                double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
-                int expectedEnergyTransferred = energyPerTick * 2 * MeterBlockEntity.DEFAULT_INTERVAL;
-                helper.assertTrue(
-                    totalEnergyTransferred == expectedEnergyTransferred,
-                    String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
-                );
-
-                int expectedEnergyStored = (energyPerTick / 2) * 2 * (MeterBlockEntity.DEFAULT_INTERVAL + 1);
-                int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
-                helper.assertTrue(
-                    southEnergyStored == expectedEnergyStored,
-                    String.format("expected stored south output energy of %s, but was %s", expectedEnergyStored, southEnergyStored)
-                );
-                int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
-                helper.assertTrue(
-                    eastEnergyStored == expectedEnergyStored,
-                    String.format("expected stored east output energy of %s, but was %s", expectedEnergyStored, eastEnergyStored)
-                );
-
-                helper.succeed();
-            }
+        // check the values
+        double energyRate = meterBlockEntity.getEnergyRate();
+        int expectedEnergyRate = energyPerTick * 2;
+        helper.assertTrue(
+            energyRate == expectedEnergyRate,
+            String.format("expected energy rate to be equal to input energy rate of %s, but was %s", expectedEnergyRate, energyRate)
         );
+
+        double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+        int expectedEnergyTransferred = energyPerTick * 2 * MeterBlockEntity.DEFAULT_INTERVAL;
+        helper.assertTrue(
+            totalEnergyTransferred == expectedEnergyTransferred,
+            String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
+        );
+
+        int expectedEnergyStored = energyPerTick * MeterBlockEntity.DEFAULT_INTERVAL;
+        int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
+        helper.assertTrue(
+            southEnergyStored == expectedEnergyStored,
+            String.format("expected stored south output energy of %s, but was %s", expectedEnergyStored, southEnergyStored)
+        );
+        int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+        helper.assertTrue(
+            eastEnergyStored == expectedEnergyStored,
+            String.format("expected stored east output energy of %s, but was %s", expectedEnergyStored, eastEnergyStored)
+        );
+
+        helper.succeed();
     }
 }

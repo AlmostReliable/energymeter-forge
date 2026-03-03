@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public final class TestUtils {
 
@@ -52,27 +53,30 @@ public final class TestUtils {
         return 1_000 + (int) (Math.random() * 9_000);
     }
 
+    public static int getRandomDivisibleEnergyRate(int divisor) {
+        var randomEnergyRate = getRandomEnergyRate();
+        return randomEnergyRate - (randomEnergyRate % divisor);
+    }
+
     public static MeterBlockEntity setupMeter(GameTestHelper helper) {
         helper.setBlock(DEFAULT_POS, Registration.METER_BLOCK.get());
         return helper.getBlockEntity(DEFAULT_POS);
     }
 
-    public static MeterWithIoResult setupMeterWithIo(GameTestHelper helper) {
+    public static SimplePlotResult setupSimplePlot(GameTestHelper helper) {
         var plotResult = PlotBuilder.create(helper).input(Direction.WEST).output(Direction.EAST).build();
 
-        return new MeterWithIoResult(
+        return new SimplePlotResult(
             plotResult.meterBlockEntity,
-            plotResult.inputEnergyBlockEntities.get(Direction.WEST),
-            plotResult.inputEnergyBlockCaps.get(Direction.WEST),
+            plotResult.inputEnergyFunctions.get(Direction.WEST),
             plotResult.outputEnergyBlockEntities.get(Direction.EAST),
             plotResult.outputEnergyBlockCaps.get(Direction.EAST)
         );
     }
 
-    public record MeterWithIoResult(
+    public record SimplePlotResult(
         MeterBlockEntity meterBlockEntity,
-        EnergyBlockEntity inputEnergyBlockEntity,
-        IEnergyStorage inputEnergyBlockCap,
+        Consumer<Integer> inputEnergyFunction,
         EnergyBlockEntity outputEnergyBlockEntity,
         IEnergyStorage outputEnergyBlockCap
     ) {}
@@ -81,8 +85,7 @@ public final class TestUtils {
 
         private final GameTestHelper helper;
         private final MeterBlockEntity meterBlockEntity;
-        private final Map<Direction, EnergyBlockEntity> inputEnergyBlockEntities = new EnumMap<>(Direction.class);
-        private final Map<Direction, IEnergyStorage> inputEnergyBlockCaps = new EnumMap<>(Direction.class);
+        private final Map<Direction, Consumer<Integer>> inputEnergyFunctions = new EnumMap<>(Direction.class);
         private final Map<Direction, EnergyBlockEntity> outputEnergyBlockEntities = new EnumMap<>(Direction.class);
         private final Map<Direction, IEnergyStorage> outputEnergyBlockCaps = new EnumMap<>(Direction.class);
 
@@ -100,19 +103,12 @@ public final class TestUtils {
             // set io input configuration
             meterBlockEntity.getIoConfig().setSetting(inputDirection, IoSettingWithPriority.IN);
 
-            // place the test energy block on the configured side
-            helper.setBlock(DEFAULT_POS.relative(inputDirection), TestRegistration.ENERGY_BLOCK.get());
-            EnergyBlockEntity inputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(inputDirection));
-
-            // test whether the energy block is empty
-            IEnergyStorage inputEnergyBlockCap = inputEnergyBlockEntity.getEnergyCapability(null);
-            helper.assertTrue(
-                inputEnergyBlockCap != null && inputEnergyBlockCap.getEnergyStored() == 0,
-                "input energy block should be empty"
-            );
-
-            inputEnergyBlockEntities.put(inputDirection, inputEnergyBlockEntity);
-            inputEnergyBlockCaps.put(inputDirection, inputEnergyBlockCap);
+            // get the energy capability of the meter on the configured side
+            var capability = meterBlockEntity.getEnergyCapability(inputDirection);
+            if (capability == null) {
+                throw new GameTestAssertException("meter should have an energy capability on the configured input side: " + inputDirection);
+            }
+            inputEnergyFunctions.put(inputDirection, energy -> capability.receiveEnergy(energy, false));
 
             return this;
         }
@@ -159,13 +155,11 @@ public final class TestUtils {
         }
 
         public Result build() {
-            assert inputEnergyBlockEntities.size() == inputEnergyBlockCaps.size();
             assert outputEnergyBlockEntities.size() == outputEnergyBlockCaps.size();
 
             return new Result(
                 meterBlockEntity,
-                inputEnergyBlockEntities,
-                inputEnergyBlockCaps,
+                inputEnergyFunctions,
                 outputEnergyBlockEntities,
                 outputEnergyBlockCaps
             );
@@ -173,8 +167,7 @@ public final class TestUtils {
 
         public record Result(
             MeterBlockEntity meterBlockEntity,
-            Map<Direction, EnergyBlockEntity> inputEnergyBlockEntities,
-            Map<Direction, IEnergyStorage> inputEnergyBlockCaps,
+            Map<Direction, Consumer<Integer>> inputEnergyFunctions,
             Map<Direction, EnergyBlockEntity> outputEnergyBlockEntities,
             Map<Direction, IEnergyStorage> outputEnergyBlockCaps
         ) {}
