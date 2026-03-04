@@ -118,7 +118,7 @@ public class MeterSplitTests {
     }
 
     @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
-    public void split_one_to_three_even_energy(GameTestHelper helper) {
+    public void split_one_to_three(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .input(Direction.UP)
@@ -178,7 +178,7 @@ public class MeterSplitTests {
     }
 
     @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
-    public void split_two_to_two_even_energy(GameTestHelper helper) {
+    public void split_two_to_two(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .inputs(Direction.UP, Direction.WEST)
@@ -229,6 +229,77 @@ public class MeterSplitTests {
         helper.assertTrue(
             eastEnergyStored == expectedEnergyStored,
             String.format("expected stored east output energy of %s, but was %s", expectedEnergyStored, eastEnergyStored)
+        );
+
+        helper.succeed();
+    }
+
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
+    public void split_uneven_energy(GameTestHelper helper) {
+        // set up the plot
+        var plotResult = TestUtils.PlotBuilder.create(helper)
+            .input(Direction.UP)
+            .outputs(Direction.WEST, Direction.SOUTH, Direction.EAST)
+            .build();
+
+        MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
+        var inputEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.UP);
+        IEnergyStorage westOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.WEST);
+        IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
+        IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
+
+        // set transfer mode to split
+        meterBlockEntity.setTransferMode(TransferMode.SPLIT);
+
+        // push uneven energy amount to the meter from the input side
+        // only do one operation to check if the split mode correctly distributes the leftover
+        int energyPerTick = TestUtils.getRandomDivisibleEnergyRate(3) + 1;
+        inputEnergyFunction.accept(energyPerTick);
+
+        // simulate a full interval
+        meterBlockEntity.refreshEnergyValues();
+
+        // check the values
+        double energyRate = meterBlockEntity.getEnergyRate();
+        double expectedEnergyRate = (double) energyPerTick / MeterBlockEntity.DEFAULT_INTERVAL;
+        helper.assertTrue(
+            energyRate == expectedEnergyRate,
+            String.format("expected energy rate to be equal to input energy rate of %s, but was %s", expectedEnergyRate, energyRate)
+        );
+
+        double totalEnergyTransferred = meterBlockEntity.getTotalEnergy();
+        helper.assertTrue(
+            totalEnergyTransferred == energyPerTick,
+            String.format("expected total energy of %s, but was %s", energyPerTick, totalEnergyTransferred)
+        );
+
+        int westEnergyStored = westOutEnergyBlockCap.getEnergyStored();
+        int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
+        int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+        int sumEnergyStored = westEnergyStored + southEnergyStored + eastEnergyStored;
+        helper.assertTrue(
+            sumEnergyStored == energyPerTick,
+            String.format("expected stored output energy of %s, but was %s", energyPerTick, sumEnergyStored)
+        );
+
+        int min = Math.min(westEnergyStored, Math.min(southEnergyStored, eastEnergyStored));
+        int max = Math.max(westEnergyStored, Math.max(southEnergyStored, eastEnergyStored));
+        helper.assertTrue(
+            max - min <= 1,
+            String.format("expected balanced distribution, but min=%s max=%s", min, max)
+        );
+
+        int floor = energyPerTick / 3;
+        int ceil = (int) Math.ceil(energyPerTick / 3.0);
+
+        helper.assertTrue(
+            (westEnergyStored == floor || westEnergyStored == ceil) &&
+                (southEnergyStored == floor || southEnergyStored == ceil) &&
+                (eastEnergyStored == floor || eastEnergyStored == ceil),
+            String.format(
+                "expected each output to be %s or %s but was W:%s S:%s E:%s",
+                floor, ceil, westEnergyStored, southEnergyStored, eastEnergyStored
+            )
         );
 
         helper.succeed();
