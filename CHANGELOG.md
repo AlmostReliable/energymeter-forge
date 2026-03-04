@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- /
+
+## [0.3.2] - 2026-03-04
 
 - fixed world bricking when an output does not accept multiple energy pushes in a single tick in split mode
 - fixed logic to fill available outputs with their maximum voiding energy if the actual amount differs from the simulation
@@ -41,6 +44,7 @@ The new version is a complete rewrite of the 1.20.1 version.
 
 <!-- Versions -->
 
+[0.3.2]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.3.2
 [0.3.1]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.3.1
 [0.3.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.3.0
 [0.2.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.2.0
