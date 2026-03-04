@@ -175,28 +175,27 @@ public class EnergyHandler {
     private int splitEnergyBetweenOutputs(List<EnergyPerOutputEntry> outputs, int maxEnergyToForward) {
         if (outputs.isEmpty() || maxEnergyToForward <= 0) return 0;
 
-        // prevent bias when leftovers exist
-        Collections.shuffle(outputs);
-
         int energyToForward = maxEnergyToForward;
         var remainingOutputs = new ArrayList<>(outputs);
         var outputAllocations = new HashMap<EnergyPerOutputEntry, Integer>();
 
         while (!remainingOutputs.isEmpty() && energyToForward > 0) {
-            int equalSplit = energyToForward / remainingOutputs.size();
-            if (equalSplit == 0) equalSplit = 1;
+            int equalSplit = Math.max(1, energyToForward / remainingOutputs.size());
 
-            var fullOutputs = new ArrayList<EnergyPerOutputEntry>();
-            for (var entry : remainingOutputs) {
+            boolean anyOutputFull = false;
+            for (var it = remainingOutputs.iterator(); it.hasNext(); ) {
+                var entry = it.next();
                 var maxEnergy = entry.maxEnergy();
-                if (maxEnergy > equalSplit) continue;
 
-                outputAllocations.put(entry, maxEnergy);
-                energyToForward -= maxEnergy;
-                fullOutputs.add(entry);
+                if (maxEnergy <= equalSplit) {
+                    outputAllocations.put(entry, maxEnergy);
+                    energyToForward -= maxEnergy;
+                    it.remove();
+                    anyOutputFull = true;
+                }
             }
 
-            if (fullOutputs.isEmpty()) {
+            if (!anyOutputFull) {
                 // all remaining outputs can accept the equal split
                 for (var entry : remainingOutputs) {
                     int current = outputAllocations.getOrDefault(entry, 0);
@@ -206,12 +205,12 @@ public class EnergyHandler {
                 energyToForward -= equalSplit * remainingOutputs.size();
                 break;
             }
-
-            remainingOutputs.removeAll(fullOutputs);
         }
 
         // leftovers, can happen with less outputs than energy to forward
         if (energyToForward > 0) {
+            Collections.shuffle(outputs); // prevent bias
+
             for (var entry : remainingOutputs) {
                 int current = outputAllocations.getOrDefault(entry, 0);
                 int capacityLeft = entry.maxEnergy() - current;
