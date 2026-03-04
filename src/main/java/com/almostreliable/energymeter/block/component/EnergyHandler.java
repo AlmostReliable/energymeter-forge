@@ -76,7 +76,9 @@ public class EnergyHandler {
         var energyToForward = amount;
         var transferLimit = host.getTransferLimit();
         if (transferLimit > 0) {
-            energyToForward = Math.min(energyToForward, transferLimit - energyPerTick);
+            int remainingLimit = transferLimit - energyPerTick;
+            if (remainingLimit <= 0) return 0;
+            energyToForward = Math.min(energyToForward, remainingLimit);
         }
 
         MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(energyToForward);
