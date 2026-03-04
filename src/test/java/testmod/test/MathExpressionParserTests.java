@@ -19,7 +19,7 @@ import java.util.Optional;
 @PrefixGameTestTemplate(false)
 public class MathExpressionParserTests {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testBasicNumbers(GameTestHelper helper) {
         assertParseEquals(helper, "42", new BigDecimal("42"));
         assertParseEquals(helper, "3.14", new BigDecimal("3.14"));
@@ -31,7 +31,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testBasicArithmetic(GameTestHelper helper) {
         // addition
         assertParseEquals(helper, "2 + 3", new BigDecimal("5"));
@@ -56,7 +56,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testOperatorPrecedence(GameTestHelper helper) {
         // multiplication before addition
         assertParseEquals(helper, "2 + 3 * 4", new BigDecimal("14"));
@@ -73,7 +73,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testPowerOperations(GameTestHelper helper) {
         // basic power operations
         assertParseEquals(helper, "2 ^ 3", new BigDecimal("8"));
@@ -91,7 +91,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testNegativeNumbers(GameTestHelper helper) {
         // basic negative numbers
         assertParseEquals(helper, "-5", new BigDecimal("-5"));
@@ -114,7 +114,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testParentheses(GameTestHelper helper) {
         // basic parentheses
         assertParseEquals(helper, "(5)", new BigDecimal("5"));
@@ -138,7 +138,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testComplexExpressions(GameTestHelper helper) {
         // complex mixed operations
         assertParseEquals(helper, "2 + 3 * 4 ^ 2 - 1", new BigDecimal("49")); // 2 + 3 * 16 - 1 = 49
@@ -152,7 +152,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testWhitespace(GameTestHelper helper) {
         // various whitespace scenarios
         assertParseEquals(helper, " 5 ", new BigDecimal("5"));
@@ -164,7 +164,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testInvalidExpressions(GameTestHelper helper) {
         // null and empty inputs
         assertParseEmpty(helper, null);
@@ -203,7 +203,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testNegativePowers(GameTestHelper helper) {
         // test negative exponents (should work with proper division)
         assertParseEquals(helper, "2 ^ -1", new BigDecimal("0.5"));
@@ -213,7 +213,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testLargeNumbers(GameTestHelper helper) {
         // test with larger numbers
         assertParseEquals(helper, "1000000 + 2000000", new BigDecimal("3000000"));
@@ -222,7 +222,7 @@ public class MathExpressionParserTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_LOGIC_TESTS)
     public void testPrecisionAndRounding(GameTestHelper helper) {
         // test division that requires rounding
         Optional<BigDecimal> result = MathExpressionParser.parse("1 / 3");

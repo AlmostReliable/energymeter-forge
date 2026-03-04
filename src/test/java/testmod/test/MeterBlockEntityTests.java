@@ -24,7 +24,7 @@ import testmod.TestUtils;
 @PrefixGameTestTemplate(false)
 public class MeterBlockEntityTests {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
     public void defaults(GameTestHelper helper) {
         MeterBlockEntity meterBlockEntity = TestUtils.setupMeter(helper);
 
@@ -45,7 +45,7 @@ public class MeterBlockEntityTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
     public void energy_cap(GameTestHelper helper) {
         MeterBlockEntity meterBlockEntity = TestUtils.setupMeter(helper);
 

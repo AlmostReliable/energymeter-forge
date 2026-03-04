@@ -19,7 +19,7 @@ import testmod.TestUtils.SimplePlotResult;
 @PrefixGameTestTemplate(false)
 public class MeterConsumeTests {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
     public void consume_single(GameTestHelper helper) {
         // set up the plot
         SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
@@ -63,7 +63,7 @@ public class MeterConsumeTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
     public void consume_trio(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)

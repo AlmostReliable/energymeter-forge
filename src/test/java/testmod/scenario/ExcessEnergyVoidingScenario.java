@@ -26,7 +26,7 @@ import testmod.content.EnergyReceiverBlockEntity;
 @PrefixGameTestTemplate(false)
 public class ExcessEnergyVoidingScenario {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_SCENARIO)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_SCENARIOS)
     public void test(GameTestHelper helper) {
         // set up the plot
         SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);

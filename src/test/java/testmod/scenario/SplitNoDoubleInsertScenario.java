@@ -31,7 +31,7 @@ import testmod.content.EnergyReceiverBlockEntity;
 @PrefixGameTestTemplate(false)
 public class SplitNoDoubleInsertScenario {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_SCENARIO)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_SCENARIOS)
     public void test(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)

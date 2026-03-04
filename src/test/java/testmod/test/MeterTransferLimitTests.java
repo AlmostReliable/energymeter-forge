@@ -19,7 +19,7 @@ import testmod.TestUtils.SimplePlotResult;
 @PrefixGameTestTemplate(false)
 public class MeterTransferLimitTests {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
     public void limit_transfer_one_to_one(GameTestHelper helper) {
         // set up the plot
         SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
@@ -70,7 +70,7 @@ public class MeterTransferLimitTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
     public void limit_split_one_to_three(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
@@ -154,7 +154,7 @@ public class MeterTransferLimitTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
     public void limit_transfer_two_to_one(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
@@ -210,7 +210,7 @@ public class MeterTransferLimitTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE)
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
     public void limit_split_two_to_two(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
