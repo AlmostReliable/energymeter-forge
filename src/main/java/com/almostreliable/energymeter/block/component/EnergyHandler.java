@@ -18,6 +18,8 @@ import java.util.Map;
 
 public class EnergyHandler {
 
+    private static final int MAX_SPLIT_TRIES = 3;
+
     private final EnergyHandlerHost host;
     private final Map<Direction, ForwardingEnergyStorage> forwardingEnergyStorage = new EnumMap<>(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> outputCache = new EnumMap<>(Direction.class);
@@ -172,7 +174,10 @@ public class EnergyHandler {
         // prevent bias when the energy can't be split exactly between all outputs
         Collections.shuffle(maxEnergyPerOutput);
 
-        while (!maxEnergyPerOutput.isEmpty() && energyToForward > 0) {
+        // prevent infinite loop in case an output does not accept multiple operations per tick, see scenario test
+        var currentTry = 1;
+
+        while (currentTry <= MAX_SPLIT_TRIES && !maxEnergyPerOutput.isEmpty() && energyToForward > 0) {
             int energyToForwardPerOutput;
             if (energyToForward <= maxEnergyPerOutput.size()) {
                 energyToForwardPerOutput = (int) Math.ceil((float) energyToForward / maxEnergyPerOutput.size());
@@ -199,6 +204,7 @@ public class EnergyHandler {
             }
 
             fullOutputEntries.forEach(maxEnergyPerOutput::remove);
+            currentTry++;
         }
 
         return energyForwarded;

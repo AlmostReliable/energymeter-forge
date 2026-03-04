@@ -16,11 +16,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public final class TestUtils {
 
     public static final String EMPTY_STRUCTURE = "empty_test_structure";
+    public static final String BATCH_SCENARIO = "scenarios";
     public static final BlockPos DEFAULT_POS = new BlockPos(1, 2, 1);
 
     private TestUtils() {}
@@ -69,6 +71,7 @@ public final class TestUtils {
         return new SimplePlotResult(
             plotResult.meterBlockEntity,
             plotResult.inputEnergyFunctions.get(Direction.WEST),
+            plotResult.inputEnergyFunctionsWithResult.get(Direction.WEST),
             plotResult.outputEnergyBlockEntities.get(Direction.EAST),
             plotResult.outputEnergyBlockCaps.get(Direction.EAST)
         );
@@ -77,6 +80,7 @@ public final class TestUtils {
     public record SimplePlotResult(
         MeterBlockEntity meterBlockEntity,
         Consumer<Integer> inputEnergyFunction,
+        BiFunction<Integer, Boolean, Integer> inputEnergyFunctionWithResult,
         EnergyReceiverBlockEntity outputEnergyBlockEntity,
         IEnergyStorage outputEnergyBlockCap
     ) {}
@@ -85,7 +89,7 @@ public final class TestUtils {
 
         private final GameTestHelper helper;
         private final MeterBlockEntity meterBlockEntity;
-        private final Map<Direction, Consumer<Integer>> inputEnergyFunctions = new EnumMap<>(Direction.class);
+        private final Map<Direction, BiFunction<Integer, Boolean, Integer>> inputEnergyFunctionsWithResult = new EnumMap<>(Direction.class);
         private final Map<Direction, EnergyReceiverBlockEntity> outputEnergyBlockEntities = new EnumMap<>(Direction.class);
         private final Map<Direction, IEnergyStorage> outputEnergyBlockCaps = new EnumMap<>(Direction.class);
 
@@ -108,7 +112,7 @@ public final class TestUtils {
             if (capability == null) {
                 throw new GameTestAssertException("meter should have an energy capability on the configured input side: " + inputDirection);
             }
-            inputEnergyFunctions.put(inputDirection, energy -> capability.receiveEnergy(energy, false));
+            inputEnergyFunctionsWithResult.put(inputDirection, capability::receiveEnergy);
 
             return this;
         }
@@ -157,9 +161,17 @@ public final class TestUtils {
         public Result build() {
             assert outputEnergyBlockEntities.size() == outputEnergyBlockCaps.size();
 
+            var inputEnergyFunctions = new EnumMap<Direction, Consumer<Integer>>(Direction.class);
+            for (var entry : inputEnergyFunctionsWithResult.entrySet()) {
+                var inputDirection = entry.getKey();
+                var inputEnergyFunction = entry.getValue();
+                inputEnergyFunctions.put(inputDirection, energy -> inputEnergyFunction.apply(energy, false));
+            }
+
             return new Result(
                 meterBlockEntity,
                 inputEnergyFunctions,
+                inputEnergyFunctionsWithResult,
                 outputEnergyBlockEntities,
                 outputEnergyBlockCaps
             );
@@ -168,6 +180,7 @@ public final class TestUtils {
         public record Result(
             MeterBlockEntity meterBlockEntity,
             Map<Direction, Consumer<Integer>> inputEnergyFunctions,
+            Map<Direction, BiFunction<Integer, Boolean, Integer>> inputEnergyFunctionsWithResult,
             Map<Direction, EnergyReceiverBlockEntity> outputEnergyBlockEntities,
             Map<Direction, IEnergyStorage> outputEnergyBlockCaps
         ) {}

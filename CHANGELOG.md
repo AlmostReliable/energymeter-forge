@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- /
+
+- fixed world bricking when an output does not accept multiple energy pushes in a single tick in split mode
 
 ## [0.3.1] - 2026-02-28
 

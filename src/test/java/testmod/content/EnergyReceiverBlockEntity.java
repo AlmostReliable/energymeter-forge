@@ -27,7 +27,11 @@ public class EnergyReceiverBlockEntity extends BlockEntity {
         energyStorage.setMaxEnergyStored(capacity);
     }
 
-    public int getCapacity() {
-        return energyStorage.getMaxEnergyStored();
+    public void setMaxReceive(int max) {
+        energyStorage.setMaxReceive(max);
+    }
+
+    public void scheduleInsertionBlock() {
+        energyStorage.scheduleInsertionBlock();
     }
 }
