@@ -33,3 +33,4 @@ jobs:
     with:
       java-distribution: "microsoft"
       java-version: "21"
+      gametests: true
