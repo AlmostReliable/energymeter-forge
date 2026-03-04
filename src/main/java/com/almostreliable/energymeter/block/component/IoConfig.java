@@ -187,7 +187,7 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         }
     }
 
-    public enum IoSetting implements EnumExtension {
+    public enum IoSetting implements EnumExtension<IoSetting> {
 
         OFF(false, false),
         IN(true, false),

@@ -282,7 +282,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         DISCONNECTED, IDLE, SPLITTING, TRANSFERRING, CONSUMING
     }
 
-    public enum TransferMode implements EnumExtension {
+    public enum TransferMode implements EnumExtension<TransferMode> {
 
         SPLIT(true, true, ConnectionStatus.SPLITTING),
         TRANSFER(true, true, ConnectionStatus.TRANSFERRING),
