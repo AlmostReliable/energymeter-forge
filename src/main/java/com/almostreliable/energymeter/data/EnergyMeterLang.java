@@ -57,6 +57,9 @@ public final class EnergyMeterLang extends LanguageProvider {
     // button tooltips
     public static final LangEntry BUTTON_RESET_TOTAL_TOOLTIP = LangEntry.tooltip("reset_total_tooltip", "Pressing this button will reset the total energy transferred to zero. This is a destructive action and can't be undone.");
 
+    // text box tooltips
+    public static final LangEntry TEXTBOX_TOOLTIP_MAX = LangEntry.tooltip("textbox_tooltip_max", "Capped at max");
+
     // key tooltips
     public static final LangEntry KEY_DIRECTION = LangEntry.tooltip("key_direction", "Direction");
     public static final LangEntry KEY_CURRENT_SETTING = LangEntry.tooltip("key_current_setting", "Current Setting");

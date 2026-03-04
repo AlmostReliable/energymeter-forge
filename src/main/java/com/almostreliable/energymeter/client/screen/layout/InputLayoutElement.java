@@ -29,8 +29,7 @@ public class InputLayoutElement<T extends Enum<T>> implements LayoutElement {
     private final Button confirmButton;
 
     public InputLayoutElement(
-        T type, int width, Font font, Component label, Supplier<String> valueSupplier,
-        BiConsumer<T, Long> onValueUpdated
+        T type, int width, Font font, Component label, Supplier<String> valueSupplier, BiConsumer<T, Long> onValueUpdated
     ) {
         this.type = type;
         this.width = width;
@@ -95,5 +94,10 @@ public class InputLayoutElement<T extends Enum<T>> implements LayoutElement {
         label.visitWidgets(consumer);
         textBox.visitWidgets(consumer);
         confirmButton.visitWidgets(consumer);
+    }
+
+    public InputLayoutElement<T> withMaxValue(long maxValue) {
+        textBox.setMaxValue(maxValue);
+        return this;
     }
 }

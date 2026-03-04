@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- added mechanic and feedback to cap text boxes at their maximum values
 - fixed meter not supporting long-based transfer limit
+- fixed crash when text box value exceeds the maximum supported value
 
 ## [0.3.2] - 2026-03-04
 

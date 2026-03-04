@@ -32,7 +32,7 @@ public class EnergyEmitterBlockScreen extends SynchronizedContainerScreen<Energy
             Component.literal("Energy to emit:"),
             () -> String.valueOf(menu.getEnergyToEmitPerTick()),
             this::onTextValueUpdated
-        ));
+        ).withMaxValue(Integer.MAX_VALUE));
 
         layout.setPosition(leftPos, topPos);
         layout.arrangeElements();

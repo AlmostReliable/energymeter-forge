@@ -198,7 +198,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             EnergyMeterLang.SETTING_TOLERANCE.get().append(":"),
             () -> String.valueOf(menu.getZeroTolerance()),
             this::onTextValueUpdated
-        ));
+        ).withMaxValue(Integer.MAX_VALUE));
         settingsLayout.addChild(new InputLayoutElement<>(
             TextBoxType.MEASURE_INTERVAL,
             110,
@@ -206,7 +206,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             EnergyMeterLang.SETTING_INTERVAL.get().append(":"),
             () -> String.valueOf(menu.getMeasureInterval()),
             this::onTextValueUpdated
-        ));
+        ).withMaxValue(Integer.MAX_VALUE));
         var settingsComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_SETTINGS.get(), settingsLayout);
 
         var layout = LinearLayout.vertical().spacing(VERTICAL_ELEMENT_SPACING);

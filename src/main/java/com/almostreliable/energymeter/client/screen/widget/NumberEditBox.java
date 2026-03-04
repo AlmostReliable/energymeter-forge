@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.client.screen.widget;
 
 import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideListener;
 import com.almostreliable.energymeter.core.Constants;
+import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.util.MathExpressionParser;
 import com.almostreliable.energymeter.util.TooltipBuilder;
 
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FormattedCharSequence;
 
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -22,6 +24,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -41,15 +45,17 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     private final Supplier<String> valueSupplier;
     private final BooleanConsumer onValueEntered;
     private final Runnable onConfirm;
+    private final List<FormattedCharSequence> tooltip = new ArrayList<>();
 
+    private BigDecimal maxValue = BigDecimal.valueOf(Long.MAX_VALUE);
+    private boolean maxExceeded;
     private boolean newValueEntered;
     @Nullable
     private BigDecimal parsedValue;
-    @Nullable
-    private String tooltip;
 
     public NumberEditBox(
-        Font font, int width, int height, Supplier<String> valueSupplier, BooleanConsumer onValueEntered, Runnable onConfirm) {
+        Font font, int width, int height, Supplier<String> valueSupplier, BooleanConsumer onValueEntered, Runnable onConfirm
+    ) {
         super(font, width, height, Component.empty());
         this.valueSupplier = valueSupplier;
         this.onValueEntered = onValueEntered;
@@ -65,11 +71,11 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         updateValueFromServer();
         super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-        if (tooltip != null) {
+        if (!tooltip.isEmpty()) {
             var mc = Minecraft.getInstance();
-            var tooltipSequence = TooltipBuilder.create().literal(tooltip).build().toCharSequence(mc);
-            var tooltipWidth = mc.font.width(tooltipSequence.getFirst()) + 16;
-            guiGraphics.renderTooltip(mc.font, tooltipSequence, getX() + width - tooltipWidth, getY());
+            var posY = getY() - (maxExceeded ? 12 : 0);
+            var tooltipWidth = mc.font.width(tooltip.getFirst()) + 16;
+            guiGraphics.renderTooltip(mc.font, tooltip, getX() + width - tooltipWidth, posY);
         }
     }
 
@@ -133,11 +139,13 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
             reset();
             return;
         }
-        tooltip = null;
+        tooltip.clear();
+        maxExceeded = false;
     }
 
     private void onValueChanged(String text) {
-        tooltip = null;
+        tooltip.clear();
+        maxExceeded = false;
 
         validateAndUpdate();
 
@@ -253,20 +261,38 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         parsedValue = MathExpressionParser.parse(textValue).orElse(null);
         if (parsedValue == null) return;
 
+        maxExceeded = parsedValue.compareTo(maxValue) > 0;
+        if (maxExceeded) {
+            parsedValue = maxValue;
+        }
+
+        String tooltipText = null;
         if (parsedValue.scale() > 0) {
             parsedValue = parsedValue.setScale(0, RoundingMode.HALF_UP);
             if (isMathExpression) {
-                tooltip = "≈ " + parsedValue.toPlainString();
+                tooltipText = "≈ " + parsedValue.toPlainString();
             }
         } else if (isMathExpression) {
-            tooltip = "= " + parsedValue.toPlainString();
+            tooltipText = "= " + parsedValue.toPlainString();
+        }
+
+        if (tooltipText != null) {
+            var tooltipBuilder = TooltipBuilder.create();
+            if (maxExceeded) {
+                tooltipBuilder.literal(EnergyMeterLang.TEXTBOX_TOOLTIP_MAX.get().append(":"));
+            }
+            tooltipBuilder.literal(tooltipText);
+
+            var tooltipEntries = tooltipBuilder.build();
+            tooltip.addAll(tooltipEntries.toCharSequence(Minecraft.getInstance()));
         }
     }
 
     public void resetNoUpdate() {
         newValueEntered = false;
         parsedValue = null;
-        tooltip = null;
+        tooltip.clear();
+        maxExceeded = false;
     }
 
     private void reset() {
@@ -278,5 +304,9 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         Preconditions.checkNotNull(parsedValue, "value needs to be parsed first");
         Preconditions.checkArgument(parsedValue.scale() <= 0, "value needs to be rounded to a whole number");
         return parsedValue.longValue();
+    }
+
+    public void setMaxValue(long maxValue) {
+        this.maxValue = BigDecimal.valueOf(maxValue);
     }
 }
