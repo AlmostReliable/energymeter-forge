@@ -9,6 +9,7 @@ import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
+import com.google.common.primitives.Ints;
 import testmod.TestMod;
 
 import java.util.function.BiConsumer;
@@ -43,21 +44,21 @@ public class EnergyEmitterBlockScreen extends SynchronizedContainerScreen<Energy
         // no-op
     }
 
-    private void onTextValueUpdated(TextBoxType textBox, int value) {
+    private void onTextValueUpdated(TextBoxType textBox, long value) {
         sendClientAction(new TextValueClientAction<>(TestMod.UPDATE_TEXT_ID, textBox, value));
     }
 
     public enum TextBoxType implements TextValueClientAction.ValueConsumer<EnergyEmitterBlockEntity> {
-        ENERGY_TO_EMIT(EnergyEmitterBlockEntity::setEnergyToEmitPerTick);
+        ENERGY_TO_EMIT((be, value) -> be.setEnergyToEmitPerTick(Ints.saturatedCast(value)));
 
-        private final BiConsumer<EnergyEmitterBlockEntity, Integer> valueUpdater;
+        private final BiConsumer<EnergyEmitterBlockEntity, Long> valueUpdater;
 
-        TextBoxType(BiConsumer<EnergyEmitterBlockEntity, Integer> valueUpdater) {
+        TextBoxType(BiConsumer<EnergyEmitterBlockEntity, Long> valueUpdater) {
             this.valueUpdater = valueUpdater;
         }
 
         @Override
-        public void updateValue(EnergyEmitterBlockEntity blockEntity, int value) {
+        public void updateValue(EnergyEmitterBlockEntity blockEntity, long value) {
             valueUpdater.accept(blockEntity, value);
         }
     }

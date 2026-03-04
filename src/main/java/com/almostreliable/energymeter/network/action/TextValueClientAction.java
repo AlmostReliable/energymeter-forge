@@ -16,9 +16,9 @@ public class TextValueClientAction<E extends BlockEntity, M extends Synchronized
 
     private final ResourceLocation id;
     private final T textBox;
-    private final int value;
+    private final long value;
 
-    public TextValueClientAction(ResourceLocation id, T textBox, int value) {
+    public TextValueClientAction(ResourceLocation id, T textBox, long value) {
         this.id = id;
         this.textBox = textBox;
         this.value = value;
@@ -32,7 +32,7 @@ public class TextValueClientAction<E extends BlockEntity, M extends Synchronized
     @Override
     public void encode(CompoundTag tag) {
         tag.putInt(TEXT_BOX_ID, textBox.ordinal());
-        tag.putInt(VALUE_ID, value);
+        tag.putLong(VALUE_ID, value);
     }
 
     @Override
@@ -50,13 +50,14 @@ public class TextValueClientAction<E extends BlockEntity, M extends Synchronized
             if (ordinal < 0 || ordinal >= enumValues.length) {
                 throw new IllegalStateException("invalid enum ordinal: " + ordinal);
             }
-            int value = tag.getInt(VALUE_ID);
+            long value = tag.getLong(VALUE_ID);
             return new TextValueClientAction<>(id, enumValues[ordinal], value);
         };
     }
 
+    @FunctionalInterface
     public interface ValueConsumer<T extends BlockEntity> {
 
-        void updateValue(T blockEntity, int value);
+        void updateValue(T blockEntity, long value);
     }
 }

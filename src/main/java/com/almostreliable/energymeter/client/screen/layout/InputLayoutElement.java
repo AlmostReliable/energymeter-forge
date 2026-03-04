@@ -23,14 +23,14 @@ public class InputLayoutElement<T extends Enum<T>> implements LayoutElement {
     private final int width;
     private final int height;
     private final Supplier<String> valueSupplier;
-    private final BiConsumer<T, Integer> onValueUpdated;
+    private final BiConsumer<T, Long> onValueUpdated;
     private final MarqueeStringWidget label;
     private final NumberEditBox textBox;
     private final Button confirmButton;
 
     public InputLayoutElement(
         T type, int width, Font font, Component label, Supplier<String> valueSupplier,
-        BiConsumer<T, Integer> onValueUpdated
+        BiConsumer<T, Long> onValueUpdated
     ) {
         this.type = type;
         this.width = width;
@@ -51,7 +51,7 @@ public class InputLayoutElement<T extends Enum<T>> implements LayoutElement {
 
     private void onConfirm() {
         confirmButton.active = false;
-        var value = textBox.getIntValue();
+        var value = textBox.getLongValue();
         onValueUpdated.accept(type, value);
         textBox.resetNoUpdate();
     }

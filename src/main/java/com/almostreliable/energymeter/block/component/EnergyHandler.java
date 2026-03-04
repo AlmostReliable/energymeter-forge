@@ -23,7 +23,7 @@ public class EnergyHandler {
     private final Map<Direction, ForwardingEnergyStorage> forwardingEnergyStorage = new EnumMap<>(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> outputCache = new EnumMap<>(Direction.class);
 
-    private int energyPerTick;
+    private long energyPerTick; // tracks energy per tick from all sources to apply the transfer limit
     private long energyPerInterval;
     private double lastIntervalAverage;
 
@@ -76,9 +76,9 @@ public class EnergyHandler {
         var energyToForward = amount;
         var transferLimit = host.getTransferLimit();
         if (transferLimit > 0) {
-            int remainingLimit = transferLimit - energyPerTick;
+            long remainingLimit = transferLimit - energyPerTick;
             if (remainingLimit <= 0) return 0;
-            energyToForward = Math.min(energyToForward, remainingLimit);
+            energyToForward = Math.min(energyToForward, Ints.saturatedCast(remainingLimit));
         }
 
         MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(energyToForward);

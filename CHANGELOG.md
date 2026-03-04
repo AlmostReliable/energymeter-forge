@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- /
+
+- fixed meter not supporting long-based transfer limit
 
 ## [0.3.2] - 2026-03-04
 

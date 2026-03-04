@@ -55,13 +55,12 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private MeasureMode measureMode = MeasureMode.INSTANT;
     private int measureInterval = Config.COMMON.defaultInterval.getAsInt();
     private int zeroTolerance = Config.COMMON.defaultInterval.getAsInt();
-    private int transferLimit;
+    private long transferLimit;
 
     // tracking & display
     private double energyRate;
-    private long lastEnergySyncTick;
     private long totalEnergy;
-    private double zeroThreshold;
+    private long lastEnergySyncTick;
 
     // status
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
@@ -81,7 +80,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         tag.putString(MEASURE_MODE_ID, measureMode.name());
         tag.putInt(MEASURE_INTERVAL_ID, measureInterval);
         tag.putInt(ZERO_TOLERANCE_ID, zeroTolerance);
-        tag.putInt(TRANSFER_LIMIT_ID, transferLimit);
+        tag.putLong(TRANSFER_LIMIT_ID, transferLimit);
         tag.putLong(TOTAL_ENERGY_ID, totalEnergy);
     }
 
@@ -93,7 +92,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         if (tag.contains(MEASURE_MODE_ID)) measureMode = MeasureMode.valueOf(tag.getString(MEASURE_MODE_ID));
         if (tag.contains(MEASURE_INTERVAL_ID)) measureInterval = tag.getInt(MEASURE_INTERVAL_ID);
         if (tag.contains(ZERO_TOLERANCE_ID)) zeroTolerance = tag.getInt(ZERO_TOLERANCE_ID);
-        if (tag.contains(TRANSFER_LIMIT_ID)) transferLimit = tag.getInt(TRANSFER_LIMIT_ID);
+        if (tag.contains(TRANSFER_LIMIT_ID)) transferLimit = tag.getLong(TRANSFER_LIMIT_ID);
         if (tag.contains(TOTAL_ENERGY_ID)) totalEnergy = tag.getLong(TOTAL_ENERGY_ID);
     }
 
@@ -260,11 +259,11 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     @Override
-    public int getTransferLimit() {
+    public long getTransferLimit() {
         return transferLimit;
     }
 
-    public void setTransferLimit(int transferLimit) {
+    public void setTransferLimit(long transferLimit) {
         this.transferLimit = Math.max(transferLimit, 0);
         setChanged();
     }

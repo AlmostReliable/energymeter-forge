@@ -274,9 +274,9 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         updateValueFromServer();
     }
 
-    public int getIntValue() {
+    public long getLongValue() {
         Preconditions.checkNotNull(parsedValue, "value needs to be parsed first");
-        Preconditions.checkArgument(parsedValue.scale() <= 0, "value needs to be rounded to an integer");
-        return parsedValue.intValueExact();
+        Preconditions.checkArgument(parsedValue.scale() <= 0, "value needs to be rounded to a whole number");
+        return parsedValue.longValue();
     }
 }

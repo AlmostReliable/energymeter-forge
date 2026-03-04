@@ -39,6 +39,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
+import com.google.common.primitives.Ints;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -405,7 +406,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         sendClientAction(new EnumClientAction<>(ClientActionRegistry.MEASURE_MODE_ID, mode));
     }
 
-    private void onTextValueUpdated(TextBoxType textBox, int value) {
+    private void onTextValueUpdated(TextBoxType textBox, long value) {
         sendClientAction(new TextValueClientAction<>(ClientActionRegistry.UPDATE_TEXT_ID, textBox, value));
     }
 
@@ -430,18 +431,18 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     public enum TextBoxType implements TextValueClientAction.ValueConsumer<MeterBlockEntity> {
-        MEASURE_INTERVAL(MeterBlockEntity::setMeasureInterval),
-        ZERO_TOLERANCE(MeterBlockEntity::setZeroTolerance),
+        MEASURE_INTERVAL((be, value) -> be.setMeasureInterval(Ints.saturatedCast(value))),
+        ZERO_TOLERANCE((be, value) -> be.setZeroTolerance(Ints.saturatedCast(value))),
         TRANSFER_LIMIT(MeterBlockEntity::setTransferLimit);
 
-        private final BiConsumer<MeterBlockEntity, Integer> valueUpdater;
+        private final BiConsumer<MeterBlockEntity, Long> valueUpdater;
 
-        TextBoxType(BiConsumer<MeterBlockEntity, Integer> valueUpdater) {
+        TextBoxType(BiConsumer<MeterBlockEntity, Long> valueUpdater) {
             this.valueUpdater = valueUpdater;
         }
 
         @Override
-        public void updateValue(MeterBlockEntity blockEntity, int value) {
+        public void updateValue(MeterBlockEntity blockEntity, long value) {
             valueUpdater.accept(blockEntity, value);
         }
     }

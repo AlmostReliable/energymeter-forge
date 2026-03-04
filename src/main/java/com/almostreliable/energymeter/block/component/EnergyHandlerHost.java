@@ -20,5 +20,5 @@ public interface EnergyHandlerHost {
 
     TransferMode getTransferMode();
 
-    int getTransferLimit();
+    long getTransferLimit();
 }
