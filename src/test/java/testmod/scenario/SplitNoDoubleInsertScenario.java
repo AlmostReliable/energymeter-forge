@@ -24,7 +24,9 @@ import testmod.content.EnergyReceiverBlockEntity;
  * When an output is not full but does not accept multiple energy insertions per tick, the
  * while loop is never broken and the logic bricks the world.
  * <p>
- * This was fixed by a maximum operation threshold checked in the while loop.
+ * At first, this was fixed by a maximum operation threshold checked in the while loop.
+ * Later the logic was refactored to pre-calculate the maximum energy per output and then
+ * doing a single operation per output.
  */
 @SuppressWarnings("NewMethodNamingConvention")
 @GameTestHolder(TestMod.MOD_ID)

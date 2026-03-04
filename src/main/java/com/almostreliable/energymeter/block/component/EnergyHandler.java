@@ -13,12 +13,11 @@ import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class EnergyHandler {
-
-    private static final int MAX_SPLIT_TRIES = 3;
 
     private final EnergyHandlerHost host;
     private final Map<Direction, ForwardingEnergyStorage> forwardingEnergyStorage = new EnumMap<>(Direction.class);
@@ -67,6 +66,8 @@ public class EnergyHandler {
     }
 
     public int forwardEnergy(int amount, boolean simulate) {
+        if (amount <= 0) return 0;
+
         if (host.getTransferMode() == TransferMode.CONSUME) {
             if (!simulate) energyPerInterval += amount;
             return amount;
@@ -167,44 +168,67 @@ public class EnergyHandler {
         }
     }
 
-    private int splitEnergyBetweenOutputs(List<EnergyPerOutputEntry> maxEnergyPerOutput, int maxEnergyToForward) {
-        var energyToForward = maxEnergyToForward;
-        var energyForwarded = 0;
+    private int splitEnergyBetweenOutputs(List<EnergyPerOutputEntry> outputs, int maxEnergyToForward) {
+        if (outputs.isEmpty() || maxEnergyToForward <= 0) return 0;
 
-        // prevent bias when the energy can't be split exactly between all outputs
-        Collections.shuffle(maxEnergyPerOutput);
+        // prevent bias when leftovers exist
+        Collections.shuffle(outputs);
 
-        // prevent infinite loop in case an output does not accept multiple operations per tick, see scenario test
-        var currentTry = 1;
+        int energyToForward = maxEnergyToForward;
+        var remainingOutputs = new ArrayList<>(outputs);
+        var outputAllocations = new HashMap<EnergyPerOutputEntry, Integer>();
 
-        while (currentTry <= MAX_SPLIT_TRIES && !maxEnergyPerOutput.isEmpty() && energyToForward > 0) {
-            int energyToForwardPerOutput;
-            if (energyToForward <= maxEnergyPerOutput.size()) {
-                energyToForwardPerOutput = (int) Math.ceil((float) energyToForward / maxEnergyPerOutput.size());
-            } else {
-                energyToForwardPerOutput = energyToForward / maxEnergyPerOutput.size();
+        while (!remainingOutputs.isEmpty() && energyToForward > 0) {
+            int equalSplit = energyToForward / remainingOutputs.size();
+            if (equalSplit == 0) equalSplit = 1;
+
+            var fullOutputs = new ArrayList<EnergyPerOutputEntry>();
+            for (var entry : remainingOutputs) {
+                var maxEnergy = entry.maxEnergy();
+                if (maxEnergy > equalSplit) continue;
+
+                outputAllocations.put(entry, maxEnergy);
+                energyToForward -= maxEnergy;
+                fullOutputs.add(entry);
             }
-            var fullOutputEntries = new ArrayList<EnergyPerOutputEntry>();
 
-            for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
-                IEnergyStorage neighborEnergyStorage = outputEntry.energyStorage;
-                int maxEnergyForOutput = outputEntry.maxEnergy;
-                var energyToForwardForOutput = energyToForwardPerOutput;
-
-                if (maxEnergyForOutput < energyToForwardForOutput) {
-                    energyToForwardForOutput = maxEnergyForOutput;
-                    fullOutputEntries.add(outputEntry);
+            if (fullOutputs.isEmpty()) {
+                // all remaining outputs can accept the equal split
+                for (var entry : remainingOutputs) {
+                    int current = outputAllocations.getOrDefault(entry, 0);
+                    int add = Math.min(equalSplit, entry.maxEnergy() - current);
+                    outputAllocations.put(entry, current + add);
                 }
-
-                var energyAccepted = neighborEnergyStorage.receiveEnergy(energyToForwardForOutput, false);
-                energyToForward -= energyAccepted;
-                energyForwarded += energyAccepted;
-
-                if (energyToForward <= 0) break;
+                energyToForward -= equalSplit * remainingOutputs.size();
+                break;
             }
 
-            fullOutputEntries.forEach(maxEnergyPerOutput::remove);
-            currentTry++;
+            remainingOutputs.removeAll(fullOutputs);
+        }
+
+        // leftovers, can happen with less outputs than energy to forward
+        if (energyToForward > 0) {
+            for (var entry : remainingOutputs) {
+                int current = outputAllocations.getOrDefault(entry, 0);
+                int capacityLeft = entry.maxEnergy() - current;
+
+                if (capacityLeft <= 0) continue;
+
+                int add = Math.min(capacityLeft, energyToForward);
+                outputAllocations.put(entry, current + add);
+
+                energyToForward -= add;
+                if (energyToForward == 0) break;
+            }
+        }
+
+        int energyForwarded = 0;
+        for (var entry : outputs) {
+            int amount = outputAllocations.getOrDefault(entry, 0);
+            if (amount <= 0) continue;
+
+            int accepted = entry.energyStorage().receiveEnergy(amount, false);
+            energyForwarded += accepted;
         }
 
         return energyForwarded;
