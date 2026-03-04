@@ -83,16 +83,16 @@ public class EnergyHandler {
 
         MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(energyToForward);
         var maxEnergyPerOutput = maxEnergyPerOutputResult.maxEnergyPerOutput;
-        int maxEnergyPerOutputSum = maxEnergyPerOutputResult.maxEnergyPerOutputSum;
+        long maxEnergyPerOutputSum = maxEnergyPerOutputResult.maxEnergyPerOutputSum;
 
         if (maxEnergyPerOutputSum <= 0) return 0;
-        if (simulate) return Math.min(maxEnergyPerOutputSum, energyToForward);
+        if (simulate) return Ints.saturatedCast(Math.min(maxEnergyPerOutputSum, energyToForward));
 
         if (maxEnergyPerOutputSum <= energyToForward) {
-            fillOutputsWithMaxEnergy(maxEnergyPerOutput);
-            energyPerInterval += maxEnergyPerOutputSum;
-            energyPerTick += maxEnergyPerOutputSum;
-            return maxEnergyPerOutputSum;
+            var energyForwarded = fillOutputsWithMaxEnergy(maxEnergyPerOutput);
+            energyPerInterval += energyForwarded;
+            energyPerTick += energyForwarded;
+            return energyForwarded;
         }
 
         int energyForwarded = 0;
@@ -124,7 +124,7 @@ public class EnergyHandler {
             }
         }
 
-        return new MaxEnergyPerOutputResult(maxEnergyPerOutput, Ints.saturatedCast(maxEnergyPerOutputSum));
+        return new MaxEnergyPerOutputResult(maxEnergyPerOutput, maxEnergyPerOutputSum);
     }
 
     public Iterable<IEnergyStorage> getValidOutputEnergyStorages() {
@@ -162,12 +162,14 @@ public class EnergyHandler {
         return cache;
     }
 
-    private void fillOutputsWithMaxEnergy(List<EnergyPerOutputEntry> maxEnergyPerOutput) {
+    private int fillOutputsWithMaxEnergy(List<EnergyPerOutputEntry> maxEnergyPerOutput) {
+        int energyForwarded = 0;
         for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
             IEnergyStorage neighborEnergyStorage = outputEntry.energyStorage;
             int energyToReceiveMax = outputEntry.maxEnergy;
-            neighborEnergyStorage.receiveEnergy(energyToReceiveMax, false);
+            energyForwarded += neighborEnergyStorage.receiveEnergy(energyToReceiveMax, false);
         }
+        return energyForwarded;
     }
 
     private int splitEnergyBetweenOutputs(List<EnergyPerOutputEntry> outputs, int maxEnergyToForward) {
@@ -228,9 +230,7 @@ public class EnergyHandler {
         for (var entry : outputs) {
             int amount = outputAllocations.getOrDefault(entry, 0);
             if (amount <= 0) continue;
-
-            int accepted = entry.energyStorage().receiveEnergy(amount, false);
-            energyForwarded += accepted;
+            energyForwarded += entry.energyStorage().receiveEnergy(amount, false);
         }
 
         return energyForwarded;
@@ -255,5 +255,5 @@ public class EnergyHandler {
 
     private record EnergyPerOutputEntry(IEnergyStorage energyStorage, int maxEnergy) {}
 
-    private record MaxEnergyPerOutputResult(List<EnergyPerOutputEntry> maxEnergyPerOutput, int maxEnergyPerOutputSum) {}
+    private record MaxEnergyPerOutputResult(List<EnergyPerOutputEntry> maxEnergyPerOutput, long maxEnergyPerOutputSum) {}
 }

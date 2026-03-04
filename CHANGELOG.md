@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 
 - fixed world bricking when an output does not accept multiple energy pushes in a single tick in split mode
+- fixed logic to fill available outputs with their maximum voiding energy if the actual amount differs from the simulation
 - improved splitting logic to only do one transfer operation in a single tick
 
 ## [0.3.1] - 2026-02-28
