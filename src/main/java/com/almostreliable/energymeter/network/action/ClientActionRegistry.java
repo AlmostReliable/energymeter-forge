@@ -2,7 +2,7 @@ package com.almostreliable.energymeter.network.action;
 
 import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
-import com.almostreliable.energymeter.client.screen.MeterScreen;
+import com.almostreliable.energymeter.client.screen.MeterTextBoxType;
 import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
@@ -75,9 +75,9 @@ public final class ClientActionRegistry {
         ClientActionRegistry.register(IoSettingClientAction.ID, IoSettingClientAction::decode);
         ClientActionRegistry.register(
             UPDATE_TEXT_ID,
-            TextValueClientAction.<MeterBlockEntity, MeterMenu, MeterScreen.TextBoxType> decoder(
+            TextValueClientAction.<MeterBlockEntity, MeterMenu, MeterTextBoxType> decoder(
                 UPDATE_TEXT_ID,
-                MeterScreen.TextBoxType.class
+                MeterTextBoxType.class
             )
         );
 

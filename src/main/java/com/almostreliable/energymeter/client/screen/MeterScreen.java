@@ -3,7 +3,6 @@ package com.almostreliable.energymeter.client.screen;
 import com.almostreliable.energymeter.block.component.GraphHandler;
 import com.almostreliable.energymeter.block.component.GraphHandler.GraphPoint;
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
-import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
@@ -40,7 +39,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
-import com.google.common.primitives.Ints;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -52,7 +50,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
@@ -186,7 +183,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         var settingsLayout = LinearLayout.vertical().spacing(1);
         settingsLayout.addChild(new InputLayoutElement<>(
-            TextBoxType.TRANSFER_LIMIT,
+            MeterTextBoxType.TRANSFER_LIMIT,
             110,
             font,
             EnergyMeterLang.SETTING_LIMIT.get().append(":"),
@@ -194,7 +191,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             this::onTextValueUpdated
         ));
         settingsLayout.addChild(new InputLayoutElement<>(
-            TextBoxType.MEASURE_INTERVAL,
+            MeterTextBoxType.MEASURE_INTERVAL,
             110,
             font,
             EnergyMeterLang.SETTING_INTERVAL.get().append(":"),
@@ -202,7 +199,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             this::onTextValueUpdated
         ).withMaxValue(Integer.MAX_VALUE));
         settingsLayout.addChild(new InputLayoutElement<>(
-            TextBoxType.ZERO_TOLERANCE,
+            MeterTextBoxType.ZERO_TOLERANCE,
             110,
             font,
             EnergyMeterLang.SETTING_TOLERANCE.get().append(":"),
@@ -408,7 +405,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         sendClientAction(new EnumClientAction<>(ClientActionRegistry.MEASURE_MODE_ID, mode));
     }
 
-    private void onTextValueUpdated(TextBoxType textBox, long value) {
+    private void onTextValueUpdated(MeterTextBoxType textBox, long value) {
         sendClientAction(new TextValueClientAction<>(ClientActionRegistry.UPDATE_TEXT_ID, textBox, value));
     }
 
@@ -429,23 +426,6 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         TabType(Consumer<MeterScreen> init) {
             this.init = init;
-        }
-    }
-
-    public enum TextBoxType implements TextValueClientAction.ValueConsumer<MeterBlockEntity> {
-        TRANSFER_LIMIT(MeterBlockEntity::setTransferLimit),
-        MEASURE_INTERVAL((be, value) -> be.setMeasureInterval(Ints.saturatedCast(value))),
-        ZERO_TOLERANCE((be, value) -> be.setZeroTolerance(Ints.saturatedCast(value)));
-
-        private final BiConsumer<MeterBlockEntity, Long> valueUpdater;
-
-        TextBoxType(BiConsumer<MeterBlockEntity, Long> valueUpdater) {
-            this.valueUpdater = valueUpdater;
-        }
-
-        @Override
-        public void updateValue(MeterBlockEntity blockEntity, long value) {
-            valueUpdater.accept(blockEntity, value);
         }
     }
 }

@@ -9,7 +9,7 @@ import net.neoforged.fml.common.Mod;
 
 import testmod.content.EnergyEmitterBlockEntity;
 import testmod.content.EnergyEmitterBlockMenu;
-import testmod.content.EnergyEmitterBlockScreen;
+import testmod.content.EnergyMitterTextBoxType;
 
 @Mod(TestMod.MOD_ID)
 public final class TestMod {
@@ -21,9 +21,9 @@ public final class TestMod {
         TestRegistration.init(modEventBus);
         ClientActionRegistry.register(
             UPDATE_TEXT_ID,
-            TextValueClientAction.<EnergyEmitterBlockEntity, EnergyEmitterBlockMenu, EnergyEmitterBlockScreen.TextBoxType> decoder(
+            TextValueClientAction.<EnergyEmitterBlockEntity, EnergyEmitterBlockMenu, EnergyMitterTextBoxType> decoder(
                 UPDATE_TEXT_ID,
-                EnergyEmitterBlockScreen.TextBoxType.class
+                EnergyMitterTextBoxType.class
             )
         );
     }
