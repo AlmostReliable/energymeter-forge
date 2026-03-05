@@ -10,6 +10,8 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import com.google.common.primitives.Ints;
 
+import org.jetbrains.annotations.TestOnly;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -26,6 +28,7 @@ public class EnergyHandler {
     private long energyPerTick; // tracks energy per tick from all sources to apply the transfer limit
     private long energyPerInterval;
     private double lastIntervalAverage;
+    private int ticksWithoutEnergy;
 
     public EnergyHandler(EnergyHandlerHost host) {
         this.host = host;
@@ -39,7 +42,9 @@ public class EnergyHandler {
         return forwardingEnergyStorage.get(direction);
     }
 
-    public MeasuredEnergy calculateAndRestartCycle(int interval, boolean factorInLast) {
+    public MeasuredEnergy calculateAndRestartCycle(boolean factorInLast) {
+        int interval = host.getMeasureInterval();
+
         double average;
         if (factorInLast) {
             average = (energyPerInterval + lastIntervalAverage) / (interval + 1);
@@ -51,6 +56,7 @@ public class EnergyHandler {
         var result = new MeasuredEnergy(energyPerInterval, average);
         energyPerInterval = 0;
         energyPerTick = 0;
+        ticksWithoutEnergy = 0;
 
         return result;
     }
@@ -59,6 +65,7 @@ public class EnergyHandler {
         outputCache.clear();
         energyPerInterval = 0;
         energyPerTick = 0;
+        ticksWithoutEnergy = 0;
     }
 
     public void clearOutputCache(Direction direction) {
@@ -108,8 +115,18 @@ public class EnergyHandler {
         return energyForwarded;
     }
 
-    public void resetTickLimiter() {
-        energyPerTick = 0;
+    public void tick() {
+        if (energyPerTick > 0) {
+            ticksWithoutEnergy = 0;
+            energyPerTick = 0;
+            return;
+        }
+
+        ticksWithoutEnergy++;
+        if (ticksWithoutEnergy > host.getZeroTolerance()) {
+            energyPerInterval = 0;
+            calculateAndRestartCycle(false);
+        }
     }
 
     private MaxEnergyPerOutputResult calculateMaxEnergyPerOutput(int maxEnergyToForward) {
@@ -248,6 +265,11 @@ public class EnergyHandler {
         }
 
         return energyForwarded;
+    }
+
+    @TestOnly
+    public long getEnergyPerInterval() {
+        return energyPerInterval;
     }
 
     public record MeasuredEnergy(long total, double average) {}

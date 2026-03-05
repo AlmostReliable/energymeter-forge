@@ -124,7 +124,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         }
 
         graphHandler.tick(level.getGameTime(), measureInterval);
-        energyHandler.resetTickLimiter();
+        energyHandler.tick();
 
         if (level.getGameTime() % measureInterval == 0) {
             onIntervalReached(level);
@@ -146,7 +146,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     @VisibleForTesting
     public boolean refreshEnergyValues() {
-        var measuredEnergy = energyHandler.calculateAndRestartCycle(measureInterval, measureMode == MeasureMode.SMOOTHED);
+        var measuredEnergy = energyHandler.calculateAndRestartCycle(measureMode == MeasureMode.SMOOTHED);
         var lastEnergyRate = energyRate;
         energyRate = measuredEnergy.average();
         totalEnergy += measuredEnergy.total();
@@ -226,22 +226,24 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         setChanged();
     }
 
+    @Override
     public int getMeasureInterval() {
         return measureInterval;
     }
 
     public void setMeasureInterval(int measureInterval) {
-        this.measureInterval = Math.max(measureInterval, 5);
+        this.measureInterval = Math.max(measureInterval, DEFAULT_INTERVAL);
         graphHandler.clear();
         setChanged();
     }
 
+    @Override
     public int getZeroTolerance() {
         return zeroTolerance;
     }
 
     public void setZeroTolerance(int zeroTolerance) {
-        this.zeroTolerance = Math.max(zeroTolerance, 5);
+        this.zeroTolerance = Math.max(zeroTolerance, DEFAULT_INTERVAL);
         setChanged();
     }
 

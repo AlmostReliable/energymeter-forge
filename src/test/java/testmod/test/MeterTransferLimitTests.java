@@ -39,7 +39,7 @@ public class MeterTransferLimitTests {
         int energyPerTick = 1000;
         for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {
             inputEnergyFunction.accept(energyPerTick);
-            meterBlockEntity.getEnergyHandler().resetTickLimiter();
+            meterBlockEntity.getEnergyHandler().tick();
         }
 
         // simulate a full interval
@@ -96,7 +96,7 @@ public class MeterTransferLimitTests {
         int energyPerTick = 1200;
         for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {
             inputEnergyFunction.accept(energyPerTick);
-            meterBlockEntity.getEnergyHandler().resetTickLimiter();
+            meterBlockEntity.getEnergyHandler().tick();
         }
 
         // simulate a full interval
@@ -177,7 +177,7 @@ public class MeterTransferLimitTests {
         for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {
             upInEnergyFunction.accept(energyPerInputPerTick);
             westInEnergyFunction.accept(energyPerInputPerTick);
-            meterBlockEntity.getEnergyHandler().resetTickLimiter();
+            meterBlockEntity.getEnergyHandler().tick();
         }
 
         // simulate a full interval
@@ -233,7 +233,7 @@ public class MeterTransferLimitTests {
         for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {
             upInEnergyFunction.accept(energyPerInputPerTick);
             westInEnergyFunction.accept(energyPerInputPerTick);
-            meterBlockEntity.getEnergyHandler().resetTickLimiter();
+            meterBlockEntity.getEnergyHandler().tick();
         }
 
         // simulate a full interval

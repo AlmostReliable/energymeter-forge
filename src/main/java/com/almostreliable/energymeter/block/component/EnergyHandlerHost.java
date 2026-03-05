@@ -20,5 +20,9 @@ public interface EnergyHandlerHost {
 
     TransferMode getTransferMode();
 
+    int getMeasureInterval();
+
+    int getZeroTolerance();
+
     long getTransferLimit();
 }
