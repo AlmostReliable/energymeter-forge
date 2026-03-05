@@ -8,6 +8,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.client.screen.widget.DynamicMarqueeStringWidget;
+import com.almostreliable.energymeter.client.screen.widget.GuideButton;
 import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
 import com.almostreliable.energymeter.client.screen.widget.RadioButton;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
@@ -133,6 +134,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         FrameLayout.centerInRectangle(layout, leftPos, topPos, LEFT_PANE_WIDTH, GUI_HEIGHT);
 
         layout.visitWidgets(this::addRenderableWidget);
+        addRenderableWidget(new GuideButton(leftPos, topPos));
     }
 
     private void initTabs() {
@@ -192,19 +194,19 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             this::onTextValueUpdated
         ));
         settingsLayout.addChild(new InputLayoutElement<>(
-            TextBoxType.ZERO_TOLERANCE,
-            110,
-            font,
-            EnergyMeterLang.SETTING_TOLERANCE.get().append(":"),
-            () -> String.valueOf(menu.getZeroTolerance()),
-            this::onTextValueUpdated
-        ).withMaxValue(Integer.MAX_VALUE));
-        settingsLayout.addChild(new InputLayoutElement<>(
             TextBoxType.MEASURE_INTERVAL,
             110,
             font,
             EnergyMeterLang.SETTING_INTERVAL.get().append(":"),
             () -> String.valueOf(menu.getMeasureInterval()),
+            this::onTextValueUpdated
+        ).withMaxValue(Integer.MAX_VALUE));
+        settingsLayout.addChild(new InputLayoutElement<>(
+            TextBoxType.ZERO_TOLERANCE,
+            110,
+            font,
+            EnergyMeterLang.SETTING_TOLERANCE.get().append(":"),
+            () -> String.valueOf(menu.getZeroTolerance()),
             this::onTextValueUpdated
         ).withMaxValue(Integer.MAX_VALUE));
         var settingsComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_SETTINGS.get(), settingsLayout);
@@ -431,9 +433,9 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     public enum TextBoxType implements TextValueClientAction.ValueConsumer<MeterBlockEntity> {
+        TRANSFER_LIMIT(MeterBlockEntity::setTransferLimit),
         MEASURE_INTERVAL((be, value) -> be.setMeasureInterval(Ints.saturatedCast(value))),
-        ZERO_TOLERANCE((be, value) -> be.setZeroTolerance(Ints.saturatedCast(value))),
-        TRANSFER_LIMIT(MeterBlockEntity::setTransferLimit);
+        ZERO_TOLERANCE((be, value) -> be.setZeroTolerance(Ints.saturatedCast(value)));
 
         private final BiConsumer<MeterBlockEntity, Long> valueUpdater;
 

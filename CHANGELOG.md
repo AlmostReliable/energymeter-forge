@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - added config option and logic to disable meters connecting to each other (disallowed by default)
 - fixed meter not supporting long-based transfer limit
 - fixed crash when text box value exceeds the maximum supported value
+- changed order for interval and tolerance options in the GUI
 
 ## [0.3.2] - 2026-03-04
 
