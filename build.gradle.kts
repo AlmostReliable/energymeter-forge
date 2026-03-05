@@ -12,9 +12,11 @@ almostgradle.setup {
 neoForge {
     runs {
         configureEach {
-            systemProperties = mapOf(
-                "guideme.${almostgradle.modId}.guide.sources" to file("guidebook").absolutePath,
-                "guideme.${almostgradle.modId}.guide.sourcesNamespace" to almostgradle.modId,
+            systemProperties.putAll(
+                mapOf(
+                    "guideme.${almostgradle.modId}.guide.sources" to file("guidebook").absolutePath,
+                    "guideme.${almostgradle.modId}.guide.sourcesNamespace" to almostgradle.modId,
+                )
             )
         }
 
