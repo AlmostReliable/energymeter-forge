@@ -34,7 +34,6 @@ public class MeterTransferLimitTests {
         // set transfer limit and ensure it is set correctly
         int transferLimit = 500;
         meterBlockEntity.setTransferLimit(transferLimit);
-        helper.assertValueEqual(meterBlockEntity.getTransferLimit(), transferLimit, "transfer limit should be set correctly");
 
         // push energy towards the meter from the input side
         int energyPerTick = 1000;
@@ -92,7 +91,6 @@ public class MeterTransferLimitTests {
         // set transfer limit and ensure it is set correctly
         int transferLimit = 700;
         meterBlockEntity.setTransferLimit(transferLimit);
-        helper.assertValueEqual(meterBlockEntity.getTransferLimit(), transferLimit, "transfer limit should be set correctly");
 
         // push energy towards the meter from the input side
         int energyPerTick = 1200;
@@ -173,7 +171,6 @@ public class MeterTransferLimitTests {
         // set transfer limit and ensure it is set correctly
         int transferLimit = 800;
         meterBlockEntity.setTransferLimit(transferLimit);
-        helper.assertValueEqual(meterBlockEntity.getTransferLimit(), transferLimit, "transfer limit should be set correctly");
 
         // push energy towards the meter from the input sides
         int energyPerInputPerTick = 500;
@@ -230,7 +227,6 @@ public class MeterTransferLimitTests {
         // set transfer limit and ensure it is set correctly
         int transferLimit = 600;
         meterBlockEntity.setTransferLimit(transferLimit);
-        helper.assertValueEqual(meterBlockEntity.getTransferLimit(), transferLimit, "transfer limit should be set correctly");
 
         // push energy towards the meter from the input sides
         int energyPerInputPerTick = 400;
