@@ -279,7 +279,7 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
         if (tooltipText != null) {
             var tooltipBuilder = TooltipBuilder.create();
             if (maxExceeded) {
-                tooltipBuilder.literal(EnergyMeterLang.TEXTBOX_TOOLTIP_MAX.get().append(":"));
+                tooltipBuilder.literal(EnergyMeterLang.TEXTBOX_MAX_TOOLTIP.get().append(":"));
             }
             tooltipBuilder.literal(tooltipText);
 

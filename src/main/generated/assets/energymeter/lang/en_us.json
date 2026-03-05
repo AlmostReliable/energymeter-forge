@@ -47,6 +47,7 @@
   "tab_type.energymeter.redstone": "Redstone",
   "tooltip.energymeter.button_guide_missing": "Install GuideME to see the guide.",
   "tooltip.energymeter.button_guide_open": "Open guide",
+  "tooltip.energymeter.button_reset_total": "Pressing this button will reset the total energy transferred to zero. This is a destructive action and can't be undone.",
   "tooltip.energymeter.control_desc_cycle_next_setting": "Next setting",
   "tooltip.energymeter.control_desc_cycle_previous_setting": "Previous setting",
   "tooltip.energymeter.control_desc_reset_all_settings": "Reset all settings",
@@ -58,8 +59,7 @@
   "tooltip.energymeter.key_current_setting": "Current Setting",
   "tooltip.energymeter.key_direction": "Direction",
   "tooltip.energymeter.key_output_priority": "Output Priority",
-  "tooltip.energymeter.reset_total_tooltip": "Pressing this button will reset the total energy transferred to zero. This is a destructive action and can't be undone.",
-  "tooltip.energymeter.textbox_tooltip_max": "Capped at max",
+  "tooltip.energymeter.textbox_max": "Capped at max",
   "transfer_mode.energymeter.consume": "Consume",
   "transfer_mode.energymeter.split": "Split",
   "transfer_mode.energymeter.transfer": "Transfer"
