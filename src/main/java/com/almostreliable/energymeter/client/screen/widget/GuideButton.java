@@ -32,9 +32,7 @@ public class GuideButton extends AbstractButton {
     public void onPress() {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
-
-        var playerName = player.getDisplayName().getString();
-        player.connection.sendCommand("%s open %s energymeter:guide energymeter:interface.md".formatted(Constants.GUIDE_ME, playerName));
+        player.connection.sendCommand(Constants.GUIDE_ME + "c energymeter:guide open energymeter:interface.md");
     }
 
     @Override
