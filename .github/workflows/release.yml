@@ -39,7 +39,6 @@ jobs:
     with:
       java-distribution: "microsoft"
       java-version: "21"
-      gametests: true
       mod_name: "EnergyMeter"
       curseforge_id: "532169"
       modrinth_id: "MbejSZ2E"
