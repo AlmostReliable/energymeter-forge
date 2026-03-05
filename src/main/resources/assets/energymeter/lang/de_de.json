@@ -4,6 +4,7 @@
   "block.energymeter.monitor": "Externer Monitor",
   "item.energymeter.meter": "Energiemesser",
   "item.energymeter.monitor": "Externer Monitor",
+  "item.energymeter.guide": "Energiemesser Anleitung",
   "block_side.energymeter.back": "Hinten",
   "block_side.energymeter.bottom": "Unterseite",
   "block_side.energymeter.front": "Vorne",
@@ -58,6 +59,6 @@
   "tooltip.energymeter.control_desc_reset_all_settings": "Alles zurücksetzen",
   "tooltip.energymeter.control_desc_reset_setting": "Zurücksetzen",
   "tooltip.energymeter.control_desc_select_setting": "Einstellung wählen",
-  "tooltip.energymeter.reset_total_tooltip": "Das Betätigen dieses Knopfes wird die Gesamtenergie auf Null zurücksetzen. Das ist eine finale Aktion und kann nicht rückgängig gemacht werden.",
-  "tooltip.energymeter.textbox_tooltip_max": "Maximalwert erreicht"
+  "tooltip.energymeter.button_reset_total": "Das Betätigen dieses Knopfes wird die Gesamtenergie auf Null zurücksetzen. Das ist eine finale Aktion und kann nicht rückgängig gemacht werden.",
+  "tooltip.energymeter.textbox_max": "Maximalwert erreicht"
 }

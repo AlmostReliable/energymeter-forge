@@ -35,3 +35,10 @@ type = "OPTIONAL"
 versionRange = "[${cctVersion},)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies."${modId}"]]
+modId = "guideme"
+type = "OPTIONAL"
+versionRange = "[${guideMeVersion},)"
+ordering = "AFTER"
+side = "BOTH"

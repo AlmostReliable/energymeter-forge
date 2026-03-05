@@ -26,6 +26,9 @@ public interface Constants {
     String MULTIBLOCK_WIDTH_ID = "width";
     String MULTIBLOCK_HEIGHT_ID = "height";
 
+    // mods
+    String GUIDE_ME = "guideme";
+
     // colors
     int COLOR_ACCENT = 0xFF00_FFA2;
     int COLOR_GRAY = 0xFFBF_BFBF;

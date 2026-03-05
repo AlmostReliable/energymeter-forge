@@ -29,6 +29,9 @@ public final class EnergyMeterLang extends LanguageProvider {
 
     // @formatter:off
 
+    // items
+    public static final LangEntry ITEM_GUIDE = LangEntry.item("guide", "Energy Meter Guide");
+
     // header labels
     public static final LangEntry HEADER_CURRENT = LangEntry.label("header_current", "Current");
     public static final LangEntry HEADER_TOTAL = LangEntry.label("header_total", "Total");
@@ -56,6 +59,8 @@ public final class EnergyMeterLang extends LanguageProvider {
 
     // button tooltips
     public static final LangEntry BUTTON_RESET_TOTAL_TOOLTIP = LangEntry.tooltip("reset_total_tooltip", "Pressing this button will reset the total energy transferred to zero. This is a destructive action and can't be undone.");
+    public static final LangEntry BUTTON_GUIDE_MISSING_TOOLTIP = LangEntry.tooltip("button_guide_missing", "Install GuideME to see the guide.");
+    public static final LangEntry BUTTON_GUIDE_OPEN_TOOLTIP = LangEntry.tooltip("button_guide_open", "Open guide");
 
     // text box tooltips
     public static final LangEntry TEXTBOX_TOOLTIP_MAX = LangEntry.tooltip("textbox_tooltip_max", "Capped at max");
@@ -107,6 +112,10 @@ public final class EnergyMeterLang extends LanguageProvider {
             LangEntry entry = new LangEntry(String.format("%s.%s.%s", prefix, ModConstants.MOD_ID, id), value);
             ENTRIES.add(entry);
             return entry;
+        }
+
+        public static LangEntry item(String id, String value) {
+            return of("item", id, value);
         }
 
         private static LangEntry label(String id, String value) {

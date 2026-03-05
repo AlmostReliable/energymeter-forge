@@ -43,6 +43,8 @@ jobs:
       mod_name: "EnergyMeter"
       curseforge_id: "532169"
       modrinth_id: "MbejSZ2E"
+      dependencies: |
+        guideme(optional){curseforge:1173950}{modrinth:Ck4E7v7R}
       target_version: ${{ github.event.inputs.target_version }}
       update_type: ${{ github.event.inputs.update_type }}
       release_type: ${{ github.event.inputs.release_type }}

@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - added mechanic and feedback to cap text boxes at their maximum values
 - added zero tolerance implementation (previously, setting the option had no effect)
 - added config option and logic to disable meters connecting to each other (disallowed by default)
+- added GuideME integration
 - fixed meter not supporting long-based transfer limit
 - fixed crash when text box value exceeds the maximum supported value
 - changed order for interval and tolerance options in the GUI

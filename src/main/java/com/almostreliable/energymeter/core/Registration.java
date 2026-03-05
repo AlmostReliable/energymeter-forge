@@ -1,5 +1,6 @@
 package com.almostreliable.energymeter.core;
 
+import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.ModConstants;
 import com.almostreliable.energymeter.block.MeterBlock;
 import com.almostreliable.energymeter.block.MonitorBlock;
@@ -10,12 +11,16 @@ import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.menu.MonitorMenu;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,6 +34,8 @@ import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -62,7 +69,14 @@ public final class Registration {
             .title(EnergyMeterLang.LangEntry.of("tab", "main", ModConstants.MOD_NAME).get())
             .icon(METER_BLOCK::toStack)
             .noScrollBar()
-            .displayItems((features, output) -> output.acceptAll(getKnownItems()))
+            .displayItems((features, output) ->{
+                output.acceptAll(getKnownItems());
+                if (EnergyMeter.isModLoaded(Constants.GUIDE_ME)) {
+                    var guideStack = getGuideBookStack();
+                    if (guideStack == null) return;
+                    output.accept(guideStack);
+                }
+            })
             .build()
     );
 
@@ -102,7 +116,7 @@ public final class Registration {
         );
         ITEMS.registerSimpleBlockItem(block);
         EnergyMeterLang.LangEntry.of("block", id, name);
-        EnergyMeterLang.LangEntry.of("item", id, name);
+        EnergyMeterLang.LangEntry.item(id, name);
         return block;
     }
 
@@ -128,6 +142,22 @@ public final class Registration {
                 return factory.create(wid, playerInventory, blockEntityClass.cast(blockEntity));
             })
         );
+    }
+
+    @Nullable
+    private static ItemStack getGuideBookStack() {
+        var guideItem = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(Constants.GUIDE_ME, "guide"));
+        if (guideItem == Items.AIR) return null;
+
+        // noinspection unchecked
+        var guideComponent = (DataComponentType<ResourceLocation>) BuiltInRegistries.DATA_COMPONENT_TYPE
+            .get(ResourceLocation.fromNamespaceAndPath(Constants.GUIDE_ME, "guide_id"));
+        if (guideComponent == null) return null;
+
+        var guideStack = guideItem.getDefaultInstance();
+        guideStack.set(guideComponent, EnergyMeter.getRL("guide"));
+
+        return guideStack;
     }
 
     @FunctionalInterface

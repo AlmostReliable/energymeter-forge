@@ -9,6 +9,22 @@ almostgradle.setup {
     dataGen = "src/main/generated"
 }
 
+neoForge {
+    runs {
+        configureEach {
+            systemProperties = mapOf(
+                "guideme.${almostgradle.modId}.guide.sources" to file("guidebook").absolutePath,
+                "guideme.${almostgradle.modId}.guide.sourcesNamespace" to almostgradle.modId,
+            )
+        }
+
+        create("guide") {
+            client()
+            systemProperty("guideme.showOnStartup", "${almostgradle.modId}:guide!${almostgradle.modId}:${almostgradle.modId}.md")
+        }
+    }
+}
+
 repositories {
     // CC: Tweaked
     maven("https://maven.squiddev.cc/")
@@ -17,4 +33,12 @@ repositories {
 dependencies {
     // CC: Tweaked
     compileOnly("cc.tweaked:cc-tweaked-${almostgradle.minecraftVersion}-common-api:${almostgradle.getProperty("cctVersion")}")
+    // GuideME
+    runtimeOnly("org.appliedenergistics:guideme:${almostgradle.getProperty("guideMeVersion")}")
+}
+
+tasks.withType<Jar> {
+    from("guidebook") {
+        into("assets/guides/${almostgradle.modId}/guide")
+    }
 }

@@ -1,0 +1,14 @@
+{
+  "item_settings": {
+    "display_name": {
+      "type": "translatable",
+      "translate": "item.energymeter.guide"
+    },
+    "tooltip_lines": [
+      {
+        "text": "An introduction to the mod",
+        "color": "gray"
+      }
+    ]
+  }
+}

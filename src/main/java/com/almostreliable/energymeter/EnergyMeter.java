@@ -8,7 +8,9 @@ import com.almostreliable.energymeter.network.PacketHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.LoadingModList;
 
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
@@ -27,5 +29,13 @@ public final class EnergyMeter {
 
     public static ResourceLocation getRL(String key) {
         return ResourceLocation.fromNamespaceAndPath(ModConstants.MOD_ID, key);
+    }
+
+    public static boolean isModLoaded(String modId) {
+        var modList = ModList.get();
+        if (modList == null) {
+            return LoadingModList.get().getModFileById(modId) != null;
+        }
+        return modList.isLoaded(modId);
     }
 }
