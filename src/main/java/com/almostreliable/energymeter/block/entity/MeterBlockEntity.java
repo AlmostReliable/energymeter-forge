@@ -184,6 +184,15 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         // return empty storage on null direction because a few mod check this for cable connections
         if (direction == null) return EmptyEnergyStorage.INSTANCE;
         if (ioConfig.getSetting(direction).isDisabled()) return null;
+
+        var level = getLevel();
+        if (level instanceof ServerLevel serverLevel &&
+            serverLevel.getBlockState(worldPosition.relative(direction)).is(Registration.METER_BLOCK) &&
+            !Config.COMMON.allowMeterConnections.get()
+        ) {
+            return null;
+        }
+
         return energyHandler.getEnergyStorage(direction);
     }
 

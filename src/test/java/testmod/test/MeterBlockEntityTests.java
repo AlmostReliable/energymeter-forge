@@ -7,6 +7,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionStatus;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
+import com.almostreliable.energymeter.core.Registration;
 
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import testmod.TestMod;
 import testmod.TestUtils;
+import testmod.TestUtils.SimplePlotResult;
 
 @SuppressWarnings("NewMethodNamingConvention")
 @GameTestHolder(TestMod.MOD_ID)
@@ -94,6 +96,23 @@ public class MeterBlockEntityTests {
         int outputEnergyExtracted = inputEnergyCap.extractEnergy(1_000, false);
         helper.assertTrue(outputEnergyExtracted == 0, "energy meter output capability should not allow extraction");
         helper.assertFalse(outputEnergyCap.canReceive(), "energy meter output capability should not be able to receive energy");
+
+        helper.succeed();
+    }
+
+    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
+    public void meter_connection(GameTestHelper helper) {
+        // set up the plot
+        SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
+        helper.setBlock(TestUtils.DEFAULT_POS.relative(Direction.WEST), Registration.METER_BLOCK.get());
+
+        MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
+
+        // try to access the meter's energy capability from a direction where another meter is
+        TestUtils.assertNull(
+            meterBlockEntity.getEnergyCapability(Direction.WEST),
+            "energy meter should not allow connections to other meters"
+        );
 
         helper.succeed();
     }
