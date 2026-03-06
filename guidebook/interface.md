@@ -34,7 +34,7 @@ blocks, and changes to input and output configurations.
 
 The status **Disconnected** indicates that the required settings for the currently selected mode have not been configured. In most cases,
 this means that an input or output is missing. **Idle** means that all settings are configured correctly and the Energy Meter is waiting to
-transfer energy. The final status depends on the selected [transfer mode](interface.md#transfer-mode) and indicates that the
+transfer energy. The final status depends on the selected [transfer mode](interface.md#transferring) and indicates that the
 <ItemLink id="meter" components="rarity=epic"/> is currently processing requests and operating correctly.
 
 ### I/O Grid
@@ -44,7 +44,7 @@ requests. The front side cannot be configured because it is reserved for display
 using left-click or right-click. It is also possible to reset a single side instantly or reset all sides at once. More details can be found
 in the tooltips of the respective buttons.
 
-Whether a side can be configured as an input or output depends on the selected [transfer mode](interface.md#transfer-mode).
+Whether a side can be configured as an input or output depends on the selected [transfer mode](interface.md#transferring).
 
 <br clear="all" />
 ---
