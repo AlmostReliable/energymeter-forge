@@ -14,6 +14,7 @@ A [Minecraft] mod to easily measure your energy rates.
 [![Workflow Status][workflow_status_badge]][workflow_status_link]
 ![License][license_badge]
 [![Discord][discord_badge]][discord]
+[![Wiki][wiki_badge]][wiki]
 
 </div>
 
@@ -53,6 +54,7 @@ Redistribution of builds or rehosting is strictly prohibited.
 [workflow_status_badge]: https://img.shields.io/github/actions/workflow/status/almostreliable/energymeter/build.yml?branch=1.21.1&style=for-the-badge
 [license_badge]: https://img.shields.io/badge/License-ARR-ffa200?style=for-the-badge
 [discord_badge]: https://img.shields.io/discord/917251858974789693?color=5865f2&label=Discord&logo=discord&style=for-the-badge
+[wiki_badge]: https://img.shields.io/badge/Read%20the-Wiki-ba00ff?style=for-the-badge
 
 <!-- Badge Links -->
 [version_link]: https://github.com/AlmostReliable/energymeter/releases/latest
@@ -60,6 +62,7 @@ Redistribution of builds or rehosting is strictly prohibited.
 [modrinth]: https://modrinth.com/mod/energymeter
 [workflow_status_link]: https://github.com/AlmostReliable/energymeter/actions
 [discord]: https://discord.com/invite/ThFnwZCyYY
+[wiki]: http://docs.almostreliable.com/energymeter
 
 <!-- Links -->
 [minecraft]: https://www.minecraft.net/
