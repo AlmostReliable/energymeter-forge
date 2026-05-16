@@ -1,7 +1,7 @@
 ---
 navigation:
   title: Interface
-  parent: energymeter.md
+  parent: index.md
 ---
 
 # Energy Meter Interface

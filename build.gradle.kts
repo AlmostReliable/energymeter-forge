@@ -22,7 +22,7 @@ neoForge {
 
         create("guide") {
             client()
-            systemProperty("guideme.showOnStartup", "${almostgradle.modId}:guide!${almostgradle.modId}:${almostgradle.modId}.md")
+            systemProperty("guideme.showOnStartup", "${almostgradle.modId}:guide")
         }
     }
 }
@@ -41,6 +41,6 @@ dependencies {
 
 tasks.withType<Jar> {
     from("guidebook") {
-        into("assets/guides/${almostgradle.modId}/guide")
+        into("assets/${almostgradle.modId}/guides/${almostgradle.modId}/guide")
     }
 }
