@@ -6,7 +6,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import com.google.common.primitives.Ints;
 
@@ -23,7 +25,8 @@ public class EnergyHandler {
 
     private final EnergyHandlerHost host;
     private final Map<Direction, ForwardingEnergyStorage> forwardingEnergyStorage = new EnumMap<>(Direction.class);
-    private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> outputCache = new EnumMap<>(Direction.class);
+    private final Map<Direction, BlockCapabilityCache<EnergyHandler, Direction>> outputCache = new EnumMap<>(Direction.class);
+    private final SnapshotJournal<long[]> journal = new ThroughputJournal();
 
     private long energyPerTick; // tracks energy per tick from all sources to apply the transfer limit
     private long energyPerInterval;
@@ -38,7 +41,7 @@ public class EnergyHandler {
         }
     }
 
-    public IEnergyStorage getEnergyStorage(Direction direction) {
+    public ForwardingEnergyStorage getEnergyStorage(Direction direction) {
         return forwardingEnergyStorage.get(direction);
     }
 
@@ -72,11 +75,12 @@ public class EnergyHandler {
         outputCache.remove(direction);
     }
 
-    public int forwardEnergy(int amount, boolean simulate) {
+    public int forwardEnergy(int amount, TransactionContext transaction) {
         if (amount <= 0) return 0;
 
         if (host.getTransferMode() == TransferMode.CONSUME) {
-            if (!simulate) energyPerInterval += amount;
+            journal.updateSnapshots(transaction);
+            energyPerInterval += amount;
             return amount;
         }
 
@@ -88,15 +92,15 @@ public class EnergyHandler {
             energyToForward = Math.min(energyToForward, Ints.saturatedCast(remainingLimit));
         }
 
-        MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(energyToForward);
+        MaxEnergyPerOutputResult maxEnergyPerOutputResult = calculateMaxEnergyPerOutput(energyToForward, transaction);
         var maxEnergyPerOutput = maxEnergyPerOutputResult.maxEnergyPerOutput;
         long maxEnergyPerOutputSum = maxEnergyPerOutputResult.maxEnergyPerOutputSum;
 
         if (maxEnergyPerOutputSum <= 0) return 0;
-        if (simulate) return Ints.saturatedCast(Math.min(maxEnergyPerOutputSum, energyToForward));
 
         if (maxEnergyPerOutputSum <= energyToForward) {
-            var energyForwarded = fillOutputsWithMaxEnergy(maxEnergyPerOutput);
+            var energyForwarded = fillOutputsWithMaxEnergy(maxEnergyPerOutput, transaction);
+            journal.updateSnapshots(transaction);
             energyPerInterval += energyForwarded;
             energyPerTick += energyForwarded;
             return energyForwarded;
@@ -105,11 +109,12 @@ public class EnergyHandler {
         int energyForwarded = 0;
 
         if (host.getTransferMode() == TransferMode.SPLIT) {
-            energyForwarded = splitEnergyBetweenOutputs(maxEnergyPerOutput, energyToForward);
+            energyForwarded = splitEnergyBetweenOutputs(maxEnergyPerOutput, energyToForward, transaction);
         } else if (host.getTransferMode() == TransferMode.TRANSFER) {
-            energyForwarded = transferEnergyToOutputs(maxEnergyPerOutput, energyToForward);
+            energyForwarded = transferEnergyToOutputs(maxEnergyPerOutput, energyToForward, transaction);
         }
 
+        journal.updateSnapshots(transaction);
         energyPerInterval += energyForwarded;
         energyPerTick += energyForwarded;
         return energyForwarded;
@@ -129,12 +134,15 @@ public class EnergyHandler {
         }
     }
 
-    private MaxEnergyPerOutputResult calculateMaxEnergyPerOutput(int maxEnergyToForward) {
+    private MaxEnergyPerOutputResult calculateMaxEnergyPerOutput(int maxEnergyToForward, TransactionContext transaction) {
         List<EnergyPerOutputEntry> maxEnergyPerOutput = new ArrayList<>();
         long maxEnergyPerOutputSum = 0;
 
-        for (IEnergyStorage neighborEnergyStorage : getValidOutputEnergyStorages()) {
-            int maxAcceptedEnergy = neighborEnergyStorage.receiveEnergy(maxEnergyToForward, true);
+        for (EnergyHandler neighborEnergyStorage : getValidOutputEnergyStorages()) {
+            int maxAcceptedEnergy;
+            try (Transaction simulation = Transaction.open(transaction)) {
+                maxAcceptedEnergy = neighborEnergyStorage.insert(maxEnergyToForward, simulation);
+            }
             if (maxAcceptedEnergy > 0) {
                 maxEnergyPerOutput.add(new EnergyPerOutputEntry(neighborEnergyStorage, maxAcceptedEnergy));
                 maxEnergyPerOutputSum += maxAcceptedEnergy;
@@ -144,12 +152,12 @@ public class EnergyHandler {
         return new MaxEnergyPerOutputResult(maxEnergyPerOutput, maxEnergyPerOutputSum);
     }
 
-    public Iterable<IEnergyStorage> getValidOutputEnergyStorages() {
-        List<IEnergyStorage> outputEnergyStorages = new ArrayList<>();
+    public Iterable<EnergyHandler> getValidOutputEnergyStorages() {
+        List<EnergyHandler> outputEnergyStorages = new ArrayList<>();
 
         host.getIoConfig().forEachOutput(direction -> {
             var capabilityCache = getOrSetupCache(direction);
-            IEnergyStorage outputEnergyStorage = capabilityCache.getCapability();
+            var outputEnergyStorage = capabilityCache.getCapability();
             if (outputEnergyStorage == null) return;
 
             outputEnergyStorages.add(outputEnergyStorage);
@@ -158,7 +166,7 @@ public class EnergyHandler {
         return outputEnergyStorages;
     }
 
-    private BlockCapabilityCache<IEnergyStorage, Direction> getOrSetupCache(Direction direction) {
+    private BlockCapabilityCache<EnergyHandler, Direction> getOrSetupCache(Direction direction) {
         var cache = outputCache.get(direction);
         if (cache != null) return cache;
 
@@ -167,7 +175,7 @@ public class EnergyHandler {
         }
 
         cache = BlockCapabilityCache.create(
-            Capabilities.EnergyStorage.BLOCK,
+            Capabilities.Energy.BLOCK,
             level,
             host.getBlockPos().relative(direction),
             direction.getOpposite(),
@@ -179,17 +187,17 @@ public class EnergyHandler {
         return cache;
     }
 
-    private int fillOutputsWithMaxEnergy(List<EnergyPerOutputEntry> maxEnergyPerOutput) {
+    private int fillOutputsWithMaxEnergy(List<EnergyPerOutputEntry> maxEnergyPerOutput, TransactionContext transaction) {
         int energyForwarded = 0;
         for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
-            IEnergyStorage neighborEnergyStorage = outputEntry.energyStorage;
+            EnergyHandler neighborEnergyStorage = outputEntry.energyStorage;
             int energyToReceiveMax = outputEntry.maxEnergy;
-            energyForwarded += neighborEnergyStorage.receiveEnergy(energyToReceiveMax, false);
+            energyForwarded += neighborEnergyStorage.insert(energyToReceiveMax, transaction);
         }
         return energyForwarded;
     }
 
-    private int splitEnergyBetweenOutputs(List<EnergyPerOutputEntry> outputs, int maxEnergyToForward) {
+    private int splitEnergyBetweenOutputs(List<EnergyPerOutputEntry> outputs, int maxEnergyToForward, TransactionContext transaction) {
         if (outputs.isEmpty() || maxEnergyToForward <= 0) return 0;
 
         int energyToForward = maxEnergyToForward;
@@ -246,20 +254,20 @@ public class EnergyHandler {
         for (var entry : outputs) {
             int amount = outputAllocations.getOrDefault(entry, 0);
             if (amount <= 0) continue;
-            energyForwarded += entry.energyStorage().receiveEnergy(amount, false);
+            energyForwarded += entry.energyStorage().insert(amount, transaction);
         }
 
         return energyForwarded;
     }
 
-    private int transferEnergyToOutputs(List<EnergyPerOutputEntry> maxEnergyPerOutput, int maxEnergyToForward) {
+    private int transferEnergyToOutputs(List<EnergyPerOutputEntry> maxEnergyPerOutput, int maxEnergyToForward, TransactionContext transaction) {
         var energyToForward = maxEnergyToForward;
         var energyForwarded = 0;
 
         for (EnergyPerOutputEntry outputEntry : maxEnergyPerOutput) {
             if (energyToForward <= 0) return energyForwarded;
-            IEnergyStorage neighborEnergyStorage = outputEntry.energyStorage;
-            int energyAccepted = neighborEnergyStorage.receiveEnergy(energyToForward, false);
+            net.neoforged.neoforge.transfer.energy.EnergyHandler neighborEnergyStorage = outputEntry.energyStorage;
+            int energyAccepted = neighborEnergyStorage.insert(energyToForward, transaction);
             energyToForward -= energyAccepted;
             energyForwarded += energyAccepted;
         }
@@ -274,7 +282,21 @@ public class EnergyHandler {
 
     public record MeasuredEnergy(long total, double average) {}
 
-    private record EnergyPerOutputEntry(IEnergyStorage energyStorage, int maxEnergy) {}
+    private record EnergyPerOutputEntry(EnergyHandler energyStorage, int maxEnergy) {}
 
     private record MaxEnergyPerOutputResult(List<EnergyPerOutputEntry> maxEnergyPerOutput, long maxEnergyPerOutputSum) {}
+
+    private final class ThroughputJournal extends SnapshotJournal<long[]> {
+
+        @Override
+        protected long[] createSnapshot() {
+            return new long[]{energyPerInterval, energyPerTick};
+        }
+
+        @Override
+        protected void revertToSnapshot(long[] snapshot) {
+            energyPerInterval = snapshot[0];
+            energyPerTick = snapshot[1];
+        }
+    }
 }

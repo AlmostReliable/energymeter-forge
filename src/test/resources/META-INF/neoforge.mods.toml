@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[2,)"
+loaderVersion = "[11,)"
 license = "ARR"
 
 [[mixins]]

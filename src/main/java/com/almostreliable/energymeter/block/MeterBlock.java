@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -26,18 +27,15 @@ public class MeterBlock extends FacingEntityBlock {
 
     @Override
     protected void neighborChanged(
-        BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston
+        BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
         if (!(level instanceof ServerLevel serverLevel)) return;
 
-        var blockEntity = serverLevel.getBlockEntity(pos);
-        var newState = serverLevel.getBlockState(neighborPos);
-        if (blockEntity instanceof MeterBlockEntity meterBlockEntity && neighborBlock != newState.getBlock()) {
-            var vector = neighborPos.subtract(pos);
-            var direction = Direction.fromDelta(vector.getX(), vector.getY(), vector.getZ());
-            if (direction == null) return;
-            meterBlockEntity.onNeighborBlockChange(direction);
+        if (serverLevel.getBlockEntity(pos) instanceof MeterBlockEntity meterBlockEntity) {
+            for (Direction direction : Direction.values()) {
+                meterBlockEntity.onNeighborBlockChange(direction);
+            }
         }
     }
 }

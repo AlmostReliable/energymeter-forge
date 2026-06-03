@@ -4,7 +4,7 @@ import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
 import com.almostreliable.energymeter.network.action.ClientActionRegistry.Decoder;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -14,18 +14,18 @@ public class TextValueClientAction<E extends BlockEntity, M extends Synchronized
     private static final String TEXT_BOX_ID = "text_box";
     private static final String VALUE_ID = "value";
 
-    private final ResourceLocation id;
+    private final Identifier id;
     private final T textBox;
     private final long value;
 
-    public TextValueClientAction(ResourceLocation id, T textBox, long value) {
+    public TextValueClientAction(Identifier id, T textBox, long value) {
         this.id = id;
         this.textBox = textBox;
         this.value = value;
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return id;
     }
 
@@ -42,15 +42,15 @@ public class TextValueClientAction<E extends BlockEntity, M extends Synchronized
 
     public static <E extends BlockEntity, M extends SynchronizedContainerMenu<E>,
         T extends Enum<T> & ValueConsumer<E>> Decoder<TextValueClientAction<E, M, T>>
-    decoder(ResourceLocation id, Class<T> enumClass) {
+    decoder(Identifier id, Class<T> enumClass) {
         T[] enumValues = enumClass.getEnumConstants();
 
         return tag -> {
-            int ordinal = tag.getInt(TEXT_BOX_ID);
+            int ordinal = tag.getIntOr(TEXT_BOX_ID, -1);
             if (ordinal < 0 || ordinal >= enumValues.length) {
                 throw new IllegalStateException("invalid enum ordinal: " + ordinal);
             }
-            long value = tag.getLong(VALUE_ID);
+            long value = tag.getLongOr(VALUE_ID, 0);
             return new TextValueClientAction<>(id, enumValues[ordinal], value);
         };
     }

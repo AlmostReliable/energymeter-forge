@@ -6,9 +6,10 @@ import com.almostreliable.energymeter.data.EnergyMeterLang.LangEntry;
 import com.almostreliable.energymeter.util.TexRenderer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.layouts.EqualSpacingLayout;
 import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 
@@ -57,7 +58,7 @@ public final class RadioButton<T extends Enum<T>> extends LayoutPositionedButton
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         if (isSelected.get()) return;
         onSelect.run();
     }
@@ -69,7 +70,7 @@ public final class RadioButton<T extends Enum<T>> extends LayoutPositionedButton
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         TexRenderer buttonIcon;
         if (isHovered) {
             buttonIcon = isSelected.get() ? SELECTED_HOVERED : UNSELECTED_HOVERED;
@@ -78,7 +79,7 @@ public final class RadioButton<T extends Enum<T>> extends LayoutPositionedButton
             setFocused(false);
         }
 
-        buttonIcon.target(getX(), getY()).render(guiGraphics);
-        guiGraphics.drawString(font, getMessage(), getX() + TEXTURE_SIZE / 2 + HORIZONTAL_SPACING, getY() + 2, Constants.COLOR_WHITE);
+        buttonIcon.target(getX(), getY()).render(graphics);
+        graphics.text(font, getMessage(), getX() + TEXTURE_SIZE / 2 + HORIZONTAL_SPACING, getY() + 2, Constants.COLOR_WHITE, false);
     }
 }

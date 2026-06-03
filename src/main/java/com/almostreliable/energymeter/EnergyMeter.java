@@ -5,7 +5,7 @@ import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.data.DataGeneration;
 import com.almostreliable.energymeter.network.PacketHandler;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
@@ -24,11 +24,12 @@ public final class EnergyMeter {
         Registration.init(modEventBus);
         PacketHandler.init(modEventBus);
         Config.init(modContainer);
-        modEventBus.addListener(DataGeneration::init);
+        modEventBus.addListener(DataGeneration::initClient);
+        modEventBus.addListener(DataGeneration::initServer);
     }
 
-    public static ResourceLocation getRL(String key) {
-        return ResourceLocation.fromNamespaceAndPath(ModConstants.MOD_ID, key);
+    public static Identifier getRL(String key) {
+        return Identifier.fromNamespaceAndPath(ModConstants.MOD_ID, key);
     }
 
     public static boolean isModLoaded(String modId) {

@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -103,7 +103,19 @@ public final class Registration {
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, METER_BLOCK_ENTITY.get(), MeterBlockEntity::getEnergyCapability);
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, METER_BLOCK_ENTITY.get(), MeterBlockEntity::getEnergyCapability);
+    }
+
+    public static BlockEntityType<MeterBlockEntity> meterBlockEntityType() {
+        return METER_BLOCK_ENTITY.get();
+    }
+
+    public static BlockEntityType<MonitorBlockEntity> monitorBlockEntityType() {
+        return MONITOR_BLOCK_ENTITY.get();
+    }
+
+    public static Block meterBlock() {
+        return METER_BLOCK.get();
     }
 
     private static <B extends Block> DeferredBlock<B> registerBlock(
@@ -112,7 +124,7 @@ public final class Registration {
         var block = BLOCKS.registerBlock(
             id,
             factory,
-            BlockBehaviour.Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL)
+            () -> BlockBehaviour.Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL)
         );
         ITEMS.registerSimpleBlockItem(block);
         EnergyMeterLang.LangEntry.of("block", id, name);
@@ -124,7 +136,7 @@ public final class Registration {
     private static <E extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<E>> registerBlockEntity(
         DeferredBlock<?> block, BlockEntityType.BlockEntitySupplier<E> factory
     ) {
-        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> BlockEntityType.Builder.of(factory, block.get()).build(null));
+        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> new BlockEntityType<E>(factory, (Block) block.get()));
     }
 
     private static <M extends AbstractContainerMenu, E extends BlockEntity> DeferredHolder<MenuType<?>, MenuType<M>> registerMenu(
@@ -146,12 +158,12 @@ public final class Registration {
 
     @Nullable
     private static ItemStack getGuideBookStack() {
-        var guideItem = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(Constants.GUIDE_ME, "guide"));
+        var guideItem = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath(Constants.GUIDE_ME, "guide"));
         if (guideItem == Items.AIR) return null;
 
         // noinspection unchecked
-        var guideComponent = (DataComponentType<ResourceLocation>) BuiltInRegistries.DATA_COMPONENT_TYPE
-            .get(ResourceLocation.fromNamespaceAndPath(Constants.GUIDE_ME, "guide_id"));
+        var guideComponent = (DataComponentType<Identifier>) BuiltInRegistries.DATA_COMPONENT_TYPE
+            .getValue(Identifier.fromNamespaceAndPath(Constants.GUIDE_ME, "guide_id"));
         if (guideComponent == null) return null;
 
         var guideStack = guideItem.getDefaultInstance();

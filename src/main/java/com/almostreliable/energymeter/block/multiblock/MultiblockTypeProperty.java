@@ -6,11 +6,10 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import java.util.List;
 
-public final class MultiblockTypeProperty extends EnumProperty<MultiblockType> {
+public final class MultiblockTypeProperty {
 
-    public static final MultiblockTypeProperty INSTANCE = new MultiblockTypeProperty();
+    public static final EnumProperty<MultiblockType> INSTANCE =
+        EnumProperty.create(Constants.MULTIBLOCK_TYPE_PROP, MultiblockType.class, List.of(MultiblockType.values()));
 
-    private MultiblockTypeProperty() {
-        super(Constants.MULTIBLOCK_TYPE_PROP, MultiblockType.class, List.of(MultiblockType.values()));
-    }
+    private MultiblockTypeProperty() {}
 }

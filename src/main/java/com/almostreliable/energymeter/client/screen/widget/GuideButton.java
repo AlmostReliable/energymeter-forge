@@ -6,9 +6,10 @@ import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.util.TooltipBuilder;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
 public class GuideButton extends AbstractButton {
@@ -24,12 +25,13 @@ public class GuideButton extends AbstractButton {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        renderString(guiGraphics, Minecraft.getInstance().font, Constants.COLOR_WHITE);
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        var font = Minecraft.getInstance().font;
+        graphics.text(font, getMessage(), getX() + (SIZE - font.width(getMessage())) / 2, getY() + (SIZE - font.lineHeight) / 2, Constants.COLOR_WHITE, false);
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
         player.connection.sendCommand(Constants.GUIDE_ME + "c energymeter:guide open energymeter:interface.md");

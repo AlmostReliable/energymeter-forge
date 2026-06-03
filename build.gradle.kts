@@ -1,11 +1,13 @@
 plugins {
-    id("net.neoforged.moddev") version "2.0.80"
-    id("com.almostreliable.almostgradle") version "1.5.0"
+    id("net.neoforged.moddev") version "2.0.141"
+    id("com.almostreliable.almostgradle") version "2.1.1"
 }
 
 almostgradle.setup {
     withSourcesJar = false
-    testMod = true
+    tests {
+        testMod = true
+    }
     dataGen = "src/main/generated"
 }
 

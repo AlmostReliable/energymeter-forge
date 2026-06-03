@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -36,9 +37,9 @@ import java.util.Map;
 public class MonitorBlock extends FacingEntityBlock {
 
     public static final BooleanProperty CONTROLLER = BooleanProperty.create(Constants.CONTROLLER_PROP);
-    public static final OptionalDirectionProperty HORIZONTAL = OptionalDirectionProperty.HORIZONTAL;
-    public static final OptionalDirectionProperty VERTICAL = OptionalDirectionProperty.VERTICAL;
-    public static final MultiblockTypeProperty TYPE = MultiblockTypeProperty.INSTANCE;
+    public static final EnumProperty<OptionalDirection> HORIZONTAL = OptionalDirectionProperty.HORIZONTAL;
+    public static final EnumProperty<OptionalDirection> VERTICAL = OptionalDirectionProperty.VERTICAL;
+    public static final EnumProperty<MultiblockType> TYPE = MultiblockTypeProperty.INSTANCE;
 
     public MonitorBlock(Properties properties) {
         super(properties);
@@ -77,11 +78,11 @@ public class MonitorBlock extends FacingEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide && !player.isShiftKeyDown()) {
+        if (!level.isClientSide() && !player.isShiftKeyDown()) {
             if (isUnbound(state)) {
                 BlockPos controllerPos = findAndSetController(level, pos, state);
                 formMonitor(level, controllerPos, player);
-                return InteractionResult.SUCCESS_NO_ITEM_USED;
+                return InteractionResult.SUCCESS.withoutItem();
             }
         }
 
@@ -90,7 +91,7 @@ public class MonitorBlock extends FacingEntityBlock {
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide && !isUnbound(state)) {
+        if (!level.isClientSide() && !isUnbound(state)) {
             BlockPos controllerPos = findControllerPos(level, pos, state);
             if (controllerPos != null && level.getBlockEntity(controllerPos) instanceof MonitorBlockEntity controllerBlockEntity) {
                 destroyMonitor(level, controllerPos, controllerBlockEntity, player);

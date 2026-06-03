@@ -3,8 +3,7 @@ package com.almostreliable.energymeter.client.screen.widget;
 import com.almostreliable.energymeter.client.screen.widget.base.LayoutPositionedWidget;
 import com.almostreliable.energymeter.core.Constants;
 
-import net.minecraft.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
@@ -21,7 +20,7 @@ public class MarqueeStringWidget extends LayoutPositionedWidget {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         Component text = getMessage();
 
         int widgetWidth = getWidth();
@@ -31,20 +30,20 @@ public class MarqueeStringWidget extends LayoutPositionedWidget {
 
         if (textWidth <= widgetWidth) {
             int alignedX = x + Math.round(alignX * (widgetWidth - textWidth));
-            guiGraphics.drawString(font, text, alignedX, y, color);
+            graphics.text(font, text, alignedX, y, color, false);
             return;
         }
 
         int overflow = textWidth - widgetWidth;
-        double time = Util.getMillis() / 1_000.0;
+        double time = System.currentTimeMillis() / 1_000.0;
         double period = Math.max(overflow * PERIOD_PER_SCROLLED_PIXEL, MIN_SCROLL_PERIOD);
         double phase = Math.sin((Math.PI / 2) * Math.cos(Math.PI * 2 * time / period)) / 2 + 0.5;
 
         int scrollOffset = (int) Mth.lerp(phase, 0, overflow);
 
-        guiGraphics.enableScissor(x, getY() - 2, x + widgetWidth, getY() + getHeight() + 2);
-        guiGraphics.drawString(font, text, x - scrollOffset, y, color);
-        guiGraphics.disableScissor();
+        graphics.enableScissor(x, getY() - 2, x + widgetWidth, getY() + getHeight() + 2);
+        graphics.text(font, text, x - scrollOffset, y, color, false);
+        graphics.disableScissor();
     }
 
     public MarqueeStringWidget alignLeft() {
