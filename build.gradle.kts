@@ -1,12 +1,16 @@
 plugins {
-    id("net.neoforged.moddev") version "2.0.80"
-    id("com.almostreliable.almostgradle") version "1.5.0"
+    id("net.neoforged.moddev") version "2.0.141"
+    id("com.almostreliable.almostgradle") version "2.2.0"
 }
 
 almostgradle.setup {
     withSourcesJar = false
-    testMod = true
     dataGen = "src/main/generated"
+    tests {
+        testMod = true
+        gameTests = true
+        testFramework = true
+    }
 }
 
 neoForge {
@@ -29,12 +33,12 @@ neoForge {
 
 repositories {
     // CC: Tweaked
-    maven("https://maven.squiddev.cc/")
+    //    maven("https://maven.squiddev.cc/")
 }
 
 dependencies {
     // CC: Tweaked
-    compileOnly("cc.tweaked:cc-tweaked-${almostgradle.minecraftVersion}-common-api:${almostgradle.getProperty("cctVersion")}")
+    //    compileOnly("cc.tweaked:cc-tweaked-${almostgradle.minecraftVersion}-common-api:${almostgradle.getProperty("cctVersion")}")
     // GuideME
     runtimeOnly("org.appliedenergistics:guideme:${almostgradle.getProperty("guideMeVersion")}")
 }

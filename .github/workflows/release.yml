@@ -38,7 +38,7 @@ jobs:
     secrets: inherit
     with:
       java-distribution: "microsoft"
-      java-version: "21"
+      java-version: "25"
       mod_name: "EnergyMeter"
       curseforge_id: "532169"
       modrinth_id: "MbejSZ2E"
