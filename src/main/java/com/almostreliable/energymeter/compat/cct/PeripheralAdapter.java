@@ -2,25 +2,35 @@ package com.almostreliable.energymeter.compat.cct;
 
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.compat.ICapabilityAdapter;
-// import dan200.computercraft.shared.Capabilities;
-// import net.minecraftforge.common.capabilities.Capability;
-// import net.minecraftforge.common.util.LazyOptional;
+
+import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+
+import javax.annotation.Nullable;
 
 public class PeripheralAdapter implements ICapabilityAdapter<MeterPeripheral> {
 
-    //    private final Optional<Supplier<MeterPeripheral>> lazyAdapter;
+    private static final ResourceLocation PERIPHERAL_ID = ResourceLocation.fromNamespaceAndPath(
+        ComputerCraftAPI.MOD_ID,
+        "peripheral"
+    );
+    public static final BlockCapability<IPeripheral, Direction> PERIPHERAL_CAPABILITY = BlockCapability.create(
+        PERIPHERAL_ID,
+        IPeripheral.class,
+        Direction.class
+    );
+
+    private final MeterPeripheral peripheral;
 
     public PeripheralAdapter(MeterBlockEntity entity) {
-        //        lazyAdapter = Optional.of(() -> new MeterPeripheral(entity));
+        this.peripheral = new MeterPeripheral(entity);
     }
 
-    //    @Override
-    //    public boolean isCapability(Capability<?> cap) {
-    //        return cap.equals(Capabilities.CAPABILITY_PERIPHERAL);
-    //    }
-    //
-    //    @Override
-    //    public LazyOptional<MeterPeripheral> getLazyAdapter() {
-    //        return lazyAdapter;
-    //    }
+    @Override
+    public MeterPeripheral getCapability(@Nullable Direction direction) {
+        return peripheral;
+    }
 }

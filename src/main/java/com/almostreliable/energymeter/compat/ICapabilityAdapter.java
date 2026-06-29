@@ -1,19 +1,16 @@
 package com.almostreliable.energymeter.compat;
 
+import net.minecraft.core.Direction;
+
+import javax.annotation.Nullable;
+
 public interface ICapabilityAdapter<T> {
 
     /**
-     * Checks if the provided capability is a compatible peripheral capability.
+     * Gets the adapted capability instance for the given side.
      *
-     * @param cap The capability to check.
-     * @return True if the capability is compatible, false otherwise.
+     * @param direction The side the capability is queried from.
+     * @return The capability instance.
      */
-    //    boolean isCapability(Capability<?> cap);
-
-    /**
-     * Gets the capability instance as a lazy optional.
-     *
-     * @return The capability instance as a lazy optional.
-     */
-    //    LazyOptional<T> getLazyAdapter();
+    T getCapability(@Nullable Direction direction);
 }
