@@ -1,14 +1,11 @@
 package testmod.scenario;
 
-import com.almostreliable.energymeter.block.component.EnergyHandler;
+import com.almostreliable.energymeter.block.component.MeterEnergyHandler;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 
 import net.minecraft.core.Direction;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import testmod.TestMod;
 import testmod.TestUtils;
@@ -17,7 +14,7 @@ import testmod.content.EnergyReceiverBlockEntity;
 /**
  * This scenario tests a bug that occurred in development.
  * <p>
- * When in split mode, the {@link EnergyHandler} loops over available outputs and tries
+ * When in split mode, the {@link MeterEnergyHandler} loops over available outputs and tries
  * to split all energy equally, as long as there are outputs not full and as long as
  * there is remaining energy to forward.
  * <p>
@@ -28,13 +25,9 @@ import testmod.content.EnergyReceiverBlockEntity;
  * Later the logic was refactored to pre-calculate the maximum energy per output and then
  * doing a single operation per output.
  */
-@SuppressWarnings("NewMethodNamingConvention")
-@GameTestHolder(TestMod.MOD_ID)
-@PrefixGameTestTemplate(false)
 public class SplitNoDoubleInsertScenario {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_SCENARIOS)
-    public void test(GameTestHelper helper) {
+    public static void test(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .input(Direction.WEST)

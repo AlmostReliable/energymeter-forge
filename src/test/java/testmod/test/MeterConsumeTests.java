@@ -4,29 +4,22 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 
 import net.minecraft.core.Direction;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 import testmod.TestMod;
 import testmod.TestUtils;
 import testmod.TestUtils.SimplePlotResult;
 
-@SuppressWarnings("NewMethodNamingConvention")
-@GameTestHolder(TestMod.MOD_ID)
-@PrefixGameTestTemplate(false)
 public class MeterConsumeTests {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
-    public void consume_single(GameTestHelper helper) {
+    public static void consume_single(GameTestHelper helper) {
         // set up the plot
         SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
 
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
         var inputEnergyFunction = plotResult.inputEnergyFunction();
-        IEnergyStorage outputEnergyBlockCap = plotResult.outputEnergyBlockCap();
+        EnergyHandler outputEnergyBlockCap = plotResult.outputEnergyBlockCap();
 
         // set transfer mode to consume
         meterBlockEntity.setTransferMode(TransferMode.CONSUME);
@@ -54,7 +47,7 @@ public class MeterConsumeTests {
             String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
         );
 
-        int energyStored = outputEnergyBlockCap.getEnergyStored();
+        int energyStored = outputEnergyBlockCap.getAmountAsInt();
         helper.assertTrue(
             energyStored == 0,
             String.format("expected stored output energy of %s, but was %s", 0, energyStored)
@@ -63,8 +56,7 @@ public class MeterConsumeTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
-    public void consume_trio(GameTestHelper helper) {
+    public static void consume_trio(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .inputs(Direction.WEST, Direction.SOUTH, Direction.EAST)
@@ -75,7 +67,7 @@ public class MeterConsumeTests {
         var westInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.WEST);
         var southInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.SOUTH);
         var eastInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.EAST);
-        IEnergyStorage outputEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.UP);
+        EnergyHandler outputEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.UP);
 
         // set transfer mode to consume
         meterBlockEntity.setTransferMode(TransferMode.CONSUME);
@@ -106,7 +98,7 @@ public class MeterConsumeTests {
             String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
         );
 
-        int energyStored = outputEnergyBlockCap.getEnergyStored();
+        int energyStored = outputEnergyBlockCap.getAmountAsInt();
         helper.assertTrue(
             energyStored == 0,
             String.format("expected stored output energy of %s, but was %s", 0, energyStored)

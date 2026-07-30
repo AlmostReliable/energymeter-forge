@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 import testmod.TestRegistration;
 
@@ -19,7 +19,7 @@ public class EnergyReceiverBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    public IEnergyStorage getEnergyCapability(@Nullable Direction ignoredDirection) {
+    public EnergyHandler getEnergyCapability(@Nullable Direction ignoredDirection) {
         return energyStorage;
     }
 

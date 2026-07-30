@@ -1,12 +1,9 @@
 package testmod.scenario;
 
-import com.almostreliable.energymeter.block.component.EnergyHandler;
+import com.almostreliable.energymeter.block.component.MeterEnergyHandler;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import testmod.TestMod;
 import testmod.TestUtils;
@@ -19,15 +16,11 @@ import testmod.content.EnergyReceiverBlockEntity;
  * When sending energy to a block that only accepts less than its designated amount, the
  * excess energy is voided instead of being returned.
  * <p>
- * This was fixed by returning the forwarded energy in {@link EnergyHandler#forwardEnergy(int, boolean)}.
+ * This was fixed by returning the forwarded energy in {@link MeterEnergyHandler#forwardEnergy(int, boolean)}.
  */
-@SuppressWarnings("NewMethodNamingConvention")
-@GameTestHolder(TestMod.MOD_ID)
-@PrefixGameTestTemplate(false)
 public class ExcessEnergyVoidingScenario {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_SCENARIOS)
-    public void test(GameTestHelper helper) {
+    public static void test(GameTestHelper helper) {
         // set up the plot
         SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
 

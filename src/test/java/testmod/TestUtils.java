@@ -8,7 +8,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import testmod.content.EnergyReceiverBlockEntity;
 
@@ -29,28 +31,20 @@ public final class TestUtils {
 
     private TestUtils() {}
 
-    public static void assertNull(@Nullable Object o, String failureMessage) {
-        if (o != null) {
-            throw new GameTestAssertException(failureMessage);
-        }
+    public static void assertNull(GameTestHelper helper, @Nullable Object o, String failureMessage) {
+        helper.assertTrue(o == null, failureMessage);
     }
 
-    public static void assertNotNull(@Nullable Object o, String failureMessage) {
-        if (o == null) {
-            throw new GameTestAssertException(failureMessage);
-        }
+    public static void assertNotNull(GameTestHelper helper, @Nullable Object o, String failureMessage) {
+        helper.assertTrue(o != null, failureMessage);
     }
 
-    public static void assertInstanceOf(Object o, Class<?> clazz, String failureMessage) {
-        if (!clazz.isInstance(o)) {
-            throw new GameTestAssertException(failureMessage);
-        }
+    public static void assertInstanceOf(GameTestHelper helper, Object o, Class<?> clazz, String failureMessage) {
+        helper.assertTrue(clazz.isInstance(o), failureMessage);
     }
 
-    public static void assertIdentity(@Nullable Object o, Object expected, String failureMessage) {
-        if (o != expected) {
-            throw new GameTestAssertException(failureMessage);
-        }
+    public static void assertIdentity(GameTestHelper helper, @Nullable Object o, Object expected, String failureMessage) {
+        helper.assertTrue(o == expected, failureMessage);
     }
 
     public static int getRandomEnergyRate() {
@@ -64,7 +58,15 @@ public final class TestUtils {
 
     public static MeterBlockEntity setupMeter(GameTestHelper helper) {
         helper.setBlock(DEFAULT_POS, Registration.METER_BLOCK.get());
-        return helper.getBlockEntity(DEFAULT_POS);
+        return helper.getBlockEntity(DEFAULT_POS, MeterBlockEntity.class);
+    }
+
+    public static int insertEnergy(EnergyHandler handler, int amount, boolean simulate) {
+        try (Transaction transaction = Transaction.openRoot()) {
+            int inserted = handler.insert(amount, transaction);
+            if (!simulate) transaction.commit();
+            return inserted;
+        }
     }
 
     public static SimplePlotResult setupSimplePlot(GameTestHelper helper) {
@@ -84,7 +86,7 @@ public final class TestUtils {
         Consumer<Integer> inputEnergyFunction,
         BiFunction<Integer, Boolean, Integer> inputEnergyFunctionWithResult,
         EnergyReceiverBlockEntity outputEnergyBlockEntity,
-        IEnergyStorage outputEnergyBlockCap
+        EnergyHandler outputEnergyBlockCap
     ) {}
 
     public static final class PlotBuilder {
@@ -93,7 +95,7 @@ public final class TestUtils {
         private final MeterBlockEntity meterBlockEntity;
         private final Map<Direction, BiFunction<Integer, Boolean, Integer>> inputEnergyFunctionsWithResult = new EnumMap<>(Direction.class);
         private final Map<Direction, EnergyReceiverBlockEntity> outputEnergyBlockEntities = new EnumMap<>(Direction.class);
-        private final Map<Direction, IEnergyStorage> outputEnergyBlockCaps = new EnumMap<>(Direction.class);
+        private final Map<Direction, EnergyHandler> outputEnergyBlockCaps = new EnumMap<>(Direction.class);
 
         private PlotBuilder(GameTestHelper helper, MeterBlockEntity meterBlockEntity) {
             this.helper = helper;
@@ -112,9 +114,15 @@ public final class TestUtils {
             // get the energy capability of the meter on the configured side
             var capability = meterBlockEntity.getEnergyCapability(inputDirection);
             if (capability == null) {
-                throw new GameTestAssertException("meter should have an energy capability on the configured input side: " + inputDirection);
+                throw new GameTestAssertException(
+                    Component.literal("meter should have an energy capability on the configured input side: " + inputDirection),
+                    (int) helper.getTick()
+                );
             }
-            inputEnergyFunctionsWithResult.put(inputDirection, capability::receiveEnergy);
+            inputEnergyFunctionsWithResult.put(
+                inputDirection,
+                (energy, simulate) -> insertEnergy(capability, energy, simulate)
+            );
 
             return this;
         }
@@ -133,12 +141,12 @@ public final class TestUtils {
 
             // place the test energy block on the configured side
             helper.setBlock(DEFAULT_POS.relative(outputDirection), TestRegistration.ENERGY_RECEIVER_BLOCK.get());
-            EnergyReceiverBlockEntity outputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(outputDirection));
+            EnergyReceiverBlockEntity outputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(outputDirection), EnergyReceiverBlockEntity.class);
 
             // test whether the energy block is empty
-            IEnergyStorage outputEnergyBlockCap = outputEnergyBlockEntity.getEnergyCapability(null);
+            EnergyHandler outputEnergyBlockCap = outputEnergyBlockEntity.getEnergyCapability(null);
             helper.assertTrue(
-                outputEnergyBlockCap != null && outputEnergyBlockCap.getEnergyStored() == 0,
+                outputEnergyBlockCap != null && outputEnergyBlockCap.getAmountAsInt() == 0,
                 "output energy block should be empty"
             );
 
@@ -184,7 +192,7 @@ public final class TestUtils {
             Map<Direction, Consumer<Integer>> inputEnergyFunctions,
             Map<Direction, BiFunction<Integer, Boolean, Integer>> inputEnergyFunctionsWithResult,
             Map<Direction, EnergyReceiverBlockEntity> outputEnergyBlockEntities,
-            Map<Direction, IEnergyStorage> outputEnergyBlockCaps
+            Map<Direction, EnergyHandler> outputEnergyBlockCaps
         ) {}
     }
 }

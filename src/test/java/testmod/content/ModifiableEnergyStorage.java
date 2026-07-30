@@ -1,8 +1,9 @@
 package testmod.content;
 
-import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class ModifiableEnergyStorage extends EnergyStorage {
+public class ModifiableEnergyStorage extends SimpleEnergyHandler {
 
     private boolean scheduledInsertionBlock;
     private boolean insertionBlocked;
@@ -12,15 +13,14 @@ public class ModifiableEnergyStorage extends EnergyStorage {
     }
 
     @Override
-    public int receiveEnergy(int toReceive, boolean simulate) {
+    public int insert(int amount, TransactionContext transaction) {
         if (insertionBlocked) return 0;
+        return super.insert(amount, transaction);
+    }
 
-        if (!simulate && scheduledInsertionBlock) {
-            // block insertion for next operation
-            insertionBlocked = true;
-        }
-
-        return super.receiveEnergy(toReceive, simulate);
+    @Override
+    protected void onEnergyChanged(int previousAmount) {
+        if (scheduledInsertionBlock) insertionBlocked = true;
     }
 
     public void setMaxEnergyStored(int capacity) {
@@ -28,7 +28,7 @@ public class ModifiableEnergyStorage extends EnergyStorage {
     }
 
     public void setMaxReceive(int max) {
-        maxReceive = max;
+        maxInsert = max;
     }
 
     public void scheduleInsertionBlock() {
