@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 
 - added French translation ([#43](https://github.com/AlmostReliable/energymeter/pull/43))
+- fixed Energy Meter not storing changes when only the total energy changes
 
 ## [0.4.1] - 2026-05-16
 

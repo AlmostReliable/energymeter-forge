@@ -163,10 +163,10 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     private void onIntervalReached(ServerLevel level) {
-        boolean energyChanged = refreshEnergyValues();
+        boolean energyRateChanged = refreshEnergyValues();
 
         // only sync if the value changed or every second at most (for clients without any info)
-        if (energyChanged || level.getGameTime() - lastEnergySyncTick >= 20) {
+        if (energyRateChanged || level.getGameTime() - lastEnergySyncTick >= 20) {
             syncEnergyRate(level);
         }
 
@@ -176,10 +176,18 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @VisibleForTesting
     public boolean refreshEnergyValues() {
         var measuredEnergy = energyHandler.calculateAndRestartCycle(measureMode == MeasureMode.SMOOTHED);
+
         var lastEnergyRate = energyRate;
+        var lastTotalEnergy = totalEnergy;
         energyRate = measuredEnergy.average();
         totalEnergy += measuredEnergy.total();
-        return lastEnergyRate != energyRate;
+
+        var energyRateChanged = lastEnergyRate != energyRate;
+        if (energyRateChanged || lastTotalEnergy != totalEnergy) {
+            setChanged();
+        }
+
+        return energyRateChanged;
     }
 
     private void syncEnergyRate(ServerLevel level) {
