@@ -66,14 +66,14 @@ public class MeterPeripheral implements IPeripheral, MeterObserver {
         if (!this.entity.equals(entity)) return;
         var data = createData();
         lastData = data;
-        queueEvent("em_data_changed", data);
+        queueEvent("energymeter_changed", data);
     }
 
     @Override
     public void onRemove(MeterBlockEntity entity) {
         if (!this.entity.equals(entity)) return;
         lastData = Map.of();
-        queueEvent("em_removed");
+        queueEvent("energymeter_removed");
     }
 
     @SuppressWarnings("java:S1201")
