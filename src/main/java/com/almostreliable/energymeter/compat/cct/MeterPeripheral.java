@@ -53,6 +53,7 @@ public class MeterPeripheral implements IPeripheral, MeterObserver {
     public void attach(IComputerAccess computer) {
         computers.add(computer);
         entity.subscribeObserver(this);
+        lastData = createData();
     }
 
     @Override
