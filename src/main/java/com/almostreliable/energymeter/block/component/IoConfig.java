@@ -4,18 +4,16 @@ import com.almostreliable.energymeter.network.menu.DataHandler;
 import com.almostreliable.energymeter.util.EnumExtension;
 
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.INBTSerializable;
-
-import org.jetbrains.annotations.UnknownNullability;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
+public class IoConfig implements DataHandler {
 
     public static final int MAX_PRIORITY = 4;
     private static final Direction[] DIRECTIONS = Direction.values();
@@ -84,25 +82,19 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         return false;
     }
 
-    @Override
-    @UnknownNullability
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-
+    public void serialize(ValueOutput output) {
         for (Direction direction : DIRECTIONS) {
             IoSettingWithPriority setting = directionToSetting.get(direction);
-            tag.put(direction.name(), setting.serialize());
+            setting.serialize(output.child(direction.name()));
         }
-
-        return tag;
     }
 
-    @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+    public void deserialize(ValueInput input) {
         for (Direction direction : DIRECTIONS) {
-            CompoundTag directionTag = tag.getCompound(direction.name());
-            IoSettingWithPriority setting = IoSettingWithPriority.deserialize(directionTag);
-            directionToSetting.put(direction, setting);
+            input.child(direction.name()).ifPresent(directionInput -> {
+                IoSettingWithPriority setting = IoSettingWithPriority.deserialize(directionInput);
+                directionToSetting.put(direction, setting);
+            });
         }
     }
 
@@ -154,6 +146,17 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
             return this == OUT_DEFAULT || setting.isOutput;
         }
 
+        public void serialize(ValueOutput output) {
+            output.putString("setting", setting.name());
+            output.putInt("priority", priority);
+        }
+
+        public static IoSettingWithPriority deserialize(ValueInput input) {
+            IoSetting setting = IoSetting.valueOf(input.getStringOr("setting", IoSetting.OFF.name()));
+            int priority = input.getIntOr("priority", 1);
+            return new IoSettingWithPriority(setting, priority);
+        }
+
         public CompoundTag serialize() {
             CompoundTag tag = new CompoundTag();
             tag.putString("setting", setting.name());
@@ -162,8 +165,8 @@ public class IoConfig implements INBTSerializable<CompoundTag>, DataHandler {
         }
 
         public static IoSettingWithPriority deserialize(CompoundTag tag) {
-            IoSetting setting = IoSetting.valueOf(tag.getString("setting"));
-            int priority = tag.getInt("priority");
+            IoSetting setting = IoSetting.valueOf(tag.getStringOr("setting", IoSetting.OFF.name()));
+            int priority = tag.getIntOr("priority", 1);
             return new IoSettingWithPriority(setting, priority);
         }
 

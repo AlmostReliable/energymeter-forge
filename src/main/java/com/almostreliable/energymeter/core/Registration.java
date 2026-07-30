@@ -4,6 +4,7 @@ import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.ModConstants;
 import com.almostreliable.energymeter.block.MeterBlock;
 import com.almostreliable.energymeter.block.MonitorBlock;
+import com.almostreliable.energymeter.block.MonitorBlockItem;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MonitorBlockEntity;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
@@ -14,11 +15,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -38,6 +41,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class Registration {
@@ -53,7 +57,7 @@ public final class Registration {
 
     // blocks
     public static final DeferredBlock<MeterBlock> METER_BLOCK = registerBlock(Constants.METER_ID, "Energy Meter", MeterBlock::new);
-    public static final DeferredBlock<MonitorBlock> MONITOR_BLOCK = registerBlock(Constants.MONITOR_ID, "External Monitor", MonitorBlock::new);
+    public static final DeferredBlock<MonitorBlock> MONITOR_BLOCK = registerBlock(Constants.MONITOR_ID, "External Monitor", MonitorBlock::new, MonitorBlockItem::new);
 
     // block entities
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MeterBlockEntity>> METER_BLOCK_ENTITY = registerBlockEntity(METER_BLOCK, MeterBlockEntity::new);
@@ -103,18 +107,34 @@ public final class Registration {
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, METER_BLOCK_ENTITY.get(), MeterBlockEntity::getEnergyCapability);
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, METER_BLOCK_ENTITY.get(), MeterBlockEntity::getEnergyCapability);
     }
 
     private static <B extends Block> DeferredBlock<B> registerBlock(
         String id, String name, Function<BlockBehaviour.Properties, B> factory
     ) {
+        var block = registerBlockOnly(id, name, factory);
+        ITEMS.registerSimpleBlockItem(block);
+        return block;
+    }
+
+    private static <B extends Block> DeferredBlock<B> registerBlock(
+        String id, String name, Function<BlockBehaviour.Properties, B> factory,
+        BiFunction<Block, Item.Properties, ? extends BlockItem> itemFactory
+    ) {
+        var block = registerBlockOnly(id, name, factory);
+        ITEMS.registerItem(id, properties -> itemFactory.apply(block.get(), properties));
+        return block;
+    }
+
+    private static <B extends Block> DeferredBlock<B> registerBlockOnly(
+        String id, String name, Function<BlockBehaviour.Properties, B> factory
+    ) {
         var block = BLOCKS.registerBlock(
             id,
             factory,
-            BlockBehaviour.Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL)
+            () -> BlockBehaviour.Properties.of().strength(2f).mapColor(MapColor.METAL).sound(SoundType.METAL)
         );
-        ITEMS.registerSimpleBlockItem(block);
         EnergyMeterLang.LangEntry.of("block", id, name);
         EnergyMeterLang.LangEntry.item(id, name);
         return block;
@@ -124,7 +144,7 @@ public final class Registration {
     private static <E extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<E>> registerBlockEntity(
         DeferredBlock<?> block, BlockEntityType.BlockEntitySupplier<E> factory
     ) {
-        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> BlockEntityType.Builder.of(factory, block.get()).build(null));
+        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> new BlockEntityType<E>(factory, (Block) block.get()));
     }
 
     private static <M extends AbstractContainerMenu, E extends BlockEntity> DeferredHolder<MenuType<?>, MenuType<M>> registerMenu(
@@ -146,12 +166,12 @@ public final class Registration {
 
     @Nullable
     private static ItemStack getGuideBookStack() {
-        var guideItem = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(Constants.GUIDE_ME, "guide"));
+        var guideItem = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath(Constants.GUIDE_ME, "guide"));
         if (guideItem == Items.AIR) return null;
 
         // noinspection unchecked
-        var guideComponent = (DataComponentType<ResourceLocation>) BuiltInRegistries.DATA_COMPONENT_TYPE
-            .get(ResourceLocation.fromNamespaceAndPath(Constants.GUIDE_ME, "guide_id"));
+        var guideComponent = (DataComponentType<Identifier>) BuiltInRegistries.DATA_COMPONENT_TYPE
+            .getValue(Identifier.fromNamespaceAndPath(Constants.GUIDE_ME, "guide_id"));
         if (guideComponent == null) return null;
 
         var guideStack = guideItem.getDefaultInstance();

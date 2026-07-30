@@ -2,63 +2,52 @@ package com.almostreliable.energymeter.block.component;
 
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import com.google.common.primitives.Ints;
-
-import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.ToLongFunction;
 
-public final class ForwardingEnergyStorage implements IEnergyStorage {
+public final class ForwardingEnergyStorage implements EnergyHandler {
 
-    private final EnergyHandler energyHandler;
+    private final MeterEnergyHandler energyHandler;
     private final Supplier<IoSettingWithPriority> settingSupplier;
 
-    public ForwardingEnergyStorage(EnergyHandler energyHandler, Supplier<IoSettingWithPriority> settingSupplier) {
+    public ForwardingEnergyStorage(MeterEnergyHandler energyHandler, Supplier<IoSettingWithPriority> settingSupplier) {
         this.energyHandler = energyHandler;
         this.settingSupplier = settingSupplier;
     }
 
     @Override
-    public int receiveEnergy(int amount, boolean simulate) {
-        if (!canReceive()) return 0;
-        return energyHandler.forwardEnergy(amount, simulate);
+    public int insert(int amount, TransactionContext transaction) {
+        if (!settingSupplier.get().isInput()) return 0;
+        return energyHandler.forwardEnergy(amount, transaction);
     }
 
     @Override
-    public int extractEnergy(int amount, boolean simulate) {
+    public int extract(int amount, TransactionContext transaction) {
         return 0;
     }
 
     @Override
-    public int getEnergyStored() {
-        if (!canReceive()) return 0;
-        return forwardToOutputs(IEnergyStorage::getEnergyStored);
+    public long getAmountAsLong() {
+        if (!settingSupplier.get().isInput()) return 0;
+        return sumOutputs(EnergyHandler::getAmountAsLong);
     }
 
     @Override
-    public int getMaxEnergyStored() {
-        if (!canReceive()) return 0;
-        return forwardToOutputs(IEnergyStorage::getMaxEnergyStored);
+    public long getCapacityAsLong() {
+        if (!settingSupplier.get().isInput()) return 0;
+        return sumOutputs(EnergyHandler::getCapacityAsLong);
     }
 
-    @Override
-    public boolean canReceive() {
-        return settingSupplier.get().isInput();
-    }
-
-    @Override
-    public boolean canExtract() {
-        return false;
-    }
-
-    private int forwardToOutputs(Function<IEnergyStorage, Integer> energyGetter) {
+    private long sumOutputs(ToLongFunction<EnergyHandler> energyGetter) {
         long result = 0;
 
-        for (IEnergyStorage neighborEnergyStorage : energyHandler.getValidOutputEnergyStorages()) {
-            result += energyGetter.apply(neighborEnergyStorage);
+        for (EnergyHandler neighborEnergyStorage : energyHandler.getValidOutputEnergyStorages()) {
+            result += energyGetter.applyAsLong(neighborEnergyStorage);
         }
 
-        return Ints.saturatedCast(result);
+        return result;
     }
 }
