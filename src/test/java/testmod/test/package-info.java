@@ -1,4 +1,4 @@
-@NonnullDefault
+@NullMarked
 package testmod.test;
 
-import org.lwjgl.system.NonnullDefault;
+import org.jspecify.annotations.NullMarked;

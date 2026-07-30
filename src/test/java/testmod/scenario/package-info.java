@@ -1,4 +1,4 @@
-@NonnullDefault
+@NullMarked
 package testmod.scenario;
 
-import org.lwjgl.system.NonnullDefault;
+import org.jspecify.annotations.NullMarked;
