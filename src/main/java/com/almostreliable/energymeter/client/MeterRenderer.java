@@ -4,46 +4,65 @@ import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.util.NumberFormatter;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.state.BlockState;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
-public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity> {
+import org.jetbrains.annotations.Nullable;
+
+public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity, MeterRenderer.State> {
 
     private static final int MAX_DISTANCE = 32;
+    private static final int FULL_BRIGHT = 0x00F000F0;
+    private static final int COLOR_WHITE = 0xFFFF_FFFF;
     private static final float HALF = 1f / 2f;
     private static final float SCALE = 1f / 40f;
     private final Font font;
 
     public MeterRenderer(Context context) {
-        font = context.getFont();
+        font = context.font();
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
-    public void render(
-        MeterBlockEntity blockEntity, float partial, PoseStack stack, MultiBufferSource buffer, int packedLight, int packedOverlay
-    ) {
-        // turn off display if player is too far away
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null || blockEntity.getBlockPos().distSqr(player.blockPosition()) > Math.pow(MAX_DISTANCE, 2)) {
-            return;
-        }
+    public State createRenderState() {
+        return new State();
+    }
 
-        // resolve the facing side and resolve the vector used for positioning
-        BlockState blockState = blockEntity.getBlockState();
-        Direction facing = FacingEntityBlock.getFacingDir(blockState);
-        Direction bottom = FacingEntityBlock.getBottomDir(blockState);
+    @Override
+    public void extractRenderState(
+        MeterBlockEntity blockEntity, State state, float partialTick, Vec3 cameraPosition,
+        @Nullable ModelFeatureRenderer.CrumblingOverlay crumblingOverlay
+    ) {
+        BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTick, cameraPosition, crumblingOverlay);
+        LocalPlayer player = Minecraft.getInstance().player;
+        state.visible = player != null && blockEntity.getBlockPos().distSqr(player.blockPosition()) <= Math.pow(MAX_DISTANCE, 2);
+        if (!state.visible) return;
+
+        state.blockState = blockEntity.getBlockState();
+        NumberFormatter.FormatResult energyRateFormatted = NumberFormatter.formatEnergy(blockEntity.getEnergyRate());
+        state.energy = energyRateFormatted.getEnergy();
+        state.unit = energyRateFormatted.getUnitPerTick();
+    }
+
+    @Override
+    public void submit(State state, PoseStack stack, SubmitNodeCollector collector, CameraRenderState cameraState) {
+        if (!state.visible) return;
+
+        Direction facing = FacingEntityBlock.getFacingDir(state.blockState);
+        Direction bottom = FacingEntityBlock.getBottomDir(state.blockState);
 
         stack.pushPose();
         stack.translate(HALF, HALF, HALF);
@@ -64,28 +83,33 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity> {
 
         stack.scale(SCALE, SCALE, SCALE);
 
-        NumberFormatter.FormatResult energyRateFormatted = NumberFormatter.formatEnergy(blockEntity.getEnergyRate());
-        drawText(energyRateFormatted.getEnergy(), -font.lineHeight, stack, buffer);
+        submitText(state.energy, -font.lineHeight, stack, collector);
 
         stack.scale(0.8f, 0.8f, 0.8f);
-        drawText(energyRateFormatted.getUnitPerTick(), 0, stack, buffer);
+        submitText(state.unit, 0, stack, collector);
 
         stack.popPose();
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    private void drawText(String text, float y, PoseStack stack, MultiBufferSource buffer) {
-        font.drawInBatch(
-            text,
+    private void submitText(String text, float y, PoseStack stack, SubmitNodeCollector collector) {
+        collector.submitText(
+            stack,
             font.width(text) / -2f,
             y,
-            ChatFormatting.WHITE.getColor(),
+            Component.literal(text).getVisualOrderText(),
             false,
-            stack.last().pose(),
-            buffer,
             Font.DisplayMode.NORMAL,
+            FULL_BRIGHT,
+            COLOR_WHITE,
             0,
-            LightTexture.FULL_BRIGHT
+            0
         );
+    }
+
+    public static class State extends BlockEntityRenderState {
+        private BlockState blockState;
+        private String energy = "";
+        private String unit = "";
+        private boolean visible;
     }
 }
