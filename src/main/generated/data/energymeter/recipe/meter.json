@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "c": {
-      "item": "minecraft:comparator"
-    },
-    "g": {
-      "tag": "c:glass_panes"
-    },
-    "i": {
-      "tag": "c:ingots/iron"
-    },
-    "o": {
-      "item": "minecraft:observer"
-    },
-    "r": {
-      "tag": "c:dusts/redstone"
-    }
+    "c": "minecraft:comparator",
+    "g": "#c:glass_panes",
+    "i": "#c:ingots/iron",
+    "o": "minecraft:observer",
+    "r": "#c:dusts/redstone"
   },
   "pattern": [
     "ici",
@@ -24,7 +14,6 @@
     "ioi"
   ],
   "result": {
-    "count": 1,
     "id": "energymeter:meter"
   }
 }
