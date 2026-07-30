@@ -47,6 +47,6 @@ public abstract class TickableMenuBlock extends Block implements EntityBlock {
             }
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 }
