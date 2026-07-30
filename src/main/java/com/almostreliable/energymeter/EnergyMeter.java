@@ -1,5 +1,6 @@
 package com.almostreliable.energymeter;
 
+import com.almostreliable.energymeter.compat.CompatInitializer;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Registration;
 import com.almostreliable.energymeter.data.DataGeneration;
@@ -24,6 +25,7 @@ public final class EnergyMeter {
         Registration.init(modEventBus);
         PacketHandler.init(modEventBus);
         Config.init(modContainer);
+        CompatInitializer.init(modEventBus);
         modEventBus.addListener(DataGeneration::initClient);
         modEventBus.addListener(DataGeneration::initServer);
     }

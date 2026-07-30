@@ -43,6 +43,7 @@ repositories {
 dependencies {
     // CC: Tweaked
     compileOnly("cc.tweaked:cc-tweaked-${almostgradle.minecraftVersion}-common-api:${almostgradle.getProperty("cctVersion")}")
+    runtimeOnly("cc.tweaked:cc-tweaked-${almostgradle.minecraftVersion}-forge:${almostgradle.getProperty("cctVersion")}")
     // GuideME
     runtimeOnly("org.appliedenergistics:guideme:${almostgradle.getProperty("guideMeVersion")}")
 }
