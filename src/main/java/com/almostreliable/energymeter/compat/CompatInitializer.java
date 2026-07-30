@@ -5,11 +5,11 @@ import com.almostreliable.energymeter.compat.cct.CCTCompat;
 
 import net.neoforged.bus.api.IEventBus;
 
-public final class CapabilityAdapterFactory {
+public final class CompatInitializer {
 
     private static final String CCT_ID = "computercraft";
 
-    private CapabilityAdapterFactory() {}
+    private CompatInitializer() {}
 
     public static void init(IEventBus modEventBus) {
         if (EnergyMeter.isModLoaded(CCT_ID)) {
