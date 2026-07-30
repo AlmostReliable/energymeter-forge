@@ -5,14 +5,14 @@ import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPrio
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.compat.IMeterEntityObserver;
 
+import net.minecraft.core.Direction;
+
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.core.Direction;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,21 +49,20 @@ public class MeterPeripheral implements IPeripheral, IMeterEntityObserver {
         }
     }
 
-    @Nonnull
     @Override
     public String getType() {
         return ModConstants.MOD_ID;
     }
 
     @Override
-    public void attach(@Nonnull IComputerAccess computer) {
+    public void attach(IComputerAccess computer) {
         computers.add(computer);
         lastData = createData();
         ATTACHED_PERIPHERALS.add(this);
     }
 
     @Override
-    public void detach(@Nonnull IComputerAccess computer) {
+    public void detach(IComputerAccess computer) {
         computers.remove(computer);
         if (computers.isEmpty()) {
             ATTACHED_PERIPHERALS.remove(this);
