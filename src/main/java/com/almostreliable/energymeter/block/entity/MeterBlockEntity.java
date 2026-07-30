@@ -4,6 +4,7 @@ import com.almostreliable.energymeter.block.component.EnergyHandler;
 import com.almostreliable.energymeter.block.component.EnergyHandlerHost;
 import com.almostreliable.energymeter.block.component.GraphHandler;
 import com.almostreliable.energymeter.block.component.IoConfig;
+import com.almostreliable.energymeter.compat.MeterObserver;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.core.Registration;
@@ -31,6 +32,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.annotations.VisibleForTesting;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
@@ -58,6 +62,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private long transferLimit;
 
     // tracking & display
+    private final Set<MeterObserver> observers = Collections.synchronizedSet(new HashSet<>());
     private double energyRate;
     private long totalEnergy;
     private long lastEnergySyncTick;
@@ -114,6 +119,30 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @Override
     public AbstractContainerMenu createMenu(int wid, Inventory playerInventory, Player player) {
         return new MeterMenu(wid, playerInventory, this);
+    }
+
+    public void subscribeObserver(MeterObserver observer) {
+        observers.add(observer);
+    }
+
+    public void unsubscribeObserver(MeterObserver observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        for (var observer : observers) {
+            observer.onChange(this);
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        for (var observer : observers) {
+            observer.onRemove(this);
+        }
+        super.setRemoved();
     }
 
     @Override
