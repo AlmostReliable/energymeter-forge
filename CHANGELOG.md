@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- /
+
+## [0.5.0] - 2026-07-30
 
 - added French translation ([#43](https://github.com/AlmostReliable/energymeter/pull/43))
 - added CC: Tweaked integration ([#42](https://github.com/AlmostReliable/energymeter/pull/42))
@@ -62,6 +65,7 @@ The new version is a complete rewrite of the 1.20.1 version.
 
 <!-- Versions -->
 
+[0.5.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.5.0
 [0.4.1]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.4.1
 [0.4.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.4.0
 [0.3.2]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.3.2
