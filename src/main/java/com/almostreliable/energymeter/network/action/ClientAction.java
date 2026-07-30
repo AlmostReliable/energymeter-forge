@@ -3,12 +3,12 @@ package com.almostreliable.energymeter.network.action;
 import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 public interface ClientAction<M extends SynchronizedContainerMenu<?>> {
 
-    ResourceLocation id();
+    Identifier id();
 
     void encode(CompoundTag data);
 

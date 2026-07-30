@@ -18,8 +18,6 @@ import com.almostreliable.energymeter.network.menu.handler.LongDataHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
 
@@ -76,57 +74,46 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     }
 
     // region syncing client getters
-    @OnlyIn(Dist.CLIENT)
     public IoSettingWithPriority getIoSetting(Direction direction) {
         return ioConfig.getSetting(direction);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public GraphHandler getGraphHandler() {
         return graphHandler;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getGraphProgress() {
         return graphProgress;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isGraphPaused() {
         return graphPaused;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public TransferMode getTransferMode() {
         return transferMode;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public MeasureMode getMeasureMode() {
         return measureMode;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getMeasureInterval() {
         return measureInterval;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getZeroTolerance() {
         return zeroTolerance;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getTransferLimit() {
         return transferLimit;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long getTotalEnergy() {
         return totalEnergy;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public ConnectionStatus getConnectionStatus() {
         return connectionStatus;
     }
