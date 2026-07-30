@@ -1,9 +1,6 @@
 modLoader = "javafml"
-loaderVersion = "[2,)"
+loaderVersion = "[11,)"
 license = "ARR"
-
-[[mixins]]
-config = "testmod.mixins.json"
 
 [[mods]]
 modId = "testmod"
