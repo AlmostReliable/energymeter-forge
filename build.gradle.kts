@@ -28,19 +28,27 @@ neoForge {
             client()
             systemProperty("guideme.showOnStartup", "${almostgradle.modId}:guide")
         }
+
+        named("datagen_server") {
+            programArguments.add("--uncached")
+        }
     }
 }
 
 repositories {
     // CC: Tweaked
-    //    maven("https://maven.squiddev.cc/")
+    maven("https://maven.squiddev.cc/")
 }
 
 dependencies {
     // CC: Tweaked
-    //    compileOnly("cc.tweaked:cc-tweaked-${almostgradle.minecraftVersion}-common-api:${almostgradle.getProperty("cctVersion")}")
+    compileOnly("cc.tweaked:cc-tweaked-${almostgradle.minecraftVersion}-common-api:${almostgradle.getProperty("cctVersion")}")
     // GuideME
     runtimeOnly("org.appliedenergistics:guideme:${almostgradle.getProperty("guideMeVersion")}")
+}
+
+tasks.test {
+    failOnNoDiscoveredTests = false
 }
 
 tasks.withType<Jar> {
