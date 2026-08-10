@@ -109,7 +109,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_IO.get(), ioConfigLayout);
         ioConfigComposite.setMinWidth(GLOBAL_INFO_WIDTH);
 
-        var resetButton = Button.builder(EnergyMeterLang.BUTTON_RESET_TOTAL.get(), $ -> onResetTotalButtonClicked())
+        var resetButton = Button.builder(EnergyMeterLang.BUTTON_RESET_TOTAL.get(), _ -> onResetTotalButtonClicked())
             .width(GLOBAL_INFO_WIDTH + 8)
             .tooltip(TooltipBuilder.create().literal(EnergyMeterLang.BUTTON_RESET_TOTAL_TOOLTIP.get()).build())
             .build();
@@ -215,7 +215,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initGraphTab() {
         addRenderableWidget(
-            Button.builder(Component.literal("II"), $ -> onToggleGraphPause())
+            Button.builder(Component.literal("II"), _ -> onToggleGraphPause())
                 .pos(leftPos + GUI_WIDTH - 22, topPos + 2)
                 .size(20, 20)
                 .build()
@@ -235,6 +235,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        // don't render title and inventory labels
     }
 
     @Override

@@ -103,6 +103,8 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        // delegates the call to all children
+        // needed to override the default implementation of the AbstractWidget
         return ContainerEventHandler.super.mouseClicked(event, doubleClick);
     }
 

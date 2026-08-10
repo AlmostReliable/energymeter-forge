@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.data;
 
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -24,7 +24,7 @@ class EnergyMeterRecipes extends RecipeProvider {
 
     @Override
     protected void buildRecipes() {
-        shaped(RecipeCategory.MISC, Registration.METER_BLOCK)
+        shaped(RecipeCategory.MISC, ModRegistration.METER_BLOCK)
             .pattern("ici")
             .pattern("rgr")
             .pattern("ioi")
@@ -34,16 +34,16 @@ class EnergyMeterRecipes extends RecipeProvider {
             .define('g', Tags.Items.GLASS_PANES)
             .define('o', Items.OBSERVER)
             .unlockedBy("has_redstone", has(Tags.Items.DUSTS_REDSTONE))
-            .save(output, recipeKey(Registration.METER_BLOCK.getId()));
+            .save(output, recipeKey(ModRegistration.METER_BLOCK.getId()));
 
-        shaped(RecipeCategory.MISC, Registration.MONITOR_BLOCK, 4)
+        shaped(RecipeCategory.MISC, ModRegistration.MONITOR_BLOCK, 4)
             .pattern(" m ")
             .pattern("mem")
             .pattern(" m ")
-            .define('m', Registration.METER_BLOCK)
+            .define('m', ModRegistration.METER_BLOCK)
             .define('e', Items.ENDER_PEARL)
             .unlockedBy("has_ender_pearl", has(Items.ENDER_PEARL))
-            .save(output, recipeKey(Registration.MONITOR_BLOCK.getId()));
+            .save(output, recipeKey(ModRegistration.MONITOR_BLOCK.getId()));
     }
 
     private static ResourceKey<Recipe<?>> recipeKey(Identifier id) {

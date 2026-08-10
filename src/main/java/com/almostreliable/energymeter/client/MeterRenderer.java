@@ -2,6 +2,7 @@ package com.almostreliable.energymeter.client;
 
 import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
+import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.util.NumberFormatter;
 
 import net.minecraft.client.Minecraft;
@@ -15,6 +16,7 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -26,8 +28,6 @@ import org.jspecify.annotations.Nullable;
 public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity, MeterRenderer.State> {
 
     private static final int MAX_DISTANCE = 32;
-    private static final int FULL_BRIGHT = 0x00F000F0;
-    private static final int COLOR_WHITE = 0xFFFF_FFFF;
     private static final float HALF = 1f / 2f;
     private static final float SCALE = 1f / 40f;
     private final Font font;
@@ -47,10 +47,13 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity, Mete
         ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay
     ) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTick, cameraPosition, crumblingOverlay);
+
+        // turn off display if player is too far away
         LocalPlayer player = Minecraft.getInstance().player;
         state.visible = player != null && blockEntity.getBlockPos().distSqr(player.blockPosition()) <= Math.pow(MAX_DISTANCE, 2);
         if (!state.visible) return;
 
+        // extract display info
         state.blockState = blockEntity.getBlockState();
         NumberFormatter.FormatResult energyRateFormatted = NumberFormatter.formatEnergy(blockEntity.getEnergyRate());
         state.energy = energyRateFormatted.getEnergy();
@@ -59,8 +62,9 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity, Mete
 
     @Override
     public void submit(State state, PoseStack stack, SubmitNodeCollector collector, CameraRenderState cameraState) {
-        if (!state.visible) return;
+        if (!state.visible || state.blockState == null) return;
 
+        // resolve the facing side and resolve the vector used for positioning
         Direction facing = FacingEntityBlock.getFacingDir(state.blockState);
         Direction bottom = FacingEntityBlock.getBottomDir(state.blockState);
 
@@ -94,22 +98,22 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity, Mete
     private void submitText(String text, float y, PoseStack stack, SubmitNodeCollector collector) {
         collector.submitText(
             stack,
-            font.width(text) / -2f,
+            font.width(text) * -HALF,
             y,
             Component.literal(text).getVisualOrderText(),
             false,
             Font.DisplayMode.NORMAL,
-            FULL_BRIGHT,
-            COLOR_WHITE,
+            LightCoordsUtil.FULL_BRIGHT,
+            Constants.COLOR_WHITE,
             0,
             0
         );
     }
 
     public static class State extends BlockEntityRenderState {
-        private BlockState blockState;
+        private boolean visible;
+        private @Nullable BlockState blockState;
         private String energy = "";
         private String unit = "";
-        private boolean visible;
     }
 }

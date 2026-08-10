@@ -20,8 +20,7 @@ public class MonitorBlockItem extends BlockItem {
     @SuppressWarnings("deprecation")
     @Override
     public void appendHoverText(
-        ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder,
-        TooltipFlag tooltipFlag
+        ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag
     ) {
         super.appendHoverText(stack, context, display, builder, tooltipFlag);
         builder.accept(Component.literal("Work in progress!").withStyle(ChatFormatting.DARK_RED));

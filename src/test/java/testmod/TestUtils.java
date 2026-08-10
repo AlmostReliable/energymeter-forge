@@ -2,7 +2,7 @@ package testmod;
 
 import com.almostreliable.energymeter.block.component.IoConfig.IoSettingWithPriority;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -57,7 +57,7 @@ public final class TestUtils {
     }
 
     public static MeterBlockEntity setupMeter(GameTestHelper helper) {
-        helper.setBlock(DEFAULT_POS, Registration.METER_BLOCK.get());
+        helper.setBlock(DEFAULT_POS, ModRegistration.METER_BLOCK.get());
         return helper.getBlockEntity(DEFAULT_POS, MeterBlockEntity.class);
     }
 

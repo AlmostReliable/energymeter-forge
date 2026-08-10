@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.data;
 
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -28,13 +28,13 @@ class EnergyMeterLoot extends LootTableProvider {
 
         @Override
         protected Iterable<Block> getKnownBlocks() {
-            return Registration.getKnownBlocks();
+            return ModRegistration.getKnownBlocks();
         }
 
         @Override
         protected void generate() {
-            dropSelf(Registration.METER_BLOCK.get());
-            dropSelf(Registration.MONITOR_BLOCK.get());
+            dropSelf(ModRegistration.METER_BLOCK.get());
+            dropSelf(ModRegistration.MONITOR_BLOCK.get());
         }
     }
 }

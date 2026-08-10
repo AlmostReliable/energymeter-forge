@@ -3,7 +3,7 @@ package com.almostreliable.energymeter;
 import com.almostreliable.energymeter.client.MeterRenderer;
 import com.almostreliable.energymeter.client.screen.MeterScreen;
 import com.almostreliable.energymeter.client.screen.MonitorScreen;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -20,11 +20,11 @@ public final class EnergyMeterClient {
     }
 
     private void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(Registration.METER_MENU.get(), MeterScreen::new);
-        event.register(Registration.MONITOR_MENU.get(), MonitorScreen::new);
+        event.register(ModRegistration.METER_MENU.get(), MeterScreen::new);
+        event.register(ModRegistration.MONITOR_MENU.get(), MonitorScreen::new);
     }
 
     private void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(Registration.METER_BLOCK_ENTITY.get(), MeterRenderer::new);
+        event.registerBlockEntityRenderer(ModRegistration.METER_BLOCK_ENTITY.get(), MeterRenderer::new);
     }
 }

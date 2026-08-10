@@ -7,6 +7,7 @@ import com.almostreliable.energymeter.block.component.MeterEnergyHandler;
 import com.almostreliable.energymeter.compat.MeterObserver;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Constants;
+import com.almostreliable.energymeter.core.ModRegistration;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
 import com.almostreliable.energymeter.util.EnumExtension;
@@ -36,16 +37,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
-import static com.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
-import static com.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
-import static com.almostreliable.energymeter.core.Constants.TOTAL_ENERGY_ID;
-import static com.almostreliable.energymeter.core.Constants.TRANSFER_LIMIT_ID;
-import static com.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
-import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
-import static com.almostreliable.energymeter.core.Registration.METER_BLOCK;
-import static com.almostreliable.energymeter.core.Registration.METER_BLOCK_ENTITY;
-
 public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEntity, EnergyHandlerHost {
 
     public static final int DEFAULT_INTERVAL = 5;
@@ -72,7 +63,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
     public MeterBlockEntity(BlockPos pos, BlockState state) {
-        super(METER_BLOCK_ENTITY.get(), pos, state);
+        super(ModRegistration.METER_BLOCK_ENTITY.get(), pos, state);
         this.ioConfig = new IoConfig(this::onConnectionRelevantSettingChanged);
         this.graphHandler = new GraphHandler();
         this.energyHandler = new MeterEnergyHandler(this);
@@ -81,25 +72,25 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        ioConfig.serialize(output.child(SIDE_CONFIG_ID));
-        output.putString(TRANSFER_MODE_ID, transferMode.name());
-        output.putString(MEASURE_MODE_ID, measureMode.name());
-        output.putInt(MEASURE_INTERVAL_ID, measureInterval);
-        output.putInt(ZERO_TOLERANCE_ID, zeroTolerance);
-        output.putLong(TRANSFER_LIMIT_ID, transferLimit);
-        output.putLong(TOTAL_ENERGY_ID, totalEnergy);
+        ioConfig.serialize(output.child(Constants.SIDE_CONFIG_ID));
+        output.putString(Constants.TRANSFER_MODE_ID, transferMode.name());
+        output.putString(Constants.MEASURE_MODE_ID, measureMode.name());
+        output.putInt(Constants.MEASURE_INTERVAL_ID, measureInterval);
+        output.putInt(Constants.ZERO_TOLERANCE_ID, zeroTolerance);
+        output.putLong(Constants.TRANSFER_LIMIT_ID, transferLimit);
+        output.putLong(Constants.TOTAL_ENERGY_ID, totalEnergy);
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        input.child(SIDE_CONFIG_ID).ifPresent(ioConfig::deserialize);
-        input.getString(TRANSFER_MODE_ID).ifPresent(value -> transferMode = TransferMode.valueOf(value));
-        input.getString(MEASURE_MODE_ID).ifPresent(value -> measureMode = MeasureMode.valueOf(value));
-        measureInterval = input.getIntOr(MEASURE_INTERVAL_ID, measureInterval);
-        zeroTolerance = input.getIntOr(ZERO_TOLERANCE_ID, zeroTolerance);
-        transferLimit = input.getLongOr(TRANSFER_LIMIT_ID, transferLimit);
-        totalEnergy = input.getLongOr(TOTAL_ENERGY_ID, totalEnergy);
+        input.child(Constants.SIDE_CONFIG_ID).ifPresent(ioConfig::deserialize);
+        input.getString(Constants.TRANSFER_MODE_ID).ifPresent(value -> transferMode = TransferMode.valueOf(value));
+        input.getString(Constants.MEASURE_MODE_ID).ifPresent(value -> measureMode = MeasureMode.valueOf(value));
+        measureInterval = input.getIntOr(Constants.MEASURE_INTERVAL_ID, measureInterval);
+        zeroTolerance = input.getIntOr(Constants.ZERO_TOLERANCE_ID, zeroTolerance);
+        transferLimit = input.getLongOr(Constants.TRANSFER_LIMIT_ID, transferLimit);
+        totalEnergy = input.getLongOr(Constants.TOTAL_ENERGY_ID, totalEnergy);
     }
 
     // used to sync the latest energy rate to player entering the chunk
@@ -225,7 +216,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
         var level = getLevel();
         if (level instanceof ServerLevel serverLevel &&
-            serverLevel.getBlockState(worldPosition.relative(direction)).is(METER_BLOCK.get()) &&
+            serverLevel.getBlockState(worldPosition.relative(direction)).is(ModRegistration.METER_BLOCK.get()) &&
             !Config.COMMON.allowMeterConnections.get()
         ) {
             return null;

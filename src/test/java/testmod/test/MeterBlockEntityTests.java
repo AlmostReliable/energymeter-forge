@@ -7,7 +7,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionStatus;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -102,7 +102,7 @@ public class MeterBlockEntityTests {
     public static void meter_connection(GameTestHelper helper) {
         // set up the plot
         SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
-        helper.setBlock(TestUtils.DEFAULT_POS.relative(Direction.WEST), Registration.METER_BLOCK.get());
+        helper.setBlock(TestUtils.DEFAULT_POS.relative(Direction.WEST), ModRegistration.METER_BLOCK.get());
 
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
 

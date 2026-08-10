@@ -38,7 +38,6 @@ public final class IoConfigButton extends LayoutPositionedWidget {
     private static final int TEXTURE_WIDTH = 51;
     private static final int TEXTURE_HEIGHT = 17;
     private static final int BUTTON_SIZE = 17;
-    private static final int PRIORITY_TEXT_COLOR = 15_658_734;
     private static final TexRenderer MANAGER = TexRenderer.button("io", TEXTURE_WIDTH, TEXTURE_HEIGHT);
     private static final TexRenderer OFF = MANAGER.copy().tex(0, 0, BUTTON_SIZE);
     private static final TexRenderer INPUT = MANAGER.copy().tex(BUTTON_SIZE, 0, BUTTON_SIZE);
@@ -126,7 +125,7 @@ public final class IoConfigButton extends LayoutPositionedWidget {
                 text,
                 getX() + BUTTON_SIZE / 2 + 1 - font.width(text) / 2,
                 getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
-                PRIORITY_TEXT_COLOR,
+                Constants.COLOR_WHITE,
                 false
             );
         }
@@ -224,7 +223,7 @@ public final class IoConfigButton extends LayoutPositionedWidget {
 
     public static final class SettingSelectorWidget extends LayoutPositionedWidget implements ClickedOutsideListener {
 
-        private static final Consumer<IoSettingWithPriority> EMPTY_LISTENER = setting -> {};
+        private static final Consumer<IoSettingWithPriority> EMPTY_LISTENER = _ -> {};
         private Consumer<IoSettingWithPriority> onSettingSelected = EMPTY_LISTENER;
 
         private SettingSelectorWidget() {
@@ -240,16 +239,14 @@ public final class IoConfigButton extends LayoutPositionedWidget {
         @Override
         protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             graphics.nextStratum();
-            int x = getX() - 1;
-            int y = getY() - 1;
-            int width = BUTTON_SIZE * 6 + 2;
-            int height = BUTTON_SIZE + 2;
-            graphics.fill(x, y, x + width, y + 1, Constants.COLOR_ACCENT);
-            graphics.fill(x, y + height - 1, x + width, y + height, Constants.COLOR_ACCENT);
-            graphics.fill(x, y + 1, x + 1, y + height - 1, Constants.COLOR_ACCENT);
-            graphics.fill(x + width - 1, y + 1, x + width, y + height - 1, Constants.COLOR_ACCENT);
+
+            // outline
+            graphics.outline(getX() - 1, getY() - 1, BUTTON_SIZE * 6 + 2, BUTTON_SIZE + 2, Constants.COLOR_ACCENT);
+            // off button
             OFF.target(getX(), getY()).render(graphics);
+            // input button
             INPUT.target(getX() + BUTTON_SIZE, getY()).render(graphics);
+            // output buttons and priorities
             for (int prioIndex = 0; prioIndex < IoConfig.MAX_PRIORITY; prioIndex++) {
                 int buttonX = getX() + BUTTON_SIZE * 2 + BUTTON_SIZE * prioIndex;
                 OUTPUT.target(buttonX, getY()).render(graphics);
@@ -259,7 +256,7 @@ public final class IoConfigButton extends LayoutPositionedWidget {
                     text,
                     buttonX + BUTTON_SIZE / 2 + 1 - font.width(text) / 2,
                     getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
-                    PRIORITY_TEXT_COLOR,
+                    Constants.COLOR_WHITE,
                     false
                 );
             }

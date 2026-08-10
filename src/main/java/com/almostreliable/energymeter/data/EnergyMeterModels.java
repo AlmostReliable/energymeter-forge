@@ -5,11 +5,10 @@ import com.almostreliable.energymeter.ModConstants;
 import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.MonitorBlock;
 import com.almostreliable.energymeter.block.multiblock.MultiblockType;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
@@ -46,7 +45,7 @@ class EnergyMeterModels extends ModelProvider {
     }
 
     private static void energyMeter(BlockModelGenerators blockModels) {
-        var block = Registration.METER_BLOCK.get();
+        var block = ModRegistration.METER_BLOCK.get();
 
         Identifier model = ModelTemplates.CUBE_ORIENTABLE.create(
             block,
@@ -65,7 +64,7 @@ class EnergyMeterModels extends ModelProvider {
     }
 
     private static void externalMonitor(BlockModelGenerators blockModels) {
-        var block = Registration.MONITOR_BLOCK.get();
+        var block = ModRegistration.MONITOR_BLOCK.get();
 
         Map<MultiblockType, Identifier> models = new EnumMap<>(MultiblockType.class);
         for (MultiblockType type : MultiblockType.values()) {

@@ -2,7 +2,6 @@ package com.almostreliable.energymeter.block;
 
 import com.almostreliable.energymeter.block.entity.MonitorBlockEntity;
 import com.almostreliable.energymeter.block.multiblock.MultiblockType;
-import com.almostreliable.energymeter.block.multiblock.MultiblockTypeProperty;
 import com.almostreliable.energymeter.block.multiblock.OptionalDirection;
 import com.almostreliable.energymeter.block.multiblock.OptionalDirectionProperty;
 import com.almostreliable.energymeter.core.Config;
@@ -27,6 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MonitorBlock extends FacingEntityBlock {
@@ -34,7 +34,7 @@ public class MonitorBlock extends FacingEntityBlock {
     public static final BooleanProperty CONTROLLER = BooleanProperty.create(Constants.CONTROLLER_PROP);
     public static final EnumProperty<OptionalDirection> HORIZONTAL = OptionalDirectionProperty.HORIZONTAL;
     public static final EnumProperty<OptionalDirection> VERTICAL = OptionalDirectionProperty.VERTICAL;
-    public static final EnumProperty<MultiblockType> TYPE = MultiblockTypeProperty.INSTANCE;
+    public static final EnumProperty<MultiblockType> TYPE = EnumProperty.create(Constants.MULTIBLOCK_TYPE_PROP, MultiblockType.class, List.of(MultiblockType.values()));
 
     public MonitorBlock(Properties properties) {
         super(properties);

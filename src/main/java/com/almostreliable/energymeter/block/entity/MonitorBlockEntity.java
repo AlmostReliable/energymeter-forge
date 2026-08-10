@@ -1,6 +1,7 @@
 package com.almostreliable.energymeter.block.entity;
 
 import com.almostreliable.energymeter.core.Constants;
+import com.almostreliable.energymeter.core.ModRegistration;
 import com.almostreliable.energymeter.menu.MonitorMenu;
 
 import net.minecraft.core.BlockPos;
@@ -15,15 +16,13 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
-import static com.almostreliable.energymeter.core.Registration.MONITOR_BLOCK_ENTITY;
-
 public class MonitorBlockEntity extends BlockEntity implements TickableMenuBlockEntity {
 
     private int width;
     private int height;
 
     public MonitorBlockEntity(BlockPos pos, BlockState blockState) {
-        super(MONITOR_BLOCK_ENTITY.get(), pos, blockState);
+        super(ModRegistration.MONITOR_BLOCK_ENTITY.get(), pos, blockState);
     }
 
     @Override

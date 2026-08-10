@@ -2,7 +2,7 @@ package com.almostreliable.energymeter.compat.cct;
 
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.compat.ICapabilityAdapter;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -22,7 +22,7 @@ public final class CCTCompat {
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(
             PeripheralCapabilityAdapter.PERIPHERAL_CAPABILITY,
-            Registration.METER_BLOCK_ENTITY.get(),
+            ModRegistration.METER_BLOCK_ENTITY.get(),
             (entity, direction) -> createMeterPeripheral(entity).getCapability(direction)
         );
     }

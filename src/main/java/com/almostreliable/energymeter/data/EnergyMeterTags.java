@@ -1,7 +1,7 @@
 package com.almostreliable.energymeter.data;
 
 import com.almostreliable.energymeter.ModConstants;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -18,6 +18,6 @@ public class EnergyMeterTags extends BlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(Registration.METER_BLOCK.get(), Registration.MONITOR_BLOCK.get());
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModRegistration.METER_BLOCK.get(), ModRegistration.MONITOR_BLOCK.get());
     }
 }

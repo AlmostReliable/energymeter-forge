@@ -1,7 +1,7 @@
 package testmod;
 
 import com.almostreliable.energymeter.ModConstants;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import com.mojang.serialization.MapCodec;
 
@@ -105,7 +105,7 @@ public final class TestRegistration {
     }
 
     private static <M extends AbstractContainerMenu, E extends BlockEntity> DeferredHolder<MenuType<?>, MenuType<M>> registerMenu(
-        DeferredBlock<?> block, Class<E> blockEntityClass, Registration.MenuSupplier<M, E> factory
+        DeferredBlock<?> block, Class<E> blockEntityClass, ModRegistration.MenuSupplier<M, E> factory
     ) {
         return MENUS.register(
             block.getId().getPath(),

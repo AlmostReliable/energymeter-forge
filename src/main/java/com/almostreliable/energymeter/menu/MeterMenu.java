@@ -7,7 +7,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.ConnectionStatus;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.MeasureMode;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 import com.almostreliable.energymeter.network.menu.handler.BooleanDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.DelegateDataHandler;
 import com.almostreliable.energymeter.network.menu.handler.EnumDataHandler;
@@ -34,7 +34,7 @@ public class MeterMenu extends SynchronizedContainerMenu<MeterBlockEntity> {
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
     public MeterMenu(int wid, Inventory playerInventory, MeterBlockEntity blockEntity) {
-        super(Registration.METER_MENU.get(), wid, playerInventory, blockEntity);
+        super(ModRegistration.METER_MENU.get(), wid, playerInventory, blockEntity);
     }
 
     @Override

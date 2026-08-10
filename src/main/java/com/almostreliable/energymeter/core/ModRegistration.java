@@ -44,7 +44,7 @@ import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public final class Registration {
+public final class ModRegistration {
 
     // @formatter:off
 
@@ -67,13 +67,15 @@ public final class Registration {
     public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = registerMenu(METER_BLOCK, MeterBlockEntity.class, MeterMenu::new);
     public static final DeferredHolder<MenuType<?>, MenuType<MonitorMenu>> MONITOR_MENU = registerMenu(MONITOR_BLOCK, MonitorBlockEntity.class, MonitorMenu::new);
 
+    // @formatter:on
+
     // creative tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
             .title(EnergyMeterLang.LangEntry.of("tab", "main", ModConstants.MOD_NAME).get())
             .icon(METER_BLOCK::toStack)
             .noScrollBar()
-            .displayItems((features, output) ->{
+            .displayItems((_, output) ->{
                 output.acceptAll(getKnownItems());
                 if (EnergyMeter.isModLoaded(Constants.GUIDE_ME)) {
                     var guideStack = getGuideBookStack();
@@ -84,9 +86,7 @@ public final class Registration {
             .build()
     );
 
-    // @formatter:on
-
-    private Registration() {}
+    private ModRegistration() {}
 
     public static void init(IEventBus modEventBus) {
         CREATIVE_TABS.register(modEventBus);
@@ -95,7 +95,7 @@ public final class Registration {
         BLOCK_ENTITIES.register(modEventBus);
         MENUS.register(modEventBus);
 
-        modEventBus.addListener(Registration::registerCapabilities);
+        modEventBus.addListener(ModRegistration::registerCapabilities);
     }
 
     private static Collection<ItemStack> getKnownItems() {
@@ -140,11 +140,10 @@ public final class Registration {
         return block;
     }
 
-    @SuppressWarnings("DataFlowIssue")
     private static <E extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<E>> registerBlockEntity(
         DeferredBlock<?> block, BlockEntityType.BlockEntitySupplier<E> factory
     ) {
-        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> new BlockEntityType<E>(factory, (Block) block.get()));
+        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> new BlockEntityType<>(factory, block.get()));
     }
 
     private static <M extends AbstractContainerMenu, E extends BlockEntity> DeferredHolder<MenuType<?>, MenuType<M>> registerMenu(
