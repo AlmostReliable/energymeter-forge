@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - changed logic for listening to neighbor updates
 - fixed crash when placing test energy emitter block
 - fixed rare unnecessary saving of Energy Meter block entities
+- fixed split mode being biased on outputs
 - fixed CC: Tweaked integration sometimes not displaying correct connection status
 - fixed CC: Tweaked computers sometimes not being subscribed to the Energy Meter when multiple computers are attached
 - fixed CC: Tweaked Energy Meter observers not being called synchronously

@@ -226,7 +226,7 @@ public class EnergyHandler {
 
         // leftovers, can happen with less outputs than energy to forward
         if (energyToForward > 0) {
-            Collections.shuffle(outputs); // prevent bias
+            Collections.shuffle(remainingOutputs); // prevent bias
 
             for (var entry : remainingOutputs) {
                 int current = outputAllocations.getOrDefault(entry, 0);
