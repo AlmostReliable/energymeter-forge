@@ -53,16 +53,17 @@ public final class TestRegistration {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyEmitterBlockEntity>> ENERGY_EMITTER_BLOCK_ENTITY = registerBlockEntity(ENERGY_EMITTER_BLOCK, EnergyEmitterBlockEntity::new);
     public static final DeferredHolder<MenuType<?>, MenuType<EnergyEmitterBlockMenu>> ENERGY_EMITTER_BLOCK_MENU = registerMenu(ENERGY_EMITTER_BLOCK, EnergyEmitterBlockEntity.class, EnergyEmitterBlockMenu::new);
     public static final DeferredHolder<MapCodec<? extends GameTestInstance>, MapCodec<TestModTestInstance>> TEST_INSTANCE_TYPE = TEST_INSTANCE_TYPES.register("function", () -> TestModTestInstance.CODEC);
+
+    // @formatter:on
+   
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
             .title(Component.literal("Testmod"))
             .icon(Items.NETHER_STAR::getDefaultInstance)
             .noScrollBar()
-            .displayItems((features, output) -> output.acceptAll(List.of(ENERGY_EMITTER_BLOCK.toStack(), ENERGY_RECEIVER_BLOCK.toStack())))
+            .displayItems((_, output) -> output.acceptAll(List.of(ENERGY_EMITTER_BLOCK.toStack(), ENERGY_RECEIVER_BLOCK.toStack())))
             .build()
     );
-
-    // @formatter:on
 
     private TestRegistration() {}
 
@@ -97,11 +98,10 @@ public final class TestRegistration {
         return block;
     }
 
-    @SuppressWarnings("DataFlowIssue")
     private static <E extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<E>> registerBlockEntity(
         DeferredBlock<?> block, BlockEntityType.BlockEntitySupplier<E> factory
     ) {
-        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> new BlockEntityType<E>(factory, block.get()));
+        return BLOCK_ENTITIES.register(block.getId().getPath(), () -> new BlockEntityType<>(factory, block.get()));
     }
 
     private static <M extends AbstractContainerMenu, E extends BlockEntity> DeferredHolder<MenuType<?>, MenuType<M>> registerMenu(
