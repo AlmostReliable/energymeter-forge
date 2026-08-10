@@ -77,7 +77,7 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity> {
     private void drawText(String text, float y, PoseStack stack, MultiBufferSource buffer) {
         font.drawInBatch(
             text,
-            font.width(text) / -2f,
+            font.width(text) * -HALF,
             y,
             ChatFormatting.WHITE.getColor(),
             false,

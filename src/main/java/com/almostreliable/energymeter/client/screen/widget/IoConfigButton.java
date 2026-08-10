@@ -36,7 +36,6 @@ public final class IoConfigButton extends LayoutPositionedWidget {
     private static final int TEXTURE_WIDTH = 51;
     private static final int TEXTURE_HEIGHT = 17;
     private static final int BUTTON_SIZE = 17;
-    private static final int PRIORITY_TEXT_COLOR = 15_658_734;
     private static final TexRenderer MANAGER = TexRenderer.button("io", TEXTURE_WIDTH, TEXTURE_HEIGHT);
     private static final TexRenderer OFF = MANAGER.copy().tex(0, 0, BUTTON_SIZE);
     private static final TexRenderer INPUT = MANAGER.copy().tex(BUTTON_SIZE, 0, BUTTON_SIZE);
@@ -123,7 +122,7 @@ public final class IoConfigButton extends LayoutPositionedWidget {
                 String.valueOf(priority),
                 getX() + BUTTON_SIZE / 2 + 1,
                 getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
-                PRIORITY_TEXT_COLOR
+                Constants.COLOR_WHITE
             );
         }
 
@@ -256,7 +255,7 @@ public final class IoConfigButton extends LayoutPositionedWidget {
                         String.valueOf(prioIndex + 1),
                         x + BUTTON_SIZE / 2 + 1,
                         getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
-                        PRIORITY_TEXT_COLOR
+                        Constants.COLOR_WHITE
                     );
                 }
             }
