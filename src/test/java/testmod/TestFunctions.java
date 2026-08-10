@@ -13,6 +13,7 @@ import testmod.scenario.ExcessEnergyVoidingScenario;
 import testmod.scenario.SplitNoDoubleInsertScenario;
 import testmod.test.MathExpressionParserTests;
 import testmod.test.MeterBlockEntityTests;
+import testmod.test.MeterBlockTests;
 import testmod.test.MeterConsumeTests;
 import testmod.test.MeterSplitTests;
 import testmod.test.MeterTransferLimitTests;
@@ -48,6 +49,8 @@ public final class TestFunctions {
         register(logic, "test_precision_and_rounding", MathExpressionParserTests::testPrecisionAndRounding);
 
         var meter = TestUtils.BATCH_METER_TESTS;
+        register(meter, "neighbor_update_cache_invalidation", MeterBlockTests::neighbor_update_cache_invalidation);
+
         register(meter, "defaults", MeterBlockEntityTests::defaults);
         register(meter, "energy_cap", MeterBlockEntityTests::energy_cap);
         register(meter, "meter_connection", MeterBlockEntityTests::meter_connection);

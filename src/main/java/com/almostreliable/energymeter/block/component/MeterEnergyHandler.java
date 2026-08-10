@@ -281,6 +281,11 @@ public class MeterEnergyHandler {
         return energyPerInterval;
     }
 
+    @TestOnly
+    public boolean hasOutputCache(Direction direction) {
+        return outputCache.containsKey(direction);
+    }
+
     public record MeasuredEnergy(long total, double average) {}
 
     private record EnergyPerOutputEntry(EnergyHandler energyStorage, int maxEnergy) {}

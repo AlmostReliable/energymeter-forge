@@ -15,7 +15,6 @@ import net.neoforged.neoforge.transfer.energy.EmptyEnergyHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
-import testmod.TestMod;
 import testmod.TestUtils;
 import testmod.TestUtils.SimplePlotResult;
 
