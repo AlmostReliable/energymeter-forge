@@ -74,10 +74,9 @@ public final class IoConfigButton extends LayoutPositionedWidget {
     }
 
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
-    public static Layout createGroup(
+    public static Group createGroup(
         BlockState blockState, Function<Direction, IoSettingWithPriority> settingsFactory,
-        BiConsumer<@Nullable Direction, IoSettingWithPriority> onSettingSelected, Supplier<TransferMode> transferModeSupplier,
-        Consumer<SettingSelectorWidget> overlayWidgetConsumer
+        BiConsumer<@Nullable Direction, IoSettingWithPriority> onSettingSelected, Supplier<TransferMode> transferModeSupplier
     ) {
         GridLayout layout = new GridLayout().spacing(1);
         SettingSelectorWidget settingSelectorWidget = new SettingSelectorWidget();
@@ -96,9 +95,10 @@ public final class IoConfigButton extends LayoutPositionedWidget {
             layout.addChild(button, blockSide.getRow(), blockSide.getColumn());
         }
 
-        overlayWidgetConsumer.accept(settingSelectorWidget);
-        return layout;
+        return new Group(layout, settingSelectorWidget);
     }
+
+    public record Group(Layout layout, SettingSelectorWidget settingSelectorWidget) {}
 
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {

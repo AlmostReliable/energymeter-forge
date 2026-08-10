@@ -9,6 +9,7 @@ import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.client.screen.widget.DynamicMarqueeStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.GuideButton;
 import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
+import com.almostreliable.energymeter.client.screen.widget.IoConfigButton.SettingSelectorWidget;
 import com.almostreliable.energymeter.client.screen.widget.RadioButton;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideListener;
@@ -64,6 +65,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     private final List<ClickedOutsideListener> clickedOutsideListeners = new ArrayList<>();
     private TabType currentTab = TabType.CONFIGURATION;
+    private @Nullable SettingSelectorWidget settingSelectorWidget;
 
     public MeterScreen(MeterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, GUI_WIDTH, GUI_HEIGHT);
@@ -99,14 +101,13 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             )
         );
 
-        var ioConfigLayout = IoConfigButton.createGroup(
+        var ioConfigGroup = IoConfigButton.createGroup(
             menu.getBlockState(),
             menu::getIoSetting,
             this::onIoSettingSelected,
-            menu::getTransferMode,
-            this::addRenderableWidget
+            menu::getTransferMode
         );
-        var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_IO.get(), ioConfigLayout);
+        var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_IO.get(), ioConfigGroup.layout());
         ioConfigComposite.setMinWidth(GLOBAL_INFO_WIDTH);
 
         var resetButton = Button.builder(EnergyMeterLang.BUTTON_RESET_TOTAL.get(), _ -> onResetTotalButtonClicked())
@@ -125,7 +126,16 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         FrameLayout.centerInRectangle(layout, leftPos, topPos, LEFT_PANE_WIDTH, GUI_HEIGHT);
 
         layout.visitWidgets(this::addRenderableWidget);
+        settingSelectorWidget = addWidget(ioConfigGroup.settingSelectorWidget());
         addRenderableWidget(new GuideButton(leftPos, topPos));
+    }
+
+    @Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        if (settingSelectorWidget != null) {
+            settingSelectorWidget.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        }
     }
 
     private void initTabs() {
