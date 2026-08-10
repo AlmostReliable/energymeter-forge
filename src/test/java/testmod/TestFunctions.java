@@ -18,6 +18,7 @@ import testmod.test.MeterConsumeTests;
 import testmod.test.MeterSplitTests;
 import testmod.test.MeterTransferLimitTests;
 import testmod.test.MeterTransferTests;
+import testmod.test.MeterTransactionTests;
 import testmod.test.MeterZeroToleranceTests;
 
 import java.util.ArrayList;
@@ -73,6 +74,15 @@ public final class TestFunctions {
         register(meter, "transfer_three_to_one", MeterTransferTests::transfer_three_to_one);
         register(meter, "transfer_one_to_three", MeterTransferTests::transfer_one_to_three);
         register(meter, "transfer_two_to_two", MeterTransferTests::transfer_two_to_two);
+
+        register(meter, "transaction_simulation_rollback", MeterTransactionTests::valid_input_simulation_rolls_back);
+        register(meter, "transaction_root_rollback", MeterTransactionTests::root_rollback);
+        register(meter, "transaction_child_commit_root_rollback", MeterTransactionTests::child_commit_root_rollback);
+        register(meter, "transaction_child_rollback_root_commit", MeterTransactionTests::child_rollback_root_commit);
+        register(meter, "transaction_repeated_root_inserts", MeterTransactionTests::repeated_inserts_in_root_commit);
+        register(meter, "transaction_multi_output_rollback", MeterTransactionTests::partial_multi_output_rollback);
+        register(meter, "transaction_consume_rollback", MeterTransactionTests::consume_mode_rollback);
+        register(meter, "transaction_transfer_limit_rollback", MeterTransactionTests::transfer_limit_rollback);
 
         register(meter, "zero_tolerance", MeterZeroToleranceTests::test);
 
