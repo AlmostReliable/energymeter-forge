@@ -27,7 +27,7 @@ public class EnergyEmitterBlockEntity extends BlockEntity implements TickableMen
     private int energyToEmitPerTick;
 
     public EnergyEmitterBlockEntity(BlockPos pos, BlockState blockState) {
-        super(TestRegistration.ENERGY_RECEIVER_BLOCK_ENTITY.get(), pos, blockState);
+        super(TestRegistration.ENERGY_EMITTER_BLOCK_ENTITY.get(), pos, blockState);
     }
 
     @Override
