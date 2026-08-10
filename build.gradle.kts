@@ -30,10 +30,6 @@ neoForge {
             client()
             systemProperty("guideme.showOnStartup", "${almostgradle.modId}:guide")
         }
-
-        named("datagen_server") {
-            programArguments.add("--uncached")
-        }
     }
 }
 
@@ -48,10 +44,6 @@ dependencies {
     runtimeOnly("cc.tweaked:cc-tweaked-${almostgradle.minecraftVersion}-forge:${almostgradle.getProperty("cctVersion")}")
     // GuideME
     runtimeOnly("org.appliedenergistics:guideme:${almostgradle.getProperty("guideMeVersion")}")
-}
-
-tasks.test {
-    failOnNoDiscoveredTests = false
 }
 
 tasks.withType<Jar> {
