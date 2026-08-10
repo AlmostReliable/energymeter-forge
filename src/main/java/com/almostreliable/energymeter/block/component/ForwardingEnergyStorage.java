@@ -42,10 +42,17 @@ public final class ForwardingEnergyStorage implements EnergyHandler {
     }
 
     private long sumOutputs(ToLongFunction<EnergyHandler> energyGetter) {
+        return sumOutputs(energyHandler.getValidOutputEnergyStorages(), energyGetter);
+    }
+
+    private static long sumOutputs(Iterable<EnergyHandler> outputs, ToLongFunction<EnergyHandler> energyGetter) {
         long result = 0;
 
-        for (EnergyHandler neighborEnergyStorage : energyHandler.getValidOutputEnergyStorages()) {
-            result += energyGetter.applyAsLong(neighborEnergyStorage);
+        for (EnergyHandler output : outputs) {
+            long value = energyGetter.applyAsLong(output);
+            if (value <= 0) continue;
+            if (value > Long.MAX_VALUE - result) return Long.MAX_VALUE;
+            result += value;
         }
 
         return result;

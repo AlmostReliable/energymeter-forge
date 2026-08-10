@@ -9,6 +9,7 @@ import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 
 import org.jspecify.annotations.Nullable;
 
+import testmod.scenario.EnergyMetadataOverflowScenario;
 import testmod.scenario.ExcessEnergyVoidingScenario;
 import testmod.scenario.SplitNoDoubleInsertScenario;
 import testmod.test.MathExpressionParserTests;
@@ -87,6 +88,7 @@ public final class TestFunctions {
         register(meter, "zero_tolerance", MeterZeroToleranceTests::test);
 
         var scenarios = TestUtils.BATCH_SCENARIOS;
+        register(scenarios, "energy_metadata_overflow", EnergyMetadataOverflowScenario::test);
         register(scenarios, "excess_energy_voiding", ExcessEnergyVoidingScenario::test);
         register(scenarios, "split_no_double_insert", SplitNoDoubleInsertScenario::test);
     }
