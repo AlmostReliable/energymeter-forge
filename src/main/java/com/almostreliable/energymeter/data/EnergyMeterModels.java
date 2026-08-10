@@ -16,6 +16,9 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 class EnergyMeterModels extends BlockStateProvider {
 
     EnergyMeterModels(PackOutput output, ExistingFileHelper existingFileHelper) {
@@ -54,44 +57,53 @@ class EnergyMeterModels extends BlockStateProvider {
 
     private void externalMonitor() {
         var block = Registration.MONITOR_BLOCK;
+        Map<MultiblockType, ModelFile> monitorModels = new EnumMap<>(MultiblockType.class);
+
+        for (MultiblockType type : MultiblockType.values()) {
+            if (type == MultiblockType.NONE || type == MultiblockType.SELF) {
+                monitorModels.put(type, models().cubeAll(type.getSerializedName(), MultiblockType.NORMAL.getTexture()));
+                continue;
+            }
+
+            BlockModelBuilder model = models().getBuilder(type.getTexture().getPath())
+                .parent(new ModelFile.UncheckedModelFile("block/block"))
+                .texture("front", type.getFrontTexture())
+                .texture("particle", type.getTexture());
+
+            var element = model.element()
+                .from(0, 0, 0).to(16, 16, 16)
+                .face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#front").end()
+                .face(Direction.SOUTH).uvs(16, 0, 0, 16).texture("#particle").end();
+
+            if (type.getUpTexture() != null) {
+                model.texture("up", type.getUpTexture());
+                element.face(Direction.UP).uvs(16, 0, 0, 16).texture("#up").end();
+            }
+            if (type.getDownTexture() != null) {
+                model.texture("down", type.getDownTexture());
+                element.face(Direction.DOWN).uvs(16, 16, 0, 0).texture("#down").end();
+            }
+            if (type.getLeftTexture() != null) {
+                model.texture("left", type.getLeftTexture());
+                element.face(Direction.EAST).uvs(0, 0, 16, 16).texture("#left").end();
+            }
+            if (type.getRightTexture() != null) {
+                model.texture("right", type.getRightTexture());
+                element.face(Direction.WEST).uvs(0, 0, 16, 16).texture("#right").end();
+            }
+
+            element.end();
+            monitorModels.put(type, model);
+        }
 
         getVariantBuilder(block.get()).forAllStatesExcept(
             state -> {
                 MultiblockType type = state.getValue(MonitorBlock.TYPE);
+                ModelFile model = monitorModels.get(type);
 
                 if (type == MultiblockType.NONE || type == MultiblockType.SELF) {
-                    BlockModelBuilder model = models().cubeAll(type.getSerializedName(), MultiblockType.NORMAL.getTexture());
                     return ConfiguredModel.builder().modelFile(model).build();
                 }
-
-                BlockModelBuilder model = models().getBuilder(type.getTexture().getPath())
-                    .parent(new ModelFile.UncheckedModelFile("block/block"))
-                    .texture("front", type.getFrontTexture())
-                    .texture("particle", type.getTexture());
-
-                var element = model.element()
-                    .from(0, 0, 0).to(16, 16, 16)
-                    .face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#front").end()
-                    .face(Direction.SOUTH).uvs(16, 0, 0, 16).texture("#particle").end();
-
-                if (type.getUpTexture() != null) {
-                    model.texture("up", type.getUpTexture());
-                    element.face(Direction.UP).uvs(16, 0, 0, 16).texture("#up").end();
-                }
-                if (type.getDownTexture() != null) {
-                    model.texture("down", type.getDownTexture());
-                    element.face(Direction.DOWN).uvs(16, 16, 0, 0).texture("#down").end();
-                }
-                if (type.getLeftTexture() != null) {
-                    model.texture("left", type.getLeftTexture());
-                    element.face(Direction.EAST).uvs(0, 0, 16, 16).texture("#left").end();
-                }
-                if (type.getRightTexture() != null) {
-                    model.texture("right", type.getRightTexture());
-                    element.face(Direction.WEST).uvs(0, 0, 16, 16).texture("#right").end();
-                }
-
-                element.end();
 
                 Direction facing = FacingEntityBlock.getFacingDir(state);
                 Direction bottom = FacingEntityBlock.getBottomDir(state);

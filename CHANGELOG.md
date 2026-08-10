@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- /
+
+- fixed monitor block models generating duplicate elements
 
 ## [0.5.0] - 2026-07-30
 
