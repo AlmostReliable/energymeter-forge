@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 - added tests for ensuring neighbor updates are listened to
 - changed logic for listening to neighbor updates
 - fixed crash when placing test energy emitter block
+- fixed rare unnecessary saving of Energy Meter block entities
+- fixed CC: Tweaked integration sometimes not displaying correct connection status
 
 ## [0.5.1] - 2026-08-10
 

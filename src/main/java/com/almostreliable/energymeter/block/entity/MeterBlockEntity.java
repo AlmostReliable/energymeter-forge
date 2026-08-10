@@ -148,7 +148,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @Override
     public void tick(ServerLevel level) {
         if (!transferMode.isCorrectlyConfigured(ioConfig::hasInput, ioConfig::hasOutput)) {
-            connectionStatus = ConnectionStatus.DISCONNECTED;
+            updateConnectionStatus();
             return;
         }
 
@@ -159,7 +159,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
             onIntervalReached(level);
         }
 
-        connectionStatus = energyRate > 0 ? transferMode.activeStatus : ConnectionStatus.IDLE;
+        updateConnectionStatus();
     }
 
     private void onIntervalReached(ServerLevel level) {
@@ -183,7 +183,9 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         totalEnergy += measuredEnergy.total();
 
         var energyRateChanged = lastEnergyRate != energyRate;
-        if (energyRateChanged || lastTotalEnergy != totalEnergy) {
+        var statusChanged = updateConnectionStatus();
+
+        if (!statusChanged && (energyRateChanged || lastTotalEnergy != totalEnergy)) {
             setChanged();
         }
 
@@ -206,7 +208,24 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         energyHandler.clearOutputCacheAndReset();
         energyRate = 0;
         syncEnergyRate(serverLevel);
+        if (!updateConnectionStatus()) setChanged();
+    }
+
+    private boolean updateConnectionStatus() {
+        var newStatus = ConnectionStatus.IDLE;
+
+        if (transferMode.isCorrectlyConfigured(ioConfig::hasInput, ioConfig::hasOutput)) {
+            newStatus = energyRate > 0 ? transferMode.activeStatus : ConnectionStatus.IDLE;
+        } else {
+            newStatus = ConnectionStatus.DISCONNECTED;
+        }
+
+        if (connectionStatus == newStatus) return false;
+
+        connectionStatus = newStatus;
         setChanged();
+
+        return true;
     }
 
     // fall-back to clear output capability cache in case a block doesn't invalidate the capability
