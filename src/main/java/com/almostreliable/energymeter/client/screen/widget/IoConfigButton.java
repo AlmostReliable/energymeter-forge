@@ -12,10 +12,12 @@ import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.util.TexRenderer;
 import com.almostreliable.energymeter.util.TooltipBuilder;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.Layout;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -24,7 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.lwjgl.glfw.GLFW;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -36,7 +38,6 @@ public final class IoConfigButton extends LayoutPositionedWidget {
     private static final int TEXTURE_WIDTH = 51;
     private static final int TEXTURE_HEIGHT = 17;
     private static final int BUTTON_SIZE = 17;
-    private static final int PRIORITY_TEXT_COLOR = 15_658_734;
     private static final TexRenderer MANAGER = TexRenderer.button("io", TEXTURE_WIDTH, TEXTURE_HEIGHT);
     private static final TexRenderer OFF = MANAGER.copy().tex(0, 0, BUTTON_SIZE);
     private static final TexRenderer INPUT = MANAGER.copy().tex(BUTTON_SIZE, 0, BUTTON_SIZE);
@@ -73,10 +74,9 @@ public final class IoConfigButton extends LayoutPositionedWidget {
     }
 
     @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
-    public static Layout createGroup(
+    public static Group createGroup(
         BlockState blockState, Function<Direction, IoSettingWithPriority> settingsFactory,
-        BiConsumer<@Nullable Direction, IoSettingWithPriority> onSettingSelected, Supplier<TransferMode> transferModeSupplier,
-        Consumer<SettingSelectorWidget> overlayWidgetConsumer
+        BiConsumer<@Nullable Direction, IoSettingWithPriority> onSettingSelected, Supplier<TransferMode> transferModeSupplier
     ) {
         GridLayout layout = new GridLayout().spacing(1);
         SettingSelectorWidget settingSelectorWidget = new SettingSelectorWidget();
@@ -95,12 +95,13 @@ public final class IoConfigButton extends LayoutPositionedWidget {
             layout.addChild(button, blockSide.getRow(), blockSide.getColumn());
         }
 
-        overlayWidgetConsumer.accept(settingSelectorWidget);
-        return layout;
+        return new Group(layout, settingSelectorWidget);
     }
 
+    public record Group(Layout layout, SettingSelectorWidget settingSelectorWidget) {}
+
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         var settingWithPriority = settingSupplier.get();
         var transferMode = transferModeSupplier.get();
 
@@ -113,17 +114,19 @@ public final class IoConfigButton extends LayoutPositionedWidget {
         } else {
             buttonIcon = OFF;
         }
-        buttonIcon.target(getX(), getY()).render(guiGraphics);
+        buttonIcon.target(getX(), getY()).render(graphics);
 
         // output priority
         if (transferMode == TransferMode.TRANSFER && settingSelectorWidget.isUnbound() && settingWithPriority.isOutput()) {
             int priority = settingWithPriority.priority();
-            guiGraphics.drawCenteredString(
+            var text = String.valueOf(priority);
+            graphics.text(
                 font,
-                String.valueOf(priority),
-                getX() + BUTTON_SIZE / 2 + 1,
+                text,
+                getX() + BUTTON_SIZE / 2 + 1 - font.width(text) / 2,
                 getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
-                PRIORITY_TEXT_COLOR
+                Constants.COLOR_WHITE,
+                false
             );
         }
 
@@ -137,36 +140,36 @@ public final class IoConfigButton extends LayoutPositionedWidget {
 
     @Override
     public void playDownSound(SoundManager handler) {
-        if (blockSide == BlockSide.FRONT && !Screen.hasShiftDown()) return;
+        if (blockSide == BlockSide.FRONT && !Minecraft.getInstance().hasShiftDown()) return;
         super.playDownSound(handler);
     }
 
     @Override
-    protected boolean isValidClickButton(int button) {
-        return button == GLFW.GLFW_MOUSE_BUTTON_LEFT || button == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+    protected boolean isValidClickButton(MouseButtonInfo buttonInfo) {
+        return buttonInfo.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT || buttonInfo.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
     }
 
     @Override
-    protected boolean clicked(double mouseX, double mouseY) {
-        return settingSelectorWidget.isUnbound() && super.clicked(mouseX, mouseY);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return settingSelectorWidget.isUnbound() && super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY, int button) {
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
         if (blockSide == BlockSide.FRONT) {
-            if (Screen.hasShiftDown()) onSettingsReset.run();
+            if (event.hasShiftDown()) onSettingsReset.run();
             return;
         }
 
-        if (!Screen.hasShiftDown() && transferModeSupplier.get() == TransferMode.TRANSFER) {
+        if (!event.hasShiftDown() && transferModeSupplier.get() == TransferMode.TRANSFER) {
             settingSelectorWidget.bind(getX(), getY(), onSettingSelected);
         } else {
-            handleButtonClick(settingSupplier.get(), button);
+            handleButtonClick(settingSupplier.get(), event.button(), event.hasShiftDown());
         }
     }
 
-    private void handleButtonClick(IoSettingWithPriority currentSetting, int button) {
-        if (Screen.hasShiftDown()) {
+    private void handleButtonClick(IoSettingWithPriority currentSetting, int button, boolean shiftDown) {
+        if (shiftDown) {
             onSettingSelected.accept(IoSettingWithPriority.OFF);
             return;
         }
@@ -174,7 +177,7 @@ public final class IoConfigButton extends LayoutPositionedWidget {
         var reverse = button == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
         var newSetting = reverse ? currentSetting.previous() : currentSetting.next();
         if (transferModeSupplier.get() == TransferMode.CONSUME && newSetting.isOutput()) {
-            handleButtonClick(newSetting, button);
+            handleButtonClick(newSetting, button, shiftDown);
             return;
         }
 
@@ -220,8 +223,7 @@ public final class IoConfigButton extends LayoutPositionedWidget {
 
     public static final class SettingSelectorWidget extends LayoutPositionedWidget implements ClickedOutsideListener {
 
-        private static final int Z_OFFSET = 100;
-        private static final Consumer<IoSettingWithPriority> EMPTY_LISTENER = setting -> {};
+        private static final Consumer<IoSettingWithPriority> EMPTY_LISTENER = _ -> {};
         private Consumer<IoSettingWithPriority> onSettingSelected = EMPTY_LISTENER;
 
         private SettingSelectorWidget() {
@@ -235,37 +237,34 @@ public final class IoConfigButton extends LayoutPositionedWidget {
         }
 
         @Override
-        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            var poseStack = guiGraphics.pose();
-            poseStack.pushPose();
-            {
-                poseStack.translate(0, 0, Z_OFFSET);
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            graphics.nextStratum();
 
-                // outline
-                guiGraphics.renderOutline(getX() - 1, getY() - 1, BUTTON_SIZE * 6 + 2, BUTTON_SIZE + 2, Constants.COLOR_ACCENT);
-                // off button
-                OFF.target(getX(), getY()).render(guiGraphics);
-                // input button
-                INPUT.target(getX() + BUTTON_SIZE, getY()).render(guiGraphics);
-                // output buttons and priorities
-                for (int prioIndex = 0; prioIndex < IoConfig.MAX_PRIORITY; prioIndex++) {
-                    int x = getX() + BUTTON_SIZE * 2 + BUTTON_SIZE * prioIndex;
-                    OUTPUT.target(x, getY()).render(guiGraphics);
-                    guiGraphics.drawCenteredString(
-                        font,
-                        String.valueOf(prioIndex + 1),
-                        x + BUTTON_SIZE / 2 + 1,
-                        getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
-                        PRIORITY_TEXT_COLOR
-                    );
-                }
+            // outline
+            graphics.outline(getX() - 1, getY() - 1, BUTTON_SIZE * 6 + 2, BUTTON_SIZE + 2, Constants.COLOR_ACCENT);
+            // off button
+            OFF.target(getX(), getY()).render(graphics);
+            // input button
+            INPUT.target(getX() + BUTTON_SIZE, getY()).render(graphics);
+            // output buttons and priorities
+            for (int prioIndex = 0; prioIndex < IoConfig.MAX_PRIORITY; prioIndex++) {
+                int buttonX = getX() + BUTTON_SIZE * 2 + BUTTON_SIZE * prioIndex;
+                OUTPUT.target(buttonX, getY()).render(graphics);
+                var text = String.valueOf(prioIndex + 1);
+                graphics.text(
+                    font,
+                    text,
+                    buttonX + BUTTON_SIZE / 2 + 1 - font.width(text) / 2,
+                    getY() + BUTTON_SIZE / 2 - font.lineHeight / 2 + 1,
+                    Constants.COLOR_WHITE,
+                    false
+                );
             }
-            poseStack.popPose();
         }
 
         @Override
-        public void onClick(double mouseX, double mouseY, int button) {
-            // check mouseX to see which button was clicked
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
+            double mouseX = event.x();
             if (mouseX >= getX() && mouseX <= getX() + BUTTON_SIZE) {
                 // off button
                 onSettingSelected.accept(IoSettingWithPriority.OFF);

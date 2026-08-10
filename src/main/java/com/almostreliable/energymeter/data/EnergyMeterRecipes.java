@@ -1,27 +1,30 @@
 package com.almostreliable.energymeter.data;
 
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.concurrent.CompletableFuture;
 
 class EnergyMeterRecipes extends RecipeProvider {
 
-    EnergyMeterRecipes(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    EnergyMeterRecipes(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.METER_BLOCK)
+    protected void buildRecipes() {
+        shaped(RecipeCategory.MISC, ModRegistration.METER_BLOCK)
             .pattern("ici")
             .pattern("rgr")
             .pattern("ioi")
@@ -31,15 +34,36 @@ class EnergyMeterRecipes extends RecipeProvider {
             .define('g', Tags.Items.GLASS_PANES)
             .define('o', Items.OBSERVER)
             .unlockedBy("has_redstone", has(Tags.Items.DUSTS_REDSTONE))
-            .save(recipeOutput, Registration.METER_BLOCK.getId());
+            .save(output, recipeKey(ModRegistration.METER_BLOCK.getId()));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.MONITOR_BLOCK, 4)
+        shaped(RecipeCategory.MISC, ModRegistration.MONITOR_BLOCK, 4)
             .pattern(" m ")
             .pattern("mem")
             .pattern(" m ")
-            .define('m', Registration.METER_BLOCK)
+            .define('m', ModRegistration.METER_BLOCK)
             .define('e', Items.ENDER_PEARL)
             .unlockedBy("has_ender_pearl", has(Items.ENDER_PEARL))
-            .save(recipeOutput, Registration.MONITOR_BLOCK.getId());
+            .save(output, recipeKey(ModRegistration.MONITOR_BLOCK.getId()));
+    }
+
+    private static ResourceKey<Recipe<?>> recipeKey(Identifier id) {
+        return ResourceKey.create(Registries.RECIPE, id);
+    }
+
+    static class Runner extends RecipeProvider.Runner {
+
+        Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+            super(output, registries);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new EnergyMeterRecipes(registries, output);
+        }
+
+        @Override
+        public String getName() {
+            return "Energy Meter recipes";
+        }
     }
 }

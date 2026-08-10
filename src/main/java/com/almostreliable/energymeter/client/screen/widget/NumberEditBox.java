@@ -8,9 +8,13 @@ import com.almostreliable.energymeter.util.TooltipBuilder;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -20,7 +24,7 @@ import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.lwjgl.glfw.GLFW;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -68,14 +72,14 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         updateValueFromServer();
-        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);
         if (!tooltip.isEmpty()) {
             var mc = Minecraft.getInstance();
             var posY = getY() - (maxExceeded ? 12 : 0);
             var tooltipWidth = mc.font.width(tooltip.getFirst()) + 16;
-            guiGraphics.renderTooltip(mc.font, tooltip, getX() + width - tooltipWidth, posY);
+            graphics.setTooltipForNextFrame(mc.font, tooltip, DefaultTooltipPositioner.INSTANCE, getX() + width - tooltipWidth, posY, false);
         }
     }
 
@@ -87,23 +91,23 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
     }
 
     @Override
-    protected boolean isValidClickButton(int button) {
-        return button == GLFW.GLFW_MOUSE_BUTTON_LEFT || button == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+    protected boolean isValidClickButton(MouseButtonInfo buttonInfo) {
+        return buttonInfo.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT || buttonInfo.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY, int button) {
-        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             setValue("");
             newValueEntered = true;
             return;
         }
-        super.onClick(mouseX, mouseY, button);
+        super.onClick(event, doubleClick);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (canConsumeInput() && (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)) {
+    public boolean keyPressed(KeyEvent event) {
+        if (canConsumeInput() && (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER)) {
             if (parsedValue != null) {
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 onConfirm.run();
@@ -112,7 +116,7 @@ public class NumberEditBox extends EditBox implements ClickedOutsideListener {
             }
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override

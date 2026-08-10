@@ -2,14 +2,15 @@ package com.almostreliable.energymeter.util;
 
 import com.almostreliable.energymeter.EnergyMeter;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 public final class TexRenderer {
 
     public static final int DEFAULT_TEXTURE_SIZE = 256;
 
-    private final ResourceLocation texture;
+    private final Identifier texture;
     private final int textureWidth;
     private final int textureHeight;
 
@@ -21,17 +22,17 @@ public final class TexRenderer {
     private int targetX;
     private int targetY;
 
-    private TexRenderer(ResourceLocation texture, int textureWidth, int textureHeight) {
+    private TexRenderer(Identifier texture, int textureWidth, int textureHeight) {
         this.texture = texture;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
     }
 
-    public static TexRenderer of(ResourceLocation texture, int textureWidth, int textureHeight) {
+    public static TexRenderer of(Identifier texture, int textureWidth, int textureHeight) {
         return new TexRenderer(texture, textureWidth, textureHeight);
     }
 
-    public static TexRenderer of(ResourceLocation texture) {
+    public static TexRenderer of(Identifier texture) {
         return new TexRenderer(texture, DEFAULT_TEXTURE_SIZE, DEFAULT_TEXTURE_SIZE);
     }
 
@@ -80,7 +81,7 @@ public final class TexRenderer {
         return this;
     }
 
-    public void render(GuiGraphics guiGraphics) {
-        guiGraphics.blit(texture, targetX, targetY, texX, texY, texWidth, texHeight, textureWidth, textureHeight);
+    public void render(GuiGraphicsExtractor graphics) {
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, targetX, targetY, texX, texY, texWidth, texHeight, textureWidth, textureHeight);
     }
 }

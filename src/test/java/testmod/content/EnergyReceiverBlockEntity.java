@@ -4,11 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 import testmod.TestRegistration;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class EnergyReceiverBlockEntity extends BlockEntity {
 
@@ -19,7 +19,7 @@ public class EnergyReceiverBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    public IEnergyStorage getEnergyCapability(@Nullable Direction ignoredDirection) {
+    public EnergyHandler getEnergyCapability(@Nullable Direction ignoredDirection) {
         return energyStorage;
     }
 
@@ -31,7 +31,11 @@ public class EnergyReceiverBlockEntity extends BlockEntity {
         energyStorage.setMaxReceive(max);
     }
 
-    public void scheduleInsertionBlock() {
-        energyStorage.scheduleInsertionBlock();
+    public int getRootInsertionCalls() {
+        return energyStorage.getRootInsertionCalls();
+    }
+
+    public void resetRootInsertionCalls() {
+        energyStorage.resetRootInsertionCalls();
     }
 }

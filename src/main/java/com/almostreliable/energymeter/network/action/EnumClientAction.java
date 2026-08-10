@@ -4,10 +4,8 @@ import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
 import com.almostreliable.energymeter.network.action.ClientActionRegistry.Decoder;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.function.BiConsumer;
 
@@ -15,23 +13,22 @@ public final class EnumClientAction<M extends SynchronizedContainerMenu<?>, E ex
 
     private static final String VALUE_ID = "value";
 
-    private final ResourceLocation id;
+    private final Identifier id;
     private final E value;
     private final BiConsumer<M, E> handler;
 
-    public EnumClientAction(ResourceLocation id, E value, BiConsumer<M, E> handler) {
+    public EnumClientAction(Identifier id, E value, BiConsumer<M, E> handler) {
         this.id = id;
         this.value = value;
         this.handler = handler;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public EnumClientAction(ResourceLocation id, E value) {
+    public EnumClientAction(Identifier id, E value) {
         this(id, value, (a, b) -> {});
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return id;
     }
 
@@ -46,12 +43,12 @@ public final class EnumClientAction<M extends SynchronizedContainerMenu<?>, E ex
     }
 
     public static <M extends SynchronizedContainerMenu<?>, E extends Enum<E>> Decoder<EnumClientAction<M, E>> decoder(
-        ResourceLocation id, Class<E> enumClass, BiConsumer<M, E> handler
+        Identifier id, Class<E> enumClass, BiConsumer<M, E> handler
     ) {
         E[] enumValues = enumClass.getEnumConstants();
 
         return tag -> {
-            int ordinal = tag.getInt(VALUE_ID);
+            int ordinal = tag.getIntOr(VALUE_ID, -1);
             if (ordinal < 0 || ordinal >= enumValues.length) {
                 throw new IllegalStateException("invalid enum ordinal: " + ordinal);
             }

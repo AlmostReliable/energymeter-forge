@@ -5,7 +5,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface EnergyHandlerHost {
 

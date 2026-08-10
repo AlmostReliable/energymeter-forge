@@ -9,6 +9,7 @@ import com.almostreliable.energymeter.client.screen.layout.InputLayoutElement;
 import com.almostreliable.energymeter.client.screen.widget.DynamicMarqueeStringWidget;
 import com.almostreliable.energymeter.client.screen.widget.GuideButton;
 import com.almostreliable.energymeter.client.screen.widget.IoConfigButton;
+import com.almostreliable.energymeter.client.screen.widget.IoConfigButton.SettingSelectorWidget;
 import com.almostreliable.energymeter.client.screen.widget.RadioButton;
 import com.almostreliable.energymeter.client.screen.widget.TabButton;
 import com.almostreliable.energymeter.client.screen.widget.base.ClickedOutsideListener;
@@ -16,6 +17,7 @@ import com.almostreliable.energymeter.client.screen.widget.base.OutlinedComposit
 import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
+import com.almostreliable.energymeter.mixin.GuiGraphicsExtractorAccessor;
 import com.almostreliable.energymeter.network.action.ClientActionRegistry;
 import com.almostreliable.energymeter.network.action.EnumClientAction;
 import com.almostreliable.energymeter.network.action.IoSettingClientAction;
@@ -26,27 +28,23 @@ import com.almostreliable.energymeter.util.TexRenderer;
 import com.almostreliable.energymeter.util.TooltipBuilder;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-
-import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
+import org.joml.Matrix3x2f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,12 +65,10 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
     private final List<ClickedOutsideListener> clickedOutsideListeners = new ArrayList<>();
     private TabType currentTab = TabType.CONFIGURATION;
+    private @Nullable SettingSelectorWidget settingSelectorWidget;
 
-    @SuppressWarnings("AssignmentToSuperclassField")
     public MeterScreen(MeterMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        imageWidth = GUI_WIDTH;
-        imageHeight = GUI_HEIGHT;
+        super(menu, playerInventory, title, GUI_WIDTH, GUI_HEIGHT);
     }
 
     @Override
@@ -105,17 +101,16 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             )
         );
 
-        var ioConfigLayout = IoConfigButton.createGroup(
+        var ioConfigGroup = IoConfigButton.createGroup(
             menu.getBlockState(),
             menu::getIoSetting,
             this::onIoSettingSelected,
-            menu::getTransferMode,
-            this::addRenderableWidget
+            menu::getTransferMode
         );
-        var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_IO.get(), ioConfigLayout);
+        var ioConfigComposite = OutlinedCompositeWidget.ofLayout(EnergyMeterLang.HEADER_IO.get(), ioConfigGroup.layout());
         ioConfigComposite.setMinWidth(GLOBAL_INFO_WIDTH);
 
-        var resetButton = Button.builder(EnergyMeterLang.BUTTON_RESET_TOTAL.get(), $ -> onResetTotalButtonClicked())
+        var resetButton = Button.builder(EnergyMeterLang.BUTTON_RESET_TOTAL.get(), _ -> onResetTotalButtonClicked())
             .width(GLOBAL_INFO_WIDTH + 8)
             .tooltip(TooltipBuilder.create().literal(EnergyMeterLang.BUTTON_RESET_TOTAL_TOOLTIP.get()).build())
             .build();
@@ -131,7 +126,16 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         FrameLayout.centerInRectangle(layout, leftPos, topPos, LEFT_PANE_WIDTH, GUI_HEIGHT);
 
         layout.visitWidgets(this::addRenderableWidget);
+        settingSelectorWidget = addWidget(ioConfigGroup.settingSelectorWidget());
         addRenderableWidget(new GuideButton(leftPos, topPos));
+    }
+
+    @Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        if (settingSelectorWidget != null) {
+            settingSelectorWidget.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        }
     }
 
     private void initTabs() {
@@ -221,7 +225,7 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     @SuppressWarnings("MethodOnlyUsedFromInnerClass")
     private void initGraphTab() {
         addRenderableWidget(
-            Button.builder(Component.literal("II"), $ -> onToggleGraphPause())
+            Button.builder(Component.literal("II"), _ -> onToggleGraphPause())
                 .pos(leftPos + GUI_WIDTH - 22, topPos + 2)
                 .size(20, 20)
                 .build()
@@ -240,13 +244,14 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         // don't render title and inventory labels
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        BACKGROUND.target(leftPos, topPos).render(guiGraphics);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
+        BACKGROUND.target(leftPos, topPos).render(graphics);
         if (currentTab != TabType.GRAPH) return;
 
         // dimensions
@@ -264,38 +269,42 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         // no data
         if (points.length == 0) {
-            guiGraphics.drawCenteredString(
+            var text = EnergyMeterLang.GRAPH_NO_DATA.get();
+            graphics.text(
                 font,
-                EnergyMeterLang.GRAPH_NO_DATA.get(),
-                paneLeft + RIGHT_PANE_WIDTH / 2,
+                text,
+                paneLeft + RIGHT_PANE_WIDTH / 2 - font.width(text) / 2,
                 topPos + GUI_HEIGHT / 2 - font.lineHeight / 2,
-                Constants.COLOR_WHITE
+                Constants.COLOR_WHITE,
+                false
             );
             return;
         }
 
         // paused
         if (menu.isGraphPaused()) {
-            guiGraphics.drawCenteredString(
+            var text = EnergyMeterLang.GRAPH_PAUSED.get().withStyle(ChatFormatting.DARK_RED);
+            graphics.text(
                 font,
-                EnergyMeterLang.GRAPH_PAUSED.get().withStyle(ChatFormatting.DARK_RED),
-                paneLeft + RIGHT_PANE_WIDTH / 2,
+                text,
+                paneLeft + RIGHT_PANE_WIDTH / 2 - font.width(text) / 2,
                 topPos + GUI_HEIGHT / 2 - font.lineHeight / 2,
-                Constants.COLOR_WHITE
+                Constants.COLOR_WHITE,
+                false
             );
         }
 
         // axes
-        guiGraphics.vLine(graphLeft, graphTop, graphBottom + GRAPH_PADDING / 2, Constants.COLOR_WHITE);
-        guiGraphics.hLine(graphLeft - GRAPH_PADDING / 2, graphRight, graphBottom, Constants.COLOR_WHITE);
+        graphics.fill(graphLeft, graphTop, graphLeft + 1, graphBottom + GRAPH_PADDING / 2 + 1, Constants.COLOR_WHITE);
+        graphics.fill(graphLeft - GRAPH_PADDING / 2, graphBottom, graphRight + 1, graphBottom + 1, Constants.COLOR_WHITE);
         var xLabel = EnergyMeterLang.GRAPH_INTERVAL.get();
-        guiGraphics.drawString(font, xLabel, graphRight - font.width(xLabel), graphBottom + 2, Constants.COLOR_WHITE);
+        graphics.text(font, xLabel, graphRight - font.width(xLabel), graphBottom + 2, Constants.COLOR_WHITE, false);
 
         // y axis max value
         var yLabel = graphHandler.getYLabel();
         if (!yLabel.isEmpty()) {
-            guiGraphics.hLine(graphLeft - 2, graphLeft + 2, graphTop + GRAPH_MAX_VALUE_INSET, Constants.COLOR_WHITE);
-            guiGraphics.drawString(
+            graphics.fill(graphLeft - 2, graphTop + GRAPH_MAX_VALUE_INSET, graphLeft + 3, graphTop + GRAPH_MAX_VALUE_INSET + 1, Constants.COLOR_WHITE);
+            graphics.text(
                 font,
                 yLabel,
                 graphLeft + 6,
@@ -309,8 +318,11 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         int previousX = -1;
         int previousY = -1;
 
-        var pose = guiGraphics.pose().last().pose();
-        var bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        var pose = graphics.pose();
+        var graphBounds = new ScreenRectangle(graphLeft + 1, graphTop, graphWidth - 1, graphBottom - graphTop)
+            .transformAxisAligned(pose);
+        var graphRenderState = new GraphRenderState(new Matrix3x2f(pose), graphBounds);
+
         var progress = menu.getGraphProgress();
         int progressOffset = Mth.floor(Mth.clampedLerp(0f, (float) graphWidth / GraphHandler.HISTORY_SIZE, progress));
 
@@ -323,13 +335,12 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
             // collect line vertices
             if (previousX != -1 && previousY != -1) {
-                bufferBuilder.addVertex(pose, previousX, previousY, 0).setColor(Constants.COLOR_WHITE).setNormal(1, 1, 0);
-                bufferBuilder.addVertex(pose, pX, pY, 0).setColor(Constants.COLOR_WHITE).setNormal(1, 1, 1);
+                graphRenderState.addLine(previousX, previousY, pX, pY, Constants.COLOR_WHITE);
 
                 // draw point marker
-                guiGraphics.enableScissor(graphLeft + 1, graphTop, graphRight, graphBottom);
-                guiGraphics.fill(pX - 2, pY - 2, pX + 1, pY + 1, Constants.COLOR_ACCENT);
-                guiGraphics.disableScissor();
+                graphics.enableScissor(graphLeft + 1, graphTop, graphRight, graphBottom);
+                graphics.fill(pX - 2, pY - 2, pX + 1, pY + 1, Constants.COLOR_ACCENT);
+                graphics.disableScissor();
             }
 
             previousX = pX;
@@ -338,25 +349,11 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
 
         // draw progress line
         if (previousX != -1 && previousY != -1) {
-            bufferBuilder.addVertex(pose, previousX, previousY, 0).setColor(Constants.COLOR_ACCENT).setNormal(1, 1, 0);
-            bufferBuilder.addVertex(pose, previousX + progressOffset, previousY, 0).setColor(Constants.COLOR_ACCENT).setNormal(1, 1, 1);
+            graphRenderState.addLine(previousX, previousY, previousX + progressOffset, previousY, Constants.COLOR_ACCENT);
         }
 
-        var drawData = bufferBuilder.build();
-        if (drawData == null) return;
-
-        GlStateManager._depthMask(false);
-        GlStateManager._disableCull();
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        RenderSystem.lineWidth(2.0F);
-        guiGraphics.enableScissor(graphLeft + 1, graphTop, graphRight, graphBottom);
-
-        BufferUploader.drawWithShader(drawData);
-
-        guiGraphics.disableScissor();
-        RenderSystem.lineWidth(1.0F);
-        GlStateManager._enableCull();
-        GlStateManager._depthMask(true);
+        // kinda hacky to collect the state that way, but I found no other way
+        ((GuiGraphicsExtractorAccessor) graphics).getGuiRenderState().addGuiElement(graphRenderState);
     }
 
     @Override
@@ -381,11 +378,11 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         for (var clickedOutsideListener : clickedOutsideListeners) {
-            clickedOutsideListener.receiveClickOutside(mouseX, mouseY);
+            clickedOutsideListener.receiveClickOutside(event.x(), event.y());
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     private void onTabButtonClicked(TabType tabType) {

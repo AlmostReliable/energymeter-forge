@@ -3,7 +3,7 @@ package com.almostreliable.energymeter.client.screen.widget.base;
 import com.almostreliable.energymeter.core.Constants;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -11,9 +11,10 @@ import net.minecraft.client.gui.layouts.AbstractLayout;
 import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.layouts.LayoutSettings.LayoutSettingsImpl;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         var title = getMessage();
         var headerWidth = font.width(title);
         var x = getX();
@@ -80,30 +81,31 @@ public final class OutlinedCompositeWidget extends LayoutPositionedWidget implem
         var maxX = x + width;
         var maxY = y + height;
 
-        guiGraphics.fill(x, minY, maxX - HEADER_OFFSET - headerWidth - 2 * HEADER_PADDING, minY + 1, color);
-        guiGraphics.fill(maxX - HEADER_OFFSET, minY, maxX, minY + 1, color);
-        guiGraphics.fill(x, maxY - 1, maxX, maxY, color);
-        guiGraphics.fill(x, minY + 1, x + 1, maxY - 1, color);
-        guiGraphics.fill(maxX - 1, minY + 1, maxX, maxY - 1, color);
+        graphics.fill(x, minY, maxX - HEADER_OFFSET - headerWidth - 2 * HEADER_PADDING, minY + 1, color);
+        graphics.fill(maxX - HEADER_OFFSET, minY, maxX, minY + 1, color);
+        graphics.fill(x, maxY - 1, maxX, maxY, color);
+        graphics.fill(x, minY + 1, x + 1, maxY - 1, color);
+        graphics.fill(maxX - 1, minY + 1, maxX, maxY - 1, color);
 
-        guiGraphics.drawString(
+        graphics.text(
             font,
             title,
             maxX - headerWidth - HEADER_OFFSET - HEADER_PADDING,
             y,
-            color
+            color,
+            false
         );
 
         for (var child : children) {
-            child.render(guiGraphics, mouseX, mouseY, partialTick);
+            child.extractRenderState(graphics, mouseX, mouseY, partialTick);
         }
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         // delegates the call to all children
         // needed to override the default implementation of the AbstractWidget
-        return ContainerEventHandler.super.mouseClicked(mouseX, mouseY, button);
+        return ContainerEventHandler.super.mouseClicked(event, doubleClick);
     }
 
     @Override

@@ -1,26 +1,23 @@
 package testmod.content;
 
-import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class ModifiableEnergyStorage extends EnergyStorage {
+public class ModifiableEnergyStorage extends SimpleEnergyHandler {
 
-    private boolean scheduledInsertionBlock;
-    private boolean insertionBlocked;
+    private int rootInsertionCalls;
 
     public ModifiableEnergyStorage(int capacity) {
         super(capacity);
     }
 
     @Override
-    public int receiveEnergy(int toReceive, boolean simulate) {
-        if (insertionBlocked) return 0;
-
-        if (!simulate && scheduledInsertionBlock) {
-            // block insertion for next operation
-            insertionBlocked = true;
+    public int insert(int amount, TransactionContext transaction) {
+        if (transaction instanceof Transaction concreteTransaction && concreteTransaction.depth() == 0) {
+            rootInsertionCalls++;
         }
-
-        return super.receiveEnergy(toReceive, simulate);
+        return super.insert(amount, transaction);
     }
 
     public void setMaxEnergyStored(int capacity) {
@@ -28,10 +25,14 @@ public class ModifiableEnergyStorage extends EnergyStorage {
     }
 
     public void setMaxReceive(int max) {
-        maxReceive = max;
+        maxInsert = max;
     }
 
-    public void scheduleInsertionBlock() {
-        scheduledInsertionBlock = true;
+    public int getRootInsertionCalls() {
+        return rootInsertionCalls;
+    }
+
+    public void resetRootInsertionCalls() {
+        rootInsertionCalls = 0;
     }
 }

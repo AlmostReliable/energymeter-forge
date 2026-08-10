@@ -4,20 +4,21 @@ import com.almostreliable.energymeter.block.entity.TickableMenuBlockEntity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import testmod.TestRegistration;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class EnergyEmitterBlockEntity extends BlockEntity implements TickableMenuBlockEntity {
 
@@ -27,19 +28,19 @@ public class EnergyEmitterBlockEntity extends BlockEntity implements TickableMen
     private int energyToEmitPerTick;
 
     public EnergyEmitterBlockEntity(BlockPos pos, BlockState blockState) {
-        super(TestRegistration.ENERGY_RECEIVER_BLOCK_ENTITY.get(), pos, blockState);
+        super(TestRegistration.ENERGY_EMITTER_BLOCK_ENTITY.get(), pos, blockState);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt(ENERGY_TO_EMIT_PER_TICK_ID, energyToEmitPerTick);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt(ENERGY_TO_EMIT_PER_TICK_ID, energyToEmitPerTick);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains(ENERGY_TO_EMIT_PER_TICK_ID)) energyToEmitPerTick = tag.getInt(ENERGY_TO_EMIT_PER_TICK_ID);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        energyToEmitPerTick = input.getIntOr(ENERGY_TO_EMIT_PER_TICK_ID, energyToEmitPerTick);
     }
 
     @Override
@@ -47,14 +48,17 @@ public class EnergyEmitterBlockEntity extends BlockEntity implements TickableMen
         if (energyToEmitPerTick == 0) return;
 
         for (var direction : DIRECTIONS) {
-            IEnergyStorage targetEnergyStorage = level.getCapability(
-                Capabilities.EnergyStorage.BLOCK,
+            EnergyHandler targetEnergyStorage = level.getCapability(
+                Capabilities.Energy.BLOCK,
                 worldPosition.relative(direction),
                 direction.getOpposite()
             );
             if (targetEnergyStorage == null) continue;
 
-            targetEnergyStorage.receiveEnergy(energyToEmitPerTick, false);
+            try (Transaction transaction = Transaction.openRoot()) {
+                targetEnergyStorage.insert(energyToEmitPerTick, transaction);
+                transaction.commit();
+            }
         }
     }
 

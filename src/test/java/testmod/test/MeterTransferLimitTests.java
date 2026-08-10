@@ -4,29 +4,22 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode;
 
 import net.minecraft.core.Direction;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 import testmod.TestMod;
 import testmod.TestUtils;
 import testmod.TestUtils.SimplePlotResult;
 
-@SuppressWarnings("NewMethodNamingConvention")
-@GameTestHolder(TestMod.MOD_ID)
-@PrefixGameTestTemplate(false)
 public class MeterTransferLimitTests {
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
-    public void limit_transfer_one_to_one(GameTestHelper helper) {
+    public static void limit_transfer_one_to_one(GameTestHelper helper) {
         // set up the plot
         SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
 
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
         var inputEnergyFunction = plotResult.inputEnergyFunction();
-        IEnergyStorage outputEnergyBlockCap = plotResult.outputEnergyBlockCap();
+        EnergyHandler outputEnergyBlockCap = plotResult.outputEnergyBlockCap();
 
         // set transfer mode to transfer
         meterBlockEntity.setTransferMode(TransferMode.TRANSFER);
@@ -59,7 +52,7 @@ public class MeterTransferLimitTests {
             String.format("expected total energy of %s, but was %s", expectedEnergyTransferred, totalEnergyTransferred)
         );
 
-        int energyStored = outputEnergyBlockCap.getEnergyStored();
+        int energyStored = outputEnergyBlockCap.getAmountAsInt();
         int expectedEnergyStored = transferLimit * MeterBlockEntity.DEFAULT_INTERVAL;
         helper.assertTrue(
             energyStored == expectedEnergyStored,
@@ -69,8 +62,7 @@ public class MeterTransferLimitTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
-    public void limit_split_one_to_three(GameTestHelper helper) {
+    public static void limit_split_one_to_three(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .input(Direction.UP)
@@ -81,9 +73,9 @@ public class MeterTransferLimitTests {
 
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
         var inputEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.UP);
-        IEnergyStorage westOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.WEST);
-        IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
-        IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
+        EnergyHandler westOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.WEST);
+        EnergyHandler southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
+        EnergyHandler eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
 
         // set transfer mode to split
         meterBlockEntity.setTransferMode(TransferMode.SPLIT);
@@ -116,9 +108,9 @@ public class MeterTransferLimitTests {
             String.format("expected total energy of %s, but was %s", expectedTotalEnergyTransferred, totalEnergyTransferred)
         );
 
-        int westEnergyStored = westOutEnergyBlockCap.getEnergyStored();
-        int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
-        int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+        int westEnergyStored = westOutEnergyBlockCap.getAmountAsInt();
+        int southEnergyStored = southOutEnergyBlockCap.getAmountAsInt();
+        int eastEnergyStored = eastOutEnergyBlockCap.getAmountAsInt();
         int energyStoredSum = westEnergyStored + southEnergyStored + eastEnergyStored;
         int expectedEnergyStoredSum = transferLimit * MeterBlockEntity.DEFAULT_INTERVAL;
 
@@ -152,8 +144,7 @@ public class MeterTransferLimitTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
-    public void limit_transfer_two_to_one(GameTestHelper helper) {
+    public static void limit_transfer_two_to_one(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .inputs(Direction.UP, Direction.WEST)
@@ -163,7 +154,7 @@ public class MeterTransferLimitTests {
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
         var upInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.UP);
         var westInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.WEST);
-        IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
+        EnergyHandler southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
 
         // set transfer mode to transfer
         meterBlockEntity.setTransferMode(TransferMode.TRANSFER);
@@ -197,7 +188,7 @@ public class MeterTransferLimitTests {
             String.format("expected total energy of %s, but was %s", expectedTotalEnergyTransferred, totalEnergyTransferred)
         );
 
-        int energyStored = southOutEnergyBlockCap.getEnergyStored();
+        int energyStored = southOutEnergyBlockCap.getAmountAsInt();
         int expectedEnergyStored = transferLimit * MeterBlockEntity.DEFAULT_INTERVAL;
         helper.assertTrue(
             energyStored == expectedEnergyStored,
@@ -207,8 +198,7 @@ public class MeterTransferLimitTests {
         helper.succeed();
     }
 
-    @GameTest(template = TestUtils.EMPTY_STRUCTURE, batch = TestUtils.BATCH_METER_TESTS)
-    public void limit_split_two_to_two(GameTestHelper helper) {
+    public static void limit_split_two_to_two(GameTestHelper helper) {
         // set up the plot
         var plotResult = TestUtils.PlotBuilder.create(helper)
             .inputs(Direction.UP, Direction.WEST)
@@ -218,8 +208,8 @@ public class MeterTransferLimitTests {
         MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
         var upInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.UP);
         var westInEnergyFunction = plotResult.inputEnergyFunctions().get(Direction.WEST);
-        IEnergyStorage southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
-        IEnergyStorage eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
+        EnergyHandler southOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.SOUTH);
+        EnergyHandler eastOutEnergyBlockCap = plotResult.outputEnergyBlockCaps().get(Direction.EAST);
 
         // set transfer mode to split
         meterBlockEntity.setTransferMode(TransferMode.SPLIT);
@@ -256,13 +246,13 @@ public class MeterTransferLimitTests {
         int expectedEnergyPerOutputPerTick = transferLimit / 2;
         int expectedEnergyStoredPerOutput = expectedEnergyPerOutputPerTick * MeterBlockEntity.DEFAULT_INTERVAL;
 
-        int southEnergyStored = southOutEnergyBlockCap.getEnergyStored();
+        int southEnergyStored = southOutEnergyBlockCap.getAmountAsInt();
         helper.assertTrue(
             southEnergyStored == expectedEnergyStoredPerOutput,
             String.format("expected stored south output energy of %s, but was %s", expectedEnergyStoredPerOutput, southEnergyStored)
         );
 
-        int eastEnergyStored = eastOutEnergyBlockCap.getEnergyStored();
+        int eastEnergyStored = eastOutEnergyBlockCap.getAmountAsInt();
         helper.assertTrue(
             eastEnergyStored == expectedEnergyStoredPerOutput,
             String.format("expected stored east output energy of %s, but was %s", expectedEnergyStoredPerOutput, eastEnergyStored)

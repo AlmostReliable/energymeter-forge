@@ -1,127 +1,189 @@
 package com.almostreliable.energymeter.data;
 
+import com.almostreliable.energymeter.EnergyMeter;
 import com.almostreliable.energymeter.ModConstants;
 import com.almostreliable.energymeter.block.FacingEntityBlock;
 import com.almostreliable.energymeter.block.MonitorBlock;
 import com.almostreliable.energymeter.block.multiblock.MultiblockType;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.ModelProvider;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelInstance;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraft.resources.Identifier;
 
-import org.jetbrains.annotations.Nullable;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.mojang.math.Quadrant;
 
-class EnergyMeterModels extends BlockStateProvider {
+import org.jspecify.annotations.Nullable;
 
-    EnergyMeterModels(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, ModConstants.MOD_ID, existingFileHelper);
+import java.util.EnumMap;
+import java.util.Map;
+
+class EnergyMeterModels extends ModelProvider {
+
+    EnergyMeterModels(PackOutput output) {
+        super(output, ModConstants.MOD_ID);
     }
 
     @Override
-    protected void registerStatesAndModels() {
-        energyMeter();
-        externalMonitor();
+    protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+        energyMeter(blockModels);
+        externalMonitor(blockModels);
     }
 
-    private void energyMeter() {
-        var block = Registration.METER_BLOCK;
-        var model = models().orientable(
-            block.getId().getPath(),
-            modLoc("block/normal"),
-            modLoc("block/normal_front"),
-            modLoc("block/normal")
+    private static void energyMeter(BlockModelGenerators blockModels) {
+        var block = ModRegistration.METER_BLOCK.get();
+
+        Identifier model = ModelTemplates.CUBE_ORIENTABLE.create(
+            block,
+            new TextureMapping()
+                .put(TextureSlot.SIDE, new Material(EnergyMeter.getRL("block/normal")))
+                .put(TextureSlot.FRONT, new Material(EnergyMeter.getRL("block/normal_front")))
+                .put(TextureSlot.TOP, new Material(EnergyMeter.getRL("block/normal"))),
+            blockModels.modelOutput
         );
 
-        getVariantBuilder(block.get()).forAllStatesExcept(
-            state -> {
-                Direction facing = FacingEntityBlock.getFacingDir(state);
-                return ConfiguredModel.builder()
-                    .modelFile(model)
-                    .rotationX(getHorizontalRotation(facing))
-                    .rotationY(getVerticalRotation(facing, null))
-                    .build();
-            },
-            FacingEntityBlock.BOTTOM
+        blockModels.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(model))
+                .with(PropertyDispatch.modify(FacingEntityBlock.FACING)
+                    .generate(facing -> rotate(facing, null)))
         );
-
-        itemModels().simpleBlockItem(block.get());
     }
 
-    private void externalMonitor() {
-        var block = Registration.MONITOR_BLOCK;
+    private static void externalMonitor(BlockModelGenerators blockModels) {
+        var block = ModRegistration.MONITOR_BLOCK.get();
 
-        getVariantBuilder(block.get()).forAllStatesExcept(
-            state -> {
-                MultiblockType type = state.getValue(MonitorBlock.TYPE);
+        Map<MultiblockType, Identifier> models = new EnumMap<>(MultiblockType.class);
+        for (MultiblockType type : MultiblockType.values()) {
+            models.put(type, createMonitorModel(blockModels, type));
+        }
 
-                if (type == MultiblockType.NONE || type == MultiblockType.SELF) {
-                    BlockModelBuilder model = models().cubeAll(type.getSerializedName(), MultiblockType.NORMAL.getTexture());
-                    return ConfiguredModel.builder().modelFile(model).build();
-                }
-
-                BlockModelBuilder model = models().getBuilder(type.getTexture().getPath())
-                    .parent(new ModelFile.UncheckedModelFile("block/block"))
-                    .texture("front", type.getFrontTexture())
-                    .texture("particle", type.getTexture());
-
-                var element = model.element()
-                    .from(0, 0, 0).to(16, 16, 16)
-                    .face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#front").end()
-                    .face(Direction.SOUTH).uvs(16, 0, 0, 16).texture("#particle").end();
-
-                if (type.getUpTexture() != null) {
-                    model.texture("up", type.getUpTexture());
-                    element.face(Direction.UP).uvs(16, 0, 0, 16).texture("#up").end();
-                }
-                if (type.getDownTexture() != null) {
-                    model.texture("down", type.getDownTexture());
-                    element.face(Direction.DOWN).uvs(16, 16, 0, 0).texture("#down").end();
-                }
-                if (type.getLeftTexture() != null) {
-                    model.texture("left", type.getLeftTexture());
-                    element.face(Direction.EAST).uvs(0, 0, 16, 16).texture("#left").end();
-                }
-                if (type.getRightTexture() != null) {
-                    model.texture("right", type.getRightTexture());
-                    element.face(Direction.WEST).uvs(0, 0, 16, 16).texture("#right").end();
-                }
-
-                element.end();
-
-                Direction facing = FacingEntityBlock.getFacingDir(state);
-                Direction bottom = FacingEntityBlock.getBottomDir(state);
-
-                return ConfiguredModel.builder()
-                    .modelFile(model)
-                    .rotationX(getHorizontalRotation(facing))
-                    .rotationY(getVerticalRotation(facing, bottom))
-                    .build();
-            },
-            MonitorBlock.CONTROLLER, MonitorBlock.HORIZONTAL, MonitorBlock.VERTICAL
+        blockModels.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(MonitorBlock.TYPE)
+                    .generate(type -> BlockModelGenerators.plainVariant(models.get(type))))
+                .with(PropertyDispatch.modify(FacingEntityBlock.FACING, FacingEntityBlock.BOTTOM)
+                    .generate(EnergyMeterModels::rotate))
         );
 
-        itemModels().simpleBlockItem(modLoc(MultiblockType.NORMAL.getSerializedName()));
+        blockModels.itemModelOutput.accept(
+            block.asItem(),
+            ItemModelUtils.plainModel(models.get(MultiblockType.NORMAL))
+        );
     }
 
-    private int getVerticalRotation(Direction facing, @Nullable Direction bottom) {
+    private static Identifier createMonitorModel(BlockModelGenerators blockModels, MultiblockType type) {
+        if (type == MultiblockType.NONE || type == MultiblockType.SELF) {
+            return ModelTemplates.CUBE_ALL.create(
+                EnergyMeter.getRL("block/" + type.getSerializedName()),
+                TextureMapping.cube(new Material(MultiblockType.NORMAL.getTexture())),
+                blockModels.modelOutput
+            );
+        }
+
+        Identifier model = type.getTexture();
+        blockModels.modelOutput.accept(model, monitorModel(type));
+        return model;
+    }
+
+    private static ModelInstance monitorModel(MultiblockType type) {
+        JsonObject faces = new JsonObject();
+        faces.add("north", face("#front", null));
+        faces.add("south", face("#particle", new float[]{16, 0, 0, 16}));
+        addFace(faces, "up", "#up", type.getUpTexture(), new float[]{16, 0, 0, 16});
+        addFace(faces, "down", "#down", type.getDownTexture(), new float[]{16, 16, 0, 0});
+        addFace(faces, "east", "#left", type.getLeftTexture(), null);
+        addFace(faces, "west", "#right", type.getRightTexture(), null);
+
+        JsonObject element = new JsonObject();
+        element.add("from", vector(0, 0, 0));
+        element.add("to", vector(16, 16, 16));
+        element.add("faces", faces);
+
+        JsonArray elements = new JsonArray();
+        elements.add(element);
+
+        JsonObject textures = new JsonObject();
+        textures.addProperty("particle", type.getTexture().toString());
+        textures.addProperty("front", type.getFrontTexture().toString());
+        addTexture(textures, "up", type.getUpTexture());
+        addTexture(textures, "down", type.getDownTexture());
+        addTexture(textures, "left", type.getLeftTexture());
+        addTexture(textures, "right", type.getRightTexture());
+
+        JsonObject model = new JsonObject();
+        model.addProperty("parent", "minecraft:block/block");
+        model.add("elements", elements);
+        model.add("textures", textures);
+
+        return () -> model;
+    }
+
+    private static void addFace(
+        JsonObject faces, String side, String textureSlot, @Nullable Identifier texture, float @Nullable [] uv
+    ) {
+        if (texture == null) return;
+        faces.add(side, face(textureSlot, uv));
+    }
+
+    private static JsonObject face(String textureSlot, float @Nullable [] uv) {
+        JsonObject face = new JsonObject();
+        face.addProperty("texture", textureSlot);
+        if (uv != null) {
+            JsonArray array = new JsonArray();
+            for (float value : uv) {
+                array.add(value);
+            }
+            face.add("uv", array);
+        }
+        return face;
+    }
+
+    private static void addTexture(JsonObject textures, String slot, @Nullable Identifier texture) {
+        if (texture == null) return;
+        textures.addProperty(slot, texture.toString());
+    }
+
+    private static JsonArray vector(int x, int y, int z) {
+        JsonArray array = new JsonArray();
+        array.add(x);
+        array.add(y);
+        array.add(z);
+        return array;
+    }
+
+    private static VariantMutator rotate(Direction facing, @Nullable Direction bottom) {
+        return VariantMutator.X_ROT.withValue(horizontalRotation(facing))
+            .then(VariantMutator.Y_ROT.withValue(verticalRotation(facing, bottom)));
+    }
+
+    private static Quadrant verticalRotation(Direction facing, @Nullable Direction bottom) {
         return switch (bottom != null && facing.getAxis().isVertical() ? bottom : facing) {
-            case EAST -> 90;
-            case SOUTH -> 180;
-            case WEST -> 270;
-            default -> 0;
+            case EAST -> Quadrant.R90;
+            case SOUTH -> Quadrant.R180;
+            case WEST -> Quadrant.R270;
+            default -> Quadrant.R0;
         };
     }
 
-    private int getHorizontalRotation(Direction facing) {
+    private static Quadrant horizontalRotation(Direction facing) {
         return switch (facing) {
-            case UP -> 270;
-            case DOWN -> 90;
-            default -> 0;
+            case UP -> Quadrant.R270;
+            case DOWN -> Quadrant.R90;
+            default -> Quadrant.R0;
         };
     }
 }

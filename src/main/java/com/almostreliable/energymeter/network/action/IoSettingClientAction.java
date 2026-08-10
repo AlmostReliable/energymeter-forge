@@ -7,14 +7,14 @@ import com.almostreliable.energymeter.menu.MeterMenu;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class IoSettingClientAction implements ClientAction<MeterMenu> {
 
-    public static final ResourceLocation ID = EnergyMeter.getRL(Constants.SIDE_CONFIG_ID);
+    public static final Identifier ID = EnergyMeter.getRL(Constants.SIDE_CONFIG_ID);
     private static final Direction[] DIRECTION_VALUES = Direction.values();
     private static final String RESET_ID = "reset";
     private static final String DIRECTION_ID = "direction";
@@ -40,7 +40,7 @@ public final class IoSettingClientAction implements ClientAction<MeterMenu> {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 
@@ -67,11 +67,11 @@ public final class IoSettingClientAction implements ClientAction<MeterMenu> {
     }
 
     public static IoSettingClientAction decode(CompoundTag tag) {
-        boolean reset = tag.getBoolean(RESET_ID);
+        boolean reset = tag.getBooleanOr(RESET_ID, false);
         if (reset) return reset();
 
-        Direction direction = DIRECTION_VALUES[tag.getInt(DIRECTION_ID)];
-        IoSettingWithPriority setting = IoSettingWithPriority.deserialize(tag.getCompound(SETTING_ID));
+        Direction direction = DIRECTION_VALUES[tag.getIntOr(DIRECTION_ID, 0)];
+        IoSettingWithPriority setting = IoSettingWithPriority.deserialize(tag.getCompound(SETTING_ID).orElseGet(CompoundTag::new));
 
         return change(direction, setting);
     }

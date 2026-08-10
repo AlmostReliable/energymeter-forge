@@ -2,12 +2,12 @@ package com.almostreliable.energymeter.block.multiblock;
 
 import com.almostreliable.energymeter.EnergyMeter;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
 import com.google.common.base.Preconditions;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -64,36 +64,36 @@ public enum MultiblockType implements StringRepresentable {
         return name().toLowerCase(Locale.ROOT);
     }
 
-    public ResourceLocation getTexture() {
+    public Identifier getTexture() {
         return EnergyMeter.getRL("block/" + getSerializedName());
     }
 
-    public ResourceLocation getFrontTexture() {
+    public Identifier getFrontTexture() {
         return EnergyMeter.getRL("block/" + getSerializedName() + "_front");
     }
 
     @Nullable
-    public ResourceLocation getUpTexture() {
+    public Identifier getUpTexture() {
         return getSidedTexture(up);
     }
 
     @Nullable
-    public ResourceLocation getDownTexture() {
+    public Identifier getDownTexture() {
         return getSidedTexture(down);
     }
 
     @Nullable
-    public ResourceLocation getLeftTexture() {
+    public Identifier getLeftTexture() {
         return getSidedTexture(left);
     }
 
     @Nullable
-    public ResourceLocation getRightTexture() {
+    public Identifier getRightTexture() {
         return getSidedTexture(right);
     }
 
     @Nullable
-    private ResourceLocation getSidedTexture(@Nullable MultiblockType side) {
+    private Identifier getSidedTexture(@Nullable MultiblockType side) {
         Preconditions.checkNotNull(side, "side for " + this + " must not be null");
 
         if (side == NONE) return null;

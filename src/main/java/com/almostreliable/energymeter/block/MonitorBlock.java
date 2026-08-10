@@ -2,7 +2,6 @@ package com.almostreliable.energymeter.block;
 
 import com.almostreliable.energymeter.block.entity.MonitorBlockEntity;
 import com.almostreliable.energymeter.block.multiblock.MultiblockType;
-import com.almostreliable.energymeter.block.multiblock.MultiblockTypeProperty;
 import com.almostreliable.energymeter.block.multiblock.OptionalDirection;
 import com.almostreliable.energymeter.block.multiblock.OptionalDirectionProperty;
 import com.almostreliable.energymeter.core.Config;
@@ -15,19 +14,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +32,9 @@ import java.util.Map;
 public class MonitorBlock extends FacingEntityBlock {
 
     public static final BooleanProperty CONTROLLER = BooleanProperty.create(Constants.CONTROLLER_PROP);
-    public static final OptionalDirectionProperty HORIZONTAL = OptionalDirectionProperty.HORIZONTAL;
-    public static final OptionalDirectionProperty VERTICAL = OptionalDirectionProperty.VERTICAL;
-    public static final MultiblockTypeProperty TYPE = MultiblockTypeProperty.INSTANCE;
+    public static final EnumProperty<OptionalDirection> HORIZONTAL = OptionalDirectionProperty.HORIZONTAL;
+    public static final EnumProperty<OptionalDirection> VERTICAL = OptionalDirectionProperty.VERTICAL;
+    public static final EnumProperty<MultiblockType> TYPE = EnumProperty.create(Constants.MULTIBLOCK_TYPE_PROP, MultiblockType.class, List.of(MultiblockType.values()));
 
     public MonitorBlock(Properties properties) {
         super(properties);
@@ -77,11 +73,11 @@ public class MonitorBlock extends FacingEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide && !player.isShiftKeyDown()) {
+        if (!level.isClientSide() && !player.isShiftKeyDown()) {
             if (isUnbound(state)) {
                 BlockPos controllerPos = findAndSetController(level, pos, state);
                 formMonitor(level, controllerPos, player);
-                return InteractionResult.SUCCESS_NO_ITEM_USED;
+                return InteractionResult.SUCCESS.withoutItem();
             }
         }
 
@@ -90,7 +86,7 @@ public class MonitorBlock extends FacingEntityBlock {
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide && !isUnbound(state)) {
+        if (!level.isClientSide() && !isUnbound(state)) {
             BlockPos controllerPos = findControllerPos(level, pos, state);
             if (controllerPos != null && level.getBlockEntity(controllerPos) instanceof MonitorBlockEntity controllerBlockEntity) {
                 destroyMonitor(level, controllerPos, controllerBlockEntity, player);
@@ -149,7 +145,7 @@ public class MonitorBlock extends FacingEntityBlock {
         BlockState controllerState = level.getBlockState(controllerPos);
 
         if (!(level.getBlockEntity(controllerPos) instanceof MonitorBlockEntity monitorBlockEntity)) {
-            player.displayClientMessage(Component.literal("controller not found").withStyle(ChatFormatting.DARK_RED), true);
+            player.sendOverlayMessage(Component.literal("controller not found").withStyle(ChatFormatting.DARK_RED));
             level.setBlock(controllerPos, controllerState.setValue(CONTROLLER, false), 1 | 2);
             return;
         }
@@ -165,7 +161,7 @@ public class MonitorBlock extends FacingEntityBlock {
         int right = findFurthestMonitorPosInDir(level, controllerPos, rightDir, facingDir, bottomDir, maxWidth).distance;
 
         if (top == 0 && right == 0) {
-            player.displayClientMessage(Component.literal("single monitor formed").withStyle(ChatFormatting.DARK_GREEN), true);
+            player.sendOverlayMessage(Component.literal("single monitor formed").withStyle(ChatFormatting.DARK_GREEN));
             return;
         }
 
@@ -177,7 +173,7 @@ public class MonitorBlock extends FacingEntityBlock {
 
                 BlockState monitorState = level.getBlockState(cursor);
                 if (!cursor.equals(controllerPos) && !isBindableMonitorBlock(monitorState, facingDir, bottomDir)) {
-                    player.displayClientMessage(Component.literal("invalid multiblock").withStyle(ChatFormatting.DARK_RED), true);
+                    player.sendOverlayMessage(Component.literal("invalid multiblock").withStyle(ChatFormatting.DARK_RED));
                     level.setBlock(controllerPos, controllerState.setValue(CONTROLLER, false), 1 | 2);
                     monitorBlockEntity.setRemoved();
                     return;
@@ -193,7 +189,7 @@ public class MonitorBlock extends FacingEntityBlock {
             level.setBlock(entry.getKey(), entry.getValue(), 1 | 2);
         }
         monitorBlockEntity.setSize(right, top);
-        player.displayClientMessage(Component.literal("multiblock formed").withStyle(ChatFormatting.DARK_GREEN), true);
+        player.sendOverlayMessage(Component.literal("multiblock formed").withStyle(ChatFormatting.DARK_GREEN));
     }
 
     private void destroyMonitor(Level level, BlockPos controllerPos, MonitorBlockEntity controller, Player player) {
@@ -215,7 +211,7 @@ public class MonitorBlock extends FacingEntityBlock {
             }
         }
 
-        player.displayClientMessage(Component.literal("multiblock destroyed").withStyle(ChatFormatting.DARK_GREEN), true);
+        player.sendOverlayMessage(Component.literal("multiblock destroyed").withStyle(ChatFormatting.DARK_GREEN));
     }
 
     @Nullable
@@ -249,16 +245,10 @@ public class MonitorBlock extends FacingEntityBlock {
 
     private static BlockState setControllerOffsetProps(BlockState state, BlockPos pos, BlockPos controllerPos) {
         BlockPos horizontalVec = controllerPos.subtract(pos).atY(0);
-        Direction nearestDirection = horizontalVec.equals(BlockPos.ZERO) ? null : Direction.getNearest(Vec3.atLowerCornerOf(horizontalVec));
+        Direction nearestDirection = horizontalVec.equals(BlockPos.ZERO) ? null : Direction.getNearest(horizontalVec, null);
         return state
             .setValue(HORIZONTAL, OptionalDirection.fromDirection(nearestDirection))
             .setValue(VERTICAL, controllerPos.getY() < pos.getY() ? OptionalDirection.DOWN : OptionalDirection.NONE);
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(Component.literal("Work in progress!").withStyle(ChatFormatting.DARK_RED));
     }
 
     private record MonitorSearchResult(int distance, BlockPos pos) {}

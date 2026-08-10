@@ -8,7 +8,7 @@ import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.menu.SynchronizedContainerMenu;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.HashMap;
@@ -16,17 +16,17 @@ import java.util.Map;
 
 public final class ClientActionRegistry {
 
-    public static final ResourceLocation TRANSFER_MODE_ID = EnergyMeter.getRL(Constants.TRANSFER_MODE_ID);
-    public static final ResourceLocation MEASURE_MODE_ID = EnergyMeter.getRL(Constants.MEASURE_MODE_ID);
-    public static final ResourceLocation RESET_TOTAL_ID = EnergyMeter.getRL("reset_total");
-    public static final ResourceLocation TOGGLE_GRAPH_PAUSE_ID = EnergyMeter.getRL("toggle_graph_pause");
-    public static final ResourceLocation UPDATE_TEXT_ID = EnergyMeter.getRL("update_text");
+    public static final Identifier TRANSFER_MODE_ID = EnergyMeter.getRL(Constants.TRANSFER_MODE_ID);
+    public static final Identifier MEASURE_MODE_ID = EnergyMeter.getRL(Constants.MEASURE_MODE_ID);
+    public static final Identifier RESET_TOTAL_ID = EnergyMeter.getRL("reset_total");
+    public static final Identifier TOGGLE_GRAPH_PAUSE_ID = EnergyMeter.getRL("toggle_graph_pause");
+    public static final Identifier UPDATE_TEXT_ID = EnergyMeter.getRL("update_text");
 
-    private static final Map<ResourceLocation, Decoder<?>> DECODERS = new HashMap<>();
+    private static final Map<Identifier, Decoder<?>> DECODERS = new HashMap<>();
     private static final String ID = "id";
     private static final String PAYLOAD = "payload";
 
-    public static <T extends ClientAction<?>> void register(ResourceLocation id, Decoder<T> decoder) {
+    public static <T extends ClientAction<?>> void register(Identifier id, Decoder<T> decoder) {
         DECODERS.put(id, decoder);
     }
 
@@ -43,8 +43,8 @@ public final class ClientActionRegistry {
 
     @SuppressWarnings("unchecked")
     public static <M extends SynchronizedContainerMenu<?>> void handle(M menu, ServerPlayer player, CompoundTag data) {
-        var id = ResourceLocation.parse(data.getString(ID));
-        var payload = data.getCompound(PAYLOAD);
+        var id = Identifier.parse(data.getStringOr(ID, ""));
+        var payload = data.getCompound(PAYLOAD).orElseGet(CompoundTag::new);
 
         var decoder = (Decoder<ClientAction<M>>) DECODERS.get(id);
         if (decoder == null) throw new IllegalStateException("unknown client action: " + id);

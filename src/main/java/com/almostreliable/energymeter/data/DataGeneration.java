@@ -1,25 +1,19 @@
 package com.almostreliable.energymeter.data;
 
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 public final class DataGeneration {
 
     private DataGeneration() {}
 
-    public static void init(GatherDataEvent event) {
-        DataGenerator generator = event.getGenerator();
-        PackOutput output = generator.getPackOutput();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-        var registryAccess = event.getLookupProvider();
+    public static void initClient(GatherDataEvent.Client event) {
+        event.createProvider(EnergyMeterModels::new);
+        event.createProvider(EnergyMeterLang::new);
+    }
 
-        generator.addProvider(event.includeClient(), new EnergyMeterLang(output));
-        generator.addProvider(event.includeClient(), new EnergyMeterModels(output, existingFileHelper));
-
-        generator.addProvider(event.includeServer(), new EnergyMeterLoot(output, registryAccess));
-        generator.addProvider(event.includeServer(), new EnergyMeterRecipes(output, registryAccess));
-        generator.addProvider(event.includeServer(), new EnergyMeterTags(output, registryAccess, existingFileHelper));
+    public static void initServer(GatherDataEvent.Server event) {
+        event.createProvider(EnergyMeterLoot::new);
+        event.createProvider(EnergyMeterRecipes.Runner::new);
+        event.createProvider(EnergyMeterTags::new);
     }
 }

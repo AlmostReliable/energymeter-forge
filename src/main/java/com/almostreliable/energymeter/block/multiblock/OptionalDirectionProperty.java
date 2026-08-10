@@ -9,31 +9,29 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
-public final class OptionalDirectionProperty extends EnumProperty<OptionalDirection> {
+public final class OptionalDirectionProperty {
 
-    public static final OptionalDirectionProperty HORIZONTAL = create(
+    public static final EnumProperty<OptionalDirection> HORIZONTAL = create(
         Constants.HORIZONTAL_PROP,
         Direction.NORTH,
         Direction.SOUTH,
         Direction.WEST,
         Direction.EAST
     );
-    public static final OptionalDirectionProperty VERTICAL = create(Constants.VERTICAL_PROP, Direction.UP, Direction.DOWN);
+    public static final EnumProperty<OptionalDirection> VERTICAL = create(Constants.VERTICAL_PROP, Direction.UP, Direction.DOWN);
 
-    private OptionalDirectionProperty(String name, Collection<Direction> directions) {
-        super(name, OptionalDirection.class, mapDirections(directions));
+    private OptionalDirectionProperty() {}
+
+    public static EnumProperty<OptionalDirection> create(String name, Direction... directions) {
+        return EnumProperty.create(name, OptionalDirection.class, mapDirections(List.of(directions)));
     }
 
-    public static OptionalDirectionProperty create(String name, Direction... directions) {
-        return new OptionalDirectionProperty(name, List.of(directions));
-    }
-
-    private static Collection<OptionalDirection> mapDirections(Collection<Direction> directions) {
+    private static List<OptionalDirection> mapDirections(Collection<Direction> directions) {
         var optionalDirections = EnumSet.noneOf(OptionalDirection.class);
         optionalDirections.add(OptionalDirection.NONE);
         for (var direction : directions) {
             optionalDirections.add(OptionalDirection.fromDirection(direction));
         }
-        return optionalDirections;
+        return List.copyOf(optionalDirections);
     }
 }

@@ -1,12 +1,13 @@
 package com.almostreliable.energymeter.block.entity;
 
-import com.almostreliable.energymeter.block.component.EnergyHandler;
 import com.almostreliable.energymeter.block.component.EnergyHandlerHost;
 import com.almostreliable.energymeter.block.component.GraphHandler;
 import com.almostreliable.energymeter.block.component.IoConfig;
+import com.almostreliable.energymeter.block.component.MeterEnergyHandler;
+import com.almostreliable.energymeter.compat.MeterObserver;
 import com.almostreliable.energymeter.core.Config;
 import com.almostreliable.energymeter.core.Constants;
-import com.almostreliable.energymeter.core.Registration;
+import com.almostreliable.energymeter.core.ModRegistration;
 import com.almostreliable.energymeter.menu.MeterMenu;
 import com.almostreliable.energymeter.network.packet.EnergyRateUpdatePacket;
 import com.almostreliable.energymeter.util.EnumExtension;
@@ -21,25 +22,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.energy.EmptyEnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.energy.EmptyEnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.annotations.VisibleForTesting;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
-
-import static com.almostreliable.energymeter.core.Constants.MEASURE_INTERVAL_ID;
-import static com.almostreliable.energymeter.core.Constants.MEASURE_MODE_ID;
-import static com.almostreliable.energymeter.core.Constants.SIDE_CONFIG_ID;
-import static com.almostreliable.energymeter.core.Constants.TOTAL_ENERGY_ID;
-import static com.almostreliable.energymeter.core.Constants.TRANSFER_LIMIT_ID;
-import static com.almostreliable.energymeter.core.Constants.TRANSFER_MODE_ID;
-import static com.almostreliable.energymeter.core.Constants.ZERO_TOLERANCE_ID;
 
 public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEntity, EnergyHandlerHost {
 
@@ -48,7 +44,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     // components
     private final IoConfig ioConfig;
     private final GraphHandler graphHandler;
-    private final EnergyHandler energyHandler;
+    private final MeterEnergyHandler energyHandler;
 
     // settings
     private TransferMode transferMode = TransferMode.SPLIT;
@@ -58,6 +54,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private long transferLimit;
 
     // tracking & display
+    private final Set<MeterObserver> observers = Collections.synchronizedSet(new HashSet<>());
     private double energyRate;
     private long totalEnergy;
     private long lastEnergySyncTick;
@@ -66,34 +63,34 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
     public MeterBlockEntity(BlockPos pos, BlockState state) {
-        super(Registration.METER_BLOCK_ENTITY.get(), pos, state);
+        super(ModRegistration.METER_BLOCK_ENTITY.get(), pos, state);
         this.ioConfig = new IoConfig(this::onConnectionRelevantSettingChanged);
         this.graphHandler = new GraphHandler();
-        this.energyHandler = new EnergyHandler(this);
+        this.energyHandler = new MeterEnergyHandler(this);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put(SIDE_CONFIG_ID, ioConfig.serializeNBT(registries));
-        tag.putString(TRANSFER_MODE_ID, transferMode.name());
-        tag.putString(MEASURE_MODE_ID, measureMode.name());
-        tag.putInt(MEASURE_INTERVAL_ID, measureInterval);
-        tag.putInt(ZERO_TOLERANCE_ID, zeroTolerance);
-        tag.putLong(TRANSFER_LIMIT_ID, transferLimit);
-        tag.putLong(TOTAL_ENERGY_ID, totalEnergy);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        ioConfig.serialize(output.child(Constants.SIDE_CONFIG_ID));
+        output.putString(Constants.TRANSFER_MODE_ID, transferMode.name());
+        output.putString(Constants.MEASURE_MODE_ID, measureMode.name());
+        output.putInt(Constants.MEASURE_INTERVAL_ID, measureInterval);
+        output.putInt(Constants.ZERO_TOLERANCE_ID, zeroTolerance);
+        output.putLong(Constants.TRANSFER_LIMIT_ID, transferLimit);
+        output.putLong(Constants.TOTAL_ENERGY_ID, totalEnergy);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains(SIDE_CONFIG_ID)) ioConfig.deserializeNBT(registries, tag.getCompound(SIDE_CONFIG_ID));
-        if (tag.contains(TRANSFER_MODE_ID)) transferMode = TransferMode.valueOf(tag.getString(TRANSFER_MODE_ID));
-        if (tag.contains(MEASURE_MODE_ID)) measureMode = MeasureMode.valueOf(tag.getString(MEASURE_MODE_ID));
-        if (tag.contains(MEASURE_INTERVAL_ID)) measureInterval = tag.getInt(MEASURE_INTERVAL_ID);
-        if (tag.contains(ZERO_TOLERANCE_ID)) zeroTolerance = tag.getInt(ZERO_TOLERANCE_ID);
-        if (tag.contains(TRANSFER_LIMIT_ID)) transferLimit = tag.getLong(TRANSFER_LIMIT_ID);
-        if (tag.contains(TOTAL_ENERGY_ID)) totalEnergy = tag.getLong(TOTAL_ENERGY_ID);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        input.child(Constants.SIDE_CONFIG_ID).ifPresent(ioConfig::deserialize);
+        input.getString(Constants.TRANSFER_MODE_ID).ifPresent(value -> transferMode = TransferMode.valueOf(value));
+        input.getString(Constants.MEASURE_MODE_ID).ifPresent(value -> measureMode = MeasureMode.valueOf(value));
+        measureInterval = input.getIntOr(Constants.MEASURE_INTERVAL_ID, measureInterval);
+        zeroTolerance = input.getIntOr(Constants.ZERO_TOLERANCE_ID, zeroTolerance);
+        transferLimit = input.getLongOr(Constants.TRANSFER_LIMIT_ID, transferLimit);
+        totalEnergy = input.getLongOr(Constants.TOTAL_ENERGY_ID, totalEnergy);
     }
 
     // used to sync the latest energy rate to player entering the chunk
@@ -105,15 +102,39 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        super.handleUpdateTag(tag, lookupProvider);
-        if (tag.contains(Constants.ENERGY_RATE_ID)) energyRate = tag.getDouble(Constants.ENERGY_RATE_ID);
+    public void handleUpdateTag(ValueInput input) {
+        super.handleUpdateTag(input);
+        energyRate = input.getDoubleOr(Constants.ENERGY_RATE_ID, energyRate);
     }
 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int wid, Inventory playerInventory, Player player) {
         return new MeterMenu(wid, playerInventory, this);
+    }
+
+    public void subscribeObserver(MeterObserver observer) {
+        observers.add(observer);
+    }
+
+    public void unsubscribeObserver(MeterObserver observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        for (var observer : observers) {
+            observer.onChange(this);
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        for (var observer : observers) {
+            observer.onRemove(this);
+        }
+        super.setRemoved();
     }
 
     @Override
@@ -134,10 +155,10 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     private void onIntervalReached(ServerLevel level) {
-        boolean energyChanged = refreshEnergyValues();
+        boolean energyRateChanged = refreshEnergyValues();
 
         // only sync if the value changed or every second at most (for clients without any info)
-        if (energyChanged || level.getGameTime() - lastEnergySyncTick >= 20) {
+        if (energyRateChanged || level.getGameTime() - lastEnergySyncTick >= 20) {
             syncEnergyRate(level);
         }
 
@@ -147,10 +168,18 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @VisibleForTesting
     public boolean refreshEnergyValues() {
         var measuredEnergy = energyHandler.calculateAndRestartCycle(measureMode == MeasureMode.SMOOTHED);
+
         var lastEnergyRate = energyRate;
+        var lastTotalEnergy = totalEnergy;
         energyRate = measuredEnergy.average();
         totalEnergy += measuredEnergy.total();
-        return lastEnergyRate != energyRate;
+
+        var energyRateChanged = lastEnergyRate != energyRate;
+        if (energyRateChanged || lastTotalEnergy != totalEnergy) {
+            setChanged();
+        }
+
+        return energyRateChanged;
     }
 
     private void syncEnergyRate(ServerLevel level) {
@@ -165,7 +194,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     private void onConnectionRelevantSettingChanged() {
         if (!(level instanceof ServerLevel serverLevel)) return;
         serverLevel.invalidateCapabilities(worldPosition);
-        serverLevel.blockUpdated(worldPosition, getBlockState().getBlock());
+        serverLevel.updateNeighborsAt(worldPosition, getBlockState().getBlock());
         energyHandler.clearOutputCacheAndReset();
         energyRate = 0;
         syncEnergyRate(serverLevel);
@@ -180,14 +209,14 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     @Nullable
-    public IEnergyStorage getEnergyCapability(@Nullable Direction direction) {
+    public EnergyHandler getEnergyCapability(@Nullable Direction direction) {
         // return empty storage on null direction because a few mod check this for cable connections
-        if (direction == null) return EmptyEnergyStorage.INSTANCE;
+        if (direction == null) return EmptyEnergyHandler.INSTANCE;
         if (ioConfig.getSetting(direction).isDisabled()) return null;
 
         var level = getLevel();
         if (level instanceof ServerLevel serverLevel &&
-            serverLevel.getBlockState(worldPosition.relative(direction)).is(Registration.METER_BLOCK) &&
+            serverLevel.getBlockState(worldPosition.relative(direction)).is(ModRegistration.METER_BLOCK.get()) &&
             !Config.COMMON.allowMeterConnections.get()
         ) {
             return null;
@@ -206,7 +235,7 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     }
 
     @TestOnly
-    public EnergyHandler getEnergyHandler() {
+    public MeterEnergyHandler getEnergyHandler() {
         return energyHandler;
     }
 
@@ -279,7 +308,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
         setChanged();
     }
 
-    @OnlyIn(Dist.CLIENT) // only used for syncing
     public void setEnergyRate(double energyRate) {
         this.energyRate = energyRate;
     }
