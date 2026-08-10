@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import testmod.content.EnergyReceiverBlockEntity;
@@ -110,7 +111,7 @@ public final class TestUtils {
             meterBlockEntity.getIoConfig().setSetting(inputDirection, IoSettingWithPriority.IN);
 
             // get the energy capability of the meter on the configured side
-            var capability = meterBlockEntity.getEnergyCapability(inputDirection);
+            var capability = helper.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, DEFAULT_POS, inputDirection);
             if (capability == null) {
                 throw new GameTestAssertException("meter should have an energy capability on the configured input side: " + inputDirection);
             }
@@ -136,7 +137,11 @@ public final class TestUtils {
             EnergyReceiverBlockEntity outputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(outputDirection));
 
             // test whether the energy block is empty
-            IEnergyStorage outputEnergyBlockCap = outputEnergyBlockEntity.getEnergyCapability(null);
+            IEnergyStorage outputEnergyBlockCap = helper.getLevel().getCapability(
+                Capabilities.EnergyStorage.BLOCK,
+                DEFAULT_POS.relative(outputDirection),
+                null
+            );
             helper.assertTrue(
                 outputEnergyBlockCap != null && outputEnergyBlockCap.getEnergyStored() == 0,
                 "output energy block should be empty"
