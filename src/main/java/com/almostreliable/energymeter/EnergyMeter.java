@@ -11,6 +11,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.LoadingModList;
 
 import com.mojang.logging.LogUtils;
@@ -37,7 +38,7 @@ public final class EnergyMeter {
     public static boolean isModLoaded(String modId) {
         var modList = ModList.get();
         if (modList == null) {
-            return LoadingModList.get().getModFileById(modId) != null;
+            return FMLLoader.getCurrent().getLoadingModList().getModFileById(modId) != null;
         }
         return modList.isLoaded(modId);
     }
