@@ -16,6 +16,7 @@ import com.almostreliable.energymeter.client.screen.widget.base.OutlinedComposit
 import com.almostreliable.energymeter.core.Constants;
 import com.almostreliable.energymeter.data.EnergyMeterLang;
 import com.almostreliable.energymeter.menu.MeterMenu;
+import com.almostreliable.energymeter.mixin.GuiGraphicsExtractorAccessor;
 import com.almostreliable.energymeter.network.action.ClientActionRegistry;
 import com.almostreliable.energymeter.network.action.EnumClientAction;
 import com.almostreliable.energymeter.network.action.IoSettingClientAction;
@@ -33,13 +34,16 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
+import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
+import org.joml.Matrix3x2f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -303,10 +307,14 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
         int previousX = -1;
         int previousY = -1;
 
+        var pose = graphics.pose();
+        var graphBounds = new ScreenRectangle(graphLeft + 1, graphTop, graphWidth - 1, graphBottom - graphTop)
+            .transformAxisAligned(pose);
+        var graphRenderState = new GraphRenderState(new Matrix3x2f(pose), graphBounds);
+
         var progress = menu.getGraphProgress();
         int progressOffset = Mth.floor(Mth.clampedLerp(0f, (float) graphWidth / GraphHandler.HISTORY_SIZE, progress));
 
-        graphics.enableScissor(graphLeft + 1, graphTop, graphRight, graphBottom);
         for (GraphPoint point : points) {
             int pX = graphLeft + Mth.floor(point.x() * graphWidth);
             int pY = graphBottom - Mth.floor(point.y() * graphHeight);
@@ -314,44 +322,27 @@ public class MeterScreen extends SynchronizedContainerScreen<MeterMenu> {
             // progress offset
             pX -= progressOffset;
 
+            // collect line vertices
             if (previousX != -1 && previousY != -1) {
-                drawLine(graphics, previousX, previousY, pX, pY, Constants.COLOR_WHITE);
+                graphRenderState.addLine(previousX, previousY, pX, pY, Constants.COLOR_WHITE);
+
+                // draw point marker
+                graphics.enableScissor(graphLeft + 1, graphTop, graphRight, graphBottom);
+                graphics.fill(pX - 2, pY - 2, pX + 1, pY + 1, Constants.COLOR_ACCENT);
+                graphics.disableScissor();
             }
 
-            graphics.fill(pX - 2, pY - 2, pX + 1, pY + 1, Constants.COLOR_ACCENT);
             previousX = pX;
             previousY = pY;
         }
 
         // draw progress line
         if (previousX != -1 && previousY != -1) {
-            drawLine(graphics, previousX, previousY, previousX + progressOffset, previousY, Constants.COLOR_ACCENT);
+            graphRenderState.addLine(previousX, previousY, previousX + progressOffset, previousY, Constants.COLOR_ACCENT);
         }
 
-        graphics.disableScissor();
-    }
-
-    private static void drawLine(GuiGraphicsExtractor graphics, int x0, int y0, int x1, int y1, int color) {
-        int dx = Math.abs(x1 - x0);
-        int dy = Math.abs(y1 - y0);
-        int sx = x0 < x1 ? 1 : -1;
-        int sy = y0 < y1 ? 1 : -1;
-        int error = dx - dy;
-
-        while (true) {
-            graphics.fill(x0, y0, x0 + 1, y0 + 1, color);
-            if (x0 == x1 && y0 == y1) return;
-
-            int e2 = 2 * error;
-            if (e2 > -dy) {
-                error -= dy;
-                x0 += sx;
-            }
-            if (e2 < dx) {
-                error += dx;
-                y0 += sy;
-            }
-        }
+        // kinda hacky to collect the state that way, but I found no other way
+        ((GuiGraphicsExtractorAccessor) graphics).getGuiRenderState().addGuiElement(graphRenderState);
     }
 
     @Override
