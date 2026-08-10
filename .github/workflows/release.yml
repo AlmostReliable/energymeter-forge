@@ -44,6 +44,7 @@ jobs:
       modrinth_id: "MbejSZ2E"
       dependencies: |
         guideme(optional){curseforge:1173950}{modrinth:Ck4E7v7R}
+        cctweaked(optional){curseforge:282001}{modrinth:gu7yAYhd}
       target_version: ${{ github.event.inputs.target_version }}
       update_type: ${{ github.event.inputs.update_type }}
       release_type: ${{ github.event.inputs.release_type }}
