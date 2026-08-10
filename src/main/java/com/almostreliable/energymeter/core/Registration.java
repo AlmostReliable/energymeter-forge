@@ -63,13 +63,15 @@ public final class Registration {
     public static final DeferredHolder<MenuType<?>, MenuType<MeterMenu>> METER_MENU = registerMenu(METER_BLOCK, MeterBlockEntity.class, MeterMenu::new);
     public static final DeferredHolder<MenuType<?>, MenuType<MonitorMenu>> MONITOR_MENU = registerMenu(MONITOR_BLOCK, MonitorBlockEntity.class, MonitorMenu::new);
 
+    // @formatter:on
+
     // creative tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
             .title(EnergyMeterLang.LangEntry.of("tab", "main", ModConstants.MOD_NAME).get())
             .icon(METER_BLOCK::toStack)
             .noScrollBar()
-            .displayItems((features, output) ->{
+            .displayItems((features, output) -> {
                 output.acceptAll(getKnownItems());
                 if (EnergyMeter.isModLoaded(Constants.GUIDE_ME)) {
                     var guideStack = getGuideBookStack();
@@ -79,8 +81,6 @@ public final class Registration {
             })
             .build()
     );
-
-    // @formatter:on
 
     private Registration() {}
 

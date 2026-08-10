@@ -48,6 +48,9 @@ public final class TestRegistration {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyReceiverBlockEntity>> ENERGY_RECEIVER_BLOCK_ENTITY = registerBlockEntity(ENERGY_RECEIVER_BLOCK, EnergyReceiverBlockEntity::new);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyEmitterBlockEntity>> ENERGY_EMITTER_BLOCK_ENTITY = registerBlockEntity(ENERGY_EMITTER_BLOCK, EnergyEmitterBlockEntity::new);
     public static final DeferredHolder<MenuType<?>, MenuType<EnergyEmitterBlockMenu>> ENERGY_EMITTER_BLOCK_MENU = registerMenu(ENERGY_EMITTER_BLOCK, EnergyEmitterBlockEntity.class, EnergyEmitterBlockMenu::new);
+
+    // @formatter:on
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_TABS.register(
         "tab", () -> CreativeModeTab.builder()
             .title(Component.literal("Testmod"))
@@ -56,8 +59,6 @@ public final class TestRegistration {
             .displayItems((features, output) -> output.acceptAll(List.of(ENERGY_EMITTER_BLOCK.toStack(), ENERGY_RECEIVER_BLOCK.toStack())))
             .build()
     );
-
-    // @formatter:on
 
     private TestRegistration() {}
 
