@@ -32,13 +32,14 @@ public final class ForwardingEnergyStorage implements IEnergyStorage {
 
     @Override
     public int getEnergyStored() {
-        if (!canReceive()) return 0;
+        if (!canReceive() || energyHandler.isConsumeMode()) return 0;
         return forwardToOutputs(IEnergyStorage::getEnergyStored);
     }
 
     @Override
     public int getMaxEnergyStored() {
         if (!canReceive()) return 0;
+        if (energyHandler.isConsumeMode()) return Integer.MAX_VALUE;
         return forwardToOutputs(IEnergyStorage::getMaxEnergyStored);
     }
 

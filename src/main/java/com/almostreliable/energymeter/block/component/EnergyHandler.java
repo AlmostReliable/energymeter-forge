@@ -267,6 +267,10 @@ public class EnergyHandler {
         return energyForwarded;
     }
 
+    boolean isConsumeMode() {
+        return host.getTransferMode() == TransferMode.CONSUME;
+    }
+
     @TestOnly
     public long getEnergyPerInterval() {
         return energyPerInterval;

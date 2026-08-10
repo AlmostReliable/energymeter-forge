@@ -31,6 +31,12 @@ public class MeterConsumeTests {
         // set transfer mode to consume
         meterBlockEntity.setTransferMode(TransferMode.CONSUME);
 
+        // check consume input
+        IEnergyStorage inputEnergyStorage = meterBlockEntity.getEnergyCapability(Direction.WEST);
+        TestUtils.assertNotNull(inputEnergyStorage, "consume input should expose energy storage");
+        helper.assertValueEqual(inputEnergyStorage.getEnergyStored(), 0, "consume input stored energy");
+        helper.assertValueEqual(inputEnergyStorage.getMaxEnergyStored(), Integer.MAX_VALUE, "consume input capacity");
+
         // push energy towards the meter from the input side
         int energyPerTick = TestUtils.getRandomEnergyRate();
         for (int i = 0; i < MeterBlockEntity.DEFAULT_INTERVAL; i++) {

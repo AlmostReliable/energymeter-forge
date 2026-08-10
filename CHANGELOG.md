@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - added tests for ensuring neighbor updates are listened to
 - changed logic for listening to neighbor updates
+- fixed Energy Meter not accepting maximum possible energy in consume mode
 - fixed crash when placing test energy emitter block
 - fixed rare unnecessary saving of Energy Meter block entities
 - fixed split mode being biased on outputs
