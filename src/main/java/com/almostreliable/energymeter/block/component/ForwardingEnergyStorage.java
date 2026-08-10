@@ -32,12 +32,14 @@ public final class ForwardingEnergyStorage implements EnergyHandler {
     @Override
     public long getAmountAsLong() {
         if (!settingSupplier.get().isInput()) return 0;
+        if (energyHandler.isConsumeMode()) return 0;
         return sumOutputs(EnergyHandler::getAmountAsLong);
     }
 
     @Override
     public long getCapacityAsLong() {
         if (!settingSupplier.get().isInput()) return 0;
+        if (energyHandler.isConsumeMode()) return Long.MAX_VALUE;
         return sumOutputs(EnergyHandler::getCapacityAsLong);
     }
 

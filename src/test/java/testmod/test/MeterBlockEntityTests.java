@@ -11,12 +11,12 @@ import com.almostreliable.energymeter.core.ModRegistration;
 
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.energy.EmptyEnergyHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import testmod.TestUtils;
-import testmod.TestUtils.SimplePlotResult;
 
 public class MeterBlockEntityTests {
 
@@ -36,7 +36,6 @@ public class MeterBlockEntityTests {
 
         // test limit default
         helper.assertValueEqual(meterBlockEntity.getTransferLimit(), 0L, "transfer limit");
-
         helper.succeed();
     }
 
@@ -45,10 +44,10 @@ public class MeterBlockEntityTests {
 
         // test capability access without io configuration
         for (Direction direction : Direction.values()) {
-            EnergyHandler energyCap = meterBlockEntity.getEnergyCapability(direction);
+            EnergyHandler energyCap = helper.getLevel().getCapability(Capabilities.Energy.BLOCK, TestUtils.DEFAULT_POS, direction);
             TestUtils.assertNull(helper, energyCap, "energy meter should not expose any energy capability by default");
         }
-        EnergyHandler energyCapWithoutContext = meterBlockEntity.getEnergyCapability(null);
+        EnergyHandler energyCapWithoutContext = helper.getLevel().getCapability(Capabilities.Energy.BLOCK, TestUtils.DEFAULT_POS, null);
         TestUtils.assertIdentity(
             helper,
             energyCapWithoutContext,
@@ -61,7 +60,7 @@ public class MeterBlockEntityTests {
         meterBlockEntity.getIoConfig().setSetting(Direction.EAST, IoSettingWithPriority.OUT_DEFAULT);
 
         // test whether energy input capability exposes correct handler
-        EnergyHandler inputEnergyCap = meterBlockEntity.getEnergyCapability(Direction.WEST);
+        EnergyHandler inputEnergyCap = helper.getLevel().getCapability(Capabilities.Energy.BLOCK, TestUtils.DEFAULT_POS, Direction.WEST);
         TestUtils.assertNotNull(helper, inputEnergyCap, "energy meter should expose an input energy capability");
         TestUtils.assertInstanceOf(
             helper,
@@ -71,13 +70,10 @@ public class MeterBlockEntityTests {
         );
 
         // test whether energy input capability handles extraction and insertion correctly
-        helper.assertTrue(
-            extract(inputEnergyCap, 1_000) == 0,
-            "energy meter input capability should not allow extraction"
-        );
+        helper.assertTrue(extract(inputEnergyCap, 1_000) == 0, "energy meter input capability should not allow extraction");
 
         // test whether energy output capability exposes correct handler
-        EnergyHandler outputEnergyCap = meterBlockEntity.getEnergyCapability(Direction.EAST);
+        EnergyHandler outputEnergyCap = helper.getLevel().getCapability(Capabilities.Energy.BLOCK, TestUtils.DEFAULT_POS, Direction.EAST);
         TestUtils.assertNotNull(helper, outputEnergyCap, "energy meter should expose an output energy capability");
         TestUtils.assertInstanceOf(
             helper,
@@ -87,10 +83,7 @@ public class MeterBlockEntityTests {
         );
 
         // test whether energy output capability handles extraction and insertion correctly
-        helper.assertTrue(
-            extract(outputEnergyCap, 1_000) == 0,
-            "energy meter output capability should not allow extraction"
-        );
+        helper.assertTrue(extract(outputEnergyCap, 1_000) == 0, "energy meter output capability should not allow extraction");
         helper.assertTrue(
             TestUtils.insertEnergy(outputEnergyCap, 1_000, true) == 0,
             "energy meter output capability should not be able to receive energy"
@@ -101,15 +94,13 @@ public class MeterBlockEntityTests {
 
     public static void meter_connection(GameTestHelper helper) {
         // set up the plot
-        SimplePlotResult plotResult = TestUtils.setupSimplePlot(helper);
+        TestUtils.setupSimplePlot(helper);
         helper.setBlock(TestUtils.DEFAULT_POS.relative(Direction.WEST), ModRegistration.METER_BLOCK.get());
-
-        MeterBlockEntity meterBlockEntity = plotResult.meterBlockEntity();
 
         // try to access the meter's energy capability from a direction where another meter is
         TestUtils.assertNull(
             helper,
-            meterBlockEntity.getEnergyCapability(Direction.WEST),
+            helper.getLevel().getCapability(Capabilities.Energy.BLOCK, TestUtils.DEFAULT_POS, Direction.WEST),
             "energy meter should not allow connections to other meters"
         );
 

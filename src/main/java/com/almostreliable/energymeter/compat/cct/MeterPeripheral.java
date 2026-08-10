@@ -51,16 +51,18 @@ public class MeterPeripheral implements IPeripheral, MeterObserver {
     }
 
     @Override
-    public void attach(IComputerAccess computer) {
-        computers.add(computer);
-        entity.subscribeObserver(this);
+    public synchronized void attach(IComputerAccess computer) {
+        if (computers.add(computer) && computers.size() == 1) {
+            entity.subscribeObserver(this);
+        }
         lastData = createData();
     }
 
     @Override
-    public void detach(IComputerAccess computer) {
-        computers.remove(computer);
-        entity.unsubscribeObserver(this);
+    public synchronized void detach(IComputerAccess computer) {
+        if (computers.remove(computer) && computers.isEmpty()) {
+            entity.unsubscribeObserver(this);
+        }
     }
 
     @Override
@@ -160,8 +162,8 @@ public class MeterPeripheral implements IPeripheral, MeterObserver {
         return data;
     }
 
-    private void queueEvent(String event, Object... arguments) {
-        for (IComputerAccess computer : computers) {
+    private synchronized void queueEvent(String event, Object... arguments) {
+        for (var computer : computers) {
             computer.queueEvent(event, arguments);
         }
     }

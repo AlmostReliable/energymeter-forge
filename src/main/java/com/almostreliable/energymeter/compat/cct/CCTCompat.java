@@ -7,6 +7,8 @@ import com.almostreliable.energymeter.core.ModRegistration;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
+import dan200.computercraft.api.peripheral.PeripheralCapability;
+
 public final class CCTCompat {
 
     private CCTCompat() {}
@@ -21,7 +23,7 @@ public final class CCTCompat {
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(
-            PeripheralCapabilityAdapter.PERIPHERAL_CAPABILITY,
+            PeripheralCapability.get(),
             ModRegistration.METER_BLOCK_ENTITY.get(),
             (entity, direction) -> createMeterPeripheral(entity).getCapability(direction)
         );

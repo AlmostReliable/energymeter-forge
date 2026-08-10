@@ -5,6 +5,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity.TransferMode
 
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 import testmod.TestMod;
@@ -23,6 +24,16 @@ public class MeterConsumeTests {
 
         // set transfer mode to consume
         meterBlockEntity.setTransferMode(TransferMode.CONSUME);
+
+        // check consume input
+        EnergyHandler inputEnergyStorage = helper.getLevel().getCapability(
+            Capabilities.Energy.BLOCK,
+            TestUtils.DEFAULT_POS,
+            Direction.WEST
+        );
+        TestUtils.assertNotNull(helper, inputEnergyStorage, "consume input should expose energy storage");
+        helper.assertValueEqual(inputEnergyStorage.getAmountAsLong(), 0L, "consume input stored energy");
+        helper.assertValueEqual(inputEnergyStorage.getCapacityAsLong(), Long.MAX_VALUE, "consume input capacity");
 
         // push energy towards the meter from the input side
         int energyPerTick = TestUtils.getRandomEnergyRate();

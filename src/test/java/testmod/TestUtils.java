@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
@@ -111,8 +112,8 @@ public final class TestUtils {
             // set io input configuration
             meterBlockEntity.getIoConfig().setSetting(inputDirection, IoSettingWithPriority.IN);
 
-            // get the energy capability of the meter on the configured side
-            var capability = meterBlockEntity.getEnergyCapability(inputDirection);
+            // get the registered energy capability of the meter on the configured side
+            var capability = helper.getLevel().getCapability(Capabilities.Energy.BLOCK, DEFAULT_POS, inputDirection);
             if (capability == null) {
                 throw new GameTestAssertException(
                     Component.literal("meter should have an energy capability on the configured input side: " + inputDirection),
@@ -144,7 +145,11 @@ public final class TestUtils {
             EnergyReceiverBlockEntity outputEnergyBlockEntity = helper.getBlockEntity(DEFAULT_POS.relative(outputDirection), EnergyReceiverBlockEntity.class);
 
             // test whether the energy block is empty
-            EnergyHandler outputEnergyBlockCap = outputEnergyBlockEntity.getEnergyCapability(null);
+            EnergyHandler outputEnergyBlockCap = helper.getLevel().getCapability(
+                Capabilities.Energy.BLOCK,
+                DEFAULT_POS.relative(outputDirection),
+                null
+            );
             helper.assertTrue(
                 outputEnergyBlockCap != null && outputEnergyBlockCap.getAmountAsInt() == 0,
                 "output energy block should be empty"

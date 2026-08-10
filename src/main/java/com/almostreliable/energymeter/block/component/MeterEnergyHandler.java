@@ -235,7 +235,7 @@ public class MeterEnergyHandler {
 
         // leftovers, can happen with less outputs than energy to forward
         if (energyToForward > 0) {
-            Collections.shuffle(outputs); // prevent bias
+            Collections.shuffle(remainingOutputs); // prevent bias
 
             for (var entry : remainingOutputs) {
                 int current = outputAllocations.getOrDefault(entry, 0);
@@ -274,6 +274,10 @@ public class MeterEnergyHandler {
         }
 
         return energyForwarded;
+    }
+
+    boolean isConsumeMode() {
+        return host.getTransferMode() == TransferMode.CONSUME;
     }
 
     @TestOnly
