@@ -14,7 +14,7 @@ import net.minecraft.client.gui.layouts.LayoutSettings.LayoutSettingsImpl;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

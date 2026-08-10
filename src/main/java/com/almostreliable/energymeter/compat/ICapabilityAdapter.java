@@ -2,7 +2,7 @@ package com.almostreliable.energymeter.compat;
 
 import net.minecraft.core.Direction;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @FunctionalInterface
 public interface ICapabilityAdapter<T> {

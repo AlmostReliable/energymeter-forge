@@ -26,7 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.lwjgl.glfw.GLFW;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

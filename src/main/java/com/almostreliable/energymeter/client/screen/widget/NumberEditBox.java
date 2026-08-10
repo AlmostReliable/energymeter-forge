@@ -24,7 +24,7 @@ import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import org.lwjgl.glfw.GLFW;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

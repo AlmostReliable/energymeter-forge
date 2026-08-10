@@ -14,7 +14,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import testmod.content.EnergyReceiverBlockEntity;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;

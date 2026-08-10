@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity, MeterRenderer.State> {
 
@@ -44,7 +44,7 @@ public class MeterRenderer implements BlockEntityRenderer<MeterBlockEntity, Mete
     @Override
     public void extractRenderState(
         MeterBlockEntity blockEntity, State state, float partialTick, Vec3 cameraPosition,
-        @Nullable ModelFeatureRenderer.CrumblingOverlay crumblingOverlay
+        ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay
     ) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTick, cameraPosition, crumblingOverlay);
         LocalPlayer player = Minecraft.getInstance().player;

@@ -10,7 +10,7 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 class PeripheralCapabilityAdapter implements ICapabilityAdapter<MeterPeripheral> {
 

@@ -1,6 +1,6 @@
 package com.almostreliable.energymeter.util;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

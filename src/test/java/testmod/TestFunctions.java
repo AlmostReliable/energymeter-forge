@@ -7,7 +7,7 @@ import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import testmod.scenario.ExcessEnergyVoidingScenario;
 import testmod.scenario.SplitNoDoubleInsertScenario;

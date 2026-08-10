@@ -7,7 +7,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import testmod.TestMod;
 import testmod.TestUtils;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.Optional;

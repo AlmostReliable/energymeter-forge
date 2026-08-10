@@ -7,7 +7,7 @@ import net.minecraft.util.StringRepresentable;
 
 import com.google.common.base.Preconditions;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
