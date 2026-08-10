@@ -132,15 +132,19 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     @Override
     public void setChanged() {
         super.setChanged();
-        for (var observer : observers) {
-            observer.onChange(this);
+        synchronized (observers) {
+            for (var observer : observers) {
+                observer.onChange(this);
+            }
         }
     }
 
     @Override
     public void setRemoved() {
-        for (var observer : observers) {
-            observer.onRemove(this);
+        synchronized (observers) {
+            for (var observer : observers) {
+                observer.onRemove(this);
+            }
         }
         super.setRemoved();
     }
@@ -203,11 +207,13 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
 
     private void onConnectionRelevantSettingChanged() {
         if (!(level instanceof ServerLevel serverLevel)) return;
+
         serverLevel.invalidateCapabilities(worldPosition);
         serverLevel.blockUpdated(worldPosition, getBlockState().getBlock());
         energyHandler.clearOutputCacheAndReset();
         energyRate = 0;
         syncEnergyRate(serverLevel);
+
         if (!updateConnectionStatus()) setChanged();
     }
 
@@ -279,7 +285,6 @@ public class MeterBlockEntity extends BlockEntity implements TickableMenuBlockEn
     public void setTransferMode(TransferMode transferMode) {
         this.transferMode = transferMode;
         onConnectionRelevantSettingChanged();
-        setChanged();
     }
 
     public MeasureMode getMeasureMode() {
