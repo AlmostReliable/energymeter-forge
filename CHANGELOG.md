@@ -3,7 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- /
+
+- added tests for ensuring neighbor updates are listened to
+- changed logic for listening to neighbor updates
 
 ## [0.5.1] - 2026-08-10
 

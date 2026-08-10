@@ -5,8 +5,7 @@ import com.almostreliable.energymeter.block.entity.MeterBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -25,19 +24,18 @@ public class MeterBlock extends FacingEntityBlock {
     }
 
     @Override
-    protected void neighborChanged(
-        BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston
+    protected BlockState updateShape(
+        BlockState state,
+        Direction directionToNeighbor,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
     ) {
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
-        if (!(level instanceof ServerLevel serverLevel)) return;
-
-        var blockEntity = serverLevel.getBlockEntity(pos);
-        var newState = serverLevel.getBlockState(neighborPos);
-        if (blockEntity instanceof MeterBlockEntity meterBlockEntity && neighborBlock != newState.getBlock()) {
-            var vector = neighborPos.subtract(pos);
-            var direction = Direction.fromDelta(vector.getX(), vector.getY(), vector.getZ());
-            if (direction == null) return;
-            meterBlockEntity.onNeighborBlockChange(direction);
+        if (level instanceof ServerLevel serverLevel && serverLevel.getBlockEntity(pos) instanceof MeterBlockEntity meterBlockEntity) {
+            meterBlockEntity.onNeighborBlockChange(directionToNeighbor);
         }
+
+        return super.updateShape(state, directionToNeighbor, neighborState, level, pos, neighborPos);
     }
 }
