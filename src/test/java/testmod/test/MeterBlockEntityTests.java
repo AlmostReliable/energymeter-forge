@@ -55,14 +55,14 @@ public class MeterBlockEntityTests {
         for (Direction direction : Direction.values()) {
             IEnergyStorage energyCap = helper.getLevel().getCapability(
                 Capabilities.EnergyStorage.BLOCK,
-                TestUtils.DEFAULT_POS,
+                helper.absolutePos(TestUtils.DEFAULT_POS),
                 direction
             );
             TestUtils.assertNull(energyCap, "energy meter should not expose any energy capability by default");
         }
         IEnergyStorage energyCapWithoutContext = helper.getLevel().getCapability(
             Capabilities.EnergyStorage.BLOCK,
-            TestUtils.DEFAULT_POS,
+            helper.absolutePos(TestUtils.DEFAULT_POS),
             null
         );
         TestUtils.assertIdentity(
@@ -78,7 +78,7 @@ public class MeterBlockEntityTests {
         // test whether energy input capability exposes correct handler
         IEnergyStorage inputEnergyCap = helper.getLevel().getCapability(
             Capabilities.EnergyStorage.BLOCK,
-            TestUtils.DEFAULT_POS,
+            helper.absolutePos(TestUtils.DEFAULT_POS),
             Direction.WEST
         );
         TestUtils.assertNotNull(inputEnergyCap, "energy meter should expose an input energy capability");
@@ -97,7 +97,7 @@ public class MeterBlockEntityTests {
         // test whether energy output capability exposes correct handler
         IEnergyStorage outputEnergyCap = helper.getLevel().getCapability(
             Capabilities.EnergyStorage.BLOCK,
-            TestUtils.DEFAULT_POS,
+            helper.absolutePos(TestUtils.DEFAULT_POS),
             Direction.EAST
         );
         TestUtils.assertNotNull(outputEnergyCap, "energy meter should expose an output energy capability");
@@ -124,7 +124,11 @@ public class MeterBlockEntityTests {
 
         // try to access the meter's energy capability from a direction where another meter is
         TestUtils.assertNull(
-            helper.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, TestUtils.DEFAULT_POS, Direction.WEST),
+            helper.getLevel().getCapability(
+                Capabilities.EnergyStorage.BLOCK,
+                helper.absolutePos(TestUtils.DEFAULT_POS),
+                Direction.WEST
+            ),
             "energy meter should not allow connections to other meters"
         );
 
