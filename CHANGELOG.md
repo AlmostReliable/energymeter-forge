@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - fixed CC: Tweaked integration sometimes not displaying correct connection status
 - fixed CC: Tweaked computers sometimes not being subscribed to the Energy Meter when multiple computers are attached
 - fixed CC: Tweaked Energy Meter observers not being called synchronously
+- fixed CC: Tweaked peripheral capability being recreated for every attached computer
 
 ## [0.5.1] - 2026-08-10
 

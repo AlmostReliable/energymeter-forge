@@ -14,16 +14,6 @@ import javax.annotation.Nullable;
 
 class PeripheralCapabilityAdapter implements ICapabilityAdapter<MeterPeripheral> {
 
-    private static final ResourceLocation PERIPHERAL_ID = ResourceLocation.fromNamespaceAndPath(
-        ComputerCraftAPI.MOD_ID,
-        "peripheral"
-    );
-    static final BlockCapability<IPeripheral, Direction> PERIPHERAL_CAPABILITY = BlockCapability.create(
-        PERIPHERAL_ID,
-        IPeripheral.class,
-        Direction.class
-    );
-
     private final MeterPeripheral peripheral;
 
     PeripheralCapabilityAdapter(MeterBlockEntity entity) {
