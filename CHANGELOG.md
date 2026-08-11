@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- /
+
+## [0.5.2] - 2026-08-11
 
 - added tests for ensuring neighbor updates are listened to
 - changed logic for listening to neighbor updates
@@ -79,6 +82,7 @@ The new version is a complete rewrite of the 1.20.1 version.
 
 <!-- Versions -->
 
+[0.5.2]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.5.2
 [0.5.1]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.5.1
 [0.5.0]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.5.0
 [0.4.1]: https://github.com/AlmostReliable/energymeter/releases/tag/v1.21.1-neoforge-0.4.1
