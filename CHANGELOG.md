@@ -3,12 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- fixed Energy Meter not accepting maximum possible energy in consume mode
-- fixed split mode being biased on outputs
-- fixed CC: Tweaked integration sometimes not displaying correct connection status
-- fixed CC: Tweaked computers sometimes not being subscribed to the Energy Meter when multiple computers are attached
-- fixed CC: Tweaked Energy Meter observers not being called synchronously
-- fixed CC: Tweaked peripheral capability being recreated for every attached computer
+
+- ported the mod to 26.1.2 (thanks [Saereth](https://github.com/Saereth)@[#44](https://github.com/AlmostReliable/energymeter/pull/44))
 
 ## [0.4.1] - 2026-05-16
 
