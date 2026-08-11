@@ -113,7 +113,11 @@ public final class TestUtils {
             meterBlockEntity.getIoConfig().setSetting(inputDirection, IoSettingWithPriority.IN);
 
             // get the registered energy capability of the meter on the configured side
-            var capability = helper.getLevel().getCapability(Capabilities.Energy.BLOCK, DEFAULT_POS, inputDirection);
+            var capability = helper.getLevel().getCapability(
+                Capabilities.Energy.BLOCK,
+                helper.absolutePos(DEFAULT_POS),
+                inputDirection
+            );
             if (capability == null) {
                 throw new GameTestAssertException(
                     Component.literal("meter should have an energy capability on the configured input side: " + inputDirection),
@@ -147,7 +151,7 @@ public final class TestUtils {
             // test whether the energy block is empty
             EnergyHandler outputEnergyBlockCap = helper.getLevel().getCapability(
                 Capabilities.Energy.BLOCK,
-                DEFAULT_POS.relative(outputDirection),
+                helper.absolutePos(DEFAULT_POS.relative(outputDirection)),
                 null
             );
             helper.assertTrue(

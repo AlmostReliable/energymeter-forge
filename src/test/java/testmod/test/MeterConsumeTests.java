@@ -28,7 +28,7 @@ public class MeterConsumeTests {
         // check consume input
         EnergyHandler inputEnergyStorage = helper.getLevel().getCapability(
             Capabilities.Energy.BLOCK,
-            TestUtils.DEFAULT_POS,
+            helper.absolutePos(TestUtils.DEFAULT_POS),
             Direction.WEST
         );
         TestUtils.assertNotNull(helper, inputEnergyStorage, "consume input should expose energy storage");
